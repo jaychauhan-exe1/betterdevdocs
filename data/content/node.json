@@ -1,0 +1,1788 @@
+[
+  {
+    "id": "node-architecture",
+    "title": "Node architecture",
+    "category": "NODE",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Single-threaded event loop, V8 engine, libuv thread pool, and non-blocking asynchronous I/O model.",
+    "explanation": {
+      "overview": "Node.js is an open-source, cross-platform JavaScript runtime environment built on Chrome V8 engine. Node uses single-threaded event loop architecture powered by libuv for non-blocking I/O.",
+      "sections": [
+        {
+          "heading": "Single Threaded Event Loop & libuv",
+          "content": "JavaScript code executes on a single main thread. Underlying I/O operations (file system, network DNS, compression) are offloaded to C++ libuv thread pool (default 4 worker threads).",
+          "bulletPoints": [
+            "Main Thread: Executes JS call stack synchronous code.",
+            "libuv C++ Pool: Handles disk I/O, DNS lookup, and cryptographic work.",
+            "Non-blocking: Asynchronous operations register callbacks and yield main thread."
+          ]
+        },
+        {
+          "heading": "Node Core Stack Components",
+          "content": "V8 compiles JS to machine code; libuv provides event loop and OS abstraction; C++ bindings bridge JS calls to OS native APIs.",
+          "bulletPoints": [
+            "V8 Engine: Executes JS code.",
+            "libuv: Manages event loop and asynchronous thread pool.",
+            "Node.js Bindings: Expose OS level capabilities (fs, net, crypto) to JS."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Node.js is single-threaded for JS execution, multi-threaded under the hood via libuv.",
+      "libuv manages asynchronous I/O tasks and default 4-thread pool.",
+      "Never block the main thread with synchronous CPU operations."
+    ],
+    "codeExamples": [
+      {
+        "title": "Non-blocking Async I/O",
+        "description": "Reading file asynchronously without blocking main thread.",
+        "code": "const fs = require('fs');\n\nconsole.log('1: Start reading file');\n\n// Non-blocking asynchronous libuv file operation\nfs.readFile('./sample.txt', 'utf8', (err, data) => {\n  if (err) return console.error(err);\n  console.log('3: File contents received');\n});\n\nconsole.log('2: End of script');\n// Output: 1 -> 2 -> 3"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-architecture-mcq-1",
+        "question": "What is primary role of `libuv` in Node.js architecture?",
+        "options": [
+          "Parsing HTML",
+          "Managing Event Loop and underlying OS asynchronous I/O thread pool",
+          "Compiling JS to bytecode",
+          "Managing CSS grid"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`libuv` is C library providing Event Loop and thread pool for async OS I/O tasks."
+      },
+      {
+        "id": "node-architecture-mcq-2",
+        "question": "How many default worker threads exist in libuv thread pool?",
+        "options": [
+          "1",
+          "4",
+          "16",
+          "Unlimited"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Default libuv thread pool size is 4 (configurable via `UV_THREADPOOL_SIZE`)."
+      },
+      {
+        "id": "node-architecture-mcq-3",
+        "question": "What executes JavaScript code inside Node.js runtime?",
+        "options": [
+          "SpiderMonkey",
+          "V8 Engine",
+          "JavaScriptCore",
+          "Chakra"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Node.js runs Google Chrome V8 engine to compile and execute JS code."
+      },
+      {
+        "id": "node-architecture-mcq-4",
+        "question": "Why is Node.js well suited for I/O-intensive real-time applications?",
+        "options": [
+          "Executes code synchronously",
+          "Non-blocking event loop handles thousands of concurrent socket connections efficiently without thread overhead",
+          "Compiles code to C++",
+          "Disables memory garbage collection"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Non-blocking event-driven architecture handles massive concurrent I/O requests with low memory footprint."
+      },
+      {
+        "id": "node-architecture-mcq-5",
+        "question": "What happens if heavy synchronous CPU loop executes on Node main thread?",
+        "options": [
+          "Offloaded to libuv pool",
+          "Main thread blocks, stalling all incoming network requests and event callbacks",
+          "Engine spawns new process",
+          "Ignored"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Synchronous CPU loops block single main thread, freezing server request processing."
+      }
+    ]
+  },
+  {
+    "id": "node-v8",
+    "title": "V8",
+    "category": "NODE",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Google V8 engine architecture, JIT compilation (Ignition & TurboFan), memory heaps, and optimization flags.",
+    "explanation": {
+      "overview": "V8 is Google open-source high-performance C++ JavaScript engine that compiles JS directly to native machine code using Just-In-Time (JIT) compilation.",
+      "sections": [
+        {
+          "heading": "Ignition Interpreter & TurboFan Compiler",
+          "content": "V8 uses **Ignition** interpreter to generate bytecode from AST quickly. Hot functions identified by profiler are passed to **TurboFan** optimizing compiler to generate optimized machine code.",
+          "bulletPoints": [
+            "Ignition: Generates and executes bytecode quickly.",
+            "TurboFan: Optimizes hot code paths using type feedback.",
+            "Deoptimization: Bailout to bytecode when hidden class shapes change dynamically."
+          ]
+        },
+        {
+          "heading": "Hidden Classes & Inline Caching",
+          "content": "V8 creates internal **Hidden Classes** (Shapes) for JS objects. Accessing object properties in consistent key order allows V8 to utilize Inline Caching for fast property lookups.",
+          "bulletPoints": [
+            "Monomorphic Callsites: Identical object hidden class shapes yield maximum optimization.",
+            "Optimization Tip: Always initialize object properties in identical order inside constructors."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "V8 compiles JS to machine code via JIT (Ignition + TurboFan).",
+      "Consistent object property initialization enables Hidden Class optimizations.",
+      "Avoid dynamic property deletion (`delete obj.prop`) to prevent deoptimization."
+    ],
+    "codeExamples": [
+      {
+        "title": "V8 Hidden Class Optimization Pattern",
+        "description": "Consistent property assignment vs dynamic deletion.",
+        "code": "// V8 OPTIMIZED (Consistent Hidden Class shape):\nclass Point {\n  constructor(x, y) {\n    this.x = x;\n    this.y = y;\n  }\n}\nconst p1 = new Point(10, 20);\nconst p2 = new Point(30, 40);\n\n// V8 DEOPTIMIZED:\nconst p3 = { x: 10 };\np3.y = 20; // Shape mutation!\ndelete p3.x; // Breaks hidden class transition graph!"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-v8-mcq-1",
+        "question": "What is primary role of V8 TurboFan compiler?",
+        "options": [
+          "Interpret HTML",
+          "JIT compile hot bytecode functions into highly optimized native machine code",
+          "Parse CSS",
+          "Manage HTTP requests"
+        ],
+        "correctAnswer": 1,
+        "explanation": "TurboFan optimizes hot bytecode paths compiled from Ignition into native machine code."
+      },
+      {
+        "id": "node-v8-mcq-2",
+        "question": "What is a V8 'Hidden Class' (Shape)?",
+        "options": [
+          "A private JS class",
+          "Internal layout structure created by V8 to optimize object property access offsets in memory",
+          "CSS class",
+          "HTML node"
+        ],
+        "correctAnswer": 1,
+        "explanation": "V8 generates hidden classes to map object property offsets in memory for fast lookup."
+      },
+      {
+        "id": "node-v8-mcq-3",
+        "question": "Why does calling `delete obj.prop` harm V8 execution performance?",
+        "options": [
+          "Throws TypeError",
+          "Mutates object hidden class shape, forcing V8 into slow dictionary mode (deoptimization)",
+          "Deletes memory heap",
+          "Crashes node"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`delete` changes object shape graph dynamically, forcing V8 to abandon fast inline caching."
+      },
+      {
+        "id": "node-v8-mcq-4",
+        "question": "Which V8 component initially parses AST into bytecode?",
+        "options": [
+          "TurboFan",
+          "Ignition",
+          "Orinoco",
+          "Crankshaft"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Ignition is V8's fast bytecode interpreter."
+      },
+      {
+        "id": "node-v8-mcq-5",
+        "question": "Which command line flag increases V8 heap memory limit in Node.js (e.g. to 4GB)?",
+        "options": [
+          "--max-old-space-size=4096",
+          "--v8-memory=4g",
+          "--heap-limit=4096",
+          "--node-ram=4096"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`--max-old-space-size=4096` configures V8 old space memory limit in megabytes."
+      }
+    ]
+  },
+  {
+    "id": "node-event-loop",
+    "title": "Event loop",
+    "category": "NODE",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Phases of Node event loop: Timers, Pending Callbacks, Idle/Prepare, Poll, Check, Close callbacks.",
+    "explanation": {
+      "overview": "The Node.js Event Loop handles asynchronous I/O callbacks across 6 distinct phases managed by libuv.",
+      "sections": [
+        {
+          "heading": "6 Phases of Node.js Event Loop",
+          "content": "1. **Timers**: Executes callbacks scheduled by `setTimeout()` and `setInterval()`.\n2. **Pending Callbacks**: Executes I/O callbacks deferred to next loop iteration.\n3. **Idle, Prepare**: Used internally by Node.\n4. **Poll**: Retrieves new I/O events; executes I/O callbacks.\n5. **Check**: Executes `setImmediate()` callbacks.\n6. **Close Callbacks**: Executes close event handlers (`socket.on('close')`).",
+          "bulletPoints": [
+            "Timers: Checks expired timer callbacks.",
+            "Poll: Blocks briefly waiting for incoming I/O events.",
+            "Check: Dedicated phase for `setImmediate()` callbacks."
+          ]
+        },
+        {
+          "heading": "process.nextTick vs setImmediate",
+          "content": "`process.nextTick()` is NOT part of libuv event loop phases; it runs immediately after current operation completes before transitioning to ANY phase. `setImmediate()` runs during Check phase.",
+          "bulletPoints": [
+            "process.nextTick: Runs before next event loop phase transition.",
+            "setImmediate: Runs in Check phase after Poll phase."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Node event loop has 6 distinct libuv phases.",
+      "`setImmediate()` runs in the Check phase.",
+      "`process.nextTick()` executes before transitioning to next event loop phase."
+    ],
+    "codeExamples": [
+      {
+        "title": "process.nextTick vs setImmediate Order",
+        "description": "Comparing execution order of nextTick, setImmediate, and setTimeout.",
+        "code": "setTimeout(() => console.log('1: setTimeout (Timers Phase)'), 0);\n\nsetImmediate(() => console.log('2: setImmediate (Check Phase)'));\n\nprocess.nextTick(() => console.log('3: process.nextTick (Microtask)'));\n\nconsole.log('4: Main Callstack');\n\n// Output:\n// 4: Main Callstack\n// 3: process.nextTick\n// 1 or 2 depending on poll status (nextTick always runs before phase shift!)"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-event-loop-mcq-1",
+        "question": "In which phase of Node.js Event Loop do `setImmediate()` callbacks execute?",
+        "options": [
+          "Timers Phase",
+          "Poll Phase",
+          "Check Phase",
+          "Close Phase"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`setImmediate()` callbacks are executed specifically during Check phase."
+      },
+      {
+        "id": "node-event-loop-mcq-2",
+        "question": "When does `process.nextTick()` callback execute relative to Event Loop phases?",
+        "options": [
+          "Inside Timers phase",
+          "Immediately after current JavaScript call stack completes before transitioning to next Event Loop phase",
+          "Inside Check phase",
+          "After 1 second"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`process.nextTick()` drains immediately prior to shifting into any event loop phase."
+      },
+      {
+        "id": "node-event-loop-mcq-3",
+        "question": "Which phase retrieves new I/O events and executes pending I/O callbacks?",
+        "options": [
+          "Timers phase",
+          "Poll phase",
+          "Check phase",
+          "Idle phase"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Poll phase polls for new I/O events and executes incoming I/O callbacks."
+      },
+      {
+        "id": "node-event-loop-mcq-4",
+        "question": "What happens if `process.nextTick()` recursively calls `process.nextTick()` endlessly?",
+        "options": [
+          "Switches to setImmediate",
+          "Starves Event Loop completely, preventing phase transitions and I/O callbacks",
+          "Throws stack overflow",
+          "Node exits cleanly"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Recursive `nextTick` calls starve the event loop by preventing it from reaching Poll phase."
+      },
+      {
+        "id": "node-event-loop-mcq-5",
+        "question": "In which phase do `socket.on('close', fn)` callbacks execute?",
+        "options": [
+          "Timers phase",
+          "Close Callbacks phase",
+          "Check phase",
+          "Pending phase"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Close callbacks (`socket.on('close')`) are handled in Close Callbacks phase."
+      }
+    ]
+  },
+  {
+    "id": "node-async-io",
+    "title": "Async I/O",
+    "category": "NODE",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Non-blocking asynchronous input/output, callback conventions, error-first callbacks, promise-based APIs.",
+    "explanation": {
+      "overview": "Non-blocking Asynchronous I/O is Node core philosophy. Disk files and network sockets operate asynchronously without blocking main thread execution.",
+      "sections": [
+        {
+          "heading": "Error-First Callback Pattern",
+          "content": "Traditional Node asynchronous functions take a callback whose first argument is error `(err, result) => {}`.",
+          "bulletPoints": [
+            "First Argument `err`: Null/undefined on success, Error object on failure.",
+            "Callback Hell: Deeply nested callbacks solved by Promises/async-await."
+          ]
+        },
+        {
+          "heading": "Promises & fs/promises",
+          "content": "Modern Node modules expose promise-based variants (`require('fs/promises')`), allowing clean `async/await` syntax.",
+          "bulletPoints": [
+            "fs/promises: Promise wrappers for file operations.",
+            "util.promisify(): Converts legacy error-first callback functions into Promise functions."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Node I/O operations are non-blocking and asynchronous by default.",
+      "Follow error-first callback convention `(err, data)` for legacy callbacks.",
+      "Use `fs/promises` and `async/await` for modern readable async code."
+    ],
+    "codeExamples": [
+      {
+        "title": "fs/promises vs promisify",
+        "description": "Using fs/promises and util.promisify for non-blocking I/O.",
+        "code": "const fs = require('fs/promises');\nconst { promisify } = require('util');\nconst dns = require('dns');\n\nconst lookupAsync = promisify(dns.lookup);\n\nasync function main() {\n  try {\n    // Clean async/await with fs/promises\n    const data = await fs.readFile('./config.json', 'utf-8');\n    console.log('Config loaded');\n    \n    const { address } = await lookupAsync('google.com');\n    console.log('IP:', address);\n  } catch (err) {\n    console.error('I/O Failed:', err.message);\n  }\n}\nmain();"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-async-io-mcq-1",
+        "question": "What is Node.js standard convention for callback parameter order?",
+        "options": [
+          "(data, err)",
+          "(err, data)",
+          "(result, status, err)",
+          "(callback, err)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Node.js standard convention mandates Error as first argument `(err, data)`."
+      },
+      {
+        "id": "node-async-io-mcq-2",
+        "question": "Which core utility function converts legacy error-first callback functions to return Promises?",
+        "options": [
+          "util.promisify()",
+          "fs.toPromise()",
+          "async.wrap()",
+          "Promise.fromCallback()"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`util.promisify(fn)` converts standard error-first callback functions into Promise-returning functions."
+      },
+      {
+        "id": "node-async-io-mcq-3",
+        "question": "What is drawback of using synchronous file methods like `fs.readFileSync()` in a production web server?",
+        "options": [
+          "Throws warning",
+          "Blocks main thread completely while reading file from disk, stalling all concurrent HTTP requests",
+          "Deletes file",
+          "Uses double memory"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Synchronous file methods block single main thread, stalling all active server connections."
+      },
+      {
+        "id": "node-async-io-mcq-4",
+        "question": "Which module import provides native Promise-based file system methods in modern Node.js?",
+        "options": [
+          "require('fs/async')",
+          "require('fs/promises')",
+          "require('fs-promise')",
+          "require('async-fs')"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`require('fs/promises')` or `import fs from 'node:fs/promises'` exports Promise-based file system methods."
+      },
+      {
+        "id": "node-async-io-mcq-5",
+        "question": "How does Node async I/O handle underlying OS file operations without blocking JS thread?",
+        "options": [
+          "Using multi-core GPU",
+          "Delegating task to libuv C++ thread pool and pushing callback to event loop upon completion",
+          "Compiling code to WASM",
+          "Creating child process"
+        ],
+        "correctAnswer": 1,
+        "explanation": "libuv offloads OS file I/O to worker thread pool, notifying JS event loop upon completion."
+      }
+    ]
+  },
+  {
+    "id": "node-modules",
+    "title": "Modules",
+    "category": "NODE",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "CommonJS vs ES Modules, module loading resolution, require cache, and module.exports.",
+    "explanation": {
+      "overview": "Node.js supports CommonJS (`require`/`module.exports`) and ES Modules (`import`/`export`).",
+      "sections": [
+        {
+          "heading": "CommonJS & require Cache",
+          "content": "CommonJS loads modules synchronously via `require()`. Resolved module exports are cached inside `require.cache`. Subsequent `require()` calls return cached singleton export.",
+          "bulletPoints": [
+            "`module.exports`: Object exported by module.",
+            "`require.cache`: Caches resolved exports by absolute file path.",
+            "Singleton Behavior: Modules execute once upon initial require."
+          ]
+        },
+        {
+          "heading": "ES Modules (ESM) in Node.js",
+          "content": "Node enables ESM when `package.json` contains `\"type\": \"module\"` or files use `.mjs` extension.",
+          "bulletPoints": [
+            "Package JSON: `\"type\": \"module\"` makes `.js` files ESM.",
+            "Extensions: Explicit file extensions (`./utils.js`) required in ESM imports.",
+            "Interoperability: ESM can import CommonJS, but CommonJS cannot use synchronous `require()` on ESM."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "CommonJS uses `require`/`module.exports`; ESM uses `import`/`export`.",
+      "`require()` caches exports in `require.cache`.",
+      "Set `\"type\": \"module\"` in `package.json` to enable ES Modules natively."
+    ],
+    "codeExamples": [
+      {
+        "title": "CommonJS vs ESM Exports",
+        "description": "Demonstrating CommonJS module.exports vs ESM default/named exports.",
+        "code": "// CommonJS (logger.js):\nmodule.exports = {\n  log: (msg) => console.log(`[LOG]: ${msg}`)\n};\n\n// ESM (math.mjs):\nexport const add = (a, b) => a + b;\nexport default class Calculator {}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-modules-mcq-1",
+        "question": "What happens when a file is required twice `require('./db')` in CommonJS?",
+        "options": [
+          "File executes twice",
+          "Node returns cached export from `require.cache` without re-executing file body",
+          "Throws error",
+          "Clears state"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CommonJS caches exported module object on first load; subsequent requires return cached instance."
+      },
+      {
+        "id": "node-modules-mcq-2",
+        "question": "How do you enable native ES Modules (`import`/`export`) for all `.js` files in a Node.js project?",
+        "options": [
+          "Set `\"type\": \"module\"` in package.json",
+          "Set `\"esm\": true` in tsconfig.json",
+          "Pass --esm CLI flag",
+          "Add use esm at top of file"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Adding `\"type\": \"module\"` in `package.json` configures Node to treat `.js` files as ES Modules."
+      },
+      {
+        "id": "node-modules-mcq-3",
+        "question": "What is `__dirname` variable inside CommonJS modules?",
+        "options": [
+          "URL of current website",
+          "Absolute directory path of current module file",
+          "Root folder path",
+          "Undefined"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`__dirname` holds absolute folder directory path of current CommonJS module file."
+      },
+      {
+        "id": "node-modules-mcq-4",
+        "question": "Are `__dirname` and `__filename` available inside ES Modules (`.mjs`) by default?",
+        "options": [
+          "Yes, identical",
+          "No, ESM lacks __dirname (use import.meta.url and fileURLToPath)",
+          "Only in strict mode",
+          "Only on Windows"
+        ],
+        "correctAnswer": 1,
+        "explanation": "ES Modules do not define `__dirname` or `__filename`; construct them using `import.meta.url`."
+      },
+      {
+        "id": "node-modules-mcq-5",
+        "question": "How do you export multiple items from a CommonJS module?",
+        "options": [
+          "export default { a, b }",
+          "module.exports = { a, b } or exports.a = 1",
+          "return { a, b }",
+          "export { a, b }"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CommonJS exports items by mutating `exports` object or assigning `module.exports`."
+      }
+    ]
+  },
+  {
+    "id": "node-fs",
+    "title": "fs",
+    "category": "NODE",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "File system operations: reading, writing, appending, streams, watching files, and permissions.",
+    "explanation": {
+      "overview": "The `fs` (File System) module allows interacting with files and directories on host operating system.",
+      "sections": [
+        {
+          "heading": "File Reading & Writing",
+          "content": "Provides async callback, promise (`fs/promises`), and sync variants for file manipulations (`readFile`, `writeFile`, `appendFile`, `unlink`).",
+          "bulletPoints": [
+            "Encoding: Specify `'utf-8'` to get string output instead of raw binary Buffer.",
+            "Write vs Append: `writeFile` overwrites existing content; `appendFile` adds content to end.",
+            "Unlink: `fs.unlink()` deletes file from disk."
+          ]
+        },
+        {
+          "heading": "Directory & File Watching",
+          "content": "`fs.mkdir()`, `fs.readdir()`, and `fs.watch()` manage directories and monitor file system changes.",
+          "bulletPoints": [
+            "Recursive mkdir: `fs.mkdir(path, { recursive: true })` creates nested folders.",
+            "File Watcher: `fs.watch(filename, callback)` triggers events when files mutate."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Specify `'utf-8'` encoding when reading files as text.",
+      "Use `fs/promises` for async/await file operations.",
+      "Use streams (`createReadStream`) for large files to avoid memory bloat."
+    ],
+    "codeExamples": [
+      {
+        "title": "Async File Operations with fs/promises",
+        "description": "Writing, appending, reading, and deleting files asynchronously.",
+        "code": "const fs = require('fs/promises');\nconst path = require('path');\n\nasync function fileWorkflow() {\n  const filePath = path.join(__dirname, 'test.txt');\n  try {\n    await fs.writeFile(filePath, 'Initial content\\n', 'utf-8');\n    await fs.appendFile(filePath, 'Appended line\\n', 'utf-8');\n    \n    const content = await fs.readFile(filePath, 'utf-8');\n    console.log('File Content:\\n', content);\n    \n    await fs.unlink(filePath); // Delete file\n  } catch (err) {\n    console.error('File Error:', err);\n  }\n}\nfileWorkflow();"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-fs-mcq-1",
+        "question": "What is returned by `fs.readFile('./file.txt')` if encoding parameter is omitted?",
+        "options": [
+          "String",
+          "Raw binary Buffer object",
+          "JSON object",
+          "Array of lines"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Without specifying text encoding (e.g. `'utf-8'`), `readFile` returns raw binary `Buffer`."
+      },
+      {
+        "id": "node-fs-mcq-2",
+        "question": "Which method deletes a file from disk in Node.js?",
+        "options": [
+          "fs.deleteFile()",
+          "fs.unlink()",
+          "fs.remove()",
+          "fs.clear()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`fs.unlink()` (or `fs.rm()`) removes file from file system."
+      },
+      {
+        "id": "node-fs-mcq-3",
+        "question": "How do you create nested parent and child directories `a/b/c` if they do not exist?",
+        "options": [
+          "fs.mkdir('a/b/c')",
+          "fs.mkdir('a/b/c', { recursive: true })",
+          "fs.createDir()",
+          "fs.makeTree()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Option `{ recursive: true }` instructs `mkdir` to create missing parent directories."
+      },
+      {
+        "id": "node-fs-mcq-4",
+        "question": "Why is `fs.readFile()` dangerous for reading a 4GB video file into memory?",
+        "options": [
+          "Throws syntax error",
+          "Attempts to load entire 4GB file into V8 RAM buffer at once, causing memory exhaustion crash",
+          "Slows down CSS",
+          "Deletes file"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`readFile` loads complete file content into heap memory at once, exceeding V8 buffer memory limits."
+      },
+      {
+        "id": "node-fs-mcq-5",
+        "question": "Which method checks if a file exists asynchronously without throwing error?",
+        "options": [
+          "fs.exists()",
+          "fs.access()",
+          "fs.check()",
+          "fs.statSync()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`fs.access()` checks file existence or user read/write permissions."
+      }
+    ]
+  },
+  {
+    "id": "node-path",
+    "title": "path",
+    "category": "NODE",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Cross-platform path resolution: path.join, path.resolve, path.extname, and POSIX vs Windows differences.",
+    "explanation": {
+      "overview": "The `path` module provides utilities for handling and transforming file and directory paths across OS platforms (Windows backslashes `\\` vs POSIX forward slashes `/`).",
+      "sections": [
+        {
+          "heading": "path.join vs path.resolve",
+          "content": "`path.join()` joins path segments using OS-specific delimiter. `path.resolve()` resolves segments into absolute path starting from current working directory.",
+          "bulletPoints": [
+            "`path.join('a', 'b', 'c.js')`: Produces `'a/b/c.js'` (POSIX) or `'a\\b\\c.js'` (Windows).",
+            "`path.resolve('a', 'b')`: Resolves into full absolute path `/cwd/a/b`.",
+            "Normalization: Cleans `..` and `.` relative path segments automatically."
+          ]
+        },
+        {
+          "heading": "Path Parsing Utilities",
+          "content": "`path.extname()`, `path.basename()`, `path.dirname()`, and `path.parse()` extract path components.",
+          "bulletPoints": [
+            "`path.extname('file.html')`: Returns extension `'.html'`.",
+            "`path.basename('/a/b/file.txt')`: Returns file name `'file.txt'`.",
+            "`path.parse(pathStr)`: Parses path into object `{ root, dir, base, ext, name }`."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use `path.join()` for cross-platform relative path construction.",
+      "Use `path.resolve()` to create absolute path references.",
+      "Never hardcode `/` or `\\` slash strings manually."
+    ],
+    "codeExamples": [
+      {
+        "title": "Path Utilities Overview",
+        "description": "Using join, resolve, extname, and parse.",
+        "code": "const path = require('path');\n\nconst joined = path.join('/users', 'docs', '../images', 'logo.png');\nconsole.log('Joined:', joined); // '/users/images/logo.png'\n\nconst absolute = path.resolve('public', 'index.html');\nconsole.log('Absolute:', absolute); // '/current/work/dir/public/index.html'\n\nconsole.log('Extension:', path.extname(absolute)); // '.html'\nconsole.log('Parsed:', path.parse(absolute)); // { dir, base, ext, name }"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-path-mcq-1",
+        "question": "What is key operational difference between `path.join()` and `path.resolve()`?",
+        "options": [
+          "join returns Promise, resolve returns string",
+          "join concatenates path segments with OS delimiter; resolve always yields absolute path rooted from CWD",
+          "join only works on Windows",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`path.resolve()` resolves path segments into an absolute path prepending current working directory if unrooted."
+      },
+      {
+        "id": "node-path-mcq-2",
+        "question": "What does `path.extname('archive.tar.gz')` return?",
+        "options": [
+          "'.tar.gz'",
+          "'.gz'",
+          "'gz'",
+          "'.tar'"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`path.extname()` returns substring from last dot `.` to end of string (`'.gz'`)."
+      },
+      {
+        "id": "node-path-mcq-3",
+        "question": "Why should developers use `path.join(__dirname, 'file.json')` instead of `'/' + __dirname + '/file.json'`?",
+        "options": [
+          "Runs 10x faster",
+          "Handles OS-specific path separators automatically (Windows backslash `\\` vs POSIX forward slash `/`)",
+          "Required by V8",
+          "Prevents SQL injection"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`path.join()` automatically uses host OS path separator (`\\` vs `/`)."
+      },
+      {
+        "id": "node-path-mcq-4",
+        "question": "What does `path.basename('/var/www/index.html', '.html')` return?",
+        "options": [
+          "'index.html'",
+          "'index'",
+          "'/var/www'",
+          "'.html'"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Passing second extension argument to `path.basename` strips extension from returned name."
+      },
+      {
+        "id": "node-path-mcq-5",
+        "question": "Which method normalizes path string `'a/b/../c/./d'` by resolving `..` and `.` segments?",
+        "options": [
+          "path.normalize()",
+          "path.clean()",
+          "path.fix()",
+          "path.parse()"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`path.normalize()` resolves relative `..` and `.` segments into clean path string."
+      }
+    ]
+  },
+  {
+    "id": "node-http",
+    "title": "HTTP",
+    "category": "NODE",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Core http module, createServer, req/res streams, status codes, and header management.",
+    "explanation": {
+      "overview": "The built-in `http` module allows building web servers and HTTP clients without external dependencies.",
+      "sections": [
+        {
+          "heading": "http.createServer & Stream Handling",
+          "content": "`http.createServer((req, res) => {})` initializes HTTP server. `req` is Readable stream of incoming request data; `res` is Writable stream for sending response.",
+          "bulletPoints": [
+            "`req` (IncomingMessage): Readable stream (headers, method, url, body chunks).",
+            "`res` (ServerResponse): Writable stream (`writeHead`, `setHeader`, `write`, `end`).",
+            "Port Listening: `server.listen(port, callback)`."
+          ]
+        },
+        {
+          "heading": "Request Body Parsing",
+          "content": "Incoming POST request bodies stream in chunks over `req.on('data')` events. Assemble buffer chunks before parsing JSON.",
+          "bulletPoints": [
+            "Data Event: `req.on('data', chunk => chunks.push(chunk))`.",
+            "End Event: `req.on('end', () => JSON.parse(Buffer.concat(chunks)))`."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`http.createServer` handles request and response streams.",
+      "`req` is a Readable stream; `res` is a Writable stream.",
+      "Always call `res.end()` to complete HTTP response."
+    ],
+    "codeExamples": [
+      {
+        "title": "Native Node.js HTTP Server",
+        "description": "Creating HTTP server with status code, headers, and JSON body.",
+        "code": "const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  if (req.method === 'GET' && req.url === '/api/health') {\n    res.writeHead(200, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ status: 'ok', timestamp: Date.now() }));\n  } else {\n    res.writeHead(404, { 'Content-Type': 'text/plain' });\n    res.end('Not Found');\n  }\n});\n\nserver.listen(3000, () => console.log('Server running on port 3000'));"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-http-mcq-1",
+        "question": "What type of stream is `req` object inside `http.createServer((req, res) => {})`?",
+        "options": [
+          "Writable Stream",
+          "Readable Stream",
+          "Duplex Stream",
+          "Transform Stream"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Incoming request `req` is a `Readable` stream emitting incoming data chunks."
+      },
+      {
+        "id": "node-http-mcq-2",
+        "question": "What happens if you forget to invoke `res.end()` in a Node.js HTTP request handler?",
+        "options": [
+          "Response sends automatically after 1 second",
+          "Client connection hangs waiting for server response until client times out",
+          "Throws error",
+          "Server crashes"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Without `res.end()`, HTTP response stream remains open, hanging client connection."
+      },
+      {
+        "id": "node-http-mcq-3",
+        "question": "Which method sets HTTP status code and response headers simultaneously on response stream?",
+        "options": [
+          "res.setHeader()",
+          "res.writeHead(statusCode, headersObject)",
+          "res.setStatus()",
+          "res.sendHeader()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`res.writeHead(200, { 'Content-Type': 'text/html' })` writes status code and headers in single call."
+      },
+      {
+        "id": "node-http-mcq-4",
+        "question": "How do you collect incoming POST body data from raw `req` readable stream?",
+        "options": [
+          "req.body",
+          "Listen to `req.on('data', chunk => ...)` and `req.on('end', ...)` stream events",
+          "req.readAll()",
+          "req.json()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Raw HTTP request data arrives in chunks via `data` events, assembled on `end` event."
+      },
+      {
+        "id": "node-http-mcq-5",
+        "question": "Which core module makes outgoing HTTP requests to external APIs natively in Node?",
+        "options": [
+          "http / https module (`http.request()`)",
+          "fetchOnly module",
+          "axios module",
+          "net module"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Native `http` and `https` modules provide `http.request()` and `https.get()` methods."
+      }
+    ]
+  },
+  {
+    "id": "node-buffer",
+    "title": "Buffer",
+    "category": "NODE",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Binary data storage, V8 heap allocation, Buffer.from, Buffer.alloc, encodings (utf-8, base64, hex).",
+    "explanation": {
+      "overview": "`Buffer` objects represent fixed-length sequences of raw binary bytes allocated outside V8 heap in memory.",
+      "sections": [
+        {
+          "heading": "Buffer Allocation: alloc vs allocUnsafe",
+          "content": "`Buffer.alloc(size)` allocates memory zero-filled for security. `Buffer.allocUnsafe(size)` allocates raw memory quickly without zero-filling (may contain sensitive old memory data).",
+          "bulletPoints": [
+            "`Buffer.alloc(size)`: Safe zero-filled memory allocation.",
+            "`Buffer.allocUnsafe(size)`: Fast uninitialized allocation; must overwrite immediately.",
+            "`Buffer.from(str, encoding)`: Creates Buffer from string/array."
+          ]
+        },
+        {
+          "heading": "Encodings & Conversion",
+          "content": "Buffers support encodings: `'utf-8'`, `'base64'`, `'hex'`, `'latin1'`. Converting buffers to strings uses `buf.toString(encoding)`.",
+          "bulletPoints": [
+            "Base64: `buf.toString('base64')` for file encoding.",
+            "Hex: `buf.toString('hex')` for hash digests."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Buffers handle raw binary data allocated outside V8 heap.",
+      "Use `Buffer.alloc()` for safe zero-filled memory allocation.",
+      "Use `buf.toString('base64')` or `buf.toString('hex')` to convert binary buffers."
+    ],
+    "codeExamples": [
+      {
+        "title": "Buffer Creation & Encoding Conversion",
+        "description": "Creating buffers from string, hex, and converting to base64.",
+        "code": "const text = 'Hello Node.js!';\nconst buf = Buffer.from(text, 'utf-8');\n\nconsole.log('Raw Bytes:', buf); // <Buffer 48 65 6c 6c 6f ...>\nconsole.log('Byte Length:', buf.length); // 13\nconsole.log('Base64:', buf.toString('base64')); // 'SGVsbG8gTm9kZS5qcyE=' \nconsole.log('Hex:', buf.toString('hex')); // '48656c6c6f...'"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-buffer-mcq-1",
+        "question": "Where is memory allocated for Node.js `Buffer` objects?",
+        "options": [
+          "Inside V8 JS heap memory",
+          "Outside V8 heap in raw un-managed C++ memory pool",
+          "In LocalStorage",
+          "Inside GPU"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Buffers allocate memory outside V8 heap using `ArrayBuffer` backing store."
+      },
+      {
+        "id": "node-buffer-mcq-2",
+        "question": "Why is `Buffer.allocUnsafe(100)` potentially security-sensitive if output is sent directly to client?",
+        "options": [
+          "It crashes server",
+          "Un-initialized allocated memory bytes may contain un-cleared sensitive residual memory data",
+          "It encrypts data",
+          "Slow speed"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`allocUnsafe` skips zero-filling memory; old sensitive memory fragments might be exposed."
+      },
+      {
+        "id": "node-buffer-mcq-3",
+        "question": "How do you convert a string `'Hello'` to a binary Buffer object?",
+        "options": [
+          "new Buffer('Hello')",
+          "Buffer.from('Hello', 'utf-8')",
+          "Buffer.parse('Hello')",
+          "Buffer.create('Hello')"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Static method `Buffer.from(str, encoding)` creates a Buffer from string input."
+      },
+      {
+        "id": "node-buffer-mcq-4",
+        "question": "Which buffer method converts binary data to Base64 encoded string?",
+        "options": [
+          "buf.toBase64()",
+          "buf.toString('base64')",
+          "buf.encode('base64')",
+          "Buffer.base64(buf)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`buf.toString('base64')` encodes buffer binary bytes into Base64 ASCII string."
+      },
+      {
+        "id": "node-buffer-mcq-5",
+        "question": "Is Buffer size fixed after creation `const buf = Buffer.alloc(10)`?",
+        "options": [
+          "No, resizable dynamically",
+          "Yes, Buffer instances have immutable fixed memory length once allocated",
+          "Only in strict mode",
+          "Only for hex"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Node Buffers have fixed memory byte lengths established upon allocation."
+      }
+    ]
+  },
+  {
+    "id": "node-streams",
+    "title": "Streams",
+    "category": "NODE",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Processing large data chunk by chunk, Readable, Writable, Duplex, Transform streams, and pipe().",
+    "explanation": {
+      "overview": "Streams handle reading or writing data chunk-by-chunk asynchronously without loading entire datasets into memory.",
+      "sections": [
+        {
+          "heading": "4 Fundamental Stream Types",
+          "content": "1. **Readable**: Data source stream (`fs.createReadStream`, `req`).\n2. **Writable**: Data sink destination stream (`fs.createWriteStream`, `res`).\n3. **Duplex**: Readable and Writable stream (TCP sockets).\n4. **Transform**: Duplex stream that modifies data while reading/writing (`zlib.createGzip`).",
+          "bulletPoints": [
+            "Readable: Emits `data`, `end`, `error` events.",
+            "Writable: Implements `write()`, `end()`, `finish` event.",
+            "Transform: Modifies data (encryption, compression)."
+          ]
+        },
+        {
+          "heading": "Piping & pipeline Utility",
+          "content": "`readable.pipe(writable)` connects readable stream to writable stream. Use `stream.pipeline` for proper error propagation and cleanup.",
+          "bulletPoints": [
+            "pipe(): `readStream.pipe(writeStream)`.",
+            "pipeline(): `pipeline(readStream, transformStream, writeStream, callback)` handles error cleanup."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Streams process data sequentially in memory-efficient chunks.",
+      "4 Stream Types: Readable, Writable, Duplex, Transform.",
+      "Use `pipeline()` instead of `.pipe()` to handle error destruction automatically."
+    ],
+    "codeExamples": [
+      {
+        "title": "Gzip File Compression Pipeline Stream",
+        "description": "Streaming large file through Gzip transform into write stream.",
+        "code": "const fs = require('fs');\nconst zlib = require('zlib');\nconst { pipeline } = require('stream');\n\nconst readStream = fs.createReadStream('./large-log.txt');\nconst gzipStream = zlib.createGzip();\nconst writeStream = fs.createWriteStream('./large-log.txt.gz');\n\n// Stream pipeline handles memory backpressure and errors automatically!\npipeline(readStream, gzipStream, writeStream, (err) => {\n  if (err) console.error('Pipeline failed:', err);\n  else console.log('Compression completed smoothly!');\n});"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-streams-mcq-1",
+        "question": "What is main advantage of using Streams to handle 10GB file uploads?",
+        "options": [
+          "Faster CPU clock",
+          "Processes file chunk by chunk in memory (~64KB buffer), keeping RAM usage flat",
+          "Deletes file after upload",
+          "Bypasses network"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Streams process data in small chunks, using constant low RAM regardless of file size."
+      },
+      {
+        "id": "node-streams-mcq-2",
+        "question": "Which stream type is `zlib.createGzip()` compression stream?",
+        "options": [
+          "Readable stream",
+          "Writable stream",
+          "Transform stream",
+          "Pause stream"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Transform streams are Duplex streams that transform data while streaming."
+      },
+      {
+        "id": "node-streams-mcq-3",
+        "question": "Why is `stream.pipeline()` preferred over standard `.pipe()` chaining?",
+        "options": [
+          "pipeline is faster",
+          "pipeline automatically cleans up and destroys streams when errors occur",
+          "pipe is deprecated",
+          "pipeline returns string"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`pipeline()` forwards errors and properly closes/destroys all chained streams upon failure."
+      },
+      {
+        "id": "node-streams-mcq-4",
+        "question": "Which event is emitted by a Readable stream when all data chunks have been read?",
+        "options": [
+          "finish",
+          "end",
+          "close",
+          "complete"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Readable streams emit `end` event when no more data chunks remain."
+      },
+      {
+        "id": "node-streams-mcq-5",
+        "question": "Which event is emitted by a Writable stream when all queued data has been written to underlying target?",
+        "options": [
+          "end",
+          "finish",
+          "drain",
+          "done"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Writable streams emit `finish` event after `stream.end()` completes writing."
+      }
+    ]
+  },
+  {
+    "id": "node-backpressure",
+    "title": "Backpressure",
+    "category": "NODE",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Stream rate management, readable buffer vs writable buffer, highWaterMark, drain event.",
+    "explanation": {
+      "overview": "Backpressure occurs in stream data processing when data is produced faster by Readable stream than can be consumed by Writable destination stream.",
+      "sections": [
+        {
+          "heading": "highWaterMark & Buffer Saturation",
+          "content": "Streams store chunks in internal buffer bounded by `highWaterMark` (default 16KB for normal streams, 64KB for fs). When Writable buffer exceeds `highWaterMark`, `writable.write()` returns `false`.",
+          "bulletPoints": [
+            "write() returns false: Indicates destination buffer is full.",
+            "Pause Reading: Producer must pause sending data chunks when write returns false."
+          ]
+        },
+        {
+          "heading": "Handling Backpressure with drain Event",
+          "content": "When Writable destination finishes processing queued buffer, it emits `drain` event. Producer resumes reading data upon receiving `drain` event.",
+          "bulletPoints": [
+            "`drain` Event: Signals Writable stream is ready for more data.",
+            "`pipe()` & `pipeline()`: Automatically manage backpressure and `drain` events."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Backpressure prevents fast producers from overwhelming slow consumers in RAM.",
+      "When `writable.write()` returns `false`, pause the readable stream.",
+      "Resume reading when writable stream emits `drain` event."
+    ],
+    "codeExamples": [
+      {
+        "title": "Manual Backpressure Management",
+        "description": "Pausing read stream on false write and resuming on drain event.",
+        "code": "const fs = require('fs');\n\nconst reader = fs.createReadStream('./source.bin');\nconst writer = fs.createWriteStream('./dest.bin');\n\nreader.on('data', (chunk) => {\n  // If writer buffer is full, pause reader stream to prevent RAM explosion!\n  const canContinue = writer.write(chunk);\n  if (!canContinue) {\n    reader.pause();\n  }\n});\n\n// When writer drains buffer, resume reading chunks!\nwriter.on('drain', () => {\n  reader.resume();\n});"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-backpressure-mcq-1",
+        "question": "What is 'Backpressure' in Node.js streams?",
+        "options": [
+          "High CPU load",
+          "Condition where Readable stream produces data faster than Writable stream can consume, causing buffer growth in RAM",
+          "Network socket rejection",
+          "Disk failure"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Backpressure arises when data production outpaces consumption rate, risking memory exhaustion."
+      },
+      {
+        "id": "node-backpressure-mcq-2",
+        "question": "What does `writable.write(chunk)` return when internal buffer exceeds `highWaterMark` limit?",
+        "options": [
+          "true",
+          "false",
+          "undefined",
+          "Throws error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`write()` returns `false` to signal producer to pause pushing data chunks."
+      },
+      {
+        "id": "node-backpressure-mcq-3",
+        "question": "Which event emitted by Writable stream signals producer that buffer has emptied and reading can resume?",
+        "options": [
+          "empty",
+          "drain",
+          "resume",
+          "ready"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`drain` event notifies producer that Writable stream buffer cleared and can accept more data."
+      },
+      {
+        "id": "node-backpressure-mcq-4",
+        "question": "What is default `highWaterMark` buffer size for standard non-file Streams in Node.js?",
+        "options": [
+          "1KB",
+          "16KB (16384 bytes)",
+          "1MB",
+          "64KB"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Default `highWaterMark` for standard streams is 16KB (16384 bytes)."
+      },
+      {
+        "id": "node-backpressure-mcq-5",
+        "question": "Do `.pipe()` and `stream.pipeline()` handle backpressure automatically?",
+        "options": [
+          "No, manual code required",
+          "Yes, they automatically pause and resume streams based on `highWaterMark` and `drain` events",
+          "Only in production",
+          "Only for text"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Built-in `.pipe()` and `pipeline()` manage backpressure and `drain` events under the hood."
+      }
+    ]
+  },
+  {
+    "id": "node-events",
+    "title": "Events",
+    "category": "NODE",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "EventEmitter class, on, once, emit, removeListener, handling error events.",
+    "explanation": {
+      "overview": "The `events` module provides `EventEmitter` class, backbone of event-driven architecture in Node.js core modules (http, net, streams).",
+      "sections": [
+        {
+          "heading": "EventEmitter Fundamentals",
+          "content": "Objects extend `EventEmitter` to emit named events that trigger registered listener functions.",
+          "bulletPoints": [
+            "`on(event, listener)`: Registers persistent listener callback.",
+            "`once(event, listener)`: Registers one-time listener that automatically unregisters after first trigger.",
+            "`emit(event, ...args)`: Synchronously calls all registered listeners with arguments."
+          ]
+        },
+        {
+          "heading": "Special 'error' Event & Listener Leaks",
+          "content": "If an `EventEmitter` emits `'error'` event without at least ONE listener attached, Node.js throws uncaught exception and crashes process.",
+          "bulletPoints": [
+            "Error Event Rule: Always attach `.on('error', handler)` listener.",
+            "Max Listeners Warning: Warning emitted if > 10 listeners are attached (configurable via `setMaxListeners()`)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`EventEmitter` powers event-driven architecture in Node.",
+      "Always attach listener for `'error'` events to prevent process crashes.",
+      "Use `.once()` for one-time event triggers."
+    ],
+    "codeExamples": [
+      {
+        "title": "Custom EventEmitter Class",
+        "description": "Extending EventEmitter and emitting custom events.",
+        "code": "const EventEmitter = require('events');\n\nclass OrderService extends EventEmitter {\n  placeOrder(orderId) {\n    console.log(`Order #${orderId} placed.`);\n    this.emit('order:created', { orderId, timestamp: Date.now() });\n  }\n}\n\nconst service = new OrderService();\n\n// Register listener\nservice.on('order:created', (data) => {\n  console.log('Sending confirmation email for:', data.orderId);\n});\n\nservice.placeOrder(5001);"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-events-mcq-1",
+        "question": "What happens if an `EventEmitter` instance emits an `'error'` event when NO listener is registered for `'error'`?",
+        "options": [
+          "Error is ignored silently",
+          "Node.js prints stacktrace and crashes application process",
+          "Retries emit call",
+          "Emits warning"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Unhandled `'error'` events in EventEmitter throw uncaught exception, crashing Node process."
+      },
+      {
+        "id": "node-events-mcq-2",
+        "question": "What is difference between `.on()` and `.once()` methods in EventEmitter?",
+        "options": [
+          "on is async, once is sync",
+          "once automatically removes listener callback after it triggers for the first time",
+          "on allows only one argument",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`.once()` unregisters listener automatically after single execution."
+      },
+      {
+        "id": "node-events-mcq-3",
+        "question": "Are event listeners invoked synchronously or asynchronously by default when `emitter.emit('event')` is called?",
+        "options": [
+          "Asynchronously on next tick",
+          "Synchronously in order of registration",
+          "In random thread",
+          "Inside libuv pool"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`EventEmitter.emit()` calls registered listener functions synchronously in order."
+      },
+      {
+        "id": "node-events-mcq-4",
+        "question": "What is default maximum number of listeners allowed on single event before EventEmitter prints memory leak warning?",
+        "options": [
+          "5",
+          "10",
+          "100",
+          "Unlimited"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Default max listeners limit is 10 (changeable via `emitter.setMaxListeners(n)`)."
+      },
+      {
+        "id": "node-events-mcq-5",
+        "question": "How do you unregister a specific listener function `fn` from event `'userLogin'`?",
+        "options": [
+          "emitter.delete('userLogin')",
+          "emitter.removeListener('userLogin', fn) or emitter.off('userLogin', fn)",
+          "emitter.clear('userLogin')",
+          "emitter.stop('userLogin')"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`removeListener()` or alias `off()` unregisters specific callback function reference."
+      }
+    ]
+  },
+  {
+    "id": "node-express",
+    "title": "Express",
+    "category": "NODE",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Express framework fundamentals, routing (app.get, app.post), req/res objects, and application structure.",
+    "explanation": {
+      "overview": "Express is minimal, fast, unopinionated web framework for Node.js providing robust routing and HTTP utility abstractions.",
+      "sections": [
+        {
+          "heading": "Express Application & Routing",
+          "content": "`const app = express()` instantiates application. Route handlers map HTTP methods and path patterns to handler callbacks `(req, res) => {}`.",
+          "bulletPoints": [
+            "Routing: `app.get()`, `app.post()`, `app.put()`, `app.delete()`.",
+            "Route Params: `app.get('/users/:id')` accessed via `req.params.id`.",
+            "Query Strings: `req.query.search` for URL parameters (`?search=term`)."
+          ]
+        },
+        {
+          "heading": "Response Helpers",
+          "content": "Express extends native response object with utility methods (`res.json()`, `res.status()`, `res.send()`, `res.redirect()`).",
+          "bulletPoints": [
+            "`res.status(400).json({ error: 'Invalid' })`: Sets status and sends JSON.",
+            "`res.sendFile(path)`: Streams static file directly."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Express simplifies HTTP server routing and request/response manipulation.",
+      "Access route parameters via `req.params`, query params via `req.query`.",
+      "Use `res.status(code).json(body)` for API responses."
+    ],
+    "codeExamples": [
+      {
+        "title": "Express REST Router",
+        "description": "Express app with route params, query params, and JSON response.",
+        "code": "const express = require('express');\nconst app = express();\n\napp.use(express.json()); // Parse JSON body\n\napp.get('/api/users/:userId', (req, res) => {\n  const { userId } = req.params;\n  const { includeDetails } = req.query;\n  \n  res.status(200).json({\n    id: userId,\n    name: 'User ' + userId,\n    detailed: includeDetails === 'true'\n  });\n});\n\napp.listen(4000, () => console.log('Express active on port 4000'));"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-express-mcq-1",
+        "question": "How do you extract URL parameter `:id` in route `app.get('/items/:id', handler)`?",
+        "options": [
+          "req.query.id",
+          "req.params.id",
+          "req.body.id",
+          "req.url.id"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Route path parameters matching `:paramName` reside inside `req.params` object."
+      },
+      {
+        "id": "node-express-mcq-2",
+        "question": "Which built-in Express middleware parses incoming JSON request bodies?",
+        "options": [
+          "app.use(express.json())",
+          "app.use(express.parse())",
+          "app.use(express.bodyParser())",
+          "app.use(express.text())"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`express.json()` middleware parses incoming JSON request payloads into `req.body`."
+      },
+      {
+        "id": "node-express-mcq-3",
+        "question": "What is proper way to return HTTP 404 JSON response in Express?",
+        "options": [
+          "res.send(404, 'Not Found')",
+          "res.status(404).json({ message: 'Not Found' })",
+          "res.error(404)",
+          "res.notFound()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`res.status(404).json({...})` sets status code and sends JSON body."
+      },
+      {
+        "id": "node-express-mcq-4",
+        "question": "How do you extract query parameters from URL `/search?term=phone&limit=10` in Express?",
+        "options": [
+          "req.params",
+          "req.query (`req.query.term`, `req.query.limit`)",
+          "req.urlParams",
+          "req.search"
+        ],
+        "correctAnswer": 1,
+        "explanation": "URL query strings are automatically parsed into `req.query` object."
+      },
+      {
+        "id": "node-express-mcq-5",
+        "question": "What Express router method handles ALL HTTP verbs (GET, POST, PUT, DELETE) for a path?",
+        "options": [
+          "app.all(path, handler)",
+          "app.any(path, handler)",
+          "app.use(path, handler)",
+          "app.every(path, handler)"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`app.all('/path', handler)` matches any HTTP request method target."
+      }
+    ]
+  },
+  {
+    "id": "node-middleware",
+    "title": "Middleware",
+    "category": "NODE",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Express middleware pipeline, (req, res, next) signature, error-handling middleware, and execution chain.",
+    "explanation": {
+      "overview": "Middleware functions are functions with access to `req`, `res`, and `next` function in Express request-response cycle.",
+      "sections": [
+        {
+          "heading": "Middleware Pipeline & next()",
+          "content": "Middleware functions can execute code, modify `req`/`res` objects, end response cycle, or call `next()` to pass control to next middleware.",
+          "bulletPoints": [
+            "Signature: `(req, res, next) => {}`.",
+            "Must Call `next()`: If middleware does not end response (`res.json()`), it MUST call `next()` to avoid hanging connection.",
+            "Global vs Route Middleware: `app.use(mw)` applies globally; `app.get('/path', mw, handler)` applies to specific route."
+          ]
+        },
+        {
+          "heading": "Error-Handling Middleware",
+          "content": "Error handling middleware requires FOUR parameters `(err, req, res, next)`. Passing an argument to `next(err)` skips normal middleware and jumps straight to error handlers.",
+          "bulletPoints": [
+            "4 Parameters: `(err, req, res, next)` signature identifies error handlers.",
+            "Trigger: Calling `next(err)` or throwing error in sync handler jumps to error middleware."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Middleware signature is `(req, res, next)`.",
+      "Always call `next()` unless ending request cycle.",
+      "Error-handling middleware requires 4 parameters `(err, req, res, next)`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Custom Logger & Error Middleware",
+        "description": "Request logger middleware and global error handling middleware.",
+        "code": "const express = require('express');\nconst app = express();\n\n// Standard Middleware\napp.use((req, res, next) => {\n  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);\n  next(); // Pass to next handler!\n});\n\napp.get('/error', (req, res, next) => {\n  next(new Error('Database Connection Failed')); // Jump to error handler!\n});\n\n// Error Handling Middleware (4 Arguments!)\napp.use((err, req, res, next) => {\n  console.error('Handled Error:', err.message);\n  res.status(500).json({ error: err.message });\n});"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-middleware-mcq-1",
+        "question": "What is parameter signature of Express Error-Handling middleware?",
+        "options": [
+          "(req, res)",
+          "(req, res, next)",
+          "(err, req, res, next)",
+          "(err, res)"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Express identifies error-handling middleware by its explicit 4-parameter signature `(err, req, res, next)`."
+      },
+      {
+        "id": "node-middleware-mcq-2",
+        "question": "What happens if a custom middleware does NOT call `next()` nor send a response (`res.send()`)?",
+        "options": [
+          "Express throws error",
+          "Request hangs indefinitely until client connection times out",
+          "Passes to next route automatically",
+          "Restarts server"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Failing to invoke `next()` or terminate response cycle leaves request connection hanging."
+      },
+      {
+        "id": "node-middleware-mcq-3",
+        "question": "What happens when you pass an error argument `next(new Error('Auth failed'))` inside route handler?",
+        "options": [
+          "Crashes process",
+          "Express skips all remaining normal middleware and routes to nearest 4-parameter error handler",
+          "Retries handler",
+          "Sends 200 OK"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Passing any value to `next(err)` triggers Express error handling pipeline."
+      },
+      {
+        "id": "node-middleware-mcq-4",
+        "question": "In what order does Express execute registered middleware functions?",
+        "options": [
+          "Alphabetical order",
+          "Sequential order in which they are declared using `app.use()`",
+          "Random order",
+          "Reverse order"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Middleware executes sequentially in exact order registered via `app.use()`."
+      },
+      {
+        "id": "node-middleware-mcq-5",
+        "question": "Which popular middleware adds CORS headers to Express responses?",
+        "options": [
+          "morgan",
+          "cors",
+          "helmet",
+          "express-validator"
+        ],
+        "correctAnswer": 1,
+        "explanation": "The `cors` package middleware enables Cross-Origin Resource Sharing in Express."
+      }
+    ]
+  },
+  {
+    "id": "node-error-handling",
+    "title": "Error handling",
+    "category": "NODE",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Operational vs Programmer errors, uncaughtException, unhandledRejection, and graceful shutdown.",
+    "explanation": {
+      "overview": "Proper error handling in Node.js distinguishes operational errors from programmer bugs and ensures graceful server shutdown during critical failures.",
+      "sections": [
+        {
+          "heading": "Operational vs Programmer Errors",
+          "content": "**Operational Errors** represent runtime problems (network timeouts, invalid user inputs, DB connection lost). **Programmer Errors** are bugs (null pointer dereferences, syntax errors, bad function arguments).",
+          "bulletPoints": [
+            "Operational: Expected runtime failures; handle gracefully with error status codes.",
+            "Programmer: Code bugs; log stacktrace and restart process using process manager (PM2/K8s)."
+          ]
+        },
+        {
+          "heading": "Uncaught Exceptions & Graceful Shutdown",
+          "content": "Listen to `uncaughtException` and `unhandledRejection` process events. When fatal error occurs, stop receiving new HTTP requests, close database pools, and exit process (`process.exit(1)`).",
+          "bulletPoints": [
+            "`process.on('uncaughtException')`: Catches unhandled synchronous errors.",
+            "`process.on('unhandledRejection')`: Catches unhandled promise rejections.",
+            "Graceful Exit: `server.close(() => process.exit(1))`."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Distinguish operational runtime errors from programmer bugs.",
+      "Do NOT leave process running in corrupted state after `uncaughtException`.",
+      "Perform graceful shutdown (close server & DB connections) before `process.exit(1)`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Graceful Server Shutdown Pattern",
+        "description": "Handling uncaughtException and closing server gracefully.",
+        "code": "const express = require('express');\nconst app = express();\nconst server = app.listen(3000);\n\nconst gracefulShutdown = (signal) => {\n  console.log(`Received ${signal}. Closing HTTP server...`);\n  server.close(() => {\n    console.log('HTTP server closed. Exiting process.');\n    process.exit(0);\n  });\n};\n\nprocess.on('SIGTERM', () => gracefulShutdown('SIGTERM'));\nprocess.on('uncaughtException', (err) => {\n  console.error('UNCAUGHT EXCEPTION! Shutting down...', err);\n  server.close(() => process.exit(1));\n});"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-error-handling-mcq-1",
+        "question": "What is an example of an Operational Error in a Node.js web server?",
+        "options": [
+          "Calling undefined function `foo()`",
+          "Database query timeout or invalid user login credentials",
+          "Syntax error in code",
+          "Accessing property of null"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Operational errors are expected runtime failure conditions like database timeouts or bad input."
+      },
+      {
+        "id": "node-error-handling-mcq-2",
+        "question": "Why is it unsafe to keep a Node.js process running after an `uncaughtException` event?",
+        "options": [
+          "Process runs faster",
+          "Application state is un-deterministic and corrupted; subsequent requests may leak data or deadlock",
+          "Disables V8",
+          "Overwrites files"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Uncaught exceptions leave application state unpredictable; process should be restarted."
+      },
+      {
+        "id": "node-error-handling-mcq-3",
+        "question": "Which process event catches unhandled Promise rejections in Node.js?",
+        "options": [
+          "process.on('uncaughtException')",
+          "process.on('unhandledRejection')",
+          "process.on('promiseError')",
+          "process.on('error')"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`unhandledRejection` process event catches rejected promises lacking `.catch()`."
+      },
+      {
+        "id": "node-error-handling-mcq-4",
+        "question": "What process exit code `process.exit(code)` indicates failure exit?",
+        "options": [
+          "0",
+          "1",
+          "200",
+          "-1"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Exit code `0` indicates success exit; non-zero codes (like `1`) indicate failure exit."
+      },
+      {
+        "id": "node-error-handling-mcq-5",
+        "question": "What signal does container orchestrator (Kubernetes / Docker) send to request graceful application shutdown?",
+        "options": [
+          "SIGKILL",
+          "SIGTERM",
+          "SIGINT",
+          "SIGHUP"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SIGTERM` signal notifies application to finish active requests and shut down gracefully."
+      }
+    ]
+  },
+  {
+    "id": "node-rest-apis",
+    "title": "REST APIs",
+    "category": "NODE",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "RESTful API design, HTTP verb semantics, status code standards, resource routing, and JSON responses.",
+    "explanation": {
+      "overview": "REST (Representational State Transfer) is an architectural style for designing networked APIs using standard HTTP verbs, resources, and status codes.",
+      "sections": [
+        {
+          "heading": "HTTP Verb Semantics",
+          "content": "REST routes map resource nouns to HTTP verbs:\n- `GET /api/v1/products`: List products.\n- `POST /api/v1/products`: Create product.\n- `PUT /api/v1/products/:id`: Replace product.\n- `PATCH /api/v1/products/:id`: Partial update.\n- `DELETE /api/v1/products/:id`: Delete product.",
+          "bulletPoints": [
+            "Nouns over Verbs: `/api/users` instead of `/api/getUsers`.",
+            "Idempotency: GET, PUT, DELETE are idempotent; POST is non-idempotent."
+          ]
+        },
+        {
+          "heading": "Standard Status Codes",
+          "content": "Return accurate HTTP status codes:\n- `200 OK` / `201 Created` / `204 No Content`.\n- `400 Bad Request` / `401 Unauthorized` / `403 Forbidden` / `404 Not Found`.\n- `500 Internal Server Error`.",
+          "bulletPoints": [
+            "201 Created: Return upon successful POST resource creation.",
+            "401 vs 403: 401 = Missing/invalid auth token; 403 = Authenticated user lacks permission."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use resource nouns in URL paths (`/api/orders`).",
+      "Use correct HTTP verbs (GET, POST, PUT, PATCH, DELETE).",
+      "Return accurate HTTP status codes (201 for POST creation, 401 vs 403)."
+    ],
+    "codeExamples": [
+      {
+        "title": "Express REST API Endpoints",
+        "description": "Standard REST endpoint handlers with correct status codes.",
+        "code": "const express = require('express');\nconst app = express();\napp.use(express.json());\n\n// GET /api/v1/items\napp.get('/api/v1/items', (req, res) => {\n  res.status(200).json([{ id: 1, name: 'Item 1' }]);\n});\n\n// POST /api/v1/items (201 Created)\napp.post('/api/v1/items', (req, res) => {\n  const newItem = { id: Date.now(), ...req.body };\n  res.status(201).json(newItem);\n});\n\n// DELETE /api/v1/items/:id (204 No Content)\napp.delete('/api/v1/items/:id', (req, res) => {\n  res.status(204).send();\n});"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-rest-apis-mcq-1",
+        "question": "Which HTTP status code should be returned after successfully creating a new resource via POST?",
+        "options": [
+          "200 OK",
+          "201 Created",
+          "204 No Content",
+          "202 Accepted"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`201 Created` indicates resource was created successfully."
+      },
+      {
+        "id": "node-rest-apis-mcq-2",
+        "question": "What is difference between HTTP `PUT` and `PATCH` methods in REST API design?",
+        "options": [
+          "PUT is async, PATCH is sync",
+          "PUT replaces target resource completely; PATCH applies partial field updates",
+          "PUT is only for strings",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`PUT` replaces resource entirely; `PATCH` updates specified fields partially."
+      },
+      {
+        "id": "node-rest-apis-mcq-3",
+        "question": "Which REST URL path naming convention follows best practices?",
+        "options": [
+          "/api/getAllUsers",
+          "/api/v1/users",
+          "/api/deleteUser?id=5",
+          "/api/userFetch"
+        ],
+        "correctAnswer": 1,
+        "explanation": "REST APIs use plural resource nouns (`/api/v1/users`) rather than action verbs."
+      },
+      {
+        "id": "node-rest-apis-mcq-4",
+        "question": "What is distinction between `401 Unauthorized` and `403 Forbidden` status codes?",
+        "options": [
+          "401 is server error",
+          "401 means user is not authenticated; 403 means user is authenticated but lacks required permission scope",
+          "403 means not found",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "401 indicates unauthenticated user; 403 indicates authenticated user lacking permission."
+      },
+      {
+        "id": "node-rest-apis-mcq-5",
+        "question": "Which HTTP status code should be returned for successful `DELETE` request with no response body?",
+        "options": [
+          "200 OK",
+          "201 Created",
+          "204 No Content",
+          "304 Not Modified"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`204 No Content` indicates request succeeded and response body is intentionally empty."
+      }
+    ]
+  },
+  {
+    "id": "node-file-uploads",
+    "title": "File uploads",
+    "category": "NODE",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Handling multipart/form-data, Multer middleware, disk storage vs memory storage, and file validation.",
+    "explanation": {
+      "overview": "Handling file uploads in Node.js requires parsing `multipart/form-data` request payloads using middleware libraries like `multer` or `formidable`.",
+      "sections": [
+        {
+          "heading": "Multipart Parsing & Multer Storage",
+          "content": "Standard JSON body parsers cannot parse binary file streams. `multer` middleware parses multipart fields, offering `diskStorage` (saves directly to disk) or `memoryStorage` (buffers file in RAM).",
+          "bulletPoints": [
+            "diskStorage: Saves file directly to uploads directory.",
+            "memoryStorage: Keeps file in `req.file.buffer` (ideal for direct S3 upload).",
+            "Single vs Multiple: `upload.single('avatar')` vs `upload.array('photos', 5)`."
+          ]
+        },
+        {
+          "heading": "File Security & Validation",
+          "content": "Never trust client-provided file extension or `file.mimetype`. Validate magic bytes (file signature), limit file size, and sanitize output file names.",
+          "bulletPoints": [
+            "File Size Limits: `limits: { fileSize: 5 * 1024 * 1024 }` (5MB).",
+            "Magic Bytes: Check actual binary header bytes to prevent malware spoofing.",
+            "Random Filenames: Generate UUID filenames to prevent path traversal attacks."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use `multer` to handle `multipart/form-data` file uploads.",
+      "Use `memoryStorage` for cloud S3 uploads; `diskStorage` for local file saving.",
+      "Validate file size limits and binary file headers (magic bytes) for security."
+    ],
+    "codeExamples": [
+      {
+        "title": "Express Multer File Upload Route",
+        "description": "Configuring Multer diskStorage with size limits and file filter.",
+        "code": "const express = require('express');\nconst multer = require('multer');\nconst path = require('path');\n\nconst storage = multer.diskStorage({\n  destination: (req, file, cb) => cb(null, 'uploads/'),\n  filename: (req, file, cb) => {\n    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9);\n    cb(null, uniqueName + path.extname(file.originalname));\n  }\n});\n\nconst upload = multer({\n  storage,\n  limits: { fileSize: 2 * 1024 * 1024 } // 2MB limit\n});\n\nconst app = express();\napp.post('/api/upload', upload.single('image'), (req, res) => {\n  res.json({ message: 'Uploaded successfully', path: req.file.path });\n});"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-file-uploads-mcq-1",
+        "question": "What HTTP `Content-Type` header format is required for submitting file uploads from forms?",
+        "options": [
+          "application/json",
+          "application/x-www-form-urlencoded",
+          "multipart/form-data",
+          "text/plain"
+        ],
+        "correctAnswer": 2,
+        "explanation": "File uploads require `multipart/form-data` encoding format."
+      },
+      {
+        "id": "node-file-uploads-mcq-2",
+        "question": "Which Multer storage engine keeps uploaded file contents in `req.file.buffer` RAM for streaming to AWS S3?",
+        "options": [
+          "multer.diskStorage",
+          "multer.memoryStorage",
+          "multer.s3Storage",
+          "multer.tempStorage"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`multer.memoryStorage()` retains uploaded binary file in `req.file.buffer` RAM."
+      },
+      {
+        "id": "node-file-uploads-mcq-3",
+        "question": "Why should uploaded files be saved with randomly generated UUIDs instead of original `file.originalname`?",
+        "options": [
+          "Faster file access",
+          "Prevents path traversal attacks (`../../etc/passwd`) and file overwrite collisions",
+          "Compresses file",
+          "Required by HTML5"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Original filenames can contain malicious path traversal dots (`../`) or duplicate name collisions."
+      },
+      {
+        "id": "node-file-uploads-mcq-4",
+        "question": "How do you enforce a maximum file size limit (e.g. 5MB) in Multer?",
+        "options": [
+          "limits: { fileSize: 5 * 1024 * 1024 }",
+          "maxSize: 5000",
+          "sizeLimit: 5MB",
+          "bufferLimit: 5000000"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Multer accepts `limits: { fileSize: bytes }` configuration option."
+      },
+      {
+        "id": "node-file-uploads-mcq-5",
+        "question": "Why is checking file extension `.png` insufficient for security validation?",
+        "options": [
+          "Extension is slow",
+          "Attackers can rename malicious `.php` or `.exe` files to `.png`; magic binary header bytes must be verified",
+          "Extensions do not exist on Linux",
+          "V8 ignores extensions"
+        ],
+        "correctAnswer": 1,
+        "explanation": "File extensions are easily spoofed; server must inspect actual magic binary header bytes."
+      }
+    ]
+  }
+]

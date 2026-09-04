@@ -1,0 +1,2203 @@
+[
+  {
+    "id": "react-components",
+    "title": "Components",
+    "category": "REACT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Functional vs Class components, component lifecycle, composability, and UI modularity.",
+    "explanation": {
+      "overview": "Components are independent, reusable UI building blocks in React. Modern React favors Functional Components with Hooks over legacy Class Components.",
+      "sections": [
+        {
+          "heading": "Functional Components vs Class Components",
+          "content": "Functional components are JavaScript functions returning JSX. Class components extend `React.Component` and use lifecycle methods (`componentDidMount`, `shouldComponentUpdate`).",
+          "bulletPoints": [
+            "Functional: Cleaner syntax, Hook support, no `this` binding complexity.",
+            "Class: Legacy syntax, explicit lifecycle methods, state inside `this.state`."
+          ]
+        },
+        {
+          "heading": "Component Composition & Modularity",
+          "content": "React promotes component composition over inheritance. Smaller single-responsibility components are composed into complex application UI trees.",
+          "bulletPoints": [
+            "Single Responsibility Principle: Keep components focused on one task.",
+            "Container vs Presentational pattern: Decouple stateful logic from UI markup."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use Functional components with Hooks for modern React development.",
+      "Favor component composition over class inheritance.",
+      "Keep components small and single-purpose for easy maintenance."
+    ],
+    "codeExamples": [
+      {
+        "title": "Functional Component with Props",
+        "description": "A clean functional React component using TypeScript props.",
+        "code": "interface UserCardProps {\n  name: string;\n  role: string;\n  isOnline: boolean;\n}\n\nexport function UserCard({ name, role, isOnline }: UserCardProps) {\n  return (\n    <div className=\"p-4 border rounded-lg shadow-sm\">\n      <h3 className=\"font-bold text-lg\">{name}</h3>\n      <p className=\"text-gray-500\">{role}</p>\n      <span className={isOnline ? \"text-green-500\" : \"text-gray-400\"}>\n        {isOnline ? \"Online\" : \"Offline\"}\n      </span>\n    </div>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-components-mcq-1",
+        "question": "What is the primary benefit of Functional Components with Hooks in modern React?",
+        "options": [
+          "Faster initial compilation",
+          "Cleaner stateful logic reuse without class syntax or `this` complexity",
+          "Direct DOM access",
+          "Automatic CSS styling"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Functional components eliminate `this` context binding bugs and enable custom hook logic reuse."
+      },
+      {
+        "id": "react-components-mcq-2",
+        "question": "What architectural pattern does React recommend for code reuse across UI elements?",
+        "options": [
+          "Class inheritance",
+          "Component composition",
+          "Global monkey patching",
+          "Mixin injection"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React strongly recommends composition using props and children rather than OOP inheritance."
+      },
+      {
+        "id": "react-components-mcq-3",
+        "question": "Which legacy class method handles initial side-effects after component DOM mounting?",
+        "options": [
+          "componentWillMount",
+          "componentDidMount",
+          "render",
+          "componentWillUpdate"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`componentDidMount` runs immediately after a class component inserts into the DOM."
+      },
+      {
+        "id": "react-components-mcq-4",
+        "question": "What must a React component function return?",
+        "options": [
+          "A HTML string",
+          "JSX element tree, null, or valid React node",
+          "A Promise",
+          "An Array of strings"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React component render functions must return valid JSX elements, fragments, arrays, primitives, or `null`."
+      },
+      {
+        "id": "react-components-mcq-5",
+        "question": "How should Presentational components be designed compared to Container components?",
+        "options": [
+          "Focus on state fetching",
+          "Focus strictly on UI rendering based on props received",
+          "Manage global Redux store",
+          "Handle direct SQL database queries"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Presentational components focus purely on rendering UI based on props without managing complex async state."
+      }
+    ]
+  },
+  {
+    "id": "react-jsx",
+    "title": "JSX",
+    "category": "REACT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "JavaScript XML syntax extension, compilation to React.createElement, embedding expressions, and Fragments.",
+    "explanation": {
+      "overview": "JSX is a syntax extension for JavaScript that looks like HTML. Transpilers like Babel convert JSX tags into `React.createElement()` calls at build time.",
+      "sections": [
+        {
+          "heading": "JSX Compilation Mechanics",
+          "content": "JSX tag `<div className=\"box\">Hello</div>` compiles to `React.createElement('div', { className: 'box' }, 'Hello')`. JSX attributes use camelCase (`className`, `htmlFor`).",
+          "bulletPoints": [
+            "Transpilation: Converted by Babel/SWC to `React.createElement` or `jsx()` runtime.",
+            "Attribute Naming: Use `className` for HTML class, `htmlFor` for label for.",
+            "Sanitization: React escapes strings embedded in JSX automatically to prevent XSS."
+          ]
+        },
+        {
+          "heading": "Embedding Expressions & React Fragments",
+          "content": "JavaScript expressions can be embedded inside curly braces `{}`. React Fragments `<>...</>` group multiple sibling elements without introducing extra DOM container nodes.",
+          "bulletPoints": [
+            "Curly Braces: `{ 2 + 2 }`, `{ isLogged ? <Dash /> : <Login /> }`.",
+            "Fragments: `<React.Fragment>` or `<>` avoids clean wrapper DOM bloat.",
+            "Keys: Fragments require `<React.Fragment key={id}>` when mapping lists."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "JSX compiles down to JavaScript function calls.",
+      "React automatically sanitizes string values in JSX against XSS.",
+      "Use Fragments to avoid unnecessary DOM wrapper divs."
+    ],
+    "codeExamples": [
+      {
+        "title": "JSX Expressions & Fragment",
+        "description": "Conditional rendering, array map, and React Fragment.",
+        "code": "export function ItemList({ items }: { items: string[] }) {\n  return (\n    <>\n      <h2>Items Overview</h2>\n      {items.length === 0 ? (\n        <p>No items available.</p>\n      ) : (\n        <ul>\n          {items.map((item, index) => (\n            <li key={index}>{item}</li>\n          ))}\n        </ul>\n      )}\n    </>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-jsx-mcq-1",
+        "question": "What does JSX `<h1 className=\"title\">Hi</h1>` compile into under the hood?",
+        "options": [
+          "document.createElement('h1')",
+          "React.createElement('h1', { className: 'title' }, 'Hi')",
+          "An HTML string",
+          "Virtual DOM node JSON"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Build transpilers transform JSX elements into `React.createElement()` calls."
+      },
+      {
+        "id": "react-jsx-mcq-2",
+        "question": "Why is `className` used in JSX instead of standard HTML `class`?",
+        "options": [
+          "React requirement for speed",
+          "`class` is a reserved keyword in JavaScript",
+          "Browsers do not support HTML class",
+          "To support Tailwind CSS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Because JSX is JavaScript, `class` is a reserved language keyword, requiring `className`."
+      },
+      {
+        "id": "react-jsx-mcq-3",
+        "question": "How does React handle embedded string variables in JSX against Cross-Site Scripting (XSS)?",
+        "options": [
+          "Executes scripts directly",
+          "Automatically escapes embedded string expressions before rendering",
+          "Requires DOMPurify",
+          "Ignores HTML tags"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React escapes all values rendered inside JSX by default to prevent XSS injection attacks."
+      },
+      {
+        "id": "react-jsx-mcq-4",
+        "question": "What is primary advantage of React Fragments `<>...</>`?",
+        "options": [
+          "Improves CSS grid layout",
+          "Groups sibling elements without adding extra wrapper nodes to the DOM tree",
+          "Forces synchronous rendering",
+          "Enables global state access"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Fragments render multiple child elements without creating useless container `<div>` tags."
+      },
+      {
+        "id": "react-jsx-mcq-5",
+        "question": "Which shorthand syntax renders conditional UI in JSX when condition is true?",
+        "options": [
+          "{ condition && <Element /> }",
+          "{ if (condition) <Element /> }",
+          "{ condition ? <Element /> }",
+          "{ switch(condition) }"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Logical AND `{ condition && <Element /> }` renders `<Element />` if `condition` evaluates to true."
+      }
+    ]
+  },
+  {
+    "id": "react-props",
+    "title": "Props",
+    "category": "REACT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Passing data downward, immutable read-only props, children prop, and default prop values.",
+    "explanation": {
+      "overview": "Props (short for properties) are read-only inputs passed from parent to child components, establishing a unidirectional data flow.",
+      "sections": [
+        {
+          "heading": "Unidirectional Data Flow & Immutability",
+          "content": "Props flow strictly top-down. A child component must never mutate its received props directly.",
+          "bulletPoints": [
+            "Read-only: Components behave like pure functions with respect to their props.",
+            "Prop Drilling: Passing props through multiple layout component layers.",
+            "Callback Props: Child triggers parent updates by invoking function props."
+          ]
+        },
+        {
+          "heading": "The children Prop & Defaults",
+          "content": "`children` is a special prop that receives elements placed between component opening and closing tags. ES6 destructuring handles default prop values.",
+          "bulletPoints": [
+            "`children`: Enables wrapper/modal component composition.",
+            "Default Props: `function Card({ variant = 'primary' })`."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Props are strictly read-only and immutable.",
+      "Data flows top-down (unidirectional).",
+      "Use `children` prop for layout wrapper components."
+    ],
+    "codeExamples": [
+      {
+        "title": "Passing Props & Callback Function",
+        "description": "Child component calling parent handler via function prop.",
+        "code": "interface ButtonProps {\n  label: string;\n  onClick: () => void;\n  variant?: 'primary' | 'secondary';\n}\n\nexport function ActionButton({ label, onClick, variant = 'primary' }: ButtonProps) {\n  return (\n    <button \n      onClick={onClick}\n      className={variant === 'primary' ? 'bg-black text-white px-4 py-2' : 'bg-gray-200 text-black px-4 py-2'}\n    >\n      {label}\n    </button>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-props-mcq-1",
+        "question": "Can a child component directly mutate `props.title = 'New Title'`?",
+        "options": [
+          "Yes, anytime",
+          "No, props are read-only and immutable inside receiving component",
+          "Only inside useEffect",
+          "Only in class components"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Props are strictly immutable; mutating props breaks React unidirectional data flow model."
+      },
+      {
+        "id": "react-props-mcq-2",
+        "question": "What is 'Prop Drilling' in React?",
+        "options": [
+          "Optimizing prop render speeds",
+          "Passing props down through multiple intermediary components that do not need them",
+          "Deleting unused props",
+          "Validating TypeScript types"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Prop drilling occurs when props must pass through multiple middle component layers to reach deep children."
+      },
+      {
+        "id": "react-props-mcq-3",
+        "question": "What does the special `children` prop represent in React?",
+        "options": [
+          "Array of child component IDs",
+          "Content nested between component opening and closing tags `<Card>{content}</Card>`",
+          "Sub-routes",
+          "State instances"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`props.children` contains elements or text rendered inside component opening and closing tags."
+      },
+      {
+        "id": "react-props-mcq-4",
+        "question": "How should a child component notify its parent component about a user action?",
+        "options": [
+          "Mutate parent state directly",
+          "Invoke a callback function passed down as a prop",
+          "Dispatch global browser alert",
+          "Reload page"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Parents pass handler functions as props; children call those callbacks to trigger parent state changes."
+      },
+      {
+        "id": "react-props-mcq-5",
+        "question": "How are default prop values handled cleanly in modern React functional components?",
+        "options": [
+          "Using Component.defaultProps legacy object",
+          "Using ES6 parameter default values in function signature `({ size = 'md' })`",
+          "Setting state in constructor",
+          "Using window.defaults"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Modern React uses standard ES6 destructured parameter defaults directly in component signature."
+      }
+    ]
+  },
+  {
+    "id": "react-state",
+    "title": "State",
+    "category": "REACT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Component memory, state vs props, asynchronous state updates, and immutable state updates.",
+    "explanation": {
+      "overview": "State is component private memory that changes over time. When component state updates, React schedules a component re-render.",
+      "sections": [
+        {
+          "heading": "State vs Props",
+          "content": "Props are external inputs passed into a component. State is internal memory owned and managed directly within the component.",
+          "bulletPoints": [
+            "Props: External, read-only from child perspective.",
+            "State: Internal, mutable via state updater functions (`setState` / `useState`).",
+            "Re-rendering: Changing state triggers component re-render cycle."
+          ]
+        },
+        {
+          "heading": "Immutable Updates & Asynchronous Batching",
+          "content": "React state updates are batched for performance. State must always be updated immutably using updater functions.",
+          "bulletPoints": [
+            "Functional Updates: `setCount(prev => prev + 1)` for state derived from prior state.",
+            "Object/Array State: Never mutate state objects directly; return fresh shallow copies `{ ...prev, key: val }`."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Updating state triggers component re-render.",
+      "Never mutate state directly (`state.count = 5` is invalid).",
+      "Use functional state updater `setCount(prev => prev + 1)` when next state depends on current state."
+    ],
+    "codeExamples": [
+      {
+        "title": "Immutable Object State Update",
+        "description": "Updating nested object state using shallow copy spread.",
+        "code": "import { useState } from 'react';\n\nexport function UserProfile() {\n  const [user, setUser] = useState({ name: 'Alex', age: 25 });\n\n  const birthday = () => {\n    setUser(prev => ({ ...prev, age: prev.age + 1 })); // Immutable update!\n  };\n\n  return (\n    <div>\n      <p>{user.name} is {user.age} years old.</p>\n      <button onClick={birthday}>Celebrate Birthday</button>\n    </div>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-state-mcq-1",
+        "question": "What happens when a component state is updated using its setter function?",
+        "options": [
+          "Page reloads",
+          "React schedules a re-render of the component and its children",
+          "Props reset to defaults",
+          "DOM is destroyed"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Updating state notifies React to schedule a component re-render to reflect new state in UI."
+      },
+      {
+        "id": "react-state-mcq-2",
+        "question": "What is wrong with directly writing `user.name = 'Bob'` in a React stateful component?",
+        "options": [
+          "Throws syntax error",
+          "React is unaware of direct mutation and will not trigger a re-render",
+          "Deletes user object",
+          "Converts state to string"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Direct state mutation skips React state update pipeline, failing to trigger re-render."
+      },
+      {
+        "id": "react-state-mcq-3",
+        "question": "When updating state based on previous state value, what is best practice?",
+        "options": [
+          "Pass updated value directly `setCount(count + 1)`",
+          "Pass functional updater `setCount(prev => prev + 1)`",
+          "Use setTimeout",
+          "Use global variable"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Functional updates ensure accurate updates when state calls are batched or asynchronous."
+      },
+      {
+        "id": "react-state-mcq-4",
+        "question": "What is automatic state batching in React 18?",
+        "options": [
+          "Combining state from multiple components",
+          "Grouping multiple state updates into a single re-render pass even inside async promises/timeouts",
+          "Deleting old state keys",
+          "Combining props and state"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React 18 batches state updates across event handlers, promises, and timeouts into single re-renders."
+      },
+      {
+        "id": "react-state-mcq-5",
+        "question": "How should an array state `items` be updated when adding a new item `newItem`?",
+        "options": [
+          "items.push(newItem); setItems(items);",
+          "setItems([...items, newItem]);",
+          "setItems(items.concat()); items[0] = newItem;",
+          "items.splice(0,0,newItem)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Array state must be updated immutably using spread `[...items, newItem]` to create a new array reference."
+      }
+    ]
+  },
+  {
+    "id": "react-rendering",
+    "title": "Rendering",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Render phase vs Commit phase, virtual DOM tree comparison, triggering re-renders, and pure rendering.",
+    "explanation": {
+      "overview": "Rendering is the process where React calls components to determine what UI should look like. Rendering consists of Render Phase (calculating changes) and Commit Phase (updating real DOM).",
+      "sections": [
+        {
+          "heading": "Render Phase vs Commit Phase",
+          "content": "In Render Phase, React invokes components to generate new Virtual DOM tree. In Commit Phase, React applies minimal calculated DOM mutations to browser DOM.",
+          "bulletPoints": [
+            "Render Phase: Pure computation, side-effect free, can be paused in Concurrent React.",
+            "Commit Phase: Synchronous DOM updates (`componentDidMount`, `useLayoutEffect`)."
+          ]
+        },
+        {
+          "heading": "What Triggers a Component Re-render?",
+          "content": "A component re-renders whenever its internal state updates or parent component re-renders.",
+          "bulletPoints": [
+            "State Change: Calling state updater.",
+            "Parent Re-render: Parent re-rendering forces children to re-render by default (unless memoized).",
+            "Context Change: Context provider value update re-renders all consumer components."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Render phase computes Virtual DOM; Commit phase updates real DOM.",
+      "Child components re-render when parent re-renders by default.",
+      "Keep render function body pure and side-effect free."
+    ],
+    "codeExamples": [
+      {
+        "title": "Pure Render Function Example",
+        "description": "Component render function remaining pure without side-effects.",
+        "code": "// PURE RENDER FUNCTION:\nexport function PriceDisplay({ amount, currency }: { amount: number; currency: string }) {\n  // Pure math calculation during render phase\n  const formatted = new Intl.NumberFormat('en-US', { style: 'currency', currency }).format(amount);\n  \n  return <span className=\"font-bold\">{formatted}</span>;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-rendering-mcq-1",
+        "question": "What happens during React Render Phase?",
+        "options": [
+          "Real browser DOM is wiped out",
+          "React calls component functions to construct new Virtual DOM tree and diff against previous tree",
+          "CSS styles are calculated",
+          "API network calls execute"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Render Phase calls component functions to generate new Virtual DOM and calculate diffs."
+      },
+      {
+        "id": "react-rendering-mcq-2",
+        "question": "What occurs during React Commit Phase?",
+        "options": [
+          "JSX is validated",
+          "React applies calculated DOM mutations to real browser DOM",
+          "State is reset",
+          "TypeScript types are checked"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Commit Phase applies Virtual DOM diff mutations synchronously into actual DOM nodes."
+      },
+      {
+        "id": "react-rendering-mcq-3",
+        "question": "What happens to child components when a parent component re-renders?",
+        "options": [
+          "Children never re-render",
+          "Children re-render by default unless wrapped in memoization like React.memo",
+          "Children throw warning",
+          "Children lose state"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Parent component re-renders recursively trigger child component re-renders by default."
+      },
+      {
+        "id": "react-rendering-mcq-4",
+        "question": "Why must component render function bodies remain 'pure'?",
+        "options": [
+          "To pass TypeScript checks",
+          "Side-effects in render body cause unexpected behavior because React may call render multiple times or discard draft renders",
+          "To allow HTML exporting",
+          "Strict mode requirement"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Render bodies can run multiple times in Concurrent React; side-effects belong inside `useEffect`."
+      },
+      {
+        "id": "react-rendering-mcq-5",
+        "question": "Does a component re-render if props passed to it remain identical but its parent re-renders?",
+        "options": [
+          "No",
+          "Yes, by default unless child uses React.memo",
+          "Only if state changes",
+          "Only in production build"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Un-memoized functional components re-render whenever parent re-renders regardless of prop equivalence."
+      }
+    ]
+  },
+  {
+    "id": "react-reconciliation",
+    "title": "Reconciliation",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Diffing algorithm, Virtual DOM comparisons, O(n) heuristics, and list item `key` prop rules.",
+    "explanation": {
+      "overview": "Reconciliation is React diffing algorithm that compares current Virtual DOM tree with previous tree to compute minimal real DOM operations required.",
+      "sections": [
+        {
+          "heading": "Heuristic Diffing Algorithm O(n)",
+          "content": "General tree comparison is $O(n^3)$. React uses two $O(n)$ heuristic rules:\n1. Elements of different types produce completely different trees (destroys and unmounts old subtree).\n2. Keys distinguish list items across re-renders.",
+          "bulletPoints": [
+            "Root Component Swap: Replacing `<div>` with `<span>` unmounts entire child subtree.",
+            "Same Element Type: React updates changed attributes without destroying DOM node."
+          ]
+        },
+        {
+          "heading": "Importance of List Keys",
+          "content": "Keys give array elements persistent identities across renders. Avoid array index keys when list items can be re-ordered, inserted, or filtered.",
+          "bulletPoints": [
+            "Unique & Stable Keys: Use database IDs or unique item hashes.",
+            "Index Key Pitfall: Causes state corruption and incorrect input focus when items shift positions."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Reconciliation uses an efficient $O(n)$ diffing algorithm.",
+      "Changing element types unmounts and remounts entire subtrees.",
+      "Use unique, stable IDs as list keys instead of array indexes."
+    ],
+    "codeExamples": [
+      {
+        "title": "List Keys in React",
+        "description": "Using unique ID as stable key for mapped list elements.",
+        "code": "interface Todo { id: string; text: string; }\n\nexport function TodoList({ todos }: { todos: Todo[] }) {\n  return (\n    <ul>\n      {todos.map(todo => (\n        // Stable unique key ensures correct reconciliation\n        <li key={todo.id}>{todo.text}</li>\n      ))}\n    </ul>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-reconciliation-mcq-1",
+        "question": "What complexity order is React diffing heuristic algorithm?",
+        "options": [
+          "O(n^3)",
+          "O(n log n)",
+          "O(n)",
+          "O(1)"
+        ],
+        "correctAnswer": 2,
+        "explanation": "React heuristic diffing algorithm runs in linear time $O(n)$."
+      },
+      {
+        "id": "react-reconciliation-mcq-2",
+        "question": "What happens during reconciliation if a component root changes from `<div>` to `<section>`?",
+        "options": [
+          "Attributes update in place",
+          "React completely unmounts old div subtree and mounts new section tree",
+          "CSS updates",
+          "Ignored"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Changing DOM element types causes React to tear down and recreate entire subtree."
+      },
+      {
+        "id": "react-reconciliation-mcq-3",
+        "question": "Why is using array index `key={index}` problematic for dynamic lists that can be reordered?",
+        "options": [
+          "Throws syntax error",
+          "Causes state bugs and unnecessary re-renders because indexes shift when items are reordered or deleted",
+          "Slows down CSS",
+          "Disables hooks"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Shifting indexes misaligns item state with wrong DOM elements when list order changes."
+      },
+      {
+        "id": "react-reconciliation-mcq-4",
+        "question": "What is the Virtual DOM in React?",
+        "options": [
+          "Direct browser DOM node pointer",
+          "Lightweight in-memory JavaScript object representation of UI elements",
+          "Browser extension",
+          "HTML template string"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Virtual DOM is an in-memory JS object tree representing UI structure."
+      },
+      {
+        "id": "react-reconciliation-mcq-5",
+        "question": "What requirement must a React list `key` prop satisfy?",
+        "options": [
+          "Must be a number",
+          "Must be globally unique across whole app",
+          "Must be unique among sibling elements in that specific array",
+          "Must be random math value"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Keys need to be unique only among immediate sibling elements in mapped array."
+      }
+    ]
+  },
+  {
+    "id": "react-usestate",
+    "title": "useState",
+    "category": "REACT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "State hook syntax, state initializers, lazy state initialization, and updater functions.",
+    "explanation": {
+      "overview": "`useState` is the core React hook for adding local state variables to functional components.",
+      "sections": [
+        {
+          "heading": "useState Syntax & Destructuring",
+          "content": "`const [state, setState] = useState(initialValue)` returns tuple of current state value and state updater function.",
+          "bulletPoints": [
+            "Initial Value: Sets state for initial component render.",
+            "Tuple Destructuring: Standard convention `[value, setValue]`.",
+            "Re-render: Calling `setValue` triggers component re-render."
+          ]
+        },
+        {
+          "heading": "Lazy State Initialization",
+          "content": "If initial state requires expensive calculations, pass a initializer function `useState(() => expensiveCalc())`. The function executes only on initial mount.",
+          "bulletPoints": [
+            "Lazy Init: `useState(() => getStoredData())` runs once on mount.",
+            "Eager Init: `useState(getStoredData())` runs calculation on every single re-render!"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`useState` returns tuple `[state, setState]`.",
+      "Use functional initializers `useState(() => ...)` for expensive initial state computations.",
+      "Use functional updates `setState(prev => ...)` when next state depends on previous state."
+    ],
+    "codeExamples": [
+      {
+        "title": "Lazy Initializer & Functional State Update",
+        "description": "Reading localStorage lazily on mount and incrementing state safely.",
+        "code": "import { useState } from 'react';\n\nexport function Counter() {\n  // Lazy initialization runs only on component mount\n  const [count, setCount] = useState(() => {\n    const saved = localStorage.getItem('count');\n    return saved ? parseInt(saved, 10) : 0;\n  });\n\n  const increment = () => setCount(prev => prev + 1); // Safe functional update\n\n  return <button onClick={increment}>Count: {count}</button>;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-usestate-mcq-1",
+        "question": "What does `useState(0)` return?",
+        "options": [
+          "Single number 0",
+          "Tuple array containing [currentStateValue, stateUpdaterFunction]",
+          "Object { state: 0 }",
+          "Promise resolving to 0"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`useState` returns 2-element array: `[state, setState]`."
+      },
+      {
+        "id": "react-usestate-mcq-2",
+        "question": "What is advantage of lazy state initialization `useState(() => computeHeavyData())`?",
+        "options": [
+          "Runs computation on every re-render",
+          "Runs initializer function strictly once on initial component mount",
+          "Makes state global",
+          "Prevents re-renders"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Passing function to `useState` executes initialization computation only during initial component mount."
+      },
+      {
+        "id": "react-usestate-mcq-3",
+        "question": "What happens if you call `setState(5)` twice in same event handler `setState(5); setState(5);`?",
+        "options": [
+          "Triggers two re-renders",
+          "React batches update and re-renders component once because value did not change",
+          "Throws error",
+          "Resets to 0"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React checks value equality (`Object.is`); if state value does not change, re-render is skipped."
+      },
+      {
+        "id": "react-usestate-mcq-4",
+        "question": "Why is `setCount(count + 1)` three times in one handler wrong if you want count to increase by 3?",
+        "options": [
+          "Syntax error",
+          "All 3 calls reference same captured `count` variable value in closure, incrementing by 1 total",
+          "Decrements count",
+          "Throws TypeError"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Calls use captured closure `count`; use `setCount(prev => prev + 1)` to queue sequential functional updates."
+      },
+      {
+        "id": "react-usestate-mcq-5",
+        "question": "Can `useState` hooks be called conditionally inside an `if` statement?",
+        "options": [
+          "Yes, anytime",
+          "No, hooks must always be called unconditionally at top level of functional component",
+          "Only in strict mode",
+          "Only inside useEffect"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React Rules of Hooks mandate calling hooks at top level unconditionally to preserve hook call order."
+      }
+    ]
+  },
+  {
+    "id": "react-useeffect",
+    "title": "useEffect",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Side-effects, dependency array rules, cleanup functions, and lifecycle equivalence.",
+    "explanation": {
+      "overview": "`useEffect` performs side-effects (data fetching, subscriptions, DOM mutations, timers) in functional components after rendering.",
+      "sections": [
+        {
+          "heading": "Dependency Array Variations",
+          "content": "Behavior depends on second argument dependency array:\n1. No array: Runs after every render.\n2. Empty array `[]`: Runs once after initial mount (like `componentDidMount`).\n3. Dependency list `[a, b]`: Runs on mount and when `a` or `b` values change.",
+          "bulletPoints": [
+            "No Array: Runs after every single render.",
+            "Empty `[]`: Runs once on mount.",
+            "Dependencies `[dep]`: Runs when `dep` changes."
+          ]
+        },
+        {
+          "heading": "Effect Cleanup Function",
+          "content": "Returning a function from `useEffect` registers a cleanup callback. Runs before effect re-executes and when component unmounts.",
+          "bulletPoints": [
+            "Cleanup: Prevents memory leaks (clear timers, unsubscribe events, abort fetch).",
+            "Unmount: Runs cleanup function when component unmounts from DOM."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`useEffect` handles side-effects after render commit phase.",
+      "Always declare all reactive values used inside effect in dependency array.",
+      "Return cleanup functions to clear timers and event subscriptions."
+    ],
+    "codeExamples": [
+      {
+        "title": "useEffect Subscription with Cleanup",
+        "description": "Adding resize event listener and returning cleanup function.",
+        "code": "import { useState, useEffect } from 'react';\n\nexport function WindowWidth() {\n  const [width, setWidth] = useState(window.innerWidth);\n\n  useEffect(() => {\n    const handleResize = () => setWidth(window.innerWidth);\n    window.addEventListener('resize', handleResize);\n    \n    // Cleanup function runs on unmount or before effect re-runs\n    return () => window.removeEventListener('resize', handleResize);\n  }, []); // Empty array = mount/unmount only\n\n  return <p>Window width: {width}px</p>;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-useeffect-mcq-1",
+        "question": "When does `useEffect` callback execute relative to component rendering?",
+        "options": [
+          "Synchronously before render",
+          "After render commit phase is painted to screen asynchronously",
+          "Inside constructor",
+          "During JSX compilation"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`useEffect` runs asynchronously after render paint commit completes, avoiding UI render blocking."
+      },
+      {
+        "id": "react-useeffect-mcq-2",
+        "question": "When does `useEffect(fn, [])` with an empty dependency array run?",
+        "options": [
+          "On every render",
+          "Once after initial component mount",
+          "Never",
+          "On prop updates only"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Empty dependency array `[]` restricts effect execution to initial mount."
+      },
+      {
+        "id": "react-useeffect-mcq-3",
+        "question": "What is the purpose of returning a function from `useEffect`?",
+        "options": [
+          "Returns data to component",
+          "Registers a cleanup function to teardown listeners/timers on unmount or re-effect",
+          "Triggers immediate re-render",
+          "Enables Redux"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Returned cleanup function cleans up resources before re-effect execution or unmount."
+      },
+      {
+        "id": "react-useeffect-mcq-4",
+        "question": "What happens if you update state `setCount(c => c + 1)` inside `useEffect(fn)` without a dependency array?",
+        "options": [
+          "State updates once",
+          "Infinite render loop crashing browser tab",
+          "No effect",
+          "Warning notice"
+        ],
+        "correctAnswer": 1,
+        "explanation": "State update triggers re-render, which triggers effect, triggering state update in infinite loop."
+      },
+      {
+        "id": "react-useeffect-mcq-5",
+        "question": "How should an AbortController be used inside `useEffect` for data fetching?",
+        "options": [
+          "Inside catch block",
+          "Instantiated before fetch, calling `controller.abort()` in returned cleanup function",
+          "Passed into useState",
+          "Global variable"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Calling `abort()` in effect cleanup cancels pending network requests if component unmounts mid-fetch."
+      }
+    ]
+  },
+  {
+    "id": "react-useref",
+    "title": "useRef",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Mutable reference container, DOM node access, persisting values across renders without re-rendering.",
+    "explanation": {
+      "overview": "`useRef` returns a mutable ref object whose `.current` property persists across re-renders without triggering a component re-render when mutated.",
+      "sections": [
+        {
+          "heading": "Two Primary Use Cases of useRef",
+          "content": "1. **DOM Node Access**: Attaching `ref={inputRef}` to JSX element to focus input, scroll, or measure layout.\n2. **Instance Mutable Variable**: Storing timer IDs, previous state values, or flags without causing re-renders.",
+          "bulletPoints": [
+            "DOM Access: `inputRef.current.focus()`.",
+            "Mutable State: Modifying `ref.current = newValue` does NOT trigger component re-render.",
+            "Persistence: Value survives component re-renders intact."
+          ]
+        },
+        {
+          "heading": "useRef vs useState",
+          "content": "Use `useState` when value changes should reflect visually in UI (triggers re-render). Use `useRef` for background tracking values not tied to rendering.",
+          "bulletPoints": [
+            "useState: Mutation -> Re-render -> UI update.",
+            "useRef: Mutation -> Silent value update -> No re-render."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Mutating `ref.current` does NOT trigger component re-render.",
+      "Use `useRef` for direct DOM element access.",
+      "Use `useRef` to persist timer IDs or background mutable instance data."
+    ],
+    "codeExamples": [
+      {
+        "title": "DOM Access & Timer Ref",
+        "description": "Focusing input element and storing timer ID with useRef.",
+        "code": "import { useRef } from 'react';\n\nexport function AutoFocusInput() {\n  const inputRef = useRef<HTMLInputElement>(null);\n  const timerRef = useRef<NodeJS.Timeout | null>(null);\n\n  const handleFocus = () => {\n    inputRef.current?.focus(); // Direct DOM focus\n  };\n\n  return (\n    <div>\n      <input ref={inputRef} type=\"text\" placeholder=\"Type here...\" />\n      <button onClick={handleFocus}>Focus Input</button>\n    </div>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-useref-mcq-1",
+        "question": "What happens when you mutate `ref.current = 10` returned by `useRef`?",
+        "options": [
+          "Component re-renders immediately",
+          "Value updates silently without triggering component re-render",
+          "Throws TypeError",
+          "Props reset"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Mutating `ref.current` updates referenced value without scheduling component re-renders."
+      },
+      {
+        "id": "react-useref-mcq-2",
+        "question": "How do you attach a ref object `myRef` to a JSX `<input>` tag?",
+        "options": [
+          "`<input id={myRef} />`",
+          "`<input ref={myRef} />`",
+          "`<input bindRef={myRef} />`",
+          "`<input value={myRef} />`"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React populates `myRef.current` with corresponding DOM node using `ref={myRef}` attribute."
+      },
+      {
+        "id": "react-useref-mcq-3",
+        "question": "Which scenario is best suited for `useRef` instead of `useState`?",
+        "options": [
+          "Displaying counter value on screen",
+          "Storing setInterval timer ID for cleanup",
+          "Managing input field typed text",
+          "Modal open/close state"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Timer IDs are background values not displayed in UI markup; `useRef` persists timer IDs without causing extra re-renders."
+      },
+      {
+        "id": "react-useref-mcq-4",
+        "question": "What is initial `.current` value of `useRef(null)`?",
+        "options": [
+          "undefined",
+          "null",
+          "0",
+          "Empty object"
+        ],
+        "correctAnswer": 1,
+        "explanation": "The argument passed to `useRef(initialValue)` initializes `ref.current` to that value (here `null`)."
+      },
+      {
+        "id": "react-useref-mcq-5",
+        "question": "Should you read or write `ref.current` during JSX render body execution?",
+        "options": [
+          "Yes, standard practice",
+          "No, avoid reading/writing `ref.current` during render phase because render body must remain pure",
+          "Only in production",
+          "Only for strings"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Reading/writing refs during render phase violates component render purity; access refs in effects or event handlers."
+      }
+    ]
+  },
+  {
+    "id": "react-usememo",
+    "title": "useMemo",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Memoizing expensive calculations, referential equality optimization, dependency array cache invalidation.",
+    "explanation": {
+      "overview": "`useMemo` caches (memoizes) calculated result of an expensive function between component re-renders, recomputing only when dependencies change.",
+      "sections": [
+        {
+          "heading": "Caching Expensive Calculations",
+          "content": "Syntax: `const cachedValue = useMemo(() => computeExpensiveValue(a, b), [a, b])`. Skips recalculation on re-renders if `a` and `b` retain identical values.",
+          "bulletPoints": [
+            "Performance: Avoids executing heavy loops/sorting algorithms on every render.",
+            "Dependency Array: Re-runs calculation function only when dependencies change."
+          ]
+        },
+        {
+          "heading": "Referential Equality Optimization",
+          "content": "Objects and arrays created during render get fresh reference pointers each render. `useMemo` preserves object reference stability to prevent unnecessary child re-renders.",
+          "bulletPoints": [
+            "Reference Stability: Keeps object references stable for memoized child components (`React.memo`).",
+            "Premature Optimization Warning: Do not wrap simple inexpensive calculations in `useMemo` needlessly."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`useMemo` memoizes return value of a calculation.",
+      "Use for CPU-heavy data transformations or preserving object reference stability.",
+      "Avoid overusing `useMemo` for trivial calculations."
+    ],
+    "codeExamples": [
+      {
+        "title": "useMemo Expensive Filtering & Sorting",
+        "description": "Memoizing filtered list sorting calculation.",
+        "code": "import { useState, useMemo } from 'react';\n\nexport function ProductList({ products }: { products: { id: number; price: number }[] }) {\n  const [maxPrice, setMaxPrice] = useState(100);\n\n  // Heavy filter + sort runs ONLY when products or maxPrice changes\n  const filteredProducts = useMemo(() => {\n    return products\n      .filter(p => p.price <= maxPrice)\n      .sort((a, b) => b.price - a.price);\n  }, [products, maxPrice]);\n\n  return <div>Filtered Count: {filteredProducts.length}</div>;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-usememo-mcq-1",
+        "question": "What is primary purpose of `useMemo` hook in React?",
+        "options": [
+          "To store local state",
+          "To cache result of expensive calculation between renders based on dependency array",
+          "To handle API network calls",
+          "To focus DOM elements"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`useMemo` memoizes computed return values to prevent running expensive calculations on every render."
+      },
+      {
+        "id": "react-usememo-mcq-2",
+        "question": "When does `useMemo(() => fn(), [a, b])` re-execute the calculation function `fn`?",
+        "options": [
+          "On every component render",
+          "Only when value of dependency `a` or `b` changes",
+          "Only on unmount",
+          "Never"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React compares dependencies; `fn` executes only when one or more dependencies change."
+      },
+      {
+        "id": "react-usememo-mcq-3",
+        "question": "How can `useMemo` assist child component performance optimization using `React.memo`?",
+        "options": [
+          "By stopping state updates",
+          "By preserving stable object/array reference pointers across parent re-renders",
+          "By forcing DOM caching",
+          "By clearing props"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Memoizing object props ensures child components receiving object props do not re-render due to new reference creation."
+      },
+      {
+        "id": "react-usememo-mcq-4",
+        "question": "Is `useMemo(() => a + b, [a, b])` recommended for simple 1+1 addition calculations?",
+        "options": [
+          "Yes, always",
+          "No, overhead of hook memory allocation outweighs cost of simple addition",
+          "Required by React 18",
+          "Only in strict mode"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Hook initialization and dependency comparison cost more than simple mathematical operations."
+      },
+      {
+        "id": "react-usememo-mcq-5",
+        "question": "What does `useMemo` return?",
+        "options": [
+          "A setter function",
+          "The memoized value returned by calculation function",
+          "A Promise",
+          "A Ref object"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`useMemo` returns the evaluated result of its callback function."
+      }
+    ]
+  },
+  {
+    "id": "react-usecallback",
+    "title": "useCallback",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Callback function memoization, referential equality for function props, pairing with React.memo.",
+    "explanation": {
+      "overview": "`useCallback` returns a memoized version of a callback function that only changes when its specified dependencies change.",
+      "sections": [
+        {
+          "heading": "Function Reference Equality Problem",
+          "content": "Functions declared inside component bodies are recreated on every render with new memory addresses. Passing inline functions to `React.memo` child components breaks memoization.",
+          "bulletPoints": [
+            "Inline Functions: `const handleClick = () => {}` creates fresh function instance every render.",
+            "Solution: `useCallback(fn, deps)` returns identical function instance as long as `deps` match."
+          ]
+        },
+        {
+          "heading": "useCallback vs useMemo",
+          "content": "`useCallback(fn, deps)` is shorthand equivalent to `useMemo(() => fn, deps)`. `useCallback` caches function definition itself, while `useMemo` caches function return value.",
+          "bulletPoints": [
+            "`useCallback`: Caches function reference.",
+            "`useMemo`: Caches calculated return value."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`useCallback` caches function definitions across renders.",
+      "Essential when passing callback functions as props to memoized (`React.memo`) children.",
+      "`useCallback(fn, deps)` is equivalent to `useMemo(() => fn, deps)`."
+    ],
+    "codeExamples": [
+      {
+        "title": "useCallback with React.memo Child",
+        "description": "Preventing unnecessary child component re-renders with useCallback.",
+        "code": "import { useState, useCallback, memo } from 'react';\n\n// Child component memoized\nconst MemoizedButton = memo(({ onClick }: { onClick: () => void }) => {\n  console.log('Button rendered!');\n  return <button onClick={onClick}>Click Me</button>;\n});\n\nexport function Parent() {\n  const [count, setCount] = useState(0);\n\n  // useCallback keeps onClick reference stable across count re-renders\n  const handleClick = useCallback(() => {\n    console.log('Button clicked');\n  }, []); // Empty deps = stable reference forever\n\n  return (\n    <div>\n      <p>Parent Count: {count}</p>\n      <button onClick={() => setCount(c => c + 1)}>Increment Parent</button>\n      <MemoizedButton onClick={handleClick} />\n    </div>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-usecallback-mcq-1",
+        "question": "What does `useCallback` cache between renders?",
+        "options": [
+          "Returned evaluation result",
+          "The function reference itself",
+          "Component state",
+          "DOM elements"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`useCallback` memoizes and returns identical function instance reference."
+      },
+      {
+        "id": "react-usecallback-mcq-2",
+        "question": "What is main use case for wrapping a function prop in `useCallback`?",
+        "options": [
+          "Speed up function execution",
+          "Prevent `React.memo` child components from re-rendering due to fresh function references",
+          "Make function asynchronous",
+          "Auto-catch errors"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Stable function references prevent memoized child components receiving function props from re-rendering."
+      },
+      {
+        "id": "react-usecallback-mcq-3",
+        "question": "What is relationship between `useCallback(fn, deps)` and `useMemo`?",
+        "options": [
+          "Opposites",
+          "`useCallback(fn, deps)` is equivalent to `useMemo(() => fn, deps)`",
+          "useCallback is legacy",
+          "No relationship"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`useCallback` is shorthand for memoizing a function definition using `useMemo`."
+      },
+      {
+        "id": "react-usecallback-mcq-4",
+        "question": "What happens if a state variable used inside `useCallback` function is omitted from dependency array?",
+        "options": [
+          "Throws syntax error",
+          "Stale closure bug where function references outdated state value from initial render",
+          "State resets to 0",
+          "Automatic update"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Omitting reactive values creates stale closure bugs where function reads old state."
+      },
+      {
+        "id": "react-usecallback-mcq-5",
+        "question": "Does wrapping every function in component with `useCallback` automatically improve application performance?",
+        "options": [
+          "Yes, 100%",
+          "No, adding `useCallback` blindly creates extra memory overhead and dependency array checks for no benefit without memoized child components",
+          "Required in React 18",
+          "Only for arrow functions"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`useCallback` has allocation cost; using it without memoized receiver components adds unnecessary overhead."
+      }
+    ]
+  },
+  {
+    "id": "react-context",
+    "title": "Context",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Solving prop drilling, createContext, Provider/Consumer, useContext hook, and context re-render performance.",
+    "explanation": {
+      "overview": "React Context enables sharing global data (theme, authentication, user settings) across component tree without explicit prop drilling.",
+      "sections": [
+        {
+          "heading": "createContext & useContext",
+          "content": "`const Context = createContext(defaultVal)` creates context object. `<Context.Provider value={data}>` supplies data to children, consumed via `useContext(Context)`.",
+          "bulletPoints": [
+            "Provider: Wraps component subtree delivering shared state.",
+            "useContext: Consumes context value inside any nested child component.",
+            "Prop Drilling Solution: Bypasses intermediate component layers."
+          ]
+        },
+        {
+          "heading": "Context Re-render Performance Warning",
+          "content": "When Provider `value` changes, ALL components consuming that context re-render automatically, bypassing `React.memo`.",
+          "bulletPoints": [
+            "Value Memoization: Wrap provider `value` in `useMemo` to prevent unnecessary object reference changes.",
+            "Context Splitting: Separate state context from dispatch/action context."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Context solves deep prop drilling for global data.",
+      "Consuming components re-render whenever provider value changes.",
+      "Memoize provider `value` object with `useMemo` to optimize render performance."
+    ],
+    "codeExamples": [
+      {
+        "title": "Theme Context Provider & Consumer",
+        "description": "Creating theme context provider and consuming via useContext hook.",
+        "code": "import { createContext, useContext, useState, useMemo, ReactNode } from 'react';\n\ninterface ThemeContextType { theme: string; toggleTheme: () => void; }\nconst ThemeContext = createContext<ThemeContextType | undefined>(undefined);\n\nexport function ThemeProvider({ children }: { children: ReactNode }) {\n  const [theme, setTheme] = useState('light');\n  const toggleTheme = () => setTheme(t => t === 'light' ? 'dark' : 'light');\n\n  // Memoize provider value to prevent extra child re-renders\n  const value = useMemo(() => ({ theme, toggleTheme }), [theme]);\n\n  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;\n}\n\nexport function ThemeButton() {\n  const context = useContext(ThemeContext);\n  if (!context) throw new Error('ThemeButton must be inside ThemeProvider');\n  return <button onClick={context.toggleTheme}>Current Theme: {context.theme}</button>;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-context-mcq-1",
+        "question": "What primary problem does React Context solve?",
+        "options": [
+          "CSS styling issues",
+          "Prop drilling across deeply nested component trees",
+          "Database SQL queries",
+          "TypeScript compilation errors"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Context provides shared data access directly without passing props through intermediate layers."
+      },
+      {
+        "id": "react-context-mcq-2",
+        "question": "Which hook consumes a React Context inside a functional component?",
+        "options": [
+          "useContext",
+          "useProvider",
+          "useStore",
+          "useState"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`useContext(MyContext)` reads current context value from nearest matching Provider ancestor."
+      },
+      {
+        "id": "react-context-mcq-3",
+        "question": "What happens to consumer components when Context Provider `value` prop updates?",
+        "options": [
+          "Consumers stay unchanged",
+          "ALL components consuming that context re-render automatically",
+          "Only top component re-renders",
+          "Warning printed"
+        ],
+        "correctAnswer": 1,
+        "explanation": "When provider value updates, React re-renders every component consuming that context."
+      },
+      {
+        "id": "react-context-mcq-4",
+        "question": "Why should Context Provider `value={{ state, dispatch }}` object be wrapped in `useMemo`?",
+        "options": [
+          "Required by TypeScript",
+          "To keep value object reference stable across provider renders so consumers do not re-render unnecessarily",
+          "To make value string",
+          "To allow HTML export"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Creating unmemoized inline objects inside provider value creates fresh references every render, forcing consumer re-renders."
+      },
+      {
+        "id": "react-context-mcq-5",
+        "question": "When is Context default argument `createContext(defaultValue)` used by a consumer?",
+        "options": [
+          "Always",
+          "Only when consumer component is rendered WITHOUT a matching Provider ancestor above it in DOM tree",
+          "When state is null",
+          "Never"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`defaultValue` is fallback used only if component consumes context outside matching Provider tree."
+      }
+    ]
+  },
+  {
+    "id": "react-custom-hooks",
+    "title": "Custom hooks",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Extracting reusable stateful logic, `use` prefix naming rule, composability of standard built-in hooks.",
+    "explanation": {
+      "overview": "Custom Hooks are JavaScript functions whose names start with `use` that encapsulate reusable stateful logic composed of standard React built-in hooks.",
+      "sections": [
+        {
+          "heading": "Custom Hook Rules & Naming",
+          "content": "A custom hook must start with `use` prefix (`useFetch`, `useAuth`, `useLocalStorage`). Enforces React Linter Rules of Hooks.",
+          "bulletPoints": [
+            "Encapsulation: Isolates stateful logic from UI rendering.",
+            "State Isolation: Calling a custom hook twice creates TWO completely independent state instances.",
+            "Rules of Hooks: Call hooks unconditionally at top level."
+          ]
+        },
+        {
+          "heading": "Extracting Logic Patterns",
+          "content": "Custom hooks extract data fetching, form handling, window event listeners, and media queries into clean reusable abstractions.",
+          "bulletPoints": [
+            "Data Fetching: `useFetch(url)` returning `{ data, loading, error }`.",
+            "Form Handling: `useForm(initialValues)` returning `{ values, handleChange }`."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Custom hook names MUST start with `use`.",
+      "Custom hooks share stateful *logic*, NOT shared state instances.",
+      "Follow standard Rules of Hooks inside custom hooks."
+    ],
+    "codeExamples": [
+      {
+        "title": "useLocalStorage Custom Hook",
+        "description": "Extracting persistent state synchronization with localStorage.",
+        "code": "import { useState, useEffect } from 'react';\n\nexport function useLocalStorage<T>(key: string, initialValue: T) {\n  const [storedValue, setStoredValue] = useState<T>(() => {\n    try {\n      const item = window.localStorage.getItem(key);\n      return item ? JSON.parse(item) : initialValue;\n    } catch (error) {\n      return initialValue;\n    }\n  });\n\n  useEffect(() => {\n    window.localStorage.setItem(key, JSON.stringify(storedValue));\n  }, [key, storedValue]);\n\n  return [storedValue, setStoredValue] as const;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-custom-hooks-mcq-1",
+        "question": "What naming rule must custom React hooks strictly follow?",
+        "options": [
+          "Must end with Hook",
+          "Must start with lowercase `use` prefix",
+          "Must be uppercase",
+          "Must contain Component"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React linter relies on `use` prefix to enforce Rules of Hooks inside custom hook functions."
+      },
+      {
+        "id": "react-custom-hooks-mcq-2",
+        "question": "If Component A and Component B both invoke `const data = useFetch('/api')`, do they share state?",
+        "options": [
+          "Yes, state is shared globally",
+          "No, each hook invocation creates completely independent state variables",
+          "Only in production",
+          "Only if wrapped in Context"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Custom hooks reuse stateful *logic*; each component call gets isolated independent state."
+      },
+      {
+        "id": "react-custom-hooks-mcq-3",
+        "question": "Can custom hooks invoke other built-in React hooks like `useState` and `useEffect`?",
+        "options": [
+          "No",
+          "Yes, custom hooks compose built-in hooks and other custom hooks",
+          "Only class hooks",
+          "Only in Next.js"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Custom hooks build higher-level abstractions by composing built-in React hooks."
+      },
+      {
+        "id": "react-custom-hooks-mcq-4",
+        "question": "What should a custom hook return?",
+        "options": [
+          "JSX element",
+          "Any data structure (array tuple, object, primitive, function)",
+          "Must return Promise",
+          "Must return void"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Custom hooks can return arrays `[val, setVal]`, objects `{ data, loading }`, or any value."
+      },
+      {
+        "id": "react-custom-hooks-mcq-5",
+        "question": "What is primary engineering advantage of custom hooks?",
+        "options": [
+          "Replaces CSS stylesheets",
+          "Separates complex stateful business logic from UI component rendering for clean testing and reuse",
+          "Bypasses browser event loop",
+          "Compiles code to WebAssembly"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Custom hooks decouple stateful business logic from UI view code."
+      }
+    ]
+  },
+  {
+    "id": "react-forms",
+    "title": "Forms",
+    "category": "REACT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Form state handling, input event handlers, onSubmit validation, and form libraries.",
+    "explanation": {
+      "overview": "Form handling in React manages user input via component state, handling input `onChange` events and form `onSubmit` actions.",
+      "sections": [
+        {
+          "heading": "Handling Form Inputs in React",
+          "content": "Input fields bind their `value` to state and update state using `onChange` handlers. Multiple input fields can share a single state object using input `name` attributes.",
+          "bulletPoints": [
+            "Controlled Binding: `<input value={state} onChange={e => setState(e.target.value)} />`.",
+            "Shared Handler: `const { name, value } = e.target; setForm(prev => ({ ...prev, [name]: value }))`."
+          ]
+        },
+        {
+          "heading": "Form Submission & Libraries",
+          "content": "Form submit events trigger default browser page reloads. Always invoke `e.preventDefault()` inside submit handlers.",
+          "bulletPoints": [
+            "e.preventDefault(): Prevents browser full-page submission reload.",
+            "Form Libraries: React Hook Form / Formik simplify validation, error tracking, and touch state for complex forms."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Bind input values to React state for controlled inputs.",
+      "Call `e.preventDefault()` inside form submit handlers.",
+      "Use React Hook Form for large complex forms with schema validation."
+    ],
+    "codeExamples": [
+      {
+        "title": "Controlled Form with Shared Handler",
+        "description": "Managing multiple input fields with single state object and preventDefault submit.",
+        "code": "import { useState, FormEvent, ChangeEvent } from 'react';\n\nexport function LoginForm() {\n  const [formData, setFormData] = useState({ email: '', password: '' });\n\n  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {\n    const { name, value } = e.target;\n    setFormData(prev => ({ ...prev, [name]: value }));\n  };\n\n  const handleSubmit = (e: FormEvent) => {\n    e.preventDefault(); // Stop page reload!\n    console.log('Submitted:', formData);\n  };\n\n  return (\n    <form onSubmit={handleSubmit}>\n      <input name=\"email\" value={formData.email} onChange={handleChange} placeholder=\"Email\" />\n      <input name=\"password\" type=\"password\" value={formData.password} onChange={handleChange} placeholder=\"Password\" />\n      <button type=\"submit\">Login</button>\n    </form>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-forms-mcq-1",
+        "question": "Why is `e.preventDefault()` invoked inside form `onSubmit` handlers in React?",
+        "options": [
+          "To clear input fields",
+          "To prevent standard HTML browser submission which triggers full page reload",
+          "To focus button",
+          "To enable CSS styles"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`e.preventDefault()` stops default browser form navigation behavior, allowing JS submit handling."
+      },
+      {
+        "id": "react-forms-mcq-2",
+        "question": "How do you access typed character string in an input `onChange` event `e`?",
+        "options": [
+          "e.value",
+          "e.target.value",
+          "e.input.text",
+          "e.data"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`e.target` references target DOM input element; `.value` gets input string value."
+      },
+      {
+        "id": "react-forms-mcq-3",
+        "question": "How can single state object `{ email: '', role: '' }` handle multiple inputs efficiently?",
+        "options": [
+          "Create separate form components",
+          "Use dynamic property key `setForm(p => ({ ...p, [e.target.name]: e.target.value }))`",
+          "Use global window variable",
+          "Use innerHTML"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Computed property name `[e.target.name]` dynamically updates state field matching input `name`."
+      },
+      {
+        "id": "react-forms-mcq-4",
+        "question": "What is primary advantage of React Hook Form library over basic `useState` form state?",
+        "options": [
+          "Eliminates HTML tags",
+          "Uncontrolled performance architecture reducing unnecessary component re-renders on every keystroke",
+          "Bypasses server APIs",
+          "Generates CSS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React Hook Form uses uncontrolled refs to avoid re-rendering entire form on every character input."
+      },
+      {
+        "id": "react-forms-mcq-5",
+        "question": "Which HTML input type requires checking `e.target.checked` instead of `e.target.value`?",
+        "options": [
+          "text",
+          "password",
+          "checkbox",
+          "hidden"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Checkbox input elements use boolean `e.target.checked` property."
+      }
+    ]
+  },
+  {
+    "id": "react-controlled-uncontrolled",
+    "title": "Controlled/uncontrolled",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Controlled inputs (state driven) vs Uncontrolled inputs (DOM ref driven, defaultValue).",
+    "explanation": {
+      "overview": "Form elements can be Controlled (React state holds source of truth) or Uncontrolled (DOM retains internal input state accessed via ref).",
+      "sections": [
+        {
+          "heading": "Controlled Components",
+          "content": "Input `value` prop is bound to React state, and `onChange` updates state on every keystroke. React state acts as single source of truth.",
+          "bulletPoints": [
+            "Single Source of Truth: React state controls displayed value.",
+            "Real-time Validation: Instant input sanitization, dynamic submit enabling.",
+            "Re-render: Component re-renders on every typed character."
+          ]
+        },
+        {
+          "heading": "Uncontrolled Components",
+          "content": "Input retains state inside browser DOM. Uses `defaultValue` for initial state and `useRef` to read value upon submit.",
+          "bulletPoints": [
+            "DOM Source of Truth: Value read on demand via `ref.current.value`.",
+            "Performance: Zero component re-renders while user types.",
+            "Default Value: Uses `defaultValue` instead of `value` prop."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Controlled inputs use `value` + `onChange` (React state holds data).",
+      "Uncontrolled inputs use `defaultValue` + `useRef` (DOM holds data).",
+      "Controlled is standard; Uncontrolled offers performance optimization for large form fields."
+    ],
+    "codeExamples": [
+      {
+        "title": "Uncontrolled Component with useRef",
+        "description": "Reading uncontrolled input value using useRef.",
+        "code": "import { useRef, FormEvent } from 'react';\n\nexport function UncontrolledForm() {\n  const nameRef = useRef<HTMLInputElement>(null);\n\n  const handleSubmit = (e: FormEvent) => {\n    e.preventDefault();\n    alert(`Submitted Name: ${nameRef.current?.value}`); // Read directly from DOM ref\n  };\n\n  return (\n    <form onSubmit={handleSubmit}>\n      {/* defaultValue initializes input without controlling value prop */}\n      <input ref={nameRef} defaultValue=\"John Doe\" />\n      <button type=\"submit\">Submit</button>\n    </form>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-controlled-uncontrolled-mcq-1",
+        "question": "What defines a Controlled input component in React?",
+        "options": [
+          "Value is stored in DOM",
+          "Input `value` prop is bound to React state and updated via `onChange`",
+          "Requires Redux",
+          "Cannot be edited"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In controlled components, React state is single source of truth for input `value`."
+      },
+      {
+        "id": "react-controlled-uncontrolled-mcq-2",
+        "question": "How do you pass initial value to an Uncontrolled input without controlling its state?",
+        "options": [
+          "`value=\"init\"`",
+          "`defaultValue=\"init\"`",
+          "`state=\"init\"`",
+          "`initialValue=\"init\"`"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`defaultValue` initializes uncontrolled DOM inputs without locking `value` prop."
+      },
+      {
+        "id": "react-controlled-uncontrolled-mcq-3",
+        "question": "What error occurs if an input transitions from uncontrolled (`value={undefined}`) to controlled (`value={state}`) after render?",
+        "options": [
+          "TypeError",
+          "React warning: A component is changing an uncontrolled input to be controlled",
+          "Compilation failure",
+          "DOM reset"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Switching from `undefined` value to defined state value triggers React uncontrolled-to-controlled warning."
+      },
+      {
+        "id": "react-controlled-uncontrolled-mcq-4",
+        "question": "Which form element MUST always be an Uncontrolled component in HTML/React?",
+        "options": [
+          "`<input type=\"text\" />`",
+          "`<input type=\"file\" />` (file input value is read-only in DOM security)",
+          "`<textarea>`",
+          "`<select>`"
+        ],
+        "correctAnswer": 1,
+        "explanation": "File inputs are read-only due to browser security and must be accessed via refs as uncontrolled elements."
+      },
+      {
+        "id": "react-controlled-uncontrolled-mcq-5",
+        "question": "What is performance advantage of Uncontrolled input components?",
+        "options": [
+          "Faster bundle size",
+          "Component does not re-render on every user keystroke",
+          "CSS renders faster",
+          "No DOM creation"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Uncontrolled inputs bypass React state update pipeline, avoiding component re-renders per keystroke."
+      }
+    ]
+  },
+  {
+    "id": "react-performance",
+    "title": "Performance",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Profiling React apps, identifying waste renders, key prop rules, windowing/virtualization (react-window).",
+    "explanation": {
+      "overview": "React performance optimization eliminates wasteful component re-renders and reduces DOM element counts using profiling tools and list virtualization.",
+      "sections": [
+        {
+          "heading": "Identifying Waste Renders & React DevTools",
+          "content": "Waste renders occur when components execute render functions without producing visible DOM updates. Use React DevTools Profiler tab to record render timings and component re-render reasons.",
+          "bulletPoints": [
+            "Profiler Tab: Visualizes flame graphs and commit render durations.",
+            "Highlight Updates: Highlights components on screen when re-rendering.",
+            "Common Causes: Unstable prop object references, parent re-renders."
+          ]
+        },
+        {
+          "heading": "List Virtualization (Windowing)",
+          "content": "Rendering thousands of DOM nodes causes severe UI lag. Virtualization libraries (`react-window`, `react-virtualized`) render ONLY DOM nodes visible inside current viewport window.",
+          "bulletPoints": [
+            "Viewport Windowing: Render 20 items visible on screen out of 10,000 total dataset.",
+            "DOM Node Reduction: Keeps browser memory usage flat and scrolling smooth."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use React DevTools Profiler to identify waste re-renders.",
+      "Use list virtualization (`react-window`) for long datasets.",
+      "Optimize state placement to prevent top-level tree re-renders."
+    ],
+    "codeExamples": [
+      {
+        "title": "List Virtualization Concept",
+        "description": "Virtualizing large dataset rendering using react-window.",
+        "code": "import { FixedSizeList as List } from 'react-window';\n\nconst items = Array.from({ length: 10000 }, (_, i) => `Item #${i + 1}`);\n\nexport function VirtualizedList() {\n  return (\n    // Only renders ~10 DOM items visible inside 400px window height!\n    <List height={400} itemCount={items.length} itemSize={35} width={300}>\n      {({ index, style }) => <div style={style}>{items[index]}</div>}\n    </List>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-performance-mcq-1",
+        "question": "What is a 'waste render' in React?",
+        "options": [
+          "A component throwing an error",
+          "A component re-rendering when its rendered DOM output remains unchanged",
+          "Unused CSS rule",
+          "Failed API call"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Waste render occurs when render phase calculates Virtual DOM that results in zero real DOM changes."
+      },
+      {
+        "id": "react-performance-mcq-2",
+        "question": "What technique does 'List Virtualization' (Windowing) use to optimize rendering 50,000 items?",
+        "options": [
+          "Loads items in Web Worker",
+          "Renders ONLY items visible within current container viewport DOM window",
+          "Compiles items to Canvas",
+          "Paginates backend"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Virtualization renders only visible items in DOM, recycling container nodes as user scrolls."
+      },
+      {
+        "id": "react-performance-mcq-3",
+        "question": "Which browser extension tool visualizes React component render durations and re-render triggers?",
+        "options": [
+          "Network Tab",
+          "React DevTools Profiler",
+          "Redux DevTools",
+          "Lighthouse"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React DevTools Profiler records flamegraphs of component render timing and state/prop update triggers."
+      },
+      {
+        "id": "react-performance-mcq-4",
+        "question": "How does lifting state UP too high in component tree impact render performance?",
+        "options": [
+          "Improves performance",
+          "Forces entire component subtree below state provider to re-render whenever state changes",
+          "Causes CSS corruption",
+          "Deletes props"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Lifting state high causes all descendant child components to re-render when state updates."
+      },
+      {
+        "id": "react-performance-mcq-5",
+        "question": "What benefit does moving state DOWN to localized leaf components provide?",
+        "options": [
+          "Reduces state sizes",
+          "Isolates re-renders to only leaf components that require updated state",
+          "Disables hooks",
+          "Accelerates bundle downloads"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Pushing state down prevents parent and sibling components from re-rendering on local state changes."
+      }
+    ]
+  },
+  {
+    "id": "react-memo",
+    "title": "React.memo",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Higher-Order Component memoization, shallow prop comparison, custom areEqual comparator function.",
+    "explanation": {
+      "overview": "`React.memo` is a Higher-Order Component (HOC) that skips re-rendering a component if its props have not changed.",
+      "sections": [
+        {
+          "heading": "Shallow Prop Comparison",
+          "content": "`React.memo(Component)` performs shallow comparison (`Object.is`) of previous and current props. If props match, React reuses cached previous render output.",
+          "bulletPoints": [
+            "Shallow Equal: Compares primitive prop values by value, objects/functions by reference pointer.",
+            "Optimization: Prevents child re-renders caused strictly by parent component updates."
+          ]
+        },
+        {
+          "heading": "Custom Comparator Function",
+          "content": "Pass second argument `areEqual(prevProps, nextProps)` to customize prop comparison logic.",
+          "bulletPoints": [
+            "Syntax: `React.memo(Component, (prev, next) => boolean)`.",
+            "Return true: Props ARE equal -> SKIP render.",
+            "Return false: Props ARE NOT equal -> RE-RENDER component."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`React.memo` memoizes component render output based on prop comparison.",
+      "Performs shallow prop equality check by default.",
+      "Return `true` from custom `areEqual` comparator to SKIP re-render."
+    ],
+    "codeExamples": [
+      {
+        "title": "React.memo with Custom Comparator",
+        "description": "Memoizing component with custom prop comparison function.",
+        "code": "import { memo } from 'react';\n\ninterface UserProps { id: number; name: string; details: { age: number } }\n\n// Custom comparator returns true to SKIP render when id and name match\nexport const UserRow = memo(\n  function UserRow({ id, name }: UserProps) {\n    console.log(`Rendered UserRow ${id}`);\n    return <div>{name}</div>;\n  },\n  (prevProps, nextProps) => {\n    return prevProps.id === nextProps.id && prevProps.name === nextProps.name;\n  }\n);"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-memo-mcq-1",
+        "question": "What does `React.memo` do when wrapped around a component `const MemoComponent = React.memo(MyComponent)`?",
+        "options": [
+          "Makes state global",
+          "Skips re-rendering component if props remain shallowly equal to previous render",
+          "Deletes component from DOM",
+          "Caches API responses"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`React.memo` caches render output and skips re-rendering when props match."
+      },
+      {
+        "id": "react-memo-mcq-2",
+        "question": "What comparison strategy does `React.memo` use by default for props?",
+        "options": [
+          "Deep recursive object comparison",
+          "Shallow equality check (`Object.is`) across prop keys",
+          "String comparison",
+          "Reference count"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`React.memo` performs shallow comparison on incoming prop object keys."
+      },
+      {
+        "id": "react-memo-mcq-3",
+        "question": "Why does `<MemoChild onClick={() => {}} />` re-render every time parent re-renders despite `React.memo`?",
+        "options": [
+          "React.memo is broken",
+          "Inline arrow function creates fresh function reference every render, failing shallow prop equality",
+          "Child state changed",
+          "Strict mode bug"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Inline functions create new object references every render, making shallow prop comparison return false."
+      },
+      {
+        "id": "react-memo-mcq-4",
+        "question": "In `React.memo(Component, areEqual)`, what does returning `true` from `areEqual(prevProps, nextProps)` signify?",
+        "options": [
+          "Props are DIFFERENT -> Re-render component",
+          "Props are EQUAL -> SKIP re-render",
+          "Component threw error",
+          "Unmount component"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Returning `true` tells React props are equal, skipping component re-render."
+      },
+      {
+        "id": "react-memo-mcq-5",
+        "question": "Does `React.memo` prevent a component from re-rendering if its OWN internal `useState` state updates?",
+        "options": [
+          "Yes, skips all renders",
+          "No, component STILL re-renders when its own internal state or context changes",
+          "Only in production",
+          "Only if props are null"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`React.memo` skips renders triggered by parent updates, but component still re-renders on its own state/context changes."
+      }
+    ]
+  },
+  {
+    "id": "react-lazy-loading",
+    "title": "Lazy loading",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "On-demand component dynamic imports, React.lazy, Suspense fallback boundaries.",
+    "explanation": {
+      "overview": "`React.lazy()` enables dynamic import of components on demand, deferring JavaScript bundle download until component is rendered.",
+      "sections": [
+        {
+          "heading": "React.lazy & Dynamic Import Syntax",
+          "content": "`const LazyComp = React.lazy(() => import('./LazyComp'))` dynamic import syntax loads bundle chunk lazily.",
+          "bulletPoints": [
+            "Default Export Rule: Component targeted by `React.lazy` MUST be exported as `default`.",
+            "Code Splitting: Bundlers (Webpack, Vite) emit separate JS chunk file for lazy component."
+          ]
+        },
+        {
+          "heading": "Suspense Fallback Boundary",
+          "content": "Lazy components must be wrapped inside `<Suspense fallback={<Loading />}>`. Displays fallback UI while bundle JS downloads across network.",
+          "bulletPoints": [
+            "Fallback UI: Displays spinner/skeleton placeholder while loading.",
+            "Boundary Placement: Place `<Suspense>` at route level or component level."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use `React.lazy()` for on-demand component loading.",
+      "Target component MUST use default export (`export default`).",
+      "Always wrap lazy components inside `<Suspense fallback={...}>`."
+    ],
+    "codeExamples": [
+      {
+        "title": "React.lazy with Suspense Boundary",
+        "description": "Lazy loading a heavy chart component with fallback spinner.",
+        "code": "import { lazy, Suspense } from 'react';\n\n// Dynamic import creates separate bundle chunk\nconst HeavyChart = lazy(() => import('./HeavyChart')); // Must be default export!\n\nexport function AnalyticsDashboard() {\n  return (\n    <div>\n      <h1>Analytics</h1>\n      <Suspense fallback={<div className=\"p-4\">Loading Chart Bundle...</div>}>\n        <HeavyChart />\n      </Suspense>\n    </div>\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-lazy-loading-mcq-1",
+        "question": "What export format is required for components loaded via `React.lazy()`?",
+        "options": [
+          "Named export (`export const Comp`)",
+          "Default export (`export default Comp`)",
+          "CommonJS `module.exports`",
+          "Global window"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`React.lazy` expects a promise resolving to a module with a `default` export."
+      },
+      {
+        "id": "react-lazy-loading-mcq-2",
+        "question": "What component wrapper is REQUIRED around a `React.lazy` component to prevent crash while loading bundle?",
+        "options": [
+          "`<ErrorBoundary>`",
+          "`<Suspense fallback={<Spinner />}>`",
+          "`<Provider>`",
+          "`<Fragment>`"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Lazy components require a `<Suspense>` parent boundary with a `fallback` UI prop."
+      },
+      {
+        "id": "react-lazy-loading-mcq-3",
+        "question": "What does bundler (Vite/Webpack) generate when encountering `import('./MyComp')` in code?",
+        "options": [
+          "Single monolithic main bundle",
+          "Separate dynamic JavaScript chunk file loaded on demand",
+          "HTML file",
+          "CSS stylesheet"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Dynamic `import()` signals bundlers to split code into separate downloadable chunk files."
+      },
+      {
+        "id": "react-lazy-loading-mcq-4",
+        "question": "What UI is rendered while dynamic bundle JS chunk is downloading over network?",
+        "options": [
+          "Blank white screen",
+          "The JSX element provided in `<Suspense fallback={...}>` prop",
+          "Error boundary error text",
+          "Previous page"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Suspense renders its `fallback` prop content until dynamic import resolves."
+      },
+      {
+        "id": "react-lazy-loading-mcq-5",
+        "question": "Where is lazy loading most commonly applied in single page applications?",
+        "options": [
+          "Inside utility loops",
+          "At top-level application route boundaries (page routes)",
+          "Inside state updaters",
+          "Inside custom hooks"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Route-level code splitting ensures users download code only for pages they actually visit."
+      }
+    ]
+  },
+  {
+    "id": "react-code-splitting",
+    "title": "Code splitting",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Reducing initial JavaScript bundle size, route-based splitting, dynamic import() statements.",
+    "explanation": {
+      "overview": "Code Splitting breaks massive single-file JavaScript bundles into smaller chunks loaded on demand, accelerating initial page load and Time to Interactive (TTI).",
+      "sections": [
+        {
+          "heading": "Initial Bundle Bloat Problem",
+          "content": "Single-page apps without code splitting force users to download entire application code upfront (admin dashboards, profile settings, editor modal scripts) before rendering initial homepage.",
+          "bulletPoints": [
+            "Bundle Size Impact: High JS bundle size causes slow mobile load times.",
+            "Time to Interactive (TTI): Delay before page becomes responsive to user taps."
+          ]
+        },
+        {
+          "heading": "Route-Based & Feature-Based Splitting",
+          "content": "Split bundles at page routes or heavy feature modules (modal dialogs, rich text editors, PDF generators).",
+          "bulletPoints": [
+            "Route-Based: Split `/dashboard`, `/settings`, `/admin` into isolated chunks.",
+            "Feature-Based: Dynamically import heavy libraries (e.g. `chart.js` or `pdfmake`) only when user clicks export."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Code splitting reduces initial JS bundle size.",
+      "Improves page load metrics (FCP, TTI).",
+      "Combine route-based code splitting with component feature splitting."
+    ],
+    "codeExamples": [
+      {
+        "title": "Feature-Based Dynamic Import",
+        "description": "Dynamically importing heavy library only on button click.",
+        "code": "export function ExportButton() {\n  const handleExport = async () => {\n    // Dynamically load heavy pdf library on demand!\n    const jsPDF = (await import('jspdf')).default;\n    const doc = new jsPDF();\n    doc.text('Hello Report!', 10, 10);\n    doc.save('report.pdf');\n  };\n\n  return <button onClick={handleExport}>Download PDF Report</button>;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-code-splitting-mcq-1",
+        "question": "What primary performance metric does Code Splitting directly improve?",
+        "options": [
+          "Database query speed",
+          "Initial page load time and Time to Interactive (TTI)",
+          "CSS animation FPS",
+          "RAM allocation"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Smaller initial JS bundles download and parse faster, improving initial page load time."
+      },
+      {
+        "id": "react-code-splitting-mcq-2",
+        "question": "Which JavaScript language feature enables code splitting at bundler level?",
+        "options": [
+          "eval()",
+          "Dynamic `import('module')` statement returning a Promise",
+          "async/await",
+          "Generator functions"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Dynamic `import()` acts as code splitting entry point for bundlers."
+      },
+      {
+        "id": "react-code-splitting-mcq-3",
+        "question": "What is 'Route-Based Code Splitting'?",
+        "options": [
+          "Splitting CSS per page",
+          "Creating separate JS bundle chunks corresponding to individual application page routes",
+          "Splitting backend database",
+          "Creating multi-domain URLs"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Route-based splitting loads JS bundle chunk for a specific route only when user navigates to it."
+      },
+      {
+        "id": "react-code-splitting-mcq-4",
+        "question": "When should heavy third-party libraries (e.g., chart or math rendering engines) be loaded?",
+        "options": [
+          "In `<head>` tag synchronously",
+          "Dynamically imported when user opens feature that requires library",
+          "Inside root index.js",
+          "Inside CSS file"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Dynamically importing heavy feature libraries keeps main bundle small."
+      },
+      {
+        "id": "react-code-splitting-mcq-5",
+        "question": "Which tool executes physical file chunk splitting during production builds?",
+        "options": [
+          "Browser V8 engine",
+          "Module Bundlers (Webpack, Vite, Rollup, ESBuild)",
+          "React runtime",
+          "Babel preset-env"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Module bundlers split JS code into distinct chunk files during build process."
+      }
+    ]
+  },
+  {
+    "id": "react-error-boundaries",
+    "title": "Error boundaries",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Catching JavaScript errors in child tree, componentDidCatch, getDerivedStateFromError, fallback UI.",
+    "explanation": {
+      "overview": "Error Boundaries are React components that catch JavaScript errors anywhere in child component tree, log errors, and display fallback UI instead of crashing whole application screen.",
+      "sections": [
+        {
+          "heading": "Class Component Requirement & Lifecycle Methods",
+          "content": "Error Boundaries MUST be Class components because React currently lacks a functional hook equivalent for error boundary lifecycles.",
+          "bulletPoints": [
+            "`static getDerivedStateFromError(error)`: Renders fallback UI state.",
+            "`componentDidCatch(error, errorInfo)`: Logs error details to reporting services (Sentry, LogRocket).",
+            "Scope: Catches errors during rendering, lifecycle methods, and constructors of child components."
+          ]
+        },
+        {
+          "heading": "What Error Boundaries Do NOT Catch",
+          "content": "Error Boundaries do NOT catch errors inside:\n1. Asynchronous code (`setTimeout`, promise callbacks).\n2. Event handlers (`onClick` - use standard `try/catch`).\n3. Server-side rendering (SSR).\n4. Errors thrown inside error boundary component itself.",
+          "bulletPoints": [
+            "Event Handlers: Use `try...catch` inside button click handlers.",
+            "Async Callbacks: Handle promise rejections explicitly."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Error Boundaries catch render errors in child component subtrees.",
+      "MUST be Class components implementing `getDerivedStateFromError` or `componentDidCatch`.",
+      "Do NOT catch errors inside event handlers or async callbacks."
+    ],
+    "codeExamples": [
+      {
+        "title": "Error Boundary Class Component",
+        "description": "Implementing Error Boundary fallback UI and Sentry error logging.",
+        "code": "import { Component, ReactNode, ErrorInfo } from 'react';\n\ninterface Props { children: ReactNode; }\ninterface State { hasError: boolean; }\n\nexport class ErrorBoundary extends Component<Props, State> {\n  state: State = { hasError: false };\n\n  static getDerivedStateFromError(_: Error): State {\n    return { hasError: true }; // Display fallback UI on next render\n  }\n\n  componentDidCatch(error: Error, errorInfo: ErrorInfo) {\n    console.error('Uncaught Error Boundary:', error, errorInfo);\n  }\n\n  render() {\n    if (this.state.hasError) {\n      return <div className=\"p-4 bg-red-100 text-red-800\">Something went wrong in this section.</div>;\n    }\n    return this.props.children;\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-error-boundaries-mcq-1",
+        "question": "Why must Error Boundaries be implemented as Class components in React currently?",
+        "options": [
+          "Class components run faster",
+          "React lacks functional hook equivalents for `componentDidCatch` or `getDerivedStateFromError`",
+          "Required for CSS styles",
+          "Functional components cannot catch props"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Error boundary lifecycle methods (`componentDidCatch`, `getDerivedStateFromError`) exist only in class components."
+      },
+      {
+        "id": "react-error-boundaries-mcq-2",
+        "question": "Which static lifecycle method updates state to render fallback UI after error occurs in child component?",
+        "options": [
+          "componentDidMount",
+          "static getDerivedStateFromError(error)",
+          "componentWillUnmount",
+          "render"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`getDerivedStateFromError` returns state object updating component to display fallback UI."
+      },
+      {
+        "id": "react-error-boundaries-mcq-3",
+        "question": "Does an Error Boundary catch uncaught exceptions thrown inside a button `onClick` event handler?",
+        "options": [
+          "Yes, catches all errors",
+          "No, Error Boundaries do NOT catch errors inside event handlers (use try/catch)",
+          "Only in development",
+          "Only in Next.js"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Event handler errors do not occur during render phase; use standard `try/catch` inside event handlers."
+      },
+      {
+        "id": "react-error-boundaries-mcq-4",
+        "question": "What happens to React UI tree if an uncaught render error occurs WITHOUT an Error Boundary?",
+        "options": [
+          "Hides broken component",
+          "Entire React application unmounts, presenting a blank white screen",
+          "Ignores error",
+          "Reloads page"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Uncaught render errors unmount the entire component tree, causing blank screens."
+      },
+      {
+        "id": "react-error-boundaries-mcq-5",
+        "question": "Which lifecycle method is used inside Error Boundary to log error stacktraces to external logging services?",
+        "options": [
+          "componentDidMount",
+          "componentDidCatch(error, errorInfo)",
+          "shouldComponentUpdate",
+          "constructor"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`componentDidCatch` receives error details and component stack trace for logging to telemetry services."
+      }
+    ]
+  },
+  {
+    "id": "react-ssr-csr-basics",
+    "title": "SSR/CSR basics",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Client-Side Rendering vs Server-Side Rendering, hydration, SEO implications, and Next.js basics.",
+    "explanation": {
+      "overview": "Single-Page Applications use Client-Side Rendering (CSR) or Server-Side Rendering (SSR) to render UI markup and manage user interactivity.",
+      "sections": [
+        {
+          "heading": "Client-Side Rendering (CSR)",
+          "content": "Browser downloads empty HTML shell `<div id=\"root\"></div>` and large JS bundle. Browser JS executes, fetches data, and constructs DOM client-side.",
+          "bulletPoints": [
+            "Initial HTML: Empty shell div container.",
+            "Pros: Smooth client page transitions, lower server CPU load.",
+            "Cons: Slow initial paint (FCP), poor SEO without client JS execution."
+          ]
+        },
+        {
+          "heading": "Server-Side Rendering (SSR) & Hydration",
+          "content": "Server generates fully populated HTML string per request. Browser displays HTML immediately, followed by React **Hydration** attaching event listeners to static markup.",
+          "bulletPoints": [
+            "Initial HTML: Fully populated content markup.",
+            "Hydration: React attaches event listeners to pre-rendered HTML DOM.",
+            "SEO: Web crawlers read fully populated HTML content instantly."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "CSR renders DOM in browser via JS; SSR pre-renders HTML on server per request.",
+      "SSR provides immediate FCP and superior SEO crawler indexability.",
+      "Hydration connects JS event listeners to server-rendered HTML DOM."
+    ],
+    "codeExamples": [
+      {
+        "title": "Hydration Concept",
+        "description": "Hydrating server-rendered HTML using ReactDOM.hydrateRoot.",
+        "code": "import ReactDOM from 'react-dom/client';\nimport App from './App';\n\n// Hydrate attaches React event listeners to existing server-rendered DOM!\nReactDOM.hydrateRoot(\n  document.getElementById('root')!,\n  <App />\n);"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-ssr-csr-basics-mcq-1",
+        "question": "What does browser initial HTML response contain in pure Client-Side Rendering (CSR)?",
+        "options": [
+          "Complete DOM tree with data",
+          "Empty container shell `<div id=\"root\"></div>` and script bundle tag",
+          "PDF file",
+          "Pre-rendered image"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CSR sends minimal HTML shell; JavaScript builds entire UI client-side."
+      },
+      {
+        "id": "react-ssr-csr-basics-mcq-2",
+        "question": "What is 'Hydration' in React SSR?",
+        "options": [
+          "Downloading CSS styles",
+          "Process where client React attaches event listeners and state to server-rendered static HTML DOM",
+          "Compiling TypeScript",
+          "Clearing local storage"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Hydration preserves server-rendered HTML markup while attaching interactive JS event handlers."
+      },
+      {
+        "id": "react-ssr-csr-basics-mcq-3",
+        "question": "Why does Server-Side Rendering (SSR) offer better Search Engine Optimization (SEO)?",
+        "options": [
+          "SSR uses smaller fonts",
+          "Search engine web crawlers receive fully populated HTML content immediately without requiring JS execution",
+          "SSR disables CORS",
+          "SSR encrypts URL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Search engine crawlers read pre-rendered HTML content directly without running client JS."
+      },
+      {
+        "id": "react-ssr-csr-basics-mcq-4",
+        "question": "What causes a 'Hydration Mismatch Error' in SSR applications?",
+        "options": [
+          "CSS import error",
+          "Server-rendered HTML output differs from initial client render output (e.g. using window.innerWidth or new Date() on render)",
+          "Network timeout",
+          "Database query fail"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Hydration errors occur when client initial render tree does not match server pre-rendered HTML tree."
+      },
+      {
+        "id": "react-ssr-csr-basics-mcq-5",
+        "question": "Which modern React framework simplifies SSR, SSG, and Server Components?",
+        "options": [
+          "Redux Toolkit",
+          "Next.js",
+          "jQuery",
+          "Babel"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Next.js is the leading React framework for Server-Side Rendering and static site generation."
+      }
+    ]
+  }
+]

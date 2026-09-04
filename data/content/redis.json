@@ -1,0 +1,1574 @@
+[
+  {
+    "id": "redis-strings",
+    "title": "Strings",
+    "category": "REDIS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Basic key-value data type, 512MB limit, SET/GET, INCR/DECR atomic counters, and MSET/MGET.",
+    "explanation": {
+      "overview": "Redis Strings are the fundamental key-value building block in Redis, capable of storing text, serialized JSON, or binary data up to 512MB.",
+      "sections": [
+        {
+          "heading": "String Commands & Atomic Operations",
+          "content": "Core commands include `SET key val`, `GET key`, `MSET`, `MGET`, and atomic integer operations `INCR`, `DECR`, `INCRBY`.",
+          "bulletPoints": [
+            "`SET key val EX 60`: Sets string with 60-second TTL.",
+            "`INCR counter`: Atomically increments integer string by 1.",
+            "`MGET k1 k2`: Batch retrieves multiple keys in single roundtrip."
+          ]
+        },
+        {
+          "heading": "Bitmaps & Bit Operations",
+          "content": "Redis Strings support bit-level operations (`SETBIT`, `GETBIT`, `BITCOUNT`), enabling space-efficient binary tracking (e.g. daily active users).",
+          "bulletPoints": [
+            "Bitmaps: Tracks boolean flags across millions of users in kilobytes.",
+            "Bitcount: Counts set bits efficiently."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Strings hold text, JSON, or binary data up to 512MB.",
+      "`INCR`/`DECR` provide atomic thread-safe counters.",
+      "Use `MGET`/`MSET` to batch network roundtrips."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis String Commands",
+        "description": "Setting string with expiration and incrementing atomic counter.",
+        "code": "# Set key with 60s expiration\nSET user:session:1001 \"{\"userId\": 42}\" EX 60\n\n# Atomic counter increment\nINCR page:views:home\nINCRBY page:views:home 5\n\n# Get current counter value\nGET page:views:home"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-strings-mcq-1",
+        "question": "What is maximum binary size limit for a single Redis String value?",
+        "options": [
+          "1MB",
+          "64MB",
+          "512MB",
+          "2GB"
+        ],
+        "correctAnswer": 2,
+        "explanation": "A single Redis String key can store up to 512MB of data."
+      },
+      {
+        "id": "redis-strings-mcq-2",
+        "question": "What property makes `INCR key` suitable for concurrent rate limit counters?",
+        "options": [
+          "Runs asynchronously",
+          "Atomic thread-safe execution in single-threaded Redis engine prevents race conditions",
+          "Deletes key on 0",
+          "Uses SSL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis single-threaded execution guarantees `INCR` is atomic and safe against race conditions."
+      },
+      {
+        "id": "redis-strings-mcq-3",
+        "question": "Which command retrieves values for multiple string keys in a single network roundtrip?",
+        "options": [
+          "GETALL",
+          "MGET",
+          "MULTI-GET",
+          "FETCH"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`MGET key1 key2 key3` batch fetches values in single network roundtrip."
+      },
+      {
+        "id": "redis-strings-mcq-4",
+        "question": "How do you set a string key `user:token` to expire automatically after 300 seconds?",
+        "options": [
+          "SET user:token val EX 300",
+          "SET user:token val TTL 300",
+          "EXPIRE user:token val 300",
+          "SETTIME user:token 300"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`SET key val EX 300` sets value and 300-second expiration atomically."
+      },
+      {
+        "id": "redis-strings-mcq-5",
+        "question": "What happens when `INCR counter` is called on a key that does NOT exist?",
+        "options": [
+          "Throws error",
+          "Redis initializes key to 0 then increments it to 1",
+          "Returns null",
+          "Ignores call"
+        ],
+        "correctAnswer": 1,
+        "explanation": "If key does not exist, Redis sets key to 0 before executing `INCR`, resulting in value 1."
+      }
+    ]
+  },
+  {
+    "id": "redis-hashes",
+    "title": "Hashes",
+    "category": "REDIS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Field-value object mapping, HSET, HGET, HGETALL, HINCRBY, memory efficiency of ziplists.",
+    "explanation": {
+      "overview": "Redis Hashes are maps between string fields and string values, representing objects (user profiles, product details) efficiently in memory.",
+      "sections": [
+        {
+          "heading": "Hash Commands & Partial Updates",
+          "content": "Core commands: `HSET key field val`, `HGET key field`, `HMGET`, `HGETALL`, `HDEL`, `HINCRBY`.",
+          "bulletPoints": [
+            "`HSET user:100 name \"Alex\" age 30`: Sets multiple hash fields.",
+            "`HGET user:100 name`: Retrieves single field without fetching entire object.",
+            "Partial Updates: Update individual object fields without deserializing JSON payload."
+          ]
+        },
+        {
+          "heading": "Memory Optimization (ziplist / listpack)",
+          "content": "Hashes containing small number of fields are encoded as compact ziplists/listpacks in RAM, saving massive memory.",
+          "bulletPoints": [
+            "ziplist: Memory-efficient encoding for small hashes (`hash-max-ziplist-entries`).",
+            "RAM Savings: Far more memory efficient than storing objects as JSON strings."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Redis Hashes store field-value object representations.",
+      "Update individual fields without re-writing entire JSON objects.",
+      "Small Hashes use memory-optimized listpack/ziplist encoding in RAM."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis Hash Commands",
+        "description": "Setting user object hash, partial update, and incrementing field.",
+        "code": "# Store user object hash\nHSET user:1000 name \"Sarah\" email \"sarah@test.com\" loginCount 1\n\n# Increment specific field inside hash\nHINCRBY user:1000 loginCount 1\n\n# Fetch specific field\nHGET user:1000 email\n\n# Fetch all field-value pairs\nHGETALL user:1000"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-hashes-mcq-1",
+        "question": "What is primary performance advantage of Redis Hashes over storing objects as JSON strings?",
+        "options": [
+          "Hashes support CSS",
+          "Allows updating or fetching individual object fields without fetching or re-serializing whole JSON payload",
+          "Hashes never expire",
+          "Hashes use disk"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Hashes permit reading/modifying specific fields without full object serialization overhead."
+      },
+      {
+        "id": "redis-hashes-mcq-2",
+        "question": "Which command retrieves ALL field-value pairs of a hash `user:100`?",
+        "options": [
+          "GETALL user:100",
+          "HGETALL user:100",
+          "HMGET user:100 *",
+          "HKEYS user:100"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`HGETALL key` returns all fields and values contained in hash."
+      },
+      {
+        "id": "redis-hashes-mcq-3",
+        "question": "Which command atomically increments integer field `views` inside hash `article:42` by 1?",
+        "options": [
+          "HINCRBY article:42 views 1",
+          "INCR article:42.views",
+          "HADD article:42 views 1",
+          "HSET article:42 views +1"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`HINCRBY key field increment` increments field value atomically."
+      },
+      {
+        "id": "redis-hashes-mcq-4",
+        "question": "What memory optimization encoding does Redis use for small Hashes with few fields?",
+        "options": [
+          "B-Tree",
+          "ziplist / listpack",
+          "Red-Black Tree",
+          "SkipList"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis encodes small hashes using compact ziplist/listpack structures to minimize RAM usage."
+      },
+      {
+        "id": "redis-hashes-mcq-5",
+        "question": "Which command deletes field `email` from hash `user:100`?",
+        "options": [
+          "HDEL user:100 email",
+          "HREMOVE user:100 email",
+          "HPOP user:100 email",
+          "HDELETE user:100 email"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`HDEL key field` removes specific field from hash."
+      }
+    ]
+  },
+  {
+    "id": "redis-lists",
+    "title": "Lists",
+    "category": "REDIS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Linked list sequence, LPUSH, RPUSH, LPOP, RPOP, blocking pop operations (BLPOP, BRPOP), message queues.",
+    "explanation": {
+      "overview": "Redis Lists are doubly-linked lists of strings sorted by insertion order. Fast head/tail insertions ($O(1)$) make them ideal for message queues.",
+      "sections": [
+        {
+          "heading": "Push & Pop Operations",
+          "content": "Insertion and deletion at head/tail run in $O(1)$ constant time:\n- `LPUSH` / `RPUSH`: Prepend/append element to head/tail.\n- `LPOP` / `RPOP`: Remove and return element from head/tail.\n- `LRANGE key start stop`: Retrieve slice range.",
+          "bulletPoints": [
+            "Queue Pattern (FIFO): `LPUSH` + `RPOP`.",
+            "Stack Pattern (LIFO): `LPUSH` + `LPOP`."
+          ]
+        },
+        {
+          "heading": "Blocking Queue Operations (BLPOP/BRPOP)",
+          "content": "`BLPOP` and `BRPOP` block connection until an element becomes available or timeout occurs, eliminating polling in job workers.",
+          "bulletPoints": [
+            "`BRPOP queue 0`: Blocks until job is available (timeout 0 = infinite).",
+            "Zero Polling: Worker sleeps until item is pushed to queue."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Redis Lists are doubly-linked lists ($O(1)$ head/tail operations).",
+      "Combine `LPUSH` and `RPOP` for FIFO task queues.",
+      "Use `BRPOP` for blocking job worker polling."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis FIFO Queue & Worker",
+        "description": "Pushing tasks into queue and consuming with blocking BRPOP.",
+        "code": "# Producer pushes task to queue head (O(1))\nLPUSH task:queue \"{\"jobId\": 101, \"task\": \"send_email\"}\"\n\n# Consumer blocks until job arrives (timeout 0 seconds)\nBRPOP task:queue 0"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-lists-mcq-1",
+        "question": "What underlying data structure represents Redis Lists in memory?",
+        "options": [
+          "Contiguous Array",
+          "Doubly-Linked List (quicklist)",
+          "Hash Table",
+          "Binary Search Tree"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis Lists are doubly-linked lists, allowing fast $O(1)$ push/pop at head and tail."
+      },
+      {
+        "id": "redis-lists-mcq-2",
+        "question": "Which pair of commands creates a First-In-First-Out (FIFO) queue in Redis?",
+        "options": [
+          "LPUSH and LPOP",
+          "LPUSH and RPOP",
+          "RPUSH and RPOP",
+          "SET and GET"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`LPUSH` prepends items to head; `RPOP` pops oldest items from tail (FIFO)."
+      },
+      {
+        "id": "redis-lists-mcq-3",
+        "question": "Why is `BRPOP` preferred over `RPOP` polling loops for job worker background consumers?",
+        "options": [
+          "BRPOP is faster",
+          "BRPOP blocks worker connection until item arrives, eliminating CPU-intensive polling loops",
+          "BRPOP uses less disk",
+          "BRPOP encrypts data"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`BRPOP` blocks connection until item is pushed, eliminating CPU polling loops."
+      },
+      {
+        "id": "redis-lists-mcq-4",
+        "question": "What is time complexity of `LPUSH` or `RPUSH` operation on Redis List?",
+        "options": [
+          "O(1)",
+          "O(N)",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Pushing to head or tail of a linked list executes in $O(1)$ constant time."
+      },
+      {
+        "id": "redis-lists-mcq-5",
+        "question": "Which command retrieves items from index 0 to 9 in list `myList`?",
+        "options": [
+          "LGET myList 0 9",
+          "LRANGE myList 0 9",
+          "LSLICE myList 0 9",
+          "LFETCH myList 0 9"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`LRANGE key start stop` returns range of list elements."
+      }
+    ]
+  },
+  {
+    "id": "redis-sets",
+    "title": "Sets",
+    "category": "REDIS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Unordered collection of unique strings, SADD, SREM, SISMEMBER, SINTER, SUNION, SDIFF.",
+    "explanation": {
+      "overview": "Redis Sets are unordered collections of unique strings. Sets prevent duplicate elements and support mathematical set operations.",
+      "sections": [
+        {
+          "heading": "Set Commands & Uniqueness",
+          "content": "Core commands: `SADD key member`, `SREM key member`, `SISMEMBER key member`, `SMEMBERS key`, `SCARD key`.",
+          "bulletPoints": [
+            "Uniqueness: Adding duplicate member with `SADD` is ignored.",
+            "`SISMEMBER`: $O(1)$ lookup verifying membership presence.",
+            "`SCARD`: Returns total member count."
+          ]
+        },
+        {
+          "heading": "Set Operations (Intersection, Union, Difference)",
+          "content": "- `SINTER s1 s2`: Intersection (members present in ALL sets).\n- `SUNION s1 s2`: Union (combined unique members).\n- `SDIFF s1 s2`: Difference (members in s1 but NOT in s2).",
+          "bulletPoints": [
+            "Social Graph: Common friends (`SINTER user:1:friends user:2:friends`).",
+            "Tagging: Unique tags assigned to articles."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Redis Sets guarantee unique elements.",
+      "`SISMEMBER` checks member existence in $O(1)$ time.",
+      "Use `SINTER`, `SUNION`, `SDIFF` for set algebra."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis Set Operations",
+        "description": "Adding members, checking membership, and finding common friends.",
+        "code": "# Add unique tags to article\nSADD article:100:tags \"redis\" \"database\" \"caching\"\nSADD article:100:tags \"redis\" # Duplicate ignored!\n\n# Check if member exists (O(1))\nSISMEMBER article:100:tags \"redis\" # Returns 1\n\n# Find common friends between user 1 and user 2\nSADD user:1:friends \"alice\" \"bob\" \"charlie\"\nSADD user:2:friends \"bob\" \"charlie\" \"david\"\nSINTER user:1:friends user:2:friends # Returns [\"bob\", \"charlie\"]"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-sets-mcq-1",
+        "question": "What happens when `SADD mySet \"item\"` is executed twice with identical member string?",
+        "options": [
+          "Throws error",
+          "Item is added twice",
+          "Duplicate is ignored; set retains exactly one instance of member",
+          "Set is cleared"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Redis Sets enforce element uniqueness; duplicates are ignored."
+      },
+      {
+        "id": "redis-sets-mcq-2",
+        "question": "Which command checks whether member `\"alice\"` exists in set `users` in $O(1)$ time?",
+        "options": [
+          "SCONTAINS users alice",
+          "SISMEMBER users alice",
+          "SGET users alice",
+          "SFIND users alice"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SISMEMBER key member` checks member existence in constant $O(1)$ time."
+      },
+      {
+        "id": "redis-sets-mcq-3",
+        "question": "Which set operation returns members common to ALL target sets?",
+        "options": [
+          "SUNION",
+          "SDIFF",
+          "SINTER",
+          "SMERGE"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`SINTER key1 key2` calculates mathematical set intersection."
+      },
+      {
+        "id": "redis-sets-mcq-4",
+        "question": "Which command returns total count of elements in a Set?",
+        "options": [
+          "SLEN",
+          "SCARD",
+          "COUNT",
+          "SIZE"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SCARD key` returns cardinality (element count) of a set."
+      },
+      {
+        "id": "redis-sets-mcq-5",
+        "question": "Which command pops and removes a random element from a Set?",
+        "options": [
+          "SPOP",
+          "SRANDMEMBER",
+          "SREM",
+          "SDEL"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`SPOP key` removes and returns one or more random members from set."
+      }
+    ]
+  },
+  {
+    "id": "redis-sorted-sets",
+    "title": "Sorted sets",
+    "category": "REDIS",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "ZSET data structure, floating point scores, ZADD, ZRANGE, ZREVRANGE, ZRANK, SkipList implementation.",
+    "explanation": {
+      "overview": "Redis Sorted Sets (ZSET) are collections of unique string members, where each member is associated with a floating-point numerical **score** used to order set elements.",
+      "sections": [
+        {
+          "heading": "ZSET Commands & Leaderboards",
+          "content": "Members are kept sorted by score automatically. Commands include `ZADD key score member`, `ZRANGE`, `ZREVRANGE`, `ZRANK`, `ZREVRANK`, `ZINCRBY`, `ZREMRANGEBYSCORE`.",
+          "bulletPoints": [
+            "`ZADD leaderboard 1500 \"user42\"`: Inserts member with score 1500.",
+            "`ZREVRANGE leaderboard 0 9 WITHSCORES`: Retrieves top 10 highest scoring leaderboard users.",
+            "`ZINCRBY leaderboard 50 \"user42\"`: Increments member score atomically."
+          ]
+        },
+        {
+          "heading": "SkipList & Hash Table Implementation",
+          "content": "ZSET is implemented using dual data structure: **Hash Table** ($O(1)$ member lookup) combined with **SkipList** ($O(\\log N)$ insertions, range queries, and rank operations).",
+          "bulletPoints": [
+            "SkipList: $O(\\log N)$ logarithmic insertion and range slicing.",
+            "Use Cases: Gaming leaderboards, priority queues, rate limit sliding windows."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Sorted Sets rank unique members by numerical floating-point scores.",
+      "Dual internal data structure: Hash Table + SkipList ($O(\\log N)$).",
+      "Ideal for leaderboards, priority queues, and sliding window rate limiters."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis Leaderboard Commands",
+        "description": "Adding scores, incrementing score, and getting top 3 players.",
+        "code": "# Add players with scores\nZADD game:leaderboard 2500 \"playerA\" 1800 \"playerB\" 3100 \"playerC\"\n\n# Increment playerB score by 1000 points\nZINCRBY game:leaderboard 1000 \"playerB\" # Score becomes 2800\n\n# Get Top 3 players sorted descending by score\nZREVRANGE game:leaderboard 0 2 WITHSCORES\n# Output: playerC (3100), playerB (2800), playerA (2500)"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-sorted-sets-mcq-1",
+        "question": "What determines order of elements in a Redis Sorted Set (ZSET)?",
+        "options": [
+          "Insertion timestamp",
+          "Associated floating-point numerical `score` value",
+          "Alphabetical member name",
+          "Random seed"
+        ],
+        "correctAnswer": 1,
+        "explanation": "ZSET elements are maintained in order sorted by their numerical score."
+      },
+      {
+        "id": "redis-sorted-sets-mcq-2",
+        "question": "What internal data structure enables $O(\\log N)$ logarithmic range queries in Redis Sorted Sets?",
+        "options": [
+          "SkipList",
+          "B-Tree",
+          "Linked List",
+          "Array"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Redis uses a SkipList alongside a Hash Table to maintain sorted score ordering."
+      },
+      {
+        "id": "redis-sorted-sets-mcq-3",
+        "question": "Which command retrieves top 10 highest-scoring players from a leaderboard ZSET?",
+        "options": [
+          "ZRANGE leaderboard 0 9",
+          "ZREVRANGE leaderboard 0 9",
+          "ZGETTOP leaderboard 10",
+          "ZMAX leaderboard 10"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ZREVRANGE key start stop` returns range ordered from highest score to lowest."
+      },
+      {
+        "id": "redis-sorted-sets-mcq-4",
+        "question": "Which command atomically increments score of member `\"player1\"` by 100 points?",
+        "options": [
+          "ZADD leaderboard 100 player1",
+          "ZINCRBY leaderboard 100 player1",
+          "ZUPDATE leaderboard player1 +100",
+          "ZSCORE leaderboard player1 100"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ZINCRBY key increment member` increments score of member by specified amount."
+      },
+      {
+        "id": "redis-sorted-sets-mcq-5",
+        "question": "What is time complexity of `ZADD` command inserting an element into Sorted Set of N items?",
+        "options": [
+          "O(1)",
+          "O(log N)",
+          "O(N)",
+          "O(N log N)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Inserting into SkipList data structure runs in $O(\\log N)$ time."
+      }
+    ]
+  },
+  {
+    "id": "redis-ttl",
+    "title": "TTL",
+    "category": "REDIS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Time To Live, TTL command, PTTL, EXPIRE, EXPIREAT, persistent vs volatile keys.",
+    "explanation": {
+      "overview": "TTL (Time To Live) is the expiration lifespan associated with a Redis key, after which Redis automatically deletes the key.",
+      "sections": [
+        {
+          "heading": "Checking and Setting TTL",
+          "content": "- `EXPIRE key seconds`: Sets TTL in seconds.\n- `PEXPIRE key ms`: Sets TTL in milliseconds.\n- `EXPIREAT key timestamp`: Sets expiration to Unix timestamp.\n- `TTL key`: Returns remaining TTL in seconds (-1 if no TTL set, -2 if key does not exist).\n- `PTTL key`: Returns remaining TTL in milliseconds.",
+          "bulletPoints": [
+            "TTL Return -1: Key exists but has no expiration (persistent key).",
+            "TTL Return -2: Key does not exist.",
+            "PERSIST key: Removes TTL, making key persistent."
+          ]
+        },
+        {
+          "heading": "TTL Mutability Rules",
+          "content": "Updating a key with `SET key val` WITHOUT specifying `EX` clears existing TTL, making key persistent again!",
+          "bulletPoints": [
+            "Overwriting Key: `SET key val` strips existing TTL.",
+            "KEEPTTL Option: `SET key val KEEPTTL` retains existing TTL during update."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`TTL` returns seconds remaining (-1 = no TTL, -2 = key missing).",
+      "`EXPIRE key sec` sets key expiration.",
+      "Updating a key with `SET` strips TTL unless `KEEPTTL` flag is passed."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis TTL Commands",
+        "description": "Setting TTL, querying remaining time, and persisting key.",
+        "code": "# Set string key with 60s TTL\nSET cache:user:1 \"data\" EX 60\n\n# Query remaining TTL in seconds\nTTL cache:user:1 # Returns e.g. 58\n\n# Query remaining TTL in milliseconds\nPTTL cache:user:1 # Returns e.g. 58240\n\n# Remove TTL to make key persistent forever\nPERSIST cache:user:1\nTTL cache:user:1 # Returns -1"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-ttl-mcq-1",
+        "question": "What does `TTL key` command return for a key that exists but has NO expiration set?",
+        "options": [
+          "0",
+          "-1",
+          "-2",
+          "null"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`TTL` returns `-1` if key exists with no expiration (persistent key)."
+      },
+      {
+        "id": "redis-ttl-mcq-2",
+        "question": "What does `TTL key` command return for a key that does NOT exist?",
+        "options": [
+          "0",
+          "-1",
+          "-2",
+          "null"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`TTL` returns `-2` if key does not exist."
+      },
+      {
+        "id": "redis-ttl-mcq-3",
+        "question": "What happens to existing TTL of key `myKey` when you execute `SET myKey \"newValue\"` without specifying `EX` or `KEEPTTL`?",
+        "options": [
+          "TTL remains unchanged",
+          "Existing TTL is cleared, making key persistent indefinitely",
+          "Throws error",
+          "Key is deleted"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SET` overwrites key and removes existing TTL unless `KEEPTTL` option is passed."
+      },
+      {
+        "id": "redis-ttl-mcq-4",
+        "question": "Which command removes expiration from a key, making it persistent forever?",
+        "options": [
+          "PERSIST key",
+          "UNEXPIRE key",
+          "CLEAR-TTL key",
+          "REMOVE-EXPIRE key"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`PERSIST key` removes existing TTL from key."
+      },
+      {
+        "id": "redis-ttl-mcq-5",
+        "question": "Which command queries remaining key TTL in milliseconds precision?",
+        "options": [
+          "TTL",
+          "PTTL",
+          "MSTTL",
+          "EXPIREMS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`PTTL key` returns remaining lifespan in milliseconds."
+      }
+    ]
+  },
+  {
+    "id": "redis-expiration",
+    "title": "Expiration",
+    "category": "REDIS",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Passive vs Active eviction algorithms, memory maxmemory-policy (LRU, LFU, Random).",
+    "explanation": {
+      "overview": "Redis reclaims memory from expired keys using a combination of Passive and Active expiration algorithms, combined with `maxmemory-policy` eviction algorithms when RAM is full.",
+      "sections": [
+        {
+          "heading": "Passive vs Active Expiration Algorithms",
+          "content": "1. **Passive Expiration**: When a client accesses a key, Redis checks if key is expired. If expired, key is deleted instantly before returning response.\n2. **Active Expiration**: Redis randomly tests 20 keys with TTL 10 times per second. If > 25% are expired, it repeats process to clear expired keys proactively.",
+          "bulletPoints": [
+            "Passive: Deletes expired key upon lookup access.",
+            "Active: Background probabilistic scanning loop (10Hz)."
+          ]
+        },
+        {
+          "heading": "Maxmemory Eviction Policies",
+          "content": "When Redis RAM reaches `maxmemory` limit, Redis evicts keys based on configured `maxmemory-policy`:\n- `volatile-lru`: Evicts Least Recently Used key among keys with TTL.\n- `allkeys-lru`: Evicts Least Recently Used key across ALL keys.\n- `volatile-lfu`: Evicts Least Frequently Used key with TTL.\n- `noeviction`: Returns out-of-memory error on write attempts.",
+          "bulletPoints": [
+            "allkeys-lru: Standard recommended policy for general web caching.",
+            "noeviction: Default policy for database/queue setups to prevent data loss."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Redis uses Passive (on access) and Active (background scan) key expiration.",
+      "`allkeys-lru` evicts Least Recently Used keys when RAM hits `maxmemory`.",
+      "`noeviction` returns out-of-memory error to prevent data loss."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis Maxmemory Config",
+        "description": "Configuring maxmemory limit and LRU eviction policy in redis.conf.",
+        "code": "# redis.conf configuration settings:\nmaxmemory 2gb\nmaxmemory-policy allkeys-lru"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-expiration-mcq-1",
+        "question": "How does Passive Expiration work in Redis?",
+        "options": [
+          "Scans all keys every 1 ms",
+          "Deletes an expired key when a client attempts to read/access it",
+          "Deletes key on server restart",
+          "Uses cron job"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Passive expiration deletes expired keys when accessed by a client query."
+      },
+      {
+        "id": "redis-expiration-mcq-2",
+        "question": "Which `maxmemory-policy` evicts Least Recently Used (LRU) keys across ALL keys when RAM limit is reached?",
+        "options": [
+          "volatile-lru",
+          "allkeys-lru",
+          "volatile-random",
+          "noeviction"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`allkeys-lru` evicts Least Recently Used keys across entire key dataset."
+      },
+      {
+        "id": "redis-expiration-mcq-3",
+        "question": "What happens when writes are executed on a full Redis instance configured with `maxmemory-policy noeviction`?",
+        "options": [
+          "Evicts random keys",
+          "Redis returns Out Of Memory (OOM) error for write commands",
+          "Crashes OS",
+          "Deletes expire keys"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`noeviction` returns OOM errors on write commands to prevent data loss."
+      },
+      {
+        "id": "redis-expiration-mcq-4",
+        "question": "What is difference between LRU and LFU eviction algorithms?",
+        "options": [
+          "LRU tracks access frequency; LFU tracks recency",
+          "LRU evicts based on how long ago key was accessed (recency); LFU evicts based on access count (frequency)",
+          "LRU is for strings only",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "LRU checks time since last access; LFU checks how often key was accessed."
+      },
+      {
+        "id": "redis-expiration-mcq-5",
+        "question": "How often does Active Expiration background task run in Redis by default?",
+        "options": [
+          "Once per hour",
+          "10 times per second (10Hz)",
+          "Every 5 minutes",
+          "Once per day"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Active expiration runs background sampling 10 times per second."
+      }
+    ]
+  },
+  {
+    "id": "redis-caching",
+    "title": "Caching",
+    "category": "REDIS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Caching strategies: Cache-Aside (Lazy loading), Write-Through, Write-Back, Cache Stampede, and Cache Penetration.",
+    "explanation": {
+      "overview": "Redis is the industry-standard in-memory caching engine used to accelerate database queries and API response times.",
+      "sections": [
+        {
+          "heading": "Cache-Aside Pattern (Lazy Loading)",
+          "content": "Application checks Redis cache first (Cache Hit). If missing (Cache Miss), application queries database, writes result to Redis with TTL, and returns data to client.",
+          "bulletPoints": [
+            "Cache Hit: Returns data instantly from RAM ($<1$ms).",
+            "Cache Miss: Queries DB, populates Redis, returns data."
+          ]
+        },
+        {
+          "heading": "Cache Pitfalls: Stampede & Penetration",
+          "content": "- **Cache Stampede (Thundering Herd)**: Hot key expires, causing thousands of concurrent requests to hit database simultaneously. Solution: Distributed locks or probabilistic early expiration.\n- **Cache Penetration**: Queries for non-existent IDs bypass cache and hit DB continuously. Solution: Cache null values or use Bloom Filters.",
+          "bulletPoints": [
+            "Cache Stampede: Concurrent DB overload when hot key expires.",
+            "Cache Penetration: Non-existent key queries bypassing cache; solution: cache null objects."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Cache-Aside pattern queries Redis first, populating on miss.",
+      "Cache null values to prevent Cache Penetration attacks.",
+      "Use distributed locks to prevent Cache Stampede on hot key expirations."
+    ],
+    "codeExamples": [
+      {
+        "title": "Cache-Aside Pattern Implementation",
+        "description": "Fetching product data with Redis Cache-Aside pattern.",
+        "code": "async function getProduct(productId) {\n  const cacheKey = `product:${productId}`;\n  \n  // 1. Check Redis Cache\n  const cached = await redis.get(cacheKey);\n  if (cached) return JSON.parse(cached); // Cache Hit!\n  \n  // 2. Cache Miss: Query Database\n  const product = await db.findProduct(productId);\n  \n  if (product) {\n    // 3. Write to Redis with 10m TTL\n    await redis.set(cacheKey, JSON.stringify(product), 'EX', 600);\n  } else {\n    // Prevent Cache Penetration: Cache null for 1m\n    await redis.set(cacheKey, 'null', 'EX', 60);\n  }\n  \n  return product;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-caching-mcq-1",
+        "question": "What is Cache-Aside (Lazy Loading) pattern workflow on a Cache Miss?",
+        "options": [
+          "Return error",
+          "Application queries database, writes result to Redis cache with TTL, and returns response",
+          "Deletes key",
+          "Restarts server"
+        ],
+        "correctAnswer": 1,
+        "explanation": "On cache miss, application fetches from DB, populates cache, and returns result."
+      },
+      {
+        "id": "redis-caching-mcq-2",
+        "question": "What is 'Cache Penetration' vulnerability?",
+        "options": [
+          "RAM explosion",
+          "Requests for non-existent keys bypass cache and hit database continuously, overloading DB",
+          "Redis restart",
+          "CSS bug"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Cache Penetration occurs when queries for non-existent IDs bypass cache to hit database."
+      },
+      {
+        "id": "redis-caching-mcq-3",
+        "question": "How do you mitigate Cache Penetration for non-existent records?",
+        "options": [
+          "Disable cache",
+          "Cache null/empty placeholder values in Redis with short TTL or use Bloom Filters",
+          "Increase RAM",
+          "Use GET requests"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Caching `null` values prevents subsequent queries for non-existent IDs from hitting DB."
+      },
+      {
+        "id": "redis-caching-mcq-4",
+        "question": "What is 'Cache Stampede' (Thundering Herd)?",
+        "options": [
+          "Redis out of memory",
+          "High-traffic hot key expires, causing thousands of concurrent requests to hit database simultaneously",
+          "Disk failure",
+          "Network loss"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Cache Stampede happens when hot key expiration causes concurrent DB query burst."
+      },
+      {
+        "id": "redis-caching-mcq-5",
+        "question": "What is 'Write-Through' caching pattern?",
+        "options": [
+          "Write only to cache",
+          "Application writes data to cache, and cache immediately writes data to database synchronously before completing",
+          "Write only to DB",
+          "Write to disk"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Write-Through updates cache and database synchronously during write operation."
+      }
+    ]
+  },
+  {
+    "id": "redis-sessions",
+    "title": "Sessions",
+    "category": "REDIS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Distributed session storage, session persistence, TTL auto-invalidation, and multi-node scaling.",
+    "explanation": {
+      "overview": "Redis is the ideal distributed session store for web applications, providing high-speed in-memory session lookups with automatic TTL expiration.",
+      "sections": [
+        {
+          "heading": "Why Use Redis for Session Storage?",
+          "content": "Storing session state in local server RAM prevents multi-node horizontal scaling. Redis provides a centralized, ultra-fast ($<1$ms) shared session store accessible by all backend API server instances.",
+          "bulletPoints": [
+            "Horizontal Scaling: Any backend server node can read/write session state.",
+            "Automatic TTL Expiration: Redis handles session timeouts naturally without background cleanup scripts.",
+            "Sub-millisecond Speed: In-memory hash lookups."
+          ]
+        },
+        {
+          "heading": "Session Security & Revocation",
+          "content": "Store session data inside Redis Hashes (`session:<sessionId>`). Revoke user sessions instantly across all devices by deleting matching session keys.",
+          "bulletPoints": [
+            "Instant Logout: `DEL session:<sessionId>` invalidates session across all nodes.",
+            "User Session List: Maintain a set of active session IDs per user (`user:<userId>:sessions`)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Redis enables stateless backend servers by centralizing session storage.",
+      "Automatic session expiration via Redis TTL.",
+      "Delete session keys from Redis for instant global user logout."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis Session Storage Pattern",
+        "description": "Creating session with TTL and revoking session.",
+        "code": "# Store session hash with 24h TTL (86400s)\nHSET session:sess_xyz123 userId 42 role \"admin\" ip \"1.2.3.4\"\nEXPIRE session:sess_xyz123 86400\n\n# Fetch session role\nHGET session:sess_xyz123 role\n\n# Revoke session instantly (Logout)\nDEL session:sess_xyz123"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-sessions-mcq-1",
+        "question": "Why is Redis preferred over local server RAM (`MemoryStore`) for session storage in production?",
+        "options": [
+          "Redis is free",
+          "Redis centralizes session state so any load-balanced application server node can authenticate requests",
+          "MemoryStore uses disk",
+          "Redis encrypts HTML"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Centralized Redis session store allows stateless backend server nodes to scale horizontally."
+      },
+      {
+        "id": "redis-sessions-mcq-2",
+        "question": "How does Redis automatically handle inactive user session expiration?",
+        "options": [
+          "Cron job script",
+          "Assigning TTL (`EXPIRE session:id 86400`) to session key",
+          "Rebooting server",
+          "SQL triggers"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Setting TTL on session keys allows Redis to auto-delete inactive sessions."
+      },
+      {
+        "id": "redis-sessions-mcq-3",
+        "question": "How do you implement instant global 'Logout from all devices' for a user in Redis?",
+        "options": [
+          "Clear client cookies",
+          "Maintain user session set `user:42:sessions` and execute `DEL` on all associated session keys in Redis",
+          "Restart Redis",
+          "Change domain"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Deleting user session keys from Redis revokes session access across all devices immediately."
+      },
+      {
+        "id": "redis-sessions-mcq-4",
+        "question": "Which Redis data structure is best suited for storing structured user session attributes?",
+        "options": [
+          "List",
+          "Hash",
+          "Set",
+          "Bitfield"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis Hashes cleanly map session attribute fields (`userId`, `role`, `loginTime`)."
+      },
+      {
+        "id": "redis-sessions-mcq-5",
+        "question": "What is typical read latency for fetching session data from Redis over local network connection?",
+        "options": [
+          "100ms",
+          "Sub-millisecond (< 1ms)",
+          "50ms",
+          "5 seconds"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In-memory Redis lookups complete in sub-millisecond time."
+      }
+    ]
+  },
+  {
+    "id": "redis-rate-limiting",
+    "title": "Rate limiting",
+    "category": "REDIS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Protecting APIs from abuse, key naming strategies, HTTP 429 Too Many Requests, and header standards.",
+    "explanation": {
+      "overview": "Rate limiting restricts number of requests a client can submit within a specified time window to protect APIs from abuse and DDoS attacks.",
+      "sections": [
+        {
+          "heading": "Rate Limiting Architecture",
+          "content": "Rate limiters track request counts per client IP or authenticated API key. When limit is exceeded, server responds with `429 Too Many Requests`.",
+          "bulletPoints": [
+            "Client Identification: Track by IP address (`rate:ip:1.2.3.4`) or API Key (`rate:key:abc`).",
+            "HTTP 429: Return `Retry-After` header specifying wait duration in seconds."
+          ]
+        },
+        {
+          "heading": "Standard Rate Limit Response Headers",
+          "content": "- `X-RateLimit-Limit`: Maximum allowed requests per window.\n- `X-RateLimit-Remaining`: Remaining request quota.\n- `X-RateLimit-Reset`: Unix timestamp when quota resets.",
+          "bulletPoints": [
+            "Limit: Max request quota.",
+            "Remaining: Remaining available quota.",
+            "Reset: Timestamp when quota resets."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Rate limiting protects backend systems from DDoS and brute force abuse.",
+      "Return HTTP `429 Too Many Requests` when limit is exceeded.",
+      "Include `X-RateLimit-Limit` and `X-RateLimit-Remaining` headers."
+    ],
+    "codeExamples": [
+      {
+        "title": "Rate Limit Response Headers",
+        "description": "Standard HTTP rate limit headers.",
+        "code": "HTTP/1.1 429 Too Many Requests\nContent-Type: application/json\nRetry-After: 60\nX-RateLimit-Limit: 100\nX-RateLimit-Remaining: 0\nX-RateLimit-Reset: 1693835400\n\n{ \"error\": \"Rate limit exceeded. Try again in 60 seconds.\" }"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-rate-limiting-mcq-1",
+        "question": "Which HTTP status code must be returned when a client exceeds allowed API rate limits?",
+        "options": [
+          "400 Bad Request",
+          "401 Unauthorized",
+          "429 Too Many Requests",
+          "503 Service Unavailable"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`429 Too Many Requests` is standard status code for rate limit throttling."
+      },
+      {
+        "id": "redis-rate-limiting-mcq-2",
+        "question": "Which header indicates how many seconds client must wait before retrying request after 429 response?",
+        "options": [
+          "Retry-After",
+          "X-Wait-Time",
+          "Reset-In",
+          "Rate-Wait"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`Retry-After` header specifies wait time in seconds."
+      },
+      {
+        "id": "redis-rate-limiting-mcq-3",
+        "question": "Why is Redis preferred over local server memory for API rate limiting across multi-server clusters?",
+        "options": [
+          "Redis is free",
+          "Redis provides centralized shared atomic counters accessible by all cluster API nodes",
+          "Redis disables HTTP",
+          "Redis uses disk"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Centralized Redis atomic counters ensure rate limits are enforced across all backend nodes."
+      },
+      {
+        "id": "redis-rate-limiting-mcq-4",
+        "question": "Which client attribute is typically used to identify unauthenticated API rate limit buckets?",
+        "options": [
+          "User Agent",
+          "Client IP address",
+          "Accept header",
+          "Referer URL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Client IP address is standard identifier for unauthenticated request rate limiters."
+      },
+      {
+        "id": "redis-rate-limiting-mcq-5",
+        "question": "What is primary engineering goal of implementing API rate limiting?",
+        "options": [
+          "To compress JSON",
+          "To protect backend servers from DDoS attacks, brute-force attempts, and resource exhaustion",
+          "To speed up SQL queries",
+          "To format HTML"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Rate limiting protects system availability against abuse and resource exhaustion."
+      }
+    ]
+  },
+  {
+    "id": "redis-fixed-window",
+    "title": "Fixed window",
+    "category": "REDIS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Fixed Window counter algorithm, INCR + EXPIRE pattern, boundary burst vulnerability.",
+    "explanation": {
+      "overview": "Fixed Window is the simplest rate limiting algorithm. It counts requests in fixed time windows (e.g. 100 requests per 60-second window).",
+      "sections": [
+        {
+          "heading": "Fixed Window INCR + EXPIRE Pattern",
+          "content": "Uses key `rate:<ip>:<window_timestamp>`. Increment counter with `INCR`. If counter is 1, set window expiration `EXPIRE key 60`.",
+          "bulletPoints": [
+            "Atomic Increment: `INCR rate:1.2.3.4:1000`.",
+            "Window Reset: New key created when window timestamp rolls over."
+          ]
+        },
+        {
+          "heading": "Boundary Burst Vulnerability",
+          "content": "A client can send 100 requests at end of Window 1 (minute 0:59) and 100 requests at start of Window 2 (minute 1:01), executing 200 requests within a 2-second span!",
+          "bulletPoints": [
+            "Boundary Spike: Allows 2x max limit burst across window boundary.",
+            "Solution: Use Sliding Window Log or Token Bucket algorithm."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Fixed Window uses `INCR` + `EXPIRE` per time block key.",
+      "Simple and memory-efficient.",
+      "Vulnerable to 2x traffic bursts at window boundary edges."
+    ],
+    "codeExamples": [
+      {
+        "title": "Fixed Window Rate Limiter Pattern",
+        "description": "Implementing Fixed Window algorithm in Node.js with Redis.",
+        "code": "async function fixedWindowRateLimit(ip) {\n  const windowTime = Math.floor(Date.now() / 60000); // 1-minute window key\n  const key = `ratelimit:${ip}:${windowTime}`;\n  \n  const requests = await redis.incr(key);\n  if (requests === 1) {\n    await redis.expire(key, 60); // Set 60s TTL on initial key creation\n  }\n  \n  if (requests > 100) {\n    return { allowed: false, remaining: 0 }; // Exceeded limit!\n  }\n  return { allowed: true, remaining: 100 - requests };\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-fixed-window-mcq-1",
+        "question": "How does Fixed Window algorithm organize rate limit time buckets?",
+        "options": [
+          "Continuous rolling log",
+          "Fixed discrete time blocks (e.g. 12:00-12:01, 12:01-12:02)",
+          "Token bucket refill",
+          "Random intervals"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Fixed Window divides time into static discrete window blocks."
+      },
+      {
+        "id": "redis-fixed-window-mcq-2",
+        "question": "What is major vulnerability of Fixed Window rate limiting algorithm?",
+        "options": [
+          "High RAM usage",
+          "Boundary Burst Spike: Allowing up to 2x max limit requests across boundary edges of consecutive windows",
+          "Slow speed",
+          "Requires SQL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Clients can burst max limit at window end and start, doubling allowed rate across boundary."
+      },
+      {
+        "id": "redis-fixed-window-mcq-3",
+        "question": "Which pair of Redis commands implements Fixed Window rate limiter?",
+        "options": [
+          "ZADD and ZRANGE",
+          "INCR and EXPIRE",
+          "LPUSH and LPOP",
+          "SET and GET"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`INCR` increments window counter and `EXPIRE` sets window lifespan."
+      },
+      {
+        "id": "redis-fixed-window-mcq-4",
+        "question": "What is memory footprint per user for Fixed Window rate limiting algorithm?",
+        "options": [
+          "High (stores all request timestamps)",
+          "Extremely low (single integer counter key per window)",
+          "Medium",
+          "Variable"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Fixed Window stores only one string integer counter key per user per window."
+      },
+      {
+        "id": "redis-fixed-window-mcq-5",
+        "question": "Why must `EXPIRE` be set when counter key reaches 1 on initial creation?",
+        "options": [
+          "To avoid memory leak of old window counter keys",
+          "To restart server",
+          "To unlock database",
+          "Required by V8"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Setting TTL on first `INCR` ensures old window keys expire automatically from RAM."
+      }
+    ]
+  },
+  {
+    "id": "redis-sliding-window",
+    "title": "Sliding window",
+    "category": "REDIS",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Sliding Window Log algorithm, Sorted Set ZADD + ZREMRANGEBYSCORE pattern, accurate smooth rate limiting.",
+    "explanation": {
+      "overview": "Sliding Window Log algorithm eliminates boundary burst spikes by tracking individual request timestamps inside a Redis Sorted Set (ZSET).",
+      "sections": [
+        {
+          "heading": "Sliding Window Log ZSET Algorithm",
+          "content": "Algorithm steps:\n1. Remove timestamps older than current window: `ZREMRANGEBYSCORE key 0 (now - 60000)`.\n2. Count remaining elements: `ZCARD key`.\n3. If count < limit, insert current timestamp: `ZADD key now now`.\n4. Set key TTL to window size (`EXPIRE key 60`).",
+          "bulletPoints": [
+            "`ZREMRANGEBYSCORE`: Prunes outdated request timestamps.",
+            "`ZCARD`: Counts requests in rolling window.",
+            "Smooth Rate Limiting: Completely eliminates boundary burst spikes."
+          ]
+        },
+        {
+          "heading": "Tradeoffs of Sliding Window Log",
+          "content": "Provides 100% precise rolling rate limiting, but consumes more RAM because every request stores a unique timestamp element in Sorted Set.",
+          "bulletPoints": [
+            "Precision: Perfectly accurate rolling window enforcement.",
+            "Memory Tradeoff: Higher RAM usage than Fixed Window integer counters."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Sliding Window Log uses Sorted Sets (ZSET) to track request timestamps.",
+      "Eliminates boundary burst spikes completely.",
+      "Uses `ZREMRANGEBYSCORE` to prune expired timestamps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Sliding Window Log with Redis ZSET",
+        "description": "Precise sliding window rate limiting algorithm using Redis ZSET.",
+        "code": "async function slidingWindowRateLimit(ip) {\n  const key = `ratelimit:sliding:${ip}`;\n  const now = Date.now();\n  const windowMs = 60000; // 1-minute rolling window\n  const clearBefore = now - windowMs;\n  \n  // 1. Remove timestamps older than rolling window\n  await redis.zremrangebyscore(key, 0, clearBefore);\n  \n  // 2. Count requests in current rolling window\n  const count = await redis.zcard(key);\n  \n  if (count >= 100) {\n    return { allowed: false }; // Exceeded limit!\n  }\n  \n  // 3. Add current timestamp to ZSET\n  await redis.zadd(key, now, `${now}-${Math.random()}`);\n  await redis.expire(key, 60);\n  \n  return { allowed: true };\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-sliding-window-mcq-1",
+        "question": "What primary problem of Fixed Window algorithm does Sliding Window Log solve?",
+        "options": [
+          "Slow network speed",
+          "Completely eliminates Boundary Burst Spikes across window edges",
+          "Reduces RAM to 0",
+          "Disables CORS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Sliding Window tracks rolling time windows continuously, preventing boundary burst spikes."
+      },
+      {
+        "id": "redis-sliding-window-mcq-2",
+        "question": "Which Redis data structure is used to implement Sliding Window Log algorithm?",
+        "options": [
+          "String",
+          "List",
+          "Sorted Set (ZSET)",
+          "Hash"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Sorted Sets (ZSET) store request timestamps as scores for rolling range pruning."
+      },
+      {
+        "id": "redis-sliding-window-mcq-3",
+        "question": "Which command removes outdated timestamps older than rolling window start from ZSET?",
+        "options": [
+          "ZREM",
+          "ZREMRANGEBYSCORE key 0 clearBeforeTimestamp",
+          "ZDEL",
+          "ZPOP"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ZREMRANGEBYSCORE` prunes timestamps older than rolling window start."
+      },
+      {
+        "id": "redis-sliding-window-mcq-4",
+        "question": "What is memory drawback of Sliding Window Log compared to Fixed Window?",
+        "options": [
+          "No drawback",
+          "Consumes more RAM because every request stores a unique timestamp element in ZSET",
+          "Slower CPU speed",
+          "Requires disk"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Storing individual timestamps for every request increases RAM footprint."
+      },
+      {
+        "id": "redis-sliding-window-mcq-5",
+        "question": "Which command counts active request timestamps remaining inside rolling window ZSET?",
+        "options": [
+          "ZCARD key",
+          "ZCOUNT key",
+          "ZLEN key",
+          "ZSIZE key"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`ZCARD key` returns total element count in ZSET."
+      }
+    ]
+  },
+  {
+    "id": "redis-token-bucket",
+    "title": "Token bucket",
+    "category": "REDIS",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Token Bucket algorithm, refill rate, capacity limit, handling bursty traffic, and Lua script implementation.",
+    "explanation": {
+      "overview": "Token Bucket algorithm maintains a bucket filled with tokens up to a max **capacity**. Tokens refill at a constant **refill rate**. Requests consume 1 token; if no tokens remain, request is rejected.",
+      "sections": [
+        {
+          "heading": "Token Bucket Mechanics",
+          "content": "Parameters:\n- **Capacity**: Max tokens bucket can hold (allows controlled burst traffic).\n- **Refill Rate**: Tokens added per second.\nEach incoming request attempts to consume 1 token. If bucket has $\\ge 1$ token, request proceeds.",
+          "bulletPoints": [
+            "Capacity: Controls maximum allowed burst size.",
+            "Refill Rate: Dictates steady-state sustained traffic throughput.",
+            "Burst Handling: Accommodates short legitimate traffic spikes smoothly."
+          ]
+        },
+        {
+          "heading": "Lazy Refill Calculation in Redis Lua Script",
+          "content": "Rather than running a background timer to add tokens every second, calculate refilled tokens lazily when a request arrives based on `(now - last_refill_timestamp) * refill_rate`.",
+          "bulletPoints": [
+            "Lazy Refill: Math calculation on demand (`tokens = min(capacity, tokens + delta * rate)`).",
+            "Atomic Execution: Evaluated inside single Redis Lua script."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Token Bucket permits controlled burst traffic while enforcing steady refill rate.",
+      "Lazy refill math avoids running background timers.",
+      "Implement inside atomic Redis Lua script."
+    ],
+    "codeExamples": [
+      {
+        "title": "Token Bucket Lua Script Concept",
+        "description": "Lazy refill calculation inside Redis Lua script.",
+        "code": "-- Redis Lua script for Token Bucket\nlocal key = KEYS[1]\nlocal capacity = tonumber(ARGV[1])\nlocal refill_rate = tonumber(ARGV[2])\nlocal now = tonumber(ARGV[3])\n\nlocal data = redis.call('HMGET', key, 'tokens', 'last_update')\nlocal tokens = tonumber(data[1]) or capacity\nlocal last_update = tonumber(data[2]) or now\n\n-- Lazy refill tokens based on elapsed time\nlocal delta = math.max(0, (now - last_update) / 1000)\ntokens = math.min(capacity, tokens + delta * refill_rate)\n\nif tokens >= 1 then\n  tokens = tokens - 1\n  redis.call('HMSET', key, 'tokens', tokens, 'last_update', now)\n  return 1 -- Allowed\nelse\n  return 0 -- Rejected\nend"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-token-bucket-mcq-1",
+        "question": "What traffic behavior does Token Bucket algorithm accommodate better than Leaky Bucket?",
+        "options": [
+          "Zero traffic",
+          "Controlled bursty traffic spikes up to bucket capacity",
+          "Constant video streaming",
+          "SQL queries"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Token Bucket permits brief traffic bursts up to maximum bucket token capacity."
+      },
+      {
+        "id": "redis-token-bucket-mcq-2",
+        "question": "How are tokens added to bucket in Redis Token Bucket implementation without background timers?",
+        "options": [
+          "Cron job",
+          "Lazy calculation on incoming request based on elapsed time since last update `(now - last_update) * refill_rate`",
+          "Worker threads",
+          "System reboot"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Lazy calculation computes refilled tokens on demand during request processing."
+      },
+      {
+        "id": "redis-token-bucket-mcq-3",
+        "question": "What parameter defines maximum allowed burst request count in Token Bucket algorithm?",
+        "options": [
+          "Refill Rate",
+          "Bucket Capacity",
+          "Window TTL",
+          "Token Size"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Bucket Capacity limits maximum tokens accumulated for burst traffic."
+      },
+      {
+        "id": "redis-token-bucket-mcq-4",
+        "question": "What parameter dictates sustained steady-state traffic throughput over time?",
+        "options": [
+          "Bucket Capacity",
+          "Refill Rate",
+          "Memory size",
+          "IP block"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Refill Rate controls steady-state token replenishment speed."
+      },
+      {
+        "id": "redis-token-bucket-mcq-5",
+        "question": "Why should Token Bucket logic be executed inside a Redis Lua script?",
+        "options": [
+          "To compile to WASM",
+          "To ensure atomic thread-safe execution of read, refill math, and write operations without race conditions",
+          "To format JSON",
+          "To encrypt tokens"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Lua scripts execute atomically in Redis, preventing race conditions between concurrent requests."
+      }
+    ]
+  },
+  {
+    "id": "redis-atomic-operations",
+    "title": "Atomic operations",
+    "category": "REDIS",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Single-threaded command execution, MULTI/EXEC transactions, WATCH optimistic locking, and race condition prevention.",
+    "explanation": {
+      "overview": "Redis executes commands in a single thread sequentially, guaranteeing that individual commands are inherently atomic.",
+      "sections": [
+        {
+          "heading": "MULTI / EXEC Transactions",
+          "content": "`MULTI` begins transaction block. Subsequent commands are queued in memory. `EXEC` executes all queued commands sequentially without interruption.",
+          "bulletPoints": [
+            "`MULTI`: Starts transaction queue.",
+            "`EXEC`: Executes queued commands atomically.",
+            "`DISCARD`: Aborts transaction queue.",
+            "No Rollback: If command fails inside transaction, previous commands are NOT rolled back!"
+          ]
+        },
+        {
+          "heading": "Optimistic Locking with WATCH",
+          "content": "`WATCH key` monitors key for modifications. If key mutates before `EXEC` is called, transaction fails completely.",
+          "bulletPoints": [
+            "Optimistic Locking: `WATCH balance` -> `MULTI` -> `DECRBY balance 50` -> `EXEC`.",
+            "Execution Check: `EXEC` returns `nil` array if watched key was modified by another client."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Individual Redis commands are single-threaded and atomic.",
+      "`MULTI`/`EXEC` queues and executes command sequences atomically.",
+      "`WATCH` provides optimistic locking to catch concurrent key mutations."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis MULTI/EXEC with WATCH",
+        "description": "Optimistic locking transaction transfer.",
+        "code": "# Watch balance key for concurrent modifications\nWATCH user:100:balance\n\n# Begin transaction queue\nMULTI\nDECRBY user:100:balance 50\nINCRBY user:200:balance 50\n\n# Execute transaction atomically (fails if balance modified after WATCH!)\nEXEC"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-atomic-operations-mcq-1",
+        "question": "Does Redis automatically rollback previous commands in a `MULTI`/`EXEC` transaction if a middle command fails?",
+        "options": [
+          "Yes, full ACID rollback",
+          "No, Redis transactions do NOT support rollback; remaining valid commands still execute",
+          "Only in strict mode",
+          "Only for Strings"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis transactions do not support rollbacks; syntax-valid commands in transaction execute regardless."
+      },
+      {
+        "id": "redis-atomic-operations-mcq-2",
+        "question": "What is role of `WATCH key` command in Redis transactions?",
+        "options": [
+          "Locks key exclusively for 5 minutes",
+          "Provides optimistic locking by aborting `EXEC` if watched key mutates before execution",
+          "Logs key reads",
+          "Encrypts key"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`WATCH` monitors keys and cancels `EXEC` if any watched key is modified prior to transaction commit."
+      },
+      {
+        "id": "redis-atomic-operations-mcq-3",
+        "question": "What command begins a Redis transaction pipeline?",
+        "options": [
+          "BEGIN",
+          "START",
+          "MULTI",
+          "TRANSACTION"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`MULTI` command initializes a Redis transaction block."
+      },
+      {
+        "id": "redis-atomic-operations-mcq-4",
+        "question": "Why are single commands like `INCR` or `HINCRBY` inherently atomic in Redis?",
+        "options": [
+          "Uses multi-threading",
+          "Redis single-threaded command execution processes one command to completion without interruption",
+          "Uses SQL locks",
+          "Uses disk lock"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis single-threaded execution process ensures individual commands complete atomically."
+      },
+      {
+        "id": "redis-atomic-operations-mcq-5",
+        "question": "What command aborts a queued `MULTI` transaction without executing commands?",
+        "options": [
+          "ROLLBACK",
+          "CANCEL",
+          "DISCARD",
+          "ABORT"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`DISCARD` flushes queued transaction commands without executing them."
+      }
+    ]
+  },
+  {
+    "id": "redis-lua-basics",
+    "title": "Lua basics",
+    "category": "REDIS",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "EVAL command, EVALSHA script caching, atomic script execution, and Redis Lua environment rules.",
+    "explanation": {
+      "overview": "Redis embeds a Lua 5.1 interpreter, allowing developers to execute complex custom logic atomically directly on the Redis server.",
+      "sections": [
+        {
+          "heading": "EVAL & EVALSHA Mechanics",
+          "content": "`EVAL script numkeys key1... arg1...` passes KEYS and ARGV tables to embedded Lua engine.",
+          "bulletPoints": [
+            "Atomic Execution: Entire Lua script executes atomically without network roundtrips.",
+            "KEYS & ARGV: Pass keys via `KEYS[1]` and arguments via `ARGV[1]` (1-indexed in Lua!).",
+            "EVALSHA: Executes pre-cached script by SHA1 hash to save bandwidth."
+          ]
+        },
+        {
+          "heading": "Lua Environment Constraints",
+          "content": "Redis Lua environment enforces deterministic execution:\n- Scripts must NOT access global variables (use `local` variables).\n- Long-running Lua scripts block Redis server (`lua-time-limit` default 5s).",
+          "bulletPoints": [
+            "Use `local` variables exclusively.",
+            "Avoid slow loops to prevent blocking single-threaded Redis main loop."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Lua scripts execute atomically on Redis server.",
+      "Pass keys via `KEYS[1]` and arguments via `ARGV[1]` (1-indexed!).",
+      "Use `EVALSHA` to execute cached scripts via SHA1 hash."
+    ],
+    "codeExamples": [
+      {
+        "title": "Executing Lua Script via EVALSHA",
+        "description": "Caching Lua script with SCRIPT LOAD and executing via EVALSHA.",
+        "code": "# Load script into Redis script cache to get SHA1 hash\nSCRIPT LOAD \"local val = redis.call('GET', KEYS[1]); if val == ARGV[1] then return redis.call('DEL', KEYS[1]) else return 0 end\"\n# Output: \"c686f316...\"\n\n# Execute cached script using SHA1 hash\nEVALSHA c686f316... 1 lock:key my_token"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-lua-basics-mcq-1",
+        "question": "What is primary advantage of executing complex multi-step operations inside a Redis Lua script?",
+        "options": [
+          "Lua uses multi-threading",
+          "Atomicity: Entire Lua script executes atomically on Redis server in single pass without network roundtrips",
+          "Bypasses RAM limit",
+          "Encrypts data"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Lua scripts execute atomically on Redis server, avoiding race conditions and intermediate roundtrips."
+      },
+      {
+        "id": "redis-lua-basics-mcq-2",
+        "question": "What index does Lua language use for arrays (`KEYS[1]`, `ARGV[1]`)?",
+        "options": [
+          "0-indexed",
+          "1-indexed",
+          "2-indexed",
+          "Key-based"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Lua arrays and tables are 1-indexed (`KEYS[1]` is first key)."
+      },
+      {
+        "id": "redis-lua-basics-mcq-3",
+        "question": "How do you call native Redis commands inside a Lua script?",
+        "options": [
+          "redis.exec('GET', key)",
+          "redis.call('GET', KEYS[1]) or redis.pcall('GET', KEYS[1])",
+          "redis.query('GET')",
+          "cmd('GET')"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`redis.call()` or `redis.pcall()` invokes native Redis commands inside Lua."
+      },
+      {
+        "id": "redis-lua-basics-mcq-4",
+        "question": "What is function of `EVALSHA` command?",
+        "options": [
+          "Deletes script",
+          "Executes a pre-cached Lua script using its 40-character SHA1 hash digest to save network bandwidth",
+          "Encrypts script",
+          "Compiles script to WASM"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`EVALSHA` runs pre-loaded scripts by SHA1 digest, eliminating redundant script code transfers."
+      },
+      {
+        "id": "redis-lua-basics-mcq-5",
+        "question": "What constraint is enforced on variables inside Redis Lua scripts?",
+        "options": [
+          "Must be uppercase",
+          "Variables should always be declared as `local` to avoid global variable leaks",
+          "Must be numbers",
+          "Cannot use loops"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis Lua sandbox forbids undeclared global variables to ensure deterministic script execution."
+      }
+    ]
+  }
+]

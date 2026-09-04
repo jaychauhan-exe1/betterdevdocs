@@ -1,0 +1,1472 @@
+[
+  {
+    "id": "http-methods",
+    "title": "HTTP methods",
+    "category": "HTTP",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "HTTP request methods: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, safe vs idempotent methods.",
+    "explanation": {
+      "overview": "HTTP methods (verbs) indicate intended action to be performed on a target resource.",
+      "sections": [
+        {
+          "heading": "Core Method Semantics",
+          "content": "- **GET**: Retrieves resource representation. Safe and idempotent.\n- **POST**: Submits entity data to resource, creating new child entity.\n- **PUT**: Replaces target resource state entirely. Idempotent.\n- **PATCH**: Applies partial modifications to resource. Non-idempotent by default.\n- **DELETE**: Deletes specified resource. Idempotent.\n- **HEAD**: Same as GET but returns response headers only (no body).\n- **OPTIONS**: Describes communication options/CORS preflight for target resource.",
+          "bulletPoints": [
+            "GET: Safe & Idempotent (retrieves data).",
+            "POST: Unsafe & Non-idempotent (creates resource).",
+            "PUT vs PATCH: PUT replaces complete entity; PATCH modifies specified fields."
+          ]
+        },
+        {
+          "heading": "Safe vs Idempotent Methods",
+          "content": "A method is **Safe** if it does not alter server state (GET, HEAD, OPTIONS). A method is **Idempotent** if executing it N times produces identical server state as executing it 1 time (GET, PUT, DELETE, HEAD, OPTIONS).",
+          "bulletPoints": [
+            "Safe Methods: GET, HEAD, OPTIONS.",
+            "Idempotent Methods: GET, HEAD, OPTIONS, PUT, DELETE.",
+            "Non-Idempotent: POST (submitting POST 3 times creates 3 records)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "GET/HEAD/OPTIONS are safe methods (no server state mutations).",
+      "GET/PUT/DELETE are idempotent methods.",
+      "POST creates new resources; PATCH performs partial updates."
+    ],
+    "codeExamples": [
+      {
+        "title": "HTTP Request Method Headers",
+        "description": "Raw HTTP request lines for GET, POST, and PATCH.",
+        "code": "// GET Request (Safe & Idempotent):\nGET /api/v1/users/42 HTTP/1.1\nHost: api.example.com\nAccept: application/json\n\n// POST Request (Creates new record):\nPOST /api/v1/users HTTP/1.1\nHost: api.example.com\nContent-Type: application/json\n\n{ \"name\": \"Sarah\", \"email\": \"sarah@example.com\" }"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-methods-mcq-1",
+        "question": "Which HTTP method is classified as Safe (does not alter server state)?",
+        "options": [
+          "POST",
+          "DELETE",
+          "GET",
+          "PATCH"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`GET` is a safe method that reads data without modifying server state."
+      },
+      {
+        "id": "http-methods-mcq-2",
+        "question": "Why is `POST` considered NON-idempotent?",
+        "options": [
+          "It returns 404",
+          "Executing identical POST request 5 times creates 5 separate database records",
+          "It uses SSL",
+          "It has no body"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Sending multiple identical `POST` requests creates multiple resources, altering state each time."
+      },
+      {
+        "id": "http-methods-mcq-3",
+        "question": "What is primary difference between `HEAD` and `GET` HTTP methods?",
+        "options": [
+          "HEAD is async",
+          "HEAD returns response status line and headers identical to GET, but omits response body payload",
+          "HEAD creates records",
+          "HEAD requires token"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`HEAD` returns exact same headers as `GET` without transferring response body bytes."
+      },
+      {
+        "id": "http-methods-mcq-4",
+        "question": "Which HTTP method is issued by browsers during CORS preflight checks?",
+        "options": [
+          "CONNECT",
+          "OPTIONS",
+          "TRACE",
+          "POST"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browsers automatically send `OPTIONS` preflight requests to check cross-origin server permissions."
+      },
+      {
+        "id": "http-methods-mcq-5",
+        "question": "Which HTTP method is recommended for partial resource field updates (e.g. updating user email only)?",
+        "options": [
+          "PUT",
+          "PATCH",
+          "POST",
+          "UPDATE"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`PATCH` is designated for partial resource modifications."
+      }
+    ]
+  },
+  {
+    "id": "http-status-codes",
+    "title": "Status codes",
+    "category": "HTTP",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "HTTP status code ranges: 1xx (Informational), 2xx (Success), 3xx (Redirection), 4xx (Client Error), 5xx (Server Error).",
+    "explanation": {
+      "overview": "HTTP status codes indicate whether a specific HTTP request has been successfully completed.",
+      "sections": [
+        {
+          "heading": "5 Status Code Ranges",
+          "content": "- **1xx Informational**: Request received, continuing process (100 Continue, 101 Switching Protocols).\n- **2xx Success**: Action successfully received and accepted (200 OK, 201 Created, 204 No Content).\n- **3xx Redirection**: Further action needed to complete request (301 Moved Permanently, 302 Found, 304 Not Modified).\n- **4xx Client Error**: Request contains bad syntax or cannot be fulfilled (400 Bad Request, 401 Unauthorized, 403 Forbidden, 404 Not Found, 409 Conflict, 429 Too Many Requests).\n- **5xx Server Error**: Server failed to fulfill valid request (500 Internal Server Error, 502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout).",
+          "bulletPoints": [
+            "2xx: Success (200, 201, 204).",
+            "3xx: Redirection (301, 302, 304 cache validation).",
+            "4xx: Client errors (400, 401, 403, 404, 429).",
+            "5xx: Server errors (500, 502, 503, 504)."
+          ]
+        },
+        {
+          "heading": "Key Status Code Nuances",
+          "content": "304 Not Modified tells browser to reuse cached copy. 429 Too Many Requests indicates rate limit throttling. 502 Bad Gateway means proxy received invalid response from upstream server.",
+          "bulletPoints": [
+            "304: Efficient cache validation (no body returned).",
+            "429: Triggered by rate limiter.",
+            "502 vs 504: 502 = Invalid upstream response; 504 = Upstream server timeout."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "2xx = Success, 3xx = Redirection, 4xx = Client error, 5xx = Server error.",
+      "304 Not Modified validates browser caches without body payload.",
+      "502 indicates bad proxy gateway response; 504 indicates gateway timeout."
+    ],
+    "codeExamples": [
+      {
+        "title": "Common HTTP Status Responses",
+        "description": "Standard status header responses.",
+        "code": "HTTP/1.1 200 OK\nContent-Type: application/json\n\nHTTP/1.1 201 Created\nLocation: /api/v1/users/99\n\nHTTP/1.1 304 Not Modified\nETag: \"33a640c57c43136e23dd08d43709d2f7\"\n\nHTTP/1.1 429 Too Many Requests\nRetry-After: 60"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-status-codes-mcq-1",
+        "question": "Which status code indicates client request was blocked because rate limit was exceeded?",
+        "options": [
+          "400 Bad Request",
+          "403 Forbidden",
+          "429 Too Many Requests",
+          "503 Service Unavailable"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`429 Too Many Requests` indicates user has sent too many requests in given timeframe."
+      },
+      {
+        "id": "http-status-codes-mcq-2",
+        "question": "What does HTTP status code `304 Not Modified` inform client browser?",
+        "options": [
+          "Resource deleted",
+          "Cached copy of resource in browser is valid and up to date (no body returned)",
+          "Server crashed",
+          "Redirect to new domain"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`304 Not Modified` tells browser to reuse cached representation, saving bandwidth."
+      },
+      {
+        "id": "http-status-codes-mcq-3",
+        "question": "What is difference between `502 Bad Gateway` and `504 Gateway Timeout`?",
+        "options": [
+          "502 is client error",
+          "502 means proxy received invalid response from upstream server; 504 means upstream server timed out",
+          "504 means auth failed",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "502 indicates invalid upstream response; 504 indicates upstream response timeout."
+      },
+      {
+        "id": "http-status-codes-mcq-4",
+        "question": "Which 4xx status code indicates a state conflict (e.g., trying to register an email address that already exists)?",
+        "options": [
+          "400 Bad Request",
+          "404 Not Found",
+          "409 Conflict",
+          "422 Unprocessable Entity"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`409 Conflict` indicates request conflicts with current state of target resource."
+      },
+      {
+        "id": "http-status-codes-mcq-5",
+        "question": "Which status code represents permanent URL redirection?",
+        "options": [
+          "301 Moved Permanently",
+          "302 Found",
+          "307 Temporary Redirect",
+          "200 OK"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`301 Moved Permanently` tells search engine crawlers and browsers to update link target permanently."
+      }
+    ]
+  },
+  {
+    "id": "http-headers",
+    "title": "Headers",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Request vs Response headers, Content-Type, Authorization, Cache-Control, ETag, and User-Agent.",
+    "explanation": {
+      "overview": "HTTP headers pass additional metadata context between client and server in HTTP requests and responses.",
+      "sections": [
+        {
+          "heading": "Request vs Response Headers",
+          "content": "- **Request Headers**: `Host`, `User-Agent`, `Authorization`, `Accept`, `Cookie`.\n- **Response Headers**: `Content-Type`, `Set-Cookie`, `Cache-Control`, `ETag`, `Access-Control-Allow-Origin`.",
+          "bulletPoints": [
+            "Content-Type: Specifies MIME type (`application/json`, `text/html`).",
+            "Authorization: Transmits credentials (`Bearer <token>`).",
+            "User-Agent: Identifies client browser/device OS."
+          ]
+        },
+        {
+          "heading": "Caching & Validation Headers",
+          "content": "`Cache-Control` specifies caching policies (`no-store`, `no-cache`, `max-age=3600`). `ETag` and `If-None-Match` validate content changes.",
+          "bulletPoints": [
+            "`Cache-Control: no-store`: Disables caching completely.",
+            "`Cache-Control: max-age=3600`: Caches for 1 hour.",
+            "`ETag`: Unique content hash string for validation."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Headers convey metadata key-value pairs.",
+      "Use `Authorization: Bearer <token>` for API tokens.",
+      "Use `Cache-Control: no-store` to prevent caching sensitive user data."
+    ],
+    "codeExamples": [
+      {
+        "title": "HTTP Headers Payload Example",
+        "description": "Standard API request and response headers.",
+        "code": "// API REQUEST HEADERS:\nPOST /api/v1/data HTTP/1.1\nHost: api.myapp.com\nAuthorization: Bearer eyJhbGciOiJIUzI1Ni...\nContent-Type: application/json\nAccept: application/json\n\n// API RESPONSE HEADERS:\nHTTP/1.1 200 OK\nContent-Type: application/json; charset=utf-8\nCache-Control: private, no-cache\nETag: W/\"123-abc\""
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-headers-mcq-1",
+        "question": "Which HTTP header directive completely prevents browsers and CDNs from storing response in cache memory?",
+        "options": [
+          "Cache-Control: max-age=0",
+          "Cache-Control: no-store",
+          "Cache-Control: no-cache",
+          "Pragma: public"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`no-store` instructs caches to never store any part of request or response."
+      },
+      {
+        "id": "http-headers-mcq-2",
+        "question": "What is standard format of Authorization header for JWT tokens?",
+        "options": [
+          "Authorization: JWT <token>",
+          "Authorization: Bearer <token>",
+          "Authorization: Token <token>",
+          "Authorization: Basic <token>"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Standard OAuth2/JWT header format is `Authorization: Bearer <token>`."
+      },
+      {
+        "id": "http-headers-mcq-3",
+        "question": "What is function of `ETag` response header?",
+        "options": [
+          "Encrypts response",
+          "Provides unique hash string representing resource content version for conditional caching",
+          "Sets session cookie",
+          "Defines CORS domain"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ETag` provides content version identifier string for conditional `If-None-Match` caching."
+      },
+      {
+        "id": "http-headers-mcq-4",
+        "question": "Which header specifies media format of response body payload?",
+        "options": [
+          "Accept",
+          "Content-Type",
+          "Transfer-Encoding",
+          "Content-Encoding"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Content-Type` indicates MIME type of attached response body payload."
+      },
+      {
+        "id": "http-headers-mcq-5",
+        "question": "Which request header specifies MIME formats acceptable to client `Accept: application/json`?",
+        "options": [
+          "Content-Type",
+          "Accept",
+          "Content-Format",
+          "User-Agent"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Accept` header informs server about media types client is capable of processing."
+      }
+    ]
+  },
+  {
+    "id": "http-cookies",
+    "title": "Cookies",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "State management via Set-Cookie, Cookie flags: HttpOnly, Secure, SameSite (Strict, Lax, None), domain & path scoping.",
+    "explanation": {
+      "overview": "Cookies are small data fragments sent by server via `Set-Cookie` header and stored in client browser, automatically attached to subsequent matching requests.",
+      "sections": [
+        {
+          "heading": "Essential Cookie Security Flags",
+          "content": "1. **HttpOnly**: Prevents client JavaScript (`document.cookie`) from accessing cookie, neutralizing XSS cookie theft.\n2. **Secure**: Ensures cookie is transmitted strictly over encrypted HTTPS connections.\n3. **SameSite**: Controls cross-site cookie transmission to mitigate CSRF attacks.",
+          "bulletPoints": [
+            "HttpOnly: Blocks `document.cookie` JS access.",
+            "Secure: Restricts transmission to HTTPS only.",
+            "SameSite=Strict: Never sends cookie on cross-site requests.",
+            "SameSite=Lax: Sends cookie on top-level cross-site GET navigations (default)."
+          ]
+        },
+        {
+          "heading": "Cookie Lifespan & Scope",
+          "content": "`Expires` and `Max-Age` specify cookie expiration duration. `Domain` and `Path` attributes restrict cookie delivery scope.",
+          "bulletPoints": [
+            "Session Cookie: Omits Expiration date; deleted when browser tab closes.",
+            "Max-Age: Specifies lifespan in seconds (`Max-Age=3600`)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use `HttpOnly` flag to protect session cookies against XSS theft.",
+      "Use `Secure` flag to force HTTPS transmission.",
+      "Use `SameSite=Lax` or `Strict` to protect against CSRF attacks."
+    ],
+    "codeExamples": [
+      {
+        "title": "Secure Set-Cookie Response Header",
+        "description": "Setting secure authentication cookie with security flags.",
+        "code": "// Set-Cookie response header from server:\nSet-Cookie: sessionId=xyz123;\n  Expires=Wed, 21 Oct 2026 07:28:00 GMT;\n  Max-Age=86400;\n  Secure;\n  HttpOnly;\n  SameSite=Lax;\n  Path=/\n  Domain=.example.com"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-cookies-mcq-1",
+        "question": "What security protection does `HttpOnly` cookie flag provide?",
+        "options": [
+          "Forces HTTPS transmission",
+          "Prevents client-side JavaScript (`document.cookie`) from reading cookie, protecting session tokens against XSS theft",
+          "Prevents CSRF attacks",
+          "Encrypts cookie content"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`HttpOnly` blocks JS access via `document.cookie`, preventing XSS token theft."
+      },
+      {
+        "id": "http-cookies-mcq-2",
+        "question": "What is primary role of `SameSite=Strict` cookie attribute?",
+        "options": [
+          "Restricts cookie to HTTPS",
+          "Prevents browser from sending cookie on any cross-site request, protecting against CSRF attacks",
+          "Compresses cookie",
+          "Deletes cookie on tab close"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SameSite=Strict` blocks cookie attachment on cross-site requests to defend against CSRF."
+      },
+      {
+        "id": "http-cookies-mcq-3",
+        "question": "What happens to a cookie set WITHOUT `Expires` or `Max-Age` attributes?",
+        "options": [
+          "Expires in 1 hour",
+          "Becomes a Session Cookie and is deleted when browser closes",
+          "Persists forever",
+          "Rejected by browser"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Omitting expiration creates a session cookie deleted when browser tab/session closes."
+      },
+      {
+        "id": "http-cookies-mcq-4",
+        "question": "What does `Secure` cookie flag enforce?",
+        "options": [
+          "Encrypts cookie value",
+          "Restricts browser to sending cookie ONLY over encrypted HTTPS connections",
+          "Blocks JS access",
+          "Enforces 2FA"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Secure` flag guarantees cookie transmission occurs only over encrypted HTTPS links."
+      },
+      {
+        "id": "http-cookies-mcq-5",
+        "question": "If `SameSite=None` is set on a cookie, what companion flag is MANDATORY in modern browsers?",
+        "options": [
+          "HttpOnly",
+          "Secure",
+          "Domain",
+          "Path"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Modern browser security rules require `SameSite=None` cookies to also specify `Secure`."
+      }
+    ]
+  },
+  {
+    "id": "http-cors",
+    "title": "CORS",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Cross-Origin Resource Sharing security mechanism, Same-Origin Policy (SOP), Access-Control headers, and origin matching.",
+    "explanation": {
+      "overview": "CORS (Cross-Origin Resource Sharing) is a browser security mechanism that relaxes the Same-Origin Policy (SOP) to allow web apps to request resources from a different origin domain.",
+      "sections": [
+        {
+          "heading": "Same-Origin Policy (SOP)",
+          "content": "Two URLs share the **Same Origin** if they match identical **Scheme (Protocol)**, **Host (Domain)**, and **Port**.\nExample: `https://example.com:443` vs `https://api.example.com:443` are DIFFERENT origins.",
+          "bulletPoints": [
+            "Origin components: Protocol + Domain + Port.",
+            "Browser SOP: Blocks web scripts from reading cross-origin HTTP response data by default."
+          ]
+        },
+        {
+          "heading": "CORS Response Headers",
+          "content": "Servers grant cross-origin access by returning specific CORS response headers:\n- `Access-Control-Allow-Origin: https://app.com`\n- `Access-Control-Allow-Methods: GET, POST, PUT`\n- `Access-Control-Allow-Headers: Content-Type, Authorization`\n- `Access-Control-Allow-Credentials: true`",
+          "bulletPoints": [
+            "Allow-Origin: Specifies allowed requesting origin domain (or wildcard `*`).",
+            "Allow-Credentials: Required to allow sending cookies cross-origin."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Origin = Protocol + Domain + Port.",
+      "CORS is enforced by the browser, NOT by the backend server.",
+      "Use `Access-Control-Allow-Origin` headers on server to grant cross-origin access."
+    ],
+    "codeExamples": [
+      {
+        "title": "CORS Server Headers Response",
+        "description": "Server returning CORS headers to allow cross-origin client access.",
+        "code": "// Express CORS configuration middleware\napp.use((req, res, next) => {\n  res.setHeader('Access-Control-Allow-Origin', 'https://frontend-app.com');\n  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');\n  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');\n  res.setHeader('Access-Control-Allow-Credentials', 'true');\n  if (req.method === 'OPTIONS') return res.sendStatus(204); // Handle preflight!\n  next();\n});"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-cors-mcq-1",
+        "question": "What 3 URL components define a web 'Origin' under Same-Origin Policy?",
+        "options": [
+          "Domain, Path, Query string",
+          "Protocol (Scheme), Host (Domain), and Port number",
+          "User-Agent, IP, Cookie",
+          "Host, Cookie, Path"
+        ],
+        "correctAnswer": 1,
+        "explanation": "An origin is defined by exact combination of Protocol, Host domain, and Port."
+      },
+      {
+        "id": "http-cors-mcq-2",
+        "question": "Who enforces CORS restrictions when making cross-origin API requests?",
+        "options": [
+          "Backend database",
+          "Client Web Browser runtime",
+          "DNS server",
+          "Operating system kernel"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CORS security rules and response blocking are enforced directly by the client browser."
+      },
+      {
+        "id": "http-cors-mcq-3",
+        "question": "Which HTTP response header allows domain `https://client.com` to read API responses?",
+        "options": [
+          "Access-Control-Allow-Origin: https://client.com",
+          "Allow-Domain: https://client.com",
+          "CORS-Origin: https://client.com",
+          "Host: https://client.com"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`Access-Control-Allow-Origin` specifies allowed requesting origin domains."
+      },
+      {
+        "id": "http-cors-mcq-4",
+        "question": "Why fails `Access-Control-Allow-Origin: *` when client request sets `credentials: 'include'` (cookies)?",
+        "options": [
+          "Wildcard `*` is prohibited when `Access-Control-Allow-Credentials` is set to true for security",
+          "Syntax error",
+          "Browsers ignore cookies",
+          "Server crashes"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Browsers reject wildcard `*` origin when credentials/cookies are transmitted cross-origin."
+      },
+      {
+        "id": "http-cors-mcq-5",
+        "question": "Are `https://mysite.com` and `http://mysite.com` considered same origin?",
+        "options": [
+          "Yes, same domain name",
+          "No, because protocols differ (https vs http)",
+          "Only in production",
+          "Only if ports match"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Different protocols (`https` vs `http`) mean distinct origins under Same-Origin Policy."
+      }
+    ]
+  },
+  {
+    "id": "http-preflight",
+    "title": "Preflight",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Simple requests vs Preflighted requests, OPTIONS method, Access-Control-Max-Age caching.",
+    "explanation": {
+      "overview": "A Preflight Request is an automatic HTTP OPTIONS request sent by browser before executing cross-origin requests that may alter server state or use non-simple headers.",
+      "sections": [
+        {
+          "heading": "Simple Requests vs Preflight Trigger",
+          "content": "A request skips preflight (is **Simple**) ONLY if:\n1. Method is `GET`, `POST`, or `HEAD`.\n2. Headers contain only CORS-safelisted headers (`Accept`, `Accept-Language`, `Content-Type`).\n3. `Content-Type` is `application/x-www-form-urlencoded`, `multipart/form-data`, or `text/plain`.",
+          "bulletPoints": [
+            "Simple Request: Skips preflight checks.",
+            "Preflight Triggered: Using `Content-Type: application/json` or custom headers (`Authorization`, `X-API-Key`) or methods (`PUT`, `DELETE`, `PATCH`)."
+          ]
+        },
+        {
+          "heading": "Preflight OPTIONS Response & Caching",
+          "content": "Server responds to OPTIONS preflight with allowed methods and headers. Header `Access-Control-Max-Age` caches preflight approval duration in seconds.",
+          "bulletPoints": [
+            "OPTIONS Request: Sends `Access-Control-Request-Method` and `Access-Control-Request-Headers`.",
+            "Access-Control-Max-Age: Caches preflight approval to prevent redundant OPTIONS requests."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Browsers issue automatic `OPTIONS` preflight for non-simple cross-origin requests.",
+      "Sending `Content-Type: application/json` or `Authorization` header triggers a preflight request.",
+      "Use `Access-Control-Max-Age` header to cache preflight responses and reduce latency."
+    ],
+    "codeExamples": [
+      {
+        "title": "CORS Preflight OPTIONS Flow",
+        "description": "Browser preflight OPTIONS request and server approval response.",
+        "code": "// 1. BROWSER AUTOMATIC PREFLIGHT:\nOPTIONS /api/v1/users HTTP/1.1\nHost: api.example.com\nOrigin: https://myapp.com\nAccess-Control-Request-Method: PUT\nAccess-Control-Request-Headers: authorization, content-type\n\n// 2. SERVER APPROVAL RESPONSE:\nHTTP/1.1 204 No Content\nAccess-Control-Allow-Origin: https://myapp.com\nAccess-Control-Allow-Methods: GET, POST, PUT, DELETE\nAccess-Control-Allow-Headers: authorization, content-type\nAccess-Control-Max-Age: 86400"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-preflight-mcq-1",
+        "question": "Which HTTP method is issued by browser for a CORS preflight request?",
+        "options": [
+          "GET",
+          "OPTIONS",
+          "HEAD",
+          "TRACE"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browsers automatically send an `OPTIONS` HTTP request to verify server permissions."
+      },
+      {
+        "id": "http-preflight-mcq-2",
+        "question": "Which scenario triggers an automatic CORS Preflight request?",
+        "options": [
+          "Standard GET request for an image",
+          "Sending a POST request with `Content-Type: application/json` cross-origin",
+          "Form submit with text/plain",
+          "GET request with Accept header"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Content-Type: application/json` is not a simple content type, triggering a preflight check."
+      },
+      {
+        "id": "http-preflight-mcq-3",
+        "question": "What is function of `Access-Control-Max-Age` header in a preflight response?",
+        "options": [
+          "Sets session cookie timeout",
+          "Caches preflight OPTIONS approval in browser for specified duration in seconds, avoiding repeat preflight requests",
+          "Restricts max file upload size",
+          "Deletes cache"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Access-Control-Max-Age` caches preflight permissions to avoid duplicate OPTIONS roundtrips."
+      },
+      {
+        "id": "http-preflight-mcq-4",
+        "question": "Which header does browser send in OPTIONS preflight request to list custom headers client wants to transmit?",
+        "options": [
+          "Access-Control-Request-Headers",
+          "Access-Control-Allow-Headers",
+          "Client-Headers",
+          "Request-Headers"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Browser sends `Access-Control-Request-Headers` listing headers it intends to include."
+      },
+      {
+        "id": "http-preflight-mcq-5",
+        "question": "What status code does server typically return for a successful OPTIONS preflight check?",
+        "options": [
+          "200 OK or 204 No Content",
+          "201 Created",
+          "301 Moved",
+          "404 Not Found"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Servers return `204 No Content` or `200 OK` for successful preflight checks."
+      }
+    ]
+  },
+  {
+    "id": "http-https",
+    "title": "HTTPS",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "SSL/TLS encryption, public/private key cryptography, TLS handshake, and TLS certificates.",
+    "explanation": {
+      "overview": "HTTPS (HTTP Secure) encrypts standard HTTP communication over TLS (Transport Layer Security) to ensure confidentiality, data integrity, and server authentication.",
+      "sections": [
+        {
+          "heading": "TLS Handshake & Encryption Mechanics",
+          "content": "HTTPS uses **Asymmetric Encryption** (RSA/ECC public-private key pairs) during TLS Handshake to verify server identity and establish shared symmetric session key, followed by fast **Symmetric Encryption** (AES) for data transfer.",
+          "bulletPoints": [
+            "Asymmetric Encryption: Used during TLS Handshake for authentication & key exchange.",
+            "Symmetric Encryption: AES key used to encrypt payload data for performance.",
+            "Integrity: MAC/HMAC hashes prevent packet tampering (Man-in-the-Middle attacks)."
+          ]
+        },
+        {
+          "heading": "TLS/SSL Certificates & Certificate Authorities (CA)",
+          "content": "Server presents TLS certificate issued by trusted Certificate Authority (Let's Encrypt, DigiCert). Browser verifies certificate chain against browser root trust store.",
+          "bulletPoints": [
+            "Server Authentication: Verifies server domain ownership.",
+            "HSTS (HTTP Strict Transport Security): Header forcing browsers to use HTTPS exclusively (`Strict-Transport-Security`)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "HTTPS encrypts HTTP traffic via TLS protocol.",
+      "Uses asymmetric cryptography for key exchange and symmetric AES for data transfer.",
+      "Enable HSTS headers to force browsers to connect over HTTPS."
+    ],
+    "codeExamples": [
+      {
+        "title": "HSTS Security Header Response",
+        "description": "Enforcing HTTPS exclusive connection via HSTS header.",
+        "code": "// Response header forcing HTTPS for 1 year including subdomains:\nStrict-Transport-Security: max-age=31536000; includeSubDomains; preload"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-https-mcq-1",
+        "question": "What primary security threat does HTTPS encryption eliminate?",
+        "options": [
+          "SQL injection",
+          "Man-in-the-Middle (MitM) eavesdropping and packet tampering",
+          "XSS vulnerabilities",
+          "DDoS attacks"
+        ],
+        "correctAnswer": 1,
+        "explanation": "HTTPS encrypts network traffic, preventing unauthorized eavesdropping and packet manipulation."
+      },
+      {
+        "id": "http-https-mcq-2",
+        "question": "What encryption type is used to encrypt HTTP payload data AFTER TLS handshake completes?",
+        "options": [
+          "Asymmetric encryption (RSA)",
+          "Symmetric encryption (AES)",
+          "Unencrypted text",
+          "MD5 hashing"
+        ],
+        "correctAnswer": 1,
+        "explanation": "After handshake negotiates shared secret, fast symmetric encryption (AES) encrypts session traffic."
+      },
+      {
+        "id": "http-https-mcq-3",
+        "question": "What is default TCP port for HTTPS traffic?",
+        "options": [
+          "80",
+          "443",
+          "8080",
+          "22"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Default TCP port for HTTPS is 443 (standard HTTP uses port 80)."
+      },
+      {
+        "id": "http-https-mcq-4",
+        "question": "What protection does `Strict-Transport-Security` (HSTS) header provide?",
+        "options": [
+          "Encrypts database",
+          "Instructs browser to automatically convert all future HTTP links for domain to HTTPS before sending request",
+          "Blocks CORS",
+          "Disables cookies"
+        ],
+        "correctAnswer": 1,
+        "explanation": "HSTS forces browsers to communicate strictly over HTTPS links."
+      },
+      {
+        "id": "http-https-mcq-5",
+        "question": "Who issues trusted TLS certificates to verify web server identity?",
+        "options": [
+          "Google Search Console",
+          "Trusted Certificate Authorities (CAs) like Let's Encrypt",
+          "Local ISP",
+          "W3C"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Certificate Authorities (CAs) verify server identities and sign TLS certificates."
+      }
+    ]
+  },
+  {
+    "id": "http-rest",
+    "title": "REST",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "REST architectural constraints: Client-Server, Stateless, Cacheable, Uniform Interface, Layered System.",
+    "explanation": {
+      "overview": "REST (Representational State Transfer) is an architectural style defined by Roy Fielding consisting of 6 core constraints for distributed web hypermedia systems.",
+      "sections": [
+        {
+          "heading": "Core REST Architectural Constraints",
+          "content": "1. **Client-Server**: Separation of concerns (UI frontend decoupled from data storage backend).\n2. **Stateless**: Every client request must contain all context needed to process it; server stores no client session context between requests.\n3. **Cacheable**: Responses must define themselves as cacheable or non-cacheable.\n4. **Uniform Interface**: Standardized resource URIs, representation formats, and HTTP verbs.\n5. **Layered System**: Client cannot tell whether connected directly to end server or proxy/load balancer.\n6. **Code on Demand** (Optional): Executable code scripts sent to client.",
+          "bulletPoints": [
+            "Statelessness: Essential constraint for horizontal backend scalability.",
+            "Uniform Interface: Resource identification via standard URIs.",
+            "Client-Server: Independent frontend and backend deployment."
+          ]
+        },
+        {
+          "heading": "HATEOAS (Level 3 Richardson Maturity)",
+          "content": "Hypermedia As The Engine Of Application State (HATEOAS) means REST responses include hypermedia links pointing to related action endpoints.",
+          "bulletPoints": [
+            "HATEOAS Links: `\"_links\": { \"self\": \"/users/1\", \"orders\": \"/users/1/orders\" }`."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "REST is an architectural style, not a protocol.",
+      "Stateless constraint enables linear horizontal server scaling.",
+      "Stateless requests must contain complete authentication/context in every request."
+    ],
+    "codeExamples": [
+      {
+        "title": "HATEOAS REST Response Payload",
+        "description": "JSON representation including hypermedia action links.",
+        "code": "{\n  \"id\": 42,\n  \"name\": \"Alex Developer\",\n  \"email\": \"alex@example.com\",\n  \"_links\": {\n    \"self\": { \"href\": \"/api/v1/users/42\" },\n    \"orders\": { \"href\": \"/api/v1/users/42/orders\" },\n    \"deactivate\": { \"href\": \"/api/v1/users/42\", \"method\": \"DELETE\" }\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-rest-mcq-1",
+        "question": "What does 'Stateless' constraint in REST architectural style dictate?",
+        "options": [
+          "Database has no state",
+          "Each HTTP request must contain all context necessary for server to process it; server stores no client session state between requests",
+          "HTML forms cannot submit state",
+          "Cookies are forbidden"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Stateless constraint mandates that every request carries complete context needed to process it."
+      },
+      {
+        "id": "http-rest-mcq-2",
+        "question": "What is primary scalability benefit of Stateless REST constraint?",
+        "options": [
+          "Smaller database size",
+          "Allows load balancers to route requests to ANY application server instance seamlessly",
+          "Faster font loading",
+          "Eliminates network latency"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Stateless servers do not store session state in RAM, allowing any request to land on any server node."
+      },
+      {
+        "id": "http-rest-mcq-3",
+        "question": "What does HATEOAS principle specify in REST API responses?",
+        "options": [
+          "Encrypting JSON keys",
+          "Including hypermedia links in response payload guiding client to related resource actions",
+          "Compressing payload",
+          "Disabling CORS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "HATEOAS includes hypermedia links in responses to navigate related resource actions."
+      },
+      {
+        "id": "http-rest-mcq-4",
+        "question": "Who originally defined REST architectural constraints in a 2000 doctoral dissertation?",
+        "options": [
+          "Tim Berners-Lee",
+          "Roy Fielding",
+          "Brendan Eich",
+          "Linus Torvalds"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Roy Fielding defined REST architectural constraints in his 2000 PhD dissertation."
+      },
+      {
+        "id": "http-rest-mcq-5",
+        "question": "What is highest level (Level 3) of Richardson Maturity Model for REST APIs?",
+        "options": [
+          "HTTP Verbs",
+          "URI Resources",
+          "HATEOAS (Hypermedia Controls)",
+          "XML Payload"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Level 3 of Richardson Maturity Model requires HATEOAS hypermedia controls."
+      }
+    ]
+  },
+  {
+    "id": "http-idempotency",
+    "title": "Idempotency",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Idempotent HTTP methods vs Non-idempotent methods, handling network retries, and Idempotency-Key headers.",
+    "explanation": {
+      "overview": "An HTTP method is **Idempotent** if executing identical request once or multiple times produces exact same server side-effect result.",
+      "sections": [
+        {
+          "heading": "Idempotent vs Non-Idempotent Methods",
+          "content": "- **Idempotent**: GET, PUT, DELETE, HEAD, OPTIONS (calling `DELETE /users/5` 1 time or 10 times leaves user 5 deleted).\n- **Non-Idempotent**: POST, PATCH (default) (calling `POST /charges` 3 times creates 3 credit card charges!).",
+          "bulletPoints": [
+            "PUT: Idempotent replacement (`PUT /user/1` with `{ age: 30 }` always sets age to 30).",
+            "POST: Non-idempotent creation (creates duplicate entities on retry)."
+          ]
+        },
+        {
+          "heading": "Idempotency-Key Header in Financial APIs",
+          "content": "To safely allow client network retries on non-idempotent POST payments, APIs (Stripe, PayPal) require unique `Idempotency-Key: <uuid>` request header.",
+          "bulletPoints": [
+            "Idempotency-Key: Server caches key result for 24h.",
+            "Retry Safety: Duplicate requests with same key return cached response without executing duplicate payment."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Idempotent methods yield identical server state regardless of execution count.",
+      "GET, PUT, and DELETE are idempotent; POST is non-idempotent.",
+      "Use `Idempotency-Key` headers in payment APIs to prevent duplicate POST charges on network retries."
+    ],
+    "codeExamples": [
+      {
+        "title": "Idempotency-Key Header Usage",
+        "description": "Making safe payment POST request with Idempotency-Key.",
+        "code": "// POST request with unique idempotency key:\nPOST /v1/charges HTTP/1.1\nHost: api.stripe.com\nAuthorization: Bearer sk_test_...\nIdempotency-Key: 7b9e82c1-23a4-4b5c-8901-d4e5f6a7b8c9\nContent-Type: application/json\n\n{ \"amount\": 2000, \"currency\": \"usd\" }"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-idempotency-mcq-1",
+        "question": "What is mathematical definition of an Idempotent operation $f(x)$?",
+        "options": [
+          "$f(x) = 0$",
+          "$f(f(x)) = f(x)$ (applying operation multiple times yields identical result as applying once)",
+          "$f(x) = x + 1$",
+          "Async execution"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Idempotency means applying an operation repeatedly produces identical outcome as initial application."
+      },
+      {
+        "id": "http-idempotency-mcq-2",
+        "question": "Which HTTP method is NOT idempotent by default?",
+        "options": [
+          "GET",
+          "PUT",
+          "DELETE",
+          "POST"
+        ],
+        "correctAnswer": 3,
+        "explanation": "`POST` is non-idempotent because repeating request creates duplicate resource instances."
+      },
+      {
+        "id": "http-idempotency-mcq-3",
+        "question": "Why is `PUT /users/5 { \"age\": 25 }` considered Idempotent?",
+        "options": [
+          "It deletes user 5",
+          "Executing request 10 times sets user 5 age to 25 every time without creating extra users",
+          "It runs asynchronously",
+          "It uses GET"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`PUT` replaces entire target state, so repeated calls result in identical user state."
+      },
+      {
+        "id": "http-idempotency-mcq-4",
+        "question": "How do payment processing APIs (Stripe) safely handle network retry timeouts on `POST /charges`?",
+        "options": [
+          "Convert POST to GET",
+          "Require unique `Idempotency-Key` header; server caches key result and skips duplicate charge processing on retries",
+          "Ignore timeouts",
+          "Use WebSocket"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Idempotency-Key` header allows server to identify duplicate retries and return cached response without re-executing payment."
+      },
+      {
+        "id": "http-idempotency-mcq-5",
+        "question": "Is `DELETE /api/items/100` idempotent if first call returns 204 No Content and second call returns 404 Not Found?",
+        "options": [
+          "No",
+          "Yes, because server state (item 100 deleted) remains identical after first and subsequent calls",
+          "Only if status codes match",
+          "Only in strict mode"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Idempotency applies to SERVER STATE, not response status codes; item 100 remains deleted in both cases."
+      }
+    ]
+  },
+  {
+    "id": "http-pagination",
+    "title": "Pagination",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Offset-based pagination vs Cursor-based (keyset) pagination, performance tradeoffs, and metadata structures.",
+    "explanation": {
+      "overview": "Pagination divides large dataset responses into smaller manageable pages to optimize query execution, network payload size, and memory usage.",
+      "sections": [
+        {
+          "heading": "Offset-Based Pagination",
+          "content": "Uses SQL parameters `LIMIT page_size OFFSET (page - 1) * page_size`. Easy to implement, but suffers performance degradation on high offset values (`OFFSET 100000`) and missing/duplicate items when data inserts occur during scrolling.",
+          "bulletPoints": [
+            "Query: `SELECT * FROM items LIMIT 20 OFFSET 100`.",
+            "Cons: Slow $O(N)$ DB scans on deep offsets; dataset drift during pagination."
+          ]
+        },
+        {
+          "heading": "Cursor-Based (Keyset) Pagination",
+          "content": "Uses unique sequential column pointer (e.g. `created_at` timestamp or ID): `WHERE id > last_seen_id ORDER BY id ASC LIMIT 20`. Provides constant $O(1)$ query speed and immunity to data drift.",
+          "bulletPoints": [
+            "Query: `SELECT * FROM items WHERE id > 500 ORDER BY id ASC LIMIT 20`.",
+            "Pros: Fast $O(1)$ index lookup; consistent infinite scrolling.",
+            "Cons: Cannot jump directly to arbitrary page 50."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Offset pagination is simple but degrades on deep page offsets.",
+      "Cursor-based pagination provides $O(1)$ constant query speed for infinite scroll.",
+      "Return pagination metadata (`hasNextPage`, `nextCursor`, `totalCount`)."
+    ],
+    "codeExamples": [
+      {
+        "title": "Cursor Pagination API Response",
+        "description": "Standard cursor-based pagination JSON structure.",
+        "code": "{\n  \"data\": [\n    { \"id\": 501, \"title\": \"Post A\" },\n    { \"id\": 502, \"title\": \"Post B\" }\n  ],\n  \"pagination\": {\n    \"pageSize\": 2,\n    \"hasNextPage\": true,\n    \"nextCursor\": \"eyJpZCI6NTAyfQ==\", // Base64 encoded last item pointer\n    \"totalCount\": 1500\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-pagination-mcq-1",
+        "question": "What is major database performance flaw of Offset-based pagination `OFFSET 1000000 LIMIT 20`?",
+        "options": [
+          "Returns duplicate JSON",
+          "Database must scan and discard first 1,000,000 index rows before returning 20 records ($O(N)$ scan)",
+          "Throws syntax error",
+          "Deletes index"
+        ],
+        "correctAnswer": 1,
+        "explanation": "High `OFFSET` values force database engine to scan and discard all skipped preceding rows."
+      },
+      {
+        "id": "http-pagination-mcq-2",
+        "question": "How does Cursor-based pagination maintain constant $O(1)$ query performance across deep pages?",
+        "options": [
+          "Caches all pages in RAM",
+          "Uses indexed filter condition `WHERE id > cursor_id LIMIT 20` to jump directly to target row",
+          "Paginates in frontend",
+          "Uses WebAssembly"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Cursor pagination uses indexed `WHERE` clause conditions to seek directly to starting row."
+      },
+      {
+        "id": "http-pagination-mcq-3",
+        "question": "What issue occurs in Offset-based pagination when new items are inserted into database while user is browsing page 1?",
+        "options": [
+          "Database crashes",
+          "Data drift where user sees duplicate items on page 2 that shifted positions",
+          "Page turns blank",
+          "Token expires"
+        ],
+        "correctAnswer": 1,
+        "explanation": "New insertions shift dataset row positions, causing offset pagination to display duplicate items across page boundaries."
+      },
+      {
+        "id": "http-pagination-mcq-4",
+        "question": "Which pagination strategy is ideal for social media feeds with Infinite Scrolling?",
+        "options": [
+          "Offset-based pagination",
+          "Cursor-based pagination",
+          "No pagination",
+          "Random sampling"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Cursor pagination prevents duplicate posts and ensures fast infinite scrolling."
+      },
+      {
+        "id": "http-pagination-mcq-5",
+        "question": "What limitation exists in Cursor-based pagination compared to Offset pagination?",
+        "options": [
+          "Cannot use JSON",
+          "Cannot jump directly to an arbitrary page number (e.g. Page 45) without traversing cursors sequentially",
+          "Slow query speed",
+          "Requires HTTPS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Cursor pagination requires relative sequential seeking, preventing direct jumping to arbitrary page numbers."
+      }
+    ]
+  },
+  {
+    "id": "http-authentication",
+    "title": "Authentication",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Verifying user identity: HTTP Basic Auth, Session Cookies, OAuth2, OpenID Connect, and 2FA/MFA.",
+    "explanation": {
+      "overview": "Authentication (AuthN) is the process of verifying WHO a user or entity is.",
+      "sections": [
+        {
+          "heading": "Authentication Mechanisms",
+          "content": "- **HTTP Basic Auth**: `Authorization: Basic <base64(user:pass)>` sent per request (insecure without HTTPS).\n- **Session-Based Auth**: Server verifies credentials, stores session in DB/Redis, returns `sessionId` cookie.\n- **Token-Based Auth**: Server issues signed JWT token returned to client.\n- **OAuth 2.0 / OIDC**: Delegated authorization and identity verification via third-party identity providers (Google, GitHub).",
+          "bulletPoints": [
+            "Basic Auth: Transmits Base64 encoded username/password.",
+            "Session Auth: Stateful server session lookup.",
+            "Token Auth: Stateless cryptographic token verification."
+          ]
+        },
+        {
+          "heading": "Multi-Factor Authentication (MFA / 2FA)",
+          "content": "Requires 2 or more verification factors:\n1. Something you know (password).\n2. Something you have (TOTP authenticator app / WebAuthn security key).\n3. Something you are (biometrics).",
+          "bulletPoints": [
+            "TOTP: Time-based One-Time Password (HMAC algorithm).",
+            "WebAuthn: Hardware security key passkeys."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Authentication verifies WHO the user is (AuthN).",
+      "Session auth is stateful; Token auth is stateless.",
+      "Never transmit HTTP Basic Auth over unencrypted HTTP links."
+    ],
+    "codeExamples": [
+      {
+        "title": "HTTP Basic Auth Header Format",
+        "description": "Base64 encoded credentials in Authorization header.",
+        "code": "// Username 'admin' and Password 'secret' -> 'admin:secret' -> Base64: 'YWRtaW46c2VjcmV0'\nGET /api/admin/dashboard HTTP/1.1\nHost: example.com\nAuthorization: Basic YWRtaW46c2VjcmV0"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-authentication-mcq-1",
+        "question": "What is fundamental difference between Authentication (AuthN) and Authorization (AuthZ)?",
+        "options": [
+          "AuthN checks permissions; AuthZ checks identity",
+          "AuthN verifies WHO you are; AuthZ verifies WHAT permissions you have access to perform",
+          "AuthN uses cookies; AuthZ uses JSON",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Authentication verifies identity (Who are you?); Authorization verifies permission scope (What can you do?)."
+      },
+      {
+        "id": "http-authentication-mcq-2",
+        "question": "Why is HTTP Basic Auth `Authorization: Basic <base64>` extremely insecure over unencrypted HTTP?",
+        "options": [
+          "Base64 is NOT encryption; anyone intercepting network traffic can decode username and password instantly",
+          "Base64 crashes server",
+          "Basic auth requires 2FA",
+          "Expired headers"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Base64 is simple encoding, easily decoded by any network eavesdropper."
+      },
+      {
+        "id": "http-authentication-mcq-3",
+        "question": "Which authentication factor is represented by a TOTP Authenticator App (Google Authenticator)?",
+        "options": [
+          "Something you know",
+          "Something you have",
+          "Something you are",
+          "Somewhere you reside"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Authenticator apps represent physical possession factor (Something you have)."
+      },
+      {
+        "id": "http-authentication-mcq-4",
+        "question": "Which open standard is widely used for Delegated Identity Verification ('Sign in with Google')?",
+        "options": [
+          "SAML 1.0",
+          "OpenID Connect (OIDC) built on top of OAuth 2.0",
+          "Basic Auth",
+          "FTP"
+        ],
+        "correctAnswer": 1,
+        "explanation": "OpenID Connect (OIDC) extends OAuth 2.0 to provide identity authentication layer."
+      },
+      {
+        "id": "http-authentication-mcq-5",
+        "question": "Where is session state stored in traditional Session-Based authentication?",
+        "options": [
+          "Inside JWT token payload",
+          "On backend server memory or database (Redis)",
+          "Inside client browser localStorage",
+          "In DNS record"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Session-based auth stores active session state on backend server or Redis store."
+      }
+    ]
+  },
+  {
+    "id": "http-authorization",
+    "title": "Authorization",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Verifying permissions (AuthZ), RBAC (Role-Based), ABAC (Attribute-Based), and 403 Forbidden.",
+    "explanation": {
+      "overview": "Authorization (AuthZ) determines whether an authenticated user has permission to access a specific resource or perform an action.",
+      "sections": [
+        {
+          "heading": "Authorization Models: RBAC vs ABAC",
+          "content": "- **RBAC (Role-Based Access Control)**: Assigns permissions to roles (Admin, Editor, Viewer). Users acquire permissions associated with assigned roles.\n- **ABAC (Attribute-Based Access Control)**: Evaluates rules against attributes of user, resource, and environment (e.g. User department == IT AND Resource status == draft AND Time < 5pm).",
+          "bulletPoints": [
+            "RBAC: Simple role assignment (`hasRole('ADMIN')`).",
+            "ABAC: Fine-grained contextual rules based on dynamic attributes."
+          ]
+        },
+        {
+          "heading": "HTTP Authorization Responses",
+          "content": "If authentication is missing, return `401 Unauthorized`. If user is authenticated but lacks required permission role, return `403 Forbidden`.",
+          "bulletPoints": [
+            "401: Unauthenticated (who are you?).",
+            "403: Unauthorized (you are recognized, but denied permission)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Authorization verifies permission rights (AuthZ).",
+      "RBAC assigns permissions by role; ABAC evaluates contextual attributes.",
+      "Return 403 Forbidden when an authenticated user lacks permission."
+    ],
+    "codeExamples": [
+      {
+        "title": "Express RBAC Middleware Example",
+        "description": "Role-Based Access Control middleware enforcing role authorization.",
+        "code": "function requireRole(allowedRole) {\n  return (req, res, next) => {\n    // Assume req.user populated by AuthN middleware\n    if (!req.user) return res.status(401).json({ error: 'Unauthenticated' });\n    \n    if (req.user.role !== allowedRole) {\n      return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });\n    }\n    next();\n  };\n}\n\napp.delete('/api/v1/users/:id', requireRole('ADMIN'), (req, res) => {\n  res.status(200).json({ message: 'User deleted' });\n});"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-authorization-mcq-1",
+        "question": "What does Role-Based Access Control (RBAC) rely on to grant permissions?",
+        "options": [
+          "IP addresses",
+          "Assigned user roles (e.g. Admin, Manager, User)",
+          "Time of day",
+          "Device screen size"
+        ],
+        "correctAnswer": 1,
+        "explanation": "RBAC grants permissions based on static roles assigned to users."
+      },
+      {
+        "id": "http-authorization-mcq-2",
+        "question": "What is primary advantage of Attribute-Based Access Control (ABAC) over simple RBAC?",
+        "options": [
+          "Runs faster",
+          "Allows fine-grained authorization policies based on dynamic contextual attributes of user, resource, and environment",
+          "Requires no database",
+          "Bypasses HTTP headers"
+        ],
+        "correctAnswer": 1,
+        "explanation": "ABAC evaluates dynamic attributes (time, location, ownership) for fine-grained permissions."
+      },
+      {
+        "id": "http-authorization-mcq-3",
+        "question": "Which HTTP status code should be returned when an authenticated user with role `MEMBER` tries to access an `ADMIN` endpoint?",
+        "options": [
+          "401 Unauthorized",
+          "403 Forbidden",
+          "404 Not Found",
+          "500 Server Error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`403 Forbidden` indicates user identity is recognized, but access to resource is denied."
+      },
+      {
+        "id": "http-authorization-mcq-4",
+        "question": "What is 'Object-Level Authorization' (Broken Object Level Authorization - BOLA)?",
+        "options": [
+          "CSS layout error",
+          "Vulnerability where API fails to check if authenticated User A has permission to access record belonging to User B (`/users/10/invoices`)",
+          "Database crash",
+          "Token expiration"
+        ],
+        "correctAnswer": 1,
+        "explanation": "BOLA occurs when server checks user authentication but fails to verify if user owns requested object."
+      },
+      {
+        "id": "http-authorization-mcq-5",
+        "question": "Where should authorization checks be executed in a secure web application architecture?",
+        "options": [
+          "Strictly in client frontend JavaScript",
+          "Strictly on backend server for every request",
+          "Inside browser localStorage",
+          "In DNS resolver"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Frontend authorization controls are cosmetic; backend must enforce authorization on every request."
+      }
+    ]
+  },
+  {
+    "id": "http-jwt",
+    "title": "JWT",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "JSON Web Tokens architecture: Header, Payload, Signature, HMAC vs RSA, refresh tokens, and revocation.",
+    "explanation": {
+      "overview": "JSON Web Token (JWT) is an open standard (RFC 7519) for transmitting claims securely between parties as a compact, digitally signed JSON object.",
+      "sections": [
+        {
+          "heading": "JWT Anatomy: 3 Dot-Separated Parts",
+          "content": "A JWT string consists of 3 Base64Url-encoded parts separated by dots `header.payload.signature`:\n1. **Header**: Specifies token algorithm (`HS256`, `RS256`) and token type (`JWT`).\n2. **Payload**: JSON claims (`sub`, `name`, `role`, `exp`, `iat`).\n3. **Signature**: Cryptographic HMAC/RSA signature proving token authenticity.",
+          "bulletPoints": [
+            "Header: Algorithm & token type.",
+            "Payload: Base64 encoded JSON claims (NOT encrypted!).",
+            "Signature: Verified by server using secret key or public key."
+          ]
+        },
+        {
+          "heading": "Security Warning: Payload is NOT Encrypted",
+          "content": "JWT payloads are Base64 encoded, NOT encrypted. Anyone can decode and read claims. Never store sensitive credentials (passwords, credit cards) inside JWT payload.",
+          "bulletPoints": [
+            "Public Claims: Readable by anyone holding token string.",
+            "Expiration (`exp`): Mandatory claim to limit stolen token lifespan.",
+            "Refresh Tokens: Long-lived token used to acquire new short-lived access JWTs."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "JWT consists of 3 parts: `header.payload.signature`.",
+      "JWT payload is readable by anyone (Base64Url encoded, NOT encrypted).",
+      "Server verifies signature using secret key (HS256) or public key (RS256)."
+    ],
+    "codeExamples": [
+      {
+        "title": "Signing & Verifying JWT in Node.js",
+        "description": "Creating signed access token with JSONWebToken library.",
+        "code": "const jwt = require('jsonwebtoken');\nconst SECRET_KEY = 'super-secret-key';\n\n// Sign JWT token with 15m expiration claim\nconst token = jwt.sign(\n  { userId: 42, role: 'admin' },\n  SECRET_KEY,\n  { expiresIn: '15m' }\n);\nconsole.log('JWT Token:', token);\n\n// Verify token signature and expiration\ntry {\n  const decoded = jwt.verify(token, SECRET_KEY);\n  console.log('Valid Decoded Payload:', decoded);\n} catch (err) {\n  console.error('Invalid or Expired JWT:', err.message);\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-jwt-mcq-1",
+        "question": "What are 3 dot-separated components of a JSON Web Token (JWT)?",
+        "options": [
+          "key.value.expiration",
+          "header.payload.signature",
+          "user.role.hash",
+          "scheme.host.path"
+        ],
+        "correctAnswer": 1,
+        "explanation": "JWT consists of Header, Payload, and Signature separated by dots."
+      },
+      {
+        "id": "http-jwt-mcq-2",
+        "question": "Is data stored inside a standard signed JWT payload encrypted and hidden from client?",
+        "options": [
+          "Yes, fully encrypted",
+          "No, payload is Base64Url encoded; anyone holding token can decode and read claims",
+          "Only in production",
+          "Only if algorithm is HS256"
+        ],
+        "correctAnswer": 1,
+        "explanation": "JWT payloads are signed and Base64Url encoded, NOT encrypted. Never store secrets in payload."
+      },
+      {
+        "id": "http-jwt-mcq-3",
+        "question": "What is key difference between HS256 and RS256 signing algorithms for JWTs?",
+        "options": [
+          "HS256 is asymmetric",
+          "HS256 uses a single shared symmetric secret key; RS256 uses asymmetric private key to sign and public key to verify",
+          "RS256 is deprecated",
+          "HS256 uses no key"
+        ],
+        "correctAnswer": 1,
+        "explanation": "HS256 uses symmetric shared key; RS256 uses asymmetric private/public key pair."
+      },
+      {
+        "id": "http-jwt-mcq-4",
+        "question": "Why is revoking a stateless JWT before its `exp` expiration time difficult?",
+        "options": [
+          "Tokens cannot be deleted",
+          "Server does not store active tokens in DB; revoking requires maintaining a token blacklist in Redis",
+          "JWTs auto-renew",
+          "Browsers lock tokens"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Because JWT verification is stateless, instant revocation requires checking a central blacklist (e.g. Redis)."
+      },
+      {
+        "id": "http-jwt-mcq-5",
+        "question": "What standard claim key inside JWT payload defines token expiration timestamp?",
+        "options": [
+          "expire",
+          "exp",
+          "ttl",
+          "timeout"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Standard RFC 7519 claim `exp` specifies expiration Unix timestamp."
+      }
+    ]
+  },
+  {
+    "id": "http-sessions",
+    "title": "Sessions",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Stateful session management, session IDs, server store (Memory, Redis), session fixation, and termination.",
+    "explanation": {
+      "overview": "Session-Based Authentication stores stateful user data on backend server (in memory, database, or Redis), issuing client a opaque `sessionId` cookie.",
+      "sections": [
+        {
+          "heading": "Stateful Session Workflow",
+          "content": "1. User submits credentials.\n2. Server verifies password, creates session object in Redis, returns `Set-Cookie: connect.sid=xyz123; HttpOnly; Secure`.\n3. Client sends cookie on subsequent requests.\n4. Server looks up `xyz123` in Redis to retrieve user session data.",
+          "bulletPoints": [
+            "Opaque Session ID: Random unguessable string token.",
+            "Server Control: Server can invalidate/delete session instantly from Redis."
+          ]
+        },
+        {
+          "heading": "Session Security: Fixation & Hijacking",
+          "content": "Session Fixation occurs when an attacker forces victim to use a known session ID. Prevent by regenerating `sessionId` upon successful login.",
+          "bulletPoints": [
+            "Session Regeneration: `req.session.regenerate()` after login.",
+            "Session Hijacking: Prevented by `HttpOnly` and `Secure` cookie flags."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Session state is stored on backend server/Redis.",
+      "Instant revocation: Deleting session from Redis revokes user access immediately.",
+      "Regenerate session IDs upon login to prevent Session Fixation attacks."
+    ],
+    "codeExamples": [
+      {
+        "title": "Express Session Configuration",
+        "description": "Setting up express-session with Redis storage engine.",
+        "code": "const express = require('express');\nconst session = require('express-session');\nconst RedisStore = require('connect-redis').default;\nconst { createClient } = require('redis');\n\nconst redisClient = createClient();\nredisClient.connect();\n\nconst app = express();\napp.use(session({\n  store: new RedisStore({ client: redisClient }),\n  secret: 'super-session-secret',\n  resave: false,\n  saveUninitialized: false,\n  cookie: { httpOnly: true, secure: true, maxAge: 86400000 } // 1 day\n}));"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "http-sessions-mcq-1",
+        "question": "Where is user state data stored in traditional Session-based authentication?",
+        "options": [
+          "Inside client cookie payload",
+          "On backend server memory or central store (Redis/Database)",
+          "In client localStorage",
+          "Inside URL query string"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Session authentication stores stateful user data on backend server or Redis store."
+      },
+      {
+        "id": "http-sessions-mcq-2",
+        "question": "What is major architectural advantage of Session-based auth over stateless JWT tokens?",
+        "options": [
+          "No server RAM needed",
+          "Instant revocation: Server can delete session key from Redis to log out user immediately",
+          "Faster client parsing",
+          "Works without cookies"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Server retains control of session state; deleting session from Redis invalidates user access immediately."
+      },
+      {
+        "id": "http-sessions-mcq-3",
+        "question": "What is 'Session Fixation' security vulnerability?",
+        "options": [
+          "Session never expires",
+          "Attacker tricks victim into authenticating with a pre-known session ID, allowing attacker to hijack victim session",
+          "Cookie is read by JS",
+          "Database connection loss"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Session Fixation occurs when attacker forces victim to authenticate using a session ID known to attacker."
+      },
+      {
+        "id": "http-sessions-mcq-4",
+        "question": "How do web applications mitigate Session Fixation attacks during user login?",
+        "options": [
+          "Disable cookies",
+          "Regenerate a brand new session ID upon successful user authentication",
+          "Encrypt IP address",
+          "Use GET requests"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Regenerating session ID upon login invalidates pre-authentication session identifiers."
+      },
+      {
+        "id": "http-sessions-mcq-5",
+        "question": "Why is multi-server horizontal scaling difficult with in-memory sessions `MemoryStore`?",
+        "options": [
+          "Memory is free",
+          "Requests routed to Server B cannot find session stored in Server A memory (requires sticky sessions or central Redis store)",
+          "CSS breaks",
+          "Cookies fail"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In-memory sessions isolate state per server node; horizontal scaling requires a shared store like Redis."
+      }
+    ]
+  }
+]

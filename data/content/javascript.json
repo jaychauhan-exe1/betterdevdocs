@@ -1,0 +1,2320 @@
+[
+  {
+    "id": "js-variables-scope",
+    "title": "Variables / scope",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Scope rules (Global, Function, Block), var vs let vs const, and Temporal Dead Zone (TDZ).",
+    "explanation": {
+      "overview": "Scope defines variable access boundaries in JavaScript. JavaScript features Global Scope, Function Scope (created by functions), and Block Scope (created by `{}` blocks with `let` and `const`).",
+      "sections": [
+        {
+          "heading": "var vs let vs const Comparison",
+          "content": "`var` is function-scoped and hoisted initialized as `undefined`. `let` and `const` are block-scoped and enter a Temporal Dead Zone (TDZ) from scope entry until declaration initialization.",
+          "bulletPoints": [
+            "`var`: Function-scoped, re-declarable, hoisted with undefined.",
+            "`let`: Block-scoped, re-assignable, cannot re-declare in same block.",
+            "`const`: Block-scoped, immutable variable reference binding."
+          ]
+        },
+        {
+          "heading": "Temporal Dead Zone (TDZ)",
+          "content": "The TDZ is the period between entering a scope and executing the variable's declaration line. Accessing `let` or `const` in TDZ throws a ReferenceError.",
+          "bulletPoints": [
+            "Prevents accessing variables before explicit declaration.",
+            "Eliminates silent undefined variable bugs during execution."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Prefer `const` by default, `let` when reassignment is required.",
+      "Avoid `var` to prevent scope leakage outside blocks.",
+      "Understand TDZ to prevent runtime ReferenceErrors."
+    ],
+    "codeExamples": [
+      {
+        "title": "Block Scope & TDZ Demonstration",
+        "description": "Comparing var leakage vs let block isolation and TDZ error.",
+        "code": "if (true) {\n  var varNum = 100;\n  let letNum = 200;\n}\nconsole.log(varNum); // 100\ntry {\n  console.log(letNum); // Throws ReferenceError\n} catch (err) {\n  console.log('Error:', err.message);\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-variables-scope-mcq-1",
+        "question": "What error occurs when accessing a `let` variable before its declaration line?",
+        "options": [
+          "TypeError",
+          "ReferenceError",
+          "SyntaxError",
+          "RangeError"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Variables declared with `let` or `const` reside in TDZ until declared; accessing them throws ReferenceError."
+      },
+      {
+        "id": "js-variables-scope-mcq-2",
+        "question": "Which keyword creates a function-scoped variable that ignores block boundaries?",
+        "options": [
+          "const",
+          "let",
+          "var",
+          "static"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`var` is function-scoped or globally-scoped, ignoring block `{}` statements."
+      },
+      {
+        "id": "js-variables-scope-mcq-3",
+        "question": "What happens when mutating a property on a `const obj = { a: 1 }`?",
+        "options": [
+          "Throws TypeError",
+          "Property updates successfully",
+          "Throws ReferenceError",
+          "Object becomes frozen"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`const` prevents reassignment of the binding identifier, but does not make object properties immutable."
+      },
+      {
+        "id": "js-variables-scope-mcq-4",
+        "question": "What scope is created for `let` inside a standard `for` loop header?",
+        "options": [
+          "Global scope",
+          "Function scope",
+          "A new block scope instance per iteration",
+          "Module scope"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`for (let i = 0)...` creates a fresh block binding for `i` in each loop iteration."
+      },
+      {
+        "id": "js-variables-scope-mcq-5",
+        "question": "What is logged by `console.log(a); var a = 10;`?",
+        "options": [
+          "10",
+          "undefined",
+          "ReferenceError",
+          "null"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`var a` is hoisted to top of scope initialized with `undefined`."
+      }
+    ]
+  },
+  {
+    "id": "js-hoisting",
+    "title": "Hoisting",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Hoisting mechanics of function declarations, var variables, and let/const TDZ behavior.",
+    "explanation": {
+      "overview": "Hoisting is JS execution context creation phase where declarations are allocated in memory before code execution starts.",
+      "sections": [
+        {
+          "heading": "Functions vs Variables",
+          "content": "Function declarations (`function foo(){}`) hoist with their complete implementation body. `var` variables hoist initialized as `undefined`. `let` and `const` hoist into TDZ without initialization.",
+          "bulletPoints": [
+            "Function declarations can be invoked before definition line.",
+            "Calling a `var` function expression before declaration throws `TypeError: foo is not a function`.",
+            "Accessing `let` or `const` before declaration throws `ReferenceError`."
+          ]
+        },
+        {
+          "heading": "Declaration Precedence",
+          "content": "Function declarations take precedence over `var` variable declarations when identifiers collide.",
+          "bulletPoints": [
+            "Functions hoist above var declarations.",
+            "Subsequent var assignments overwrite function identifiers at execution time."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Function declarations hoist completely.",
+      "Var declarations hoist initialized with undefined.",
+      "Let and const hoist into TDZ."
+    ],
+    "codeExamples": [
+      {
+        "title": "Hoisting Behavior",
+        "description": "Demonstrating function declaration hoisting vs function expression.",
+        "code": "greet(); // 'Hello!'\nfunction greet() { console.log('Hello!'); }\n\ntry {\n  sayBye(); // TypeError: sayBye is not a function\n} catch (e) { console.log(e.message); }\nvar sayBye = function() { console.log('Bye!'); };"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-hoisting-mcq-1",
+        "question": "What is output by `foo(); function foo() { console.log('bar'); }`?",
+        "options": [
+          "ReferenceError",
+          "TypeError",
+          "'bar'",
+          "undefined"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Function declarations are fully hoisted and callable anywhere in scope."
+      },
+      {
+        "id": "js-hoisting-mcq-2",
+        "question": "What happens when invoking `baz()` before `var baz = () => {};`?",
+        "options": [
+          "Runs function",
+          "Throws TypeError: baz is not a function",
+          "Throws ReferenceError",
+          "Returns undefined"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`var baz` hoists as `undefined`, and `undefined()` throws a TypeError."
+      },
+      {
+        "id": "js-hoisting-mcq-3",
+        "question": "Which declaration type has highest priority during creation phase hoisting?",
+        "options": [
+          "Function declaration",
+          "var variable declaration",
+          "let variable declaration",
+          "Expression assignment"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Function declarations are hoisted before variable declarations."
+      },
+      {
+        "id": "js-hoisting-mcq-4",
+        "question": "Are ES6 Class declarations hoisted in JavaScript?",
+        "options": [
+          "No",
+          "Yes, but remain in TDZ",
+          "Yes, initialized to undefined",
+          "Yes, with default constructor"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Classes hoist into Temporal Dead Zone; accessing them early throws ReferenceError."
+      },
+      {
+        "id": "js-hoisting-mcq-5",
+        "question": "What is printed by `var a = 1; function test() { a = 2; return; function a() {} } test(); console.log(a);`?",
+        "options": [
+          "2",
+          "1",
+          "undefined",
+          "ReferenceError"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Inner `function a() {}` hoists inside `test()`, creating a local identifier `a`, leaving global `a` unchanged at 1."
+      }
+    ]
+  },
+  {
+    "id": "js-closures",
+    "title": "Closures",
+    "category": "JAVASCRIPT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Lexical environment retention, private variables, and memory behavior in JS closures.",
+    "explanation": {
+      "overview": "A closure is a function bundled together with references to its outer lexical environment. Inner functions retain access to outer variables even after outer function execution context finishes.",
+      "sections": [
+        {
+          "heading": "Closure Mechanics",
+          "content": "Functions preserve internal `[[Environment]]` pointers. When an inner function outlives outer execution, outer environment variables persist in heap memory.",
+          "bulletPoints": [
+            "Data Encapsulation: Creates private variables unreachable from outer scope.",
+            "State Preservation: Used in currying, memoization, and event handlers.",
+            "Memory Lifecycle: Variables remain in memory until closure references are cleaned."
+          ]
+        },
+        {
+          "heading": "Common Use Cases",
+          "content": "Closures power factory functions, state management, and private modules.",
+          "bulletPoints": [
+            "Encapsulating state in custom hooks and utilities.",
+            "Preserving loop counter variables in async callbacks."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Closures remember their lexical environment.",
+      "Enable private variables and state encapsulation.",
+      "Be mindful of memory leaks from uncleaned closure references."
+    ],
+    "codeExamples": [
+      {
+        "title": "Private Counter Closure",
+        "description": "Encapsulating count variable using closure functions.",
+        "code": "function createCounter() {\n  let count = 0;\n  return {\n    increment: () => ++count,\n    getCount: () => count\n  };\n}\nconst counter = createCounter();\nconsole.log(counter.increment()); // 1\nconsole.log(counter.getCount()); // 1"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-closures-mcq-1",
+        "question": "What defines a JavaScript closure?",
+        "options": [
+          "A function bundled with access to its outer lexical scope",
+          "A function that takes no parameters",
+          "An asynchronous callback loop",
+          "Automatic memory release"
+        ],
+        "correctAnswer": 0,
+        "explanation": "A closure allows an inner function to access variables from its enclosing lexical scope."
+      },
+      {
+        "id": "js-closures-mcq-2",
+        "question": "What is logged by `for (var i=0; i<3; i++) { setTimeout(()=>console.log(i),10); }`?",
+        "options": [
+          "0 1 2",
+          "3 3 3",
+          "undefined undefined undefined",
+          "0 0 0"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`var i` is function-scoped; all callbacks close over the same mutated `i` variable which equals 3 after loop completes."
+      },
+      {
+        "id": "js-closures-mcq-3",
+        "question": "How do you fix the classic var loop timer closure issue using modern JS?",
+        "options": [
+          "Replace `var` with `let` in loop header",
+          "Wrap setTimeout in try/catch",
+          "Pass delay of 0ms",
+          "Use const in loop header"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`let` creates a distinct block binding for `i` in each loop iteration."
+      },
+      {
+        "id": "js-closures-mcq-4",
+        "question": "Which design pattern relies heavily on closures for encapsulation?",
+        "options": [
+          "Module Pattern",
+          "Singleton Pattern",
+          "Observer Pattern",
+          "Prototype Chain"
+        ],
+        "correctAnswer": 0,
+        "explanation": "The Module Pattern uses closures to expose public APIs while keeping inner state private."
+      },
+      {
+        "id": "js-closures-mcq-5",
+        "question": "When can variables captured by a closure be garbage collected?",
+        "options": [
+          "Immediately when outer function returns",
+          "When all references to inner closure function are removed",
+          "Never",
+          "After 5 seconds"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Garbage collector cannot free captured closure variables while an active reference to the inner function exists."
+      }
+    ]
+  },
+  {
+    "id": "js-this",
+    "title": "this",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Dynamic binding of `this`: Implicit binding, explicit binding, new binding, and arrow function lexical this.",
+    "explanation": {
+      "overview": "In JavaScript, `this` is evaluated dynamically based on how a function is called, except for arrow functions which bind `this` lexically.",
+      "sections": [
+        {
+          "heading": "Binding Rules Priority",
+          "content": "1. `new` keyword binding (creates new instance).\n2. Explicit binding (`call`, `apply`, `bind`).\n3. Implicit binding (object method call `obj.fn()`).\n4. Default binding (global window / undefined in strict mode).",
+          "bulletPoints": [
+            "`new` creates new object bound to `this`.",
+            "Implicit: `obj.method()` sets `this` to `obj`.",
+            "Strict mode: standalone function call sets `this` to `undefined`."
+          ]
+        },
+        {
+          "heading": "Arrow Functions & lexical this",
+          "content": "Arrow functions do not have their own `this`. They inherit `this` from enclosing lexical execution context at creation time.",
+          "bulletPoints": [
+            "Cannot be re-bound with `call`/`apply`/`bind`.",
+            "Ideal for event listeners and timer callbacks inside class/object methods."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Regular function `this` depends on invocation site.",
+      "Arrow functions capture `this` lexically.",
+      "`new` binding takes highest priority."
+    ],
+    "codeExamples": [
+      {
+        "title": "Implicit vs Arrow Function this",
+        "description": "Comparing standard function invocation vs arrow function.",
+        "code": "const user = {\n  name: 'Alex',\n  regularFn: function() { console.log(this.name); },\n  arrowFn: () => { console.log(this?.name); }\n};\nuser.regularFn(); // 'Alex'\nuser.arrowFn(); // undefined (or global scope)"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-this-mcq-1",
+        "question": "What is `this` inside a non-strict mode regular function called standalone `foo()`?",
+        "options": [
+          "undefined",
+          "Global object (window/global)",
+          "null",
+          "Empty object"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In non-strict mode, standalone calls default `this` to global object."
+      },
+      {
+        "id": "js-this-mcq-2",
+        "question": "What is `this` inside a standalone regular function call in `'use strict'` mode?",
+        "options": [
+          "undefined",
+          "window",
+          "globalThis",
+          "Object"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Strict mode prevents default global coercion, setting `this` to `undefined`."
+      },
+      {
+        "id": "js-this-mcq-3",
+        "question": "How does an arrow function determine its `this` value?",
+        "options": [
+          "From call site",
+          "Lexically from enclosing scope",
+          "From global object always",
+          "From first argument"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Arrow functions capture `this` from their outer lexical scope when created."
+      },
+      {
+        "id": "js-this-mcq-4",
+        "question": "Which binding rule has the highest precedence?",
+        "options": [
+          "Implicit binding",
+          "Explicit call/apply",
+          "new keyword binding",
+          "Default binding"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`new` keyword binding overrides explicit and implicit bindings."
+      },
+      {
+        "id": "js-this-mcq-5",
+        "question": "What happens when using `.bind(obj)` on an arrow function?",
+        "options": [
+          "Rebinds this to obj",
+          "Throws TypeError",
+          "Ignored; this remains lexical",
+          "Returns null"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Arrow function `this` is permanently locked lexically and cannot be changed by `.bind()`."
+      }
+    ]
+  },
+  {
+    "id": "js-call-apply-bind",
+    "title": "call/apply/bind",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Explicitly setting function execution context: call (arg list), apply (arg array), bind (returns bound function).",
+    "explanation": {
+      "overview": "`call`, `apply`, and `bind` are `Function.prototype` methods used to explicitly control the `this` context during function invocation.",
+      "sections": [
+        {
+          "heading": "call vs apply",
+          "content": "Both execute the function immediately with explicit `this`. `call()` accepts individual comma-separated arguments, while `apply()` accepts an array of arguments.",
+          "bulletPoints": [
+            "`fn.call(ctx, arg1, arg2)`: Immediate execution with argument list.",
+            "`fn.apply(ctx, [arg1, arg2])`: Immediate execution with argument array.",
+            "Use cases: Method borrowing (`Array.prototype.slice.call(arguments)`)."
+          ]
+        },
+        {
+          "heading": "bind Method",
+          "content": "`bind()` creates and returns a new function with `this` locked to specified target object, supporting partial application (currying).",
+          "bulletPoints": [
+            "Does not execute function immediately.",
+            "Returns bound function copy.",
+            "Allows pre-setting initial function arguments."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`call` takes comma list, `apply` takes array.",
+      "`bind` returns new permanently bound function.",
+      "Useful for method borrowing and maintaining context in callbacks."
+    ],
+    "codeExamples": [
+      {
+        "title": "Explicit Binding Example",
+        "description": "Borrowing method using call, apply, and bind.",
+        "code": "function greet(greeting, punctuation) {\n  console.log(`${greeting}, ${this.name}${punctuation}`);\n}\nconst person = { name: 'Sarah' };\ngreet.call(person, 'Hello', '!'); // 'Hello, Sarah!'\ngreet.apply(person, ['Hi', '.']); // 'Hi, Sarah.'\nconst boundFn = greet.bind(person, 'Hey');\nboundFn('?'); // 'Hey, Sarah?'"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-call-apply-bind-mcq-1",
+        "question": "What is the primary difference between `call` and `apply`?",
+        "options": [
+          "call takes array of args, apply takes list",
+          "call takes comma-separated args, apply takes array of args",
+          "bind is synchronous, call is async",
+          "apply returns a new function"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`call` passes arguments individually; `apply` passes arguments as an array."
+      },
+      {
+        "id": "js-call-apply-bind-mcq-2",
+        "question": "What does `func.bind(ctx)` return?",
+        "options": [
+          "Return value of func",
+          "A new function bound to ctx",
+          "Undefined",
+          "Promise"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`bind()` returns a new wrapper function with bound `this` context."
+      },
+      {
+        "id": "js-call-apply-bind-mcq-3",
+        "question": "What happens if null or undefined is passed as first argument to `call` in non-strict mode?",
+        "options": [
+          "Throws TypeError",
+          "this defaults to global object",
+          "this becomes null",
+          "Function is skipped"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In non-strict mode, `null` or `undefined` passed as `this` context defaults to global object (`window`/`global`)."
+      },
+      {
+        "id": "js-call-apply-bind-mcq-4",
+        "question": "What is partial application in `bind`?",
+        "options": [
+          "Executing half the function body",
+          "Pre-filling initial arguments when calling bind",
+          "Binding only certain properties of object",
+          "Async function binding"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Passing initial arguments to `bind(ctx, arg1)` pre-fills those arguments for future invocations."
+      },
+      {
+        "id": "js-call-apply-bind-mcq-5",
+        "question": "Can a function bound with `const f = fn.bind(obj1)` be re-bound using `f.bind(obj2)`?",
+        "options": [
+          "Yes, obj2 becomes new this",
+          "No, initial bind context cannot be overridden",
+          "Throws SyntaxError",
+          "Only in strict mode"
+        ],
+        "correctAnswer": 1,
+        "explanation": "A bound function returned by `.bind()` cannot have its `this` rebound by subsequent `.bind()` calls."
+      }
+    ]
+  },
+  {
+    "id": "js-prototypes",
+    "title": "Prototypes",
+    "category": "JAVASCRIPT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Prototypal inheritance model, `prototype` vs `__proto__`, prototype chain lookup mechanism.",
+    "explanation": {
+      "overview": "JavaScript utilizes prototypal inheritance. Objects have an internal link `[[Prototype]]` pointing to another object. Property lookup traverses up this prototype chain until found or reaching `null`.",
+      "sections": [
+        {
+          "heading": "Prototype Chain Lookup",
+          "content": "When accessing `obj.prop`, JS first checks `obj` own properties. If not found, it checks `obj.__proto__`, following the chain up to `Object.prototype`, and finally `null`.",
+          "bulletPoints": [
+            "`prototype`: Property on constructor functions used to build `[[Prototype]]` link for instance objects.",
+            "`__proto__`: Getter/setter accessor for instance object's internal `[[Prototype]]` link.",
+            "`Object.getPrototypeOf(obj)`: Standard method to access an object's prototype."
+          ]
+        },
+        {
+          "heading": "Object.create & Inheritance",
+          "content": "`Object.create(proto)` creates a new object with specified prototype object, enabling direct inheritance without constructor functions.",
+          "bulletPoints": [
+            "Memory Optimization: Shared methods reside on prototype rather than duplicated per instance.",
+            "`hasOwnProperty()`: Checks if property exists directly on instance vs inherited."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "JS inheritance relies on prototype delegation chain.",
+      "Shared methods belong on `Constructor.prototype` to save memory.",
+      "`Object.prototype` is top of normal chain, referencing `null`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Prototypal Inheritance",
+        "description": "Creating inheritance chain with Object.create and constructor prototypes.",
+        "code": "function Animal(name) { this.name = name; }\nAnimal.prototype.speak = function() { return `${this.name} makes noise.`; };\n\nconst dog = new Animal('Rex');\nconsole.log(dog.speak()); // 'Rex makes noise.'\nconsole.log(dog.hasOwnProperty('name')); // true\nconsole.log(dog.hasOwnProperty('speak')); // false (on prototype)"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-prototypes-mcq-1",
+        "question": "What is at the top end of standard JavaScript prototype chain?",
+        "options": [
+          "Object.prototype pointing to null",
+          "Function.prototype",
+          "Undefined",
+          "Global window"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`Object.prototype.__proto__` is `null`, terminating property lookups."
+      },
+      {
+        "id": "js-prototypes-mcq-2",
+        "question": "What method checks if a property exists directly on an object rather than inherited from prototype?",
+        "options": [
+          "in operator",
+          "hasOwnProperty()",
+          "isPrototypeOf()",
+          "Object.keys()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`obj.hasOwnProperty('prop')` returns true only for direct non-inherited instance properties."
+      },
+      {
+        "id": "js-prototypes-mcq-3",
+        "question": "What is `__proto__` of instance created via `const p = new Person()`?",
+        "options": [
+          "Person.prototype",
+          "Person.__proto__",
+          "Object",
+          "Function"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Instance `p.__proto__` links directly to constructor's `Person.prototype` object."
+      },
+      {
+        "id": "js-prototypes-mcq-4",
+        "question": "What does `Object.create(null)` produce?",
+        "options": [
+          "Null reference",
+          "An empty object with no prototype chain",
+          "Standard object",
+          "TypeError"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Object.create(null)` creates a dictionary object without any prototype properties or methods like `toString`."
+      },
+      {
+        "id": "js-prototypes-mcq-5",
+        "question": "Why are methods placed on `Constructor.prototype` instead of inside constructor function body?",
+        "options": [
+          "To prevent private property access",
+          "To share single method instance across all objects saving memory",
+          "To enable async execution",
+          "Required by ES6 strict mode"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Putting methods on `.prototype` avoids creating separate copies of function in memory for every instance."
+      }
+    ]
+  },
+  {
+    "id": "js-classes",
+    "title": "Classes",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "ES6 class syntax syntactic sugar, constructors, extends inheritance, super(), and private fields.",
+    "explanation": {
+      "overview": "ES6 classes provide cleaner syntactic sugar over prototype-based inheritance. Classes support constructors, instance methods, static methods, getters/setters, and private fields (`#field`).",
+      "sections": [
+        {
+          "heading": "Class Structure & Inheritance",
+          "content": "`class` defines object template. `extends` sets up prototypal inheritance, and derived class constructors must invoke `super()` before accessing `this`.",
+          "bulletPoints": [
+            "`constructor()`: Special method for initializing new object instances.",
+            "`super()`: Calls parent class constructor.",
+            "`static`: Methods/properties attached directly to Class constructor, not instances."
+          ]
+        },
+        {
+          "heading": "Private Fields & Strict Mode",
+          "content": "Class bodies execute in strict mode automatically. ES2022 private fields (`#privateVar`) provide true hard privacy enforced at runtime.",
+          "bulletPoints": [
+            "`#field`: Truly private field inaccessible outside class body.",
+            "Class declarations are not hoisted into initialized state (reside in TDZ)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Classes are built on prototype delegation under the hood.",
+      "Derived classes require `super()` before using `this`.",
+      "Use `#field` syntax for private state encapsulation."
+    ],
+    "codeExamples": [
+      {
+        "title": "ES6 Class Inheritance & Private Fields",
+        "description": "Parent class, extends, super, static method, and private fields.",
+        "code": "class Vehicle {\n  #id;\n  constructor(id) { this.#id = id; }\n  getId() { return this.#id; }\n}\nclass Car extends Vehicle {\n  constructor(id, model) {\n    super(id);\n    this.model = model;\n  }\n}\nconst c = new Car(101, 'Tesla');\nconsole.log(c.getId()); // 101\nconsole.log(c.model); // 'Tesla'"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-classes-mcq-1",
+        "question": "What must be called in a derived class constructor before referencing `this`?",
+        "options": [
+          "this.init()",
+          "super()",
+          "parent()",
+          "Object.assign()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Derived class constructors must call `super()` first to initialize parent class instance binding."
+      },
+      {
+        "id": "js-classes-mcq-2",
+        "question": "How are private class fields declared in modern ES2022 JavaScript?",
+        "options": [
+          "private fieldName",
+          "_fieldName",
+          "#fieldName",
+          "const fieldName"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Prefixing field names with `#` creates a private field enforced natively by JS engine."
+      },
+      {
+        "id": "js-classes-mcq-3",
+        "question": "How are static methods called on a class `class Utility { static run() {} }`?",
+        "options": [
+          "new Utility().run()",
+          "Utility.run()",
+          "Utility.prototype.run()",
+          "run()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Static methods are invoked on Class constructor itself (`Utility.run()`), not on instances."
+      },
+      {
+        "id": "js-classes-mcq-4",
+        "question": "What mode do class bodies execute in automatically?",
+        "options": [
+          "Sloppy mode",
+          "Strict mode ('use strict')",
+          "Async mode",
+          "Quirks mode"
+        ],
+        "correctAnswer": 1,
+        "explanation": "All code inside ES6 class bodies runs in strict mode automatically."
+      },
+      {
+        "id": "js-classes-mcq-5",
+        "question": "Are class declarations hoisted like standard `function` declarations?",
+        "options": [
+          "Yes, fully hoisted",
+          "No, they reside in TDZ like let/const",
+          "Not hoisted at all",
+          "Hoisted to global window"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Class declarations are hoisted but remain uninitialized in TDZ; invoking them early throws ReferenceError."
+      }
+    ]
+  },
+  {
+    "id": "js-objects",
+    "title": "Objects",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Key-value property storage, object methods, property descriptors, Object.freeze vs Object.seal.",
+    "explanation": {
+      "overview": "Objects are collection of key-value pairs where keys are strings/symbols and values can be any data type. JS objects support property access, iteration, dynamic keys, and property attribute descriptors.",
+      "sections": [
+        {
+          "heading": "Object Operations & Utility Methods",
+          "content": "`Object.keys()`, `Object.values()`, and `Object.entries()` allow iterating properties. `Object.assign()` and spread `{...obj}` perform shallow cloning.",
+          "bulletPoints": [
+            "`Object.keys(obj)`: Returns array of own enumerable string keys.",
+            "`Object.entries(obj)`: Returns array of `[key, value]` pairs.",
+            "Shallow Copy: Nested objects retain shared references."
+          ]
+        },
+        {
+          "heading": "Immutability: Freeze vs Seal",
+          "content": "`Object.freeze()` prevents property addition, deletion, and value modification. `Object.seal()` prevents property addition and deletion but allows updating existing values.",
+          "bulletPoints": [
+            "`Object.freeze()`: Fully immutable shallow lock.",
+            "`Object.seal()`: Prevents structure changes, allows value updates.",
+            "`Object.defineProperty()`: Configures writable, enumerable, and configurable attributes."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Objects use key-value string/symbol mappings.",
+      "`Object.freeze` prevents edits; `Object.seal` allows updating existing keys.",
+      "Spread and Object.assign produce shallow copies."
+    ],
+    "codeExamples": [
+      {
+        "title": "Object Freeze vs Seal",
+        "description": "Demonstrating behavior of Object.freeze and Object.seal.",
+        "code": "const frozen = Object.freeze({ count: 1 });\n// frozen.count = 2; // Silent fail in sloppy mode, TypeError in strict mode\n\nconst sealed = Object.seal({ count: 1 });\nsealed.count = 5; // Works!\n// delete sealed.count; // Fails!"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-objects-mcq-1",
+        "question": "What does `Object.freeze(obj)` prevent on an object?",
+        "options": [
+          "Adding new properties only",
+          "Deleting properties only",
+          "Adding, deleting, and modifying existing properties",
+          "Modifying nested child objects"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`Object.freeze()` locks shallow object properties against addition, deletion, or re-assignment."
+      },
+      {
+        "id": "js-objects-mcq-2",
+        "question": "What is the difference between `Object.seal()` and `Object.freeze()`?",
+        "options": [
+          "Seal allows modifying existing property values; Freeze does not",
+          "Freeze allows adding new properties",
+          "Seal makes nested objects immutable",
+          "No difference"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`Object.seal()` allows reassigning existing properties, but blocks adding or deleting keys."
+      },
+      {
+        "id": "js-objects-mcq-3",
+        "question": "What data types can be used as Object property keys in JS?",
+        "options": [
+          "Strings only",
+          "Strings and Symbols",
+          "Numbers, Strings, Objects",
+          "Booleans only"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Object property keys in JS can only be Strings or Symbols (numbers are converted to strings)."
+      },
+      {
+        "id": "js-objects-mcq-4",
+        "question": "What kind of copy is created by `{ ...originalObj }`?",
+        "options": [
+          "Deep copy",
+          "Shallow copy",
+          "Prototype copy",
+          "Immutable copy"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Spread operator creates a shallow copy; nested object references are shared."
+      },
+      {
+        "id": "js-objects-mcq-5",
+        "question": "Which method converts an object into an array of key-value pairs `[[key, val], ...]`?",
+        "options": [
+          "Object.keys()",
+          "Object.values()",
+          "Object.entries()",
+          "Object.pairs()"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`Object.entries()` returns array of `[key, value]` arrays."
+      }
+    ]
+  },
+  {
+    "id": "js-arrays",
+    "title": "Arrays",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Ordered list collections, array mutations, indexing, slice/splice, and ES6+ array methods.",
+    "explanation": {
+      "overview": "Arrays in JavaScript are zero-indexed, dynamically-sized list objects. Understanding mutating methods (push, pop, splice) vs non-mutating methods (slice, concat, toSpliced) is essential for state management.",
+      "sections": [
+        {
+          "heading": "Mutating vs Non-Mutating Methods",
+          "content": "Mutating methods modify original array in place. Non-mutating methods return a fresh array, which is crucial for React state updates.",
+          "bulletPoints": [
+            "Mutating: `push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`.",
+            "Non-mutating: `slice`, `concat`, `map`, `filter`, `flat`, `toSorted`, `toSpliced`."
+          ]
+        },
+        {
+          "heading": "Searching & Iteration Utilities",
+          "content": "Array lookup methods simplify element retrieval and condition testing across elements.",
+          "bulletPoints": [
+            "`indexOf()` / `includes()`: Value equality search.",
+            "`find()` / `findIndex()`: Predicate condition callback search.",
+            "`some()` / `every()`: Boolean validation across array elements."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Distinguish mutating vs non-mutating array operations.",
+      "Use `includes`/`find` for searching arrays efficiently.",
+      "React state updates require non-mutating array copies."
+    ],
+    "codeExamples": [
+      {
+        "title": "Slice vs Splice Demonstration",
+        "description": "Non-mutating slice vs mutating splice array operations.",
+        "code": "const list = [10, 20, 30, 40, 50];\n// slice(start, end) - non-mutating\nconst sub = list.slice(1, 3); // [20, 30], original untouched\n\n// splice(start, deleteCount, ...items) - mutating\nconst removed = list.splice(1, 2); // returns [20, 30], list is now [10, 40, 50]"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-arrays-mcq-1",
+        "question": "Which method mutates original array in place?",
+        "options": [
+          "slice()",
+          "concat()",
+          "splice()",
+          "map()"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`splice()` modifies original array in place by deleting/inserting items."
+      },
+      {
+        "id": "js-arrays-mcq-2",
+        "question": "What does `array.find(fn)` return if no element matches predicate function?",
+        "options": [
+          "null",
+          "-1",
+          "undefined",
+          "Empty array []"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`find()` returns first matching element, or `undefined` if no match is found."
+      },
+      {
+        "id": "js-arrays-mcq-3",
+        "question": "Which array method returns true if AT LEAST ONE element matches condition?",
+        "options": [
+          "every()",
+          "some()",
+          "filter()",
+          "includes()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`some()` returns true as soon as one element satisfies predicate function."
+      },
+      {
+        "id": "js-arrays-mcq-4",
+        "question": "What is logged by `[1, 2, 3].concat([4, 5])`?",
+        "options": [
+          "Modifies original array",
+          "Returns new combined array [1, 2, 3, 4, 5]",
+          "Nested array [[1,2,3],[4,5]]",
+          "Length number 5"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`concat()` joins arrays into a new shallow-copied array without mutating inputs."
+      },
+      {
+        "id": "js-arrays-mcq-5",
+        "question": "What is default sorting behavior of `[10, 2, 5].sort()` without comparator callback?",
+        "options": [
+          "[2, 5, 10]",
+          "[10, 2, 5]",
+          "[10, 5, 2]",
+          "[10, 2, 5] lexicographical string sorting ('10', '2', '5') -> [10, 2, 5]"
+        ],
+        "correctAnswer": 3,
+        "explanation": "Default `sort()` converts elements to strings, sorting alphabetically (`'10'` comes before `'2'`)."
+      }
+    ]
+  },
+  {
+    "id": "js-map-filter-reduce",
+    "title": "map/filter/reduce",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Functional array transformations: map (1-to-1 transform), filter (subset selection), reduce (accumulator aggregation).",
+    "explanation": {
+      "overview": "`map`, `filter`, and `reduce` form core foundation of functional array processing in JS, creating new output without mutating source arrays.",
+      "sections": [
+        {
+          "heading": "map & filter",
+          "content": "`map()` transforms every element 1-to-1, returning array of same length. `filter()` returns subset containing elements that return truthy for predicate function.",
+          "bulletPoints": [
+            "`map(fn)`: Same length, transformed elements.",
+            "`filter(fn)`: Equal or smaller length, matching elements.",
+            "Chaining: `arr.filter(...).map(...)` combines transformations."
+          ]
+        },
+        {
+          "heading": "reduce Mechanics",
+          "content": "`reduce((acc, curr) => ..., initialValue)` iterates array passing single accumulator value along steps to condense array into single value (number, object, array).",
+          "bulletPoints": [
+            "Always pass `initialValue` to avoid error on empty arrays.",
+            "Can replace both map and filter in single pass.",
+            "Ideal for grouping data, summing totals, and pipe operations."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`map` transforms 1-to-1, `filter` subsets, `reduce` aggregates.",
+      "All three methods return new results without mutating original array.",
+      "Always provide initial accumulator value to `reduce`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Map, Filter, Reduce Pipeline",
+        "description": "Filtering even numbers, doubling them, and calculating total sum.",
+        "code": "const numbers = [1, 2, 3, 4, 5, 6];\nconst sumDoubledEvens = numbers\n  .filter(n => n % 2 === 0)\n  .map(n => n * 2)\n  .reduce((acc, val) => acc + val, 0);\n\nconsole.log(sumDoubledEvens); // 2 + 4 + 6 = 12 -> *2 -> 4+8+12 = 24"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-map-filter-reduce-mcq-1",
+        "question": "What is output length of `[1, 2, 3].map(x => x > 1)`?",
+        "options": [
+          "2",
+          "3 ([false, true, true])",
+          "1",
+          "0"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`map()` always returns array of identical length to original input array."
+      },
+      {
+        "id": "js-map-filter-reduce-mcq-2",
+        "question": "What happens if `reduce()` is called on an empty array without initialValue?",
+        "options": [
+          "Returns undefined",
+          "Returns 0",
+          "Throws TypeError",
+          "Returns empty array"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Calling `reduce()` on an empty array without supplying initial value throws TypeError."
+      },
+      {
+        "id": "js-map-filter-reduce-mcq-3",
+        "question": "Which method would you use to group an array of user objects by role into a map object?",
+        "options": [
+          "map()",
+          "filter()",
+          "reduce()",
+          "forEach()"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`reduce()` aggregates elements into complex accumulated shapes like grouping objects."
+      },
+      {
+        "id": "js-map-filter-reduce-mcq-4",
+        "question": "What does `[1, 2, 3, 4].filter(x => false)` return?",
+        "options": [
+          "undefined",
+          "null",
+          "Empty array []",
+          "[false, false, false, false]"
+        ],
+        "correctAnswer": 2,
+        "explanation": "If predicate returns false for all elements, `filter()` returns a new empty array."
+      },
+      {
+        "id": "js-map-filter-reduce-mcq-5",
+        "question": "What is logged by `[10, 20].reduce((acc, curr) => acc + curr)` with no initial value specified?",
+        "options": [
+          "30",
+          "undefined",
+          "1020",
+          "TypeError"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Without initial value on non-empty array, first element (`10`) becomes initial accumulator."
+      }
+    ]
+  },
+  {
+    "id": "js-destructuring",
+    "title": "Destructuring",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Unpacking values from arrays and properties from objects into distinct variables with defaults and renaming.",
+    "explanation": {
+      "overview": "Destructuring assignment syntax enables unpacking values from arrays or properties from objects into distinct variables concisely.",
+      "sections": [
+        {
+          "heading": "Object Destructuring",
+          "content": "Extracts properties by matching key names. Supports default values, variable renaming, and nested extraction.",
+          "bulletPoints": [
+            "Renaming: `{ oldKey: newVarName }`.",
+            "Default Values: `{ key = 'defaultVal' }` triggered only when property is `undefined`.",
+            "Nested Extraction: `{ user: { name } }`."
+          ]
+        },
+        {
+          "heading": "Array Destructuring",
+          "content": "Extracts elements by positional index. Supports skipping items and rest patterns.",
+          "bulletPoints": [
+            "Positional Matching: `const [first, second] = arr`.",
+            "Skipping Items: `const [a, , c] = arr`.",
+            "Swapping Variables: `[a, b] = [b, a]`."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Object destructuring matches keys; array destructuring matches position.",
+      "Default values trigger only when extracted value is `undefined` (not `null`).",
+      "Easily swap variables using `[a, b] = [b, a]`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Object & Array Destructuring",
+        "description": "Renaming, defaults, nested extraction, and array swapping.",
+        "code": "const config = { port: 8080, host: undefined };\nconst { port: serverPort, host = 'localhost', ssl = false } = config;\nconsole.log(serverPort, host, ssl); // 8080, 'localhost', false\n\nlet x = 1, y = 2;\n[x, y] = [y, x]; // Swap variables\nconsole.log(x, y); // 2, 1"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-destructuring-mcq-1",
+        "question": "What is value of `b` in `const { a, b = 10 } = { a: 5, b: null }`?",
+        "options": [
+          "10",
+          "null",
+          "undefined",
+          "TypeError"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Default values trigger ONLY when value is `undefined`. Since `b` is `null`, `null` is preserved."
+      },
+      {
+        "id": "js-destructuring-mcq-2",
+        "question": "How do you rename property `name` to `userName` during object destructuring?",
+        "options": [
+          "const { name as userName } = obj",
+          "const { name: userName } = obj",
+          "const { userName = name } = obj",
+          "const { name -> userName } = obj"
+        ],
+        "correctAnswer": 1,
+        "explanation": "The colon syntax `{ property: newVariableName }` renames destructured variable."
+      },
+      {
+        "id": "js-destructuring-mcq-3",
+        "question": "What is logged by `const [, y] = [10, 20, 30]`?",
+        "options": [
+          "10",
+          "20",
+          "30",
+          "[20, 30]"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Leading empty comma skips index 0, assigning index 1 (`20`) to variable `y`."
+      },
+      {
+        "id": "js-destructuring-mcq-4",
+        "question": "What occurs when attempting to destructure `null` `const { x } = null`?",
+        "options": [
+          "x is undefined",
+          "x is null",
+          "Throws TypeError",
+          "Returns empty object"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Destructuring `null` or `undefined` throws TypeError because they cannot be converted to objects."
+      },
+      {
+        "id": "js-destructuring-mcq-5",
+        "question": "How do you capture remaining array elements into variable `rest` during array destructuring?",
+        "options": [
+          "const [first, ...rest] = arr",
+          "const [first, rest*] = arr",
+          "const [first, ...rest, last] = arr",
+          "const [first, rest] = arr"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Rest element `...rest` captures all remaining uncollected array elements and must be placed last."
+      }
+    ]
+  },
+  {
+    "id": "js-spread-rest",
+    "title": "Spread/rest",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Spread operator `...` for expanding iterables/objects vs Rest operator `...` for gathering parameters.",
+    "explanation": {
+      "overview": "The `...` syntax serves dual purposes in JS: **Spread** expands elements of iterable/object into elements, while **Rest** collects multiple elements into single array parameter.",
+      "sections": [
+        {
+          "heading": "Spread Operator (Expansion)",
+          "content": "Used in function calls, array literals, and object literals to shallow copy or merge data structures.",
+          "bulletPoints": [
+            "Array Merge: `[...arr1, ...arr2]`.",
+            "Object Shallow Merge: `{ ...defaults, ...userOptions }`.",
+            "Function Call Arguments: `Math.max(...numArray)`."
+          ]
+        },
+        {
+          "heading": "Rest Operator (Collection)",
+          "content": "Used in function parameter signatures and destructuring assignments to collect residual items into array.",
+          "bulletPoints": [
+            "Function Rest Parameter: `function fn(first, ...others)`.",
+            "Destructuring Rest: `const { id, ...data } = userObj`.",
+            "Rule: Rest parameter must be last item in signature."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Spread expands iterables; Rest gathers elements into array.",
+      "Spread creates shallow copies of objects/arrays.",
+      "Rest parameters replace legacy `arguments` object in ES6 functions."
+    ],
+    "codeExamples": [
+      {
+        "title": "Spread vs Rest Operators",
+        "description": "Rest parameter in function vs Spread operator merging objects.",
+        "code": "// Rest parameter gathers args into array\nfunction calculateSum(multiplier, ...numbers) {\n  return numbers.reduce((sum, n) => sum + n, 0) * multiplier;\n}\nconsole.log(calculateSum(2, 1, 2, 3)); // (1+2+3)*2 = 12\n\n// Spread operator merges objects\nconst base = { theme: 'dark', size: 'md' };\nconst custom = { size: 'lg' };\nconst config = { ...base, ...custom }; // { theme: 'dark', size: 'lg' }"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-spread-rest-mcq-1",
+        "question": "What is the restriction on rest parameters in function definitions?",
+        "options": [
+          "Can only collect up to 5 arguments",
+          "Must be the final parameter in parameter list",
+          "Must be named rest",
+          "Cannot be used in arrow functions"
+        ],
+        "correctAnswer": 1,
+        "explanation": "A rest parameter `...args` must always be the last parameter in function signature."
+      },
+      {
+        "id": "js-spread-rest-mcq-2",
+        "question": "What is logged by `const a = [1, 2]; const b = [...a, 3]; console.log(b)`?",
+        "options": [
+          "[[1, 2], 3]",
+          "[1, 2, 3]",
+          "[3, 1, 2]",
+          "Error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Spread `...a` unpacks elements `1, 2` directly into outer array, giving `[1, 2, 3]`."
+      },
+      {
+        "id": "js-spread-rest-mcq-3",
+        "question": "What type of object does rest parameter `...args` produce inside a function?",
+        "options": [
+          "Array instance with full array methods",
+          "Array-like `arguments` object",
+          "Set",
+          "Tuple"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Rest parameters produce genuine JavaScript `Array` instances with map/filter/reduce access."
+      },
+      {
+        "id": "js-spread-rest-mcq-4",
+        "question": "What happens when keys collide in object spread `{ ...{ a: 1 }, ...{ a: 2 } }`?",
+        "options": [
+          "Throws error",
+          "a is 1",
+          "a is 2 (later keys overwrite earlier keys)",
+          "a becomes array [1, 2]"
+        ],
+        "correctAnswer": 2,
+        "explanation": "When spreading objects with duplicate keys, later spread properties overwrite earlier ones."
+      },
+      {
+        "id": "js-spread-rest-mcq-5",
+        "question": "How do you pass array elements as separate arguments to `Math.max()`?",
+        "options": [
+          "Math.max(arr)",
+          "Math.max(...arr)",
+          "Math.max(arr.values())",
+          "Math.max(arr[])"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Math.max(...arr)` spreads array elements as individual numerical positional arguments."
+      }
+    ]
+  },
+  {
+    "id": "js-modules",
+    "title": "Modules",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "ES6 Modules (import/export), CommonJS (require/module.exports), tree-shaking, static analysis.",
+    "explanation": {
+      "overview": "JavaScript supports two primary module systems: ES6 Modules (ESM) standard (`import`/`export`) and CommonJS (CJS) legacy Node system (`require`/`module.exports`).",
+      "sections": [
+        {
+          "heading": "ES6 Modules (ESM)",
+          "content": "ESM modules are statically analyzed at compile time, enabling bundlers to perform dead code elimination (tree-shaking). ESM exports live read-only bindings.",
+          "bulletPoints": [
+            "Named Exports: `export const foo = 1; import { foo } from './file.js';`.",
+            "Default Export: `export default App; import App from './App.js';`.",
+            "Strict Mode: ESM files implicitly run in strict mode."
+          ]
+        },
+        {
+          "heading": "CommonJS (CJS) vs ESM",
+          "content": "CommonJS is synchronous and dynamic (`require()` can be called conditionally inside functions). ESM imports must reside at top level of module.",
+          "bulletPoints": [
+            "CommonJS: Dynamic runtime loading (`require()`).",
+            "ESM: Static top-level analysis (`import`), dynamic import via `import()` promise function.",
+            "Bindings: CJS exports value copies; ESM exports live variable bindings."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "ESM uses static `import`/`export`; CommonJS uses `require`/`module.exports`.",
+      "ESM static nature enables tree-shaking dead code elimination.",
+      "ESM exports live bindings; CJS exports value copies."
+    ],
+    "codeExamples": [
+      {
+        "title": "ESM Named & Default Exports",
+        "description": "Exporting named utilities and default class component.",
+        "code": "// math.js - Named exports\nexport const add = (a, b) => a + b;\nexport const multiply = (a, b) => a * b;\n\n// main.js - Import named exports and dynamic import\nimport { add, multiply } from './math.js';\nconsole.log(add(2, 3)); // 5\n\n// Dynamic import\nimport('./math.js').then(module => {\n  console.log(module.multiply(4, 2)); // 8\n});"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-modules-mcq-1",
+        "question": "What is primary advantage of ES6 Modules (ESM) static syntax over CommonJS?",
+        "options": [
+          "Allows dynamic synchronous requires anywhere",
+          "Enables static analysis and bundler tree-shaking",
+          "Executes faster in V8 engine",
+          "Eliminates need for file extensions"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Static `import`/`export` statements allow build tools to analyze dependency trees and prune dead code (tree-shaking)."
+      },
+      {
+        "id": "js-modules-mcq-2",
+        "question": "How do live bindings in ESM differ from CommonJS exports?",
+        "options": [
+          "ESM exported variables update automatically in importer when changed in exporter",
+          "CommonJS exports updating live bindings",
+          "ESM exports immutable deep copies",
+          "No difference"
+        ],
+        "correctAnswer": 0,
+        "explanation": "ESM exports live read-only variable bindings; if source module changes exported variable, importers see updated value."
+      },
+      {
+        "id": "js-modules-mcq-3",
+        "question": "How do you perform dynamic conditional module loading in ESM?",
+        "options": [
+          "import { foo } inside if statement",
+          "require('./module')",
+          "Using dynamic import() which returns a Promise",
+          "fetchModule()"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Dynamic `import('./module.js')` function can be invoked anywhere conditionally and returns a Promise resolving to module."
+      },
+      {
+        "id": "js-modules-mcq-4",
+        "question": "What mode do ES6 modules execute in by default?",
+        "options": [
+          "Sloppy mode",
+          "Strict mode ('use strict') implicitly",
+          "Node compatibility mode",
+          "Global scope"
+        ],
+        "correctAnswer": 1,
+        "explanation": "ES6 modules are implicitly strict mode; `'use strict'` declaration is not required."
+      },
+      {
+        "id": "js-modules-mcq-5",
+        "question": "How many default exports can a single ES6 module file contain?",
+        "options": [
+          "Unlimited",
+          "Exactly one",
+          "Up to 5",
+          "Zero"
+        ],
+        "correctAnswer": 1,
+        "explanation": "A module can have multiple named exports, but at most ONE `export default`."
+      }
+    ]
+  },
+  {
+    "id": "js-promises",
+    "title": "Promises",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Asynchronous operations, Promise states (Pending, Fulfilled, Rejected), then/catch/finally chaining.",
+    "explanation": {
+      "overview": "A Promise represents eventual completion (or failure) of an asynchronous operation and its resulting value, preventing callback hell.",
+      "sections": [
+        {
+          "heading": "Promise States & Lifecycle",
+          "content": "A Promise is always in one of 3 mutually exclusive states: **Pending** (initial), **Fulfilled** (resolved successfully), or **Rejected** (failed with error). Once settled, state transitions are immutable.",
+          "bulletPoints": [
+            "Pending -> Fulfilled (`resolve(val)`).",
+            "Pending -> Rejected (`reject(err)`).",
+            "Settled: State cannot change after settling."
+          ]
+        },
+        {
+          "heading": "Chaining & Error Propagation",
+          "content": "Methods `.then()`, `.catch()`, and `.finally()` return new promises, allowing asynchronous method chaining.",
+          "bulletPoints": [
+            "`.then(onFulfilled)`: Handles fulfillment value, returns new Promise.",
+            "`.catch(onRejected)`: Catches errors thrown anywhere upstream in chain.",
+            "`.finally(onSettled)`: Executes cleanup code regardless of success or failure."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Promises have 3 states: Pending, Fulfilled, Rejected.",
+      "Promises are settled immutably.",
+      "Always include `.catch()` or handle rejections to prevent unhandled rejection crashes."
+    ],
+    "codeExamples": [
+      {
+        "title": "Creating & Chaining Promises",
+        "description": "Constructing Promise instance and chaining then/catch/finally handlers.",
+        "code": "const fetchData = () => {\n  return new Promise((resolve, reject) => {\n    setTimeout(() => resolve({ status: 'ok', data: [1, 2, 3] }), 100);\n  });\n};\n\nfetchData()\n  .then(res => res.data)\n  .then(items => console.log('Items:', items)) // Items: [1, 2, 3]\n  .catch(err => console.error('Error:', err))\n  .finally(() => console.log('Operation complete.'));"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-promises-mcq-1",
+        "question": "What are 3 possible states of a JavaScript Promise?",
+        "options": [
+          "Started, Running, Stopped",
+          "Pending, Fulfilled, Rejected",
+          "Init, Success, Failure",
+          "Active, Idle, Closed"
+        ],
+        "correctAnswer": 1,
+        "explanation": "A Promise exists in Pending state until transition to settled state: Fulfilled or Rejected."
+      },
+      {
+        "id": "js-promises-mcq-2",
+        "question": "What does calling `.then()` on a Promise return?",
+        "options": [
+          "Original promise",
+          "A new Promise instance",
+          "Undefined",
+          "The raw unwrapped value"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`.then()` always returns a new Promise, allowing chaining."
+      },
+      {
+        "id": "js-promises-mcq-3",
+        "question": "What happens if an exception is thrown inside a `.then()` callback?",
+        "options": [
+          "Uncaught exception crashes script",
+          "The returned Promise transitions to Rejected state",
+          "Ignored silently",
+          "Retried automatically"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Any error thrown inside `.then()` handler automatically rejects returned downstream Promise."
+      },
+      {
+        "id": "js-promises-mcq-4",
+        "question": "When does `.finally()` callback execute?",
+        "options": [
+          "Only when promise fulfills",
+          "Only when promise rejects",
+          "Regardless of whether promise fulfills or rejects",
+          "Only when timeout expires"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`.finally()` runs whenever promise settles, whether fulfilled or rejected."
+      },
+      {
+        "id": "js-promises-mcq-5",
+        "question": "Can a settled (fulfilled or rejected) Promise change state again?",
+        "options": [
+          "Yes, calling resolve again updates value",
+          "No, state transitions are immutable once settled",
+          "Only in strict mode",
+          "Yes, using reset()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Promises are permanently locked once settled; subsequent resolve/reject calls are ignored."
+      }
+    ]
+  },
+  {
+    "id": "js-async-await",
+    "title": "async/await",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Syntactic sugar over promises, sequential vs parallel async execution, try/catch error handling.",
+    "explanation": {
+      "overview": "`async` and `await` keywords make asynchronous Promise code read synchronously, improving clarity while maintaining non-blocking performance.",
+      "sections": [
+        {
+          "heading": "async Functions & await Operator",
+          "content": "Declaring a function `async` forces it to return a Promise. `await` pauses execution of async function until Promise resolves/rejects.",
+          "bulletPoints": [
+            "`async`: Wraps return value in resolved Promise.",
+            "`await`: Unwraps resolved value of Promise (can only be used inside async function or top-level ESM).",
+            "Error handling: Wrapped inside standard `try...catch` blocks."
+          ]
+        },
+        {
+          "heading": "Sequential vs Parallel Pitfall",
+          "content": "Awaiting promises sequentially when independence exists creates performance bottlenecks (`waterfall effect`). Trigger tasks concurrently using `Promise.all()`.",
+          "bulletPoints": [
+            "Sequential: `await fn1(); await fn2();` (Total time = t1 + t2).",
+            "Parallel: `await Promise.all([fn1(), fn2()])` (Total time = max(t1, t2))."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`async` functions always return a Promise.",
+      "`await` pauses async function execution until Promise settles.",
+      "Avoid sequential awaits for independent operations; execute concurrently."
+    ],
+    "codeExamples": [
+      {
+        "title": "Async/Await with Error Handling",
+        "description": "Fetching data asynchronously using try/catch.",
+        "code": "async function getUserData(userId) {\n  try {\n    const response = await fetch(`https://api.example.com/users/${userId}`);\n    if (!response.ok) throw new Error(`HTTP Error: ${response.status}`);\n    const user = await response.json();\n    return user;\n  } catch (err) {\n    console.error('Failed to load user:', err.message);\n    throw err;\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-async-await-mcq-1",
+        "question": "What does an `async` function return if it explicitly returns string `'hello'`?",
+        "options": [
+          "String 'hello'",
+          "A Promise that resolves to 'hello'",
+          "Undefined",
+          "Callback function"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`async` functions always wrap returned values in a resolved Promise."
+      },
+      {
+        "id": "js-async-await-mcq-2",
+        "question": "What happens when `await` encounters a rejected Promise inside try/catch?",
+        "options": [
+          "Returns undefined",
+          "Throws the rejection reason as a catchable error",
+          "Script terminates immediately",
+          "Retries promise call"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`await` unwraps promise rejections by throwing them as exceptions catchable in `try...catch` blocks."
+      },
+      {
+        "id": "js-async-await-mcq-3",
+        "question": "What is performance risk of writing `const a = await getA(); const b = await getB();` when A and B are independent?",
+        "options": [
+          "Syntax error",
+          "Waterfall latency where total execution time equals sum of both requests",
+          "Memory leak",
+          "Race condition"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Sequential awaiting forces `getB()` to wait until `getA()` resolves, doubling total latency needlessly."
+      },
+      {
+        "id": "js-async-await-mcq-4",
+        "question": "Where can `await` operator be used in modern JavaScript?",
+        "options": [
+          "Inside any standard function",
+          "Only inside functions declared with `async` or at top level of ES modules",
+          "Inside for loops only",
+          "Inside object constructors"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`await` is only valid inside `async` functions or top-level ES Module scope."
+      },
+      {
+        "id": "js-async-await-mcq-5",
+        "question": "Does `await` block the main browser UI execution thread?",
+        "options": [
+          "Yes, browser freezes completely",
+          "No, it yields control back to event loop while waiting for Promise settlement",
+          "Only in Chrome",
+          "Yes, if duration exceeds 100ms"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`await` non-blocking pause yields execution thread to event loop, allowing UI and other tasks to run."
+      }
+    ]
+  },
+  {
+    "id": "js-promise-combinators",
+    "title": "Promise.all/allSettled/race/any",
+    "category": "JAVASCRIPT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Concurrency helpers: Promise.all (all resolve or fail-fast), allSettled (wait for all), race (first settled), any (first fulfilled).",
+    "explanation": {
+      "overview": "JavaScript provides 4 static Promise combinator methods to manage concurrent asynchronous operations with distinct failure and completion strategies.",
+      "sections": [
+        {
+          "heading": "Promise.all vs Promise.allSettled",
+          "content": "`Promise.all` waits for all promises to resolve, but fails fast on first rejection. `Promise.allSettled` waits for all promises to settle regardless of outcome.",
+          "bulletPoints": [
+            "`Promise.all([p1, p2])`: Fulfills with array of values if ALL resolve; rejects immediately if ANY rejects.",
+            "`Promise.allSettled([p1, p2])`: Resolves when ALL settle with array of `{status, value|reason}` objects."
+          ]
+        },
+        {
+          "heading": "Promise.race vs Promise.any",
+          "content": "`Promise.race` settles as soon as FIRST promise settles (resolve or reject). `Promise.any` settles as soon as FIRST promise fulfills, ignoring rejections unless ALL reject (AggregateError).",
+          "bulletPoints": [
+            "`Promise.race([p1, p2])`: First to finish wins (resolve or reject). Useful for timeouts.",
+            "`Promise.any([p1, p2])`: First fulfilled wins. Throws AggregateError if all reject."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`Promise.all` fails fast on first rejection.",
+      "`Promise.allSettled` guarantees waiting for all promises to finish.",
+      "`Promise.race` settles on first result; `Promise.any` settles on first success."
+    ],
+    "codeExamples": [
+      {
+        "title": "Promise Combinators Comparison",
+        "description": "Demonstrating Promise.all vs Promise.allSettled.",
+        "code": "const p1 = Promise.resolve('Success 1');\nconst p2 = Promise.reject('Error 2');\nconst p3 = Promise.resolve('Success 3');\n\n// Promise.allSettled waits for all outcomes\nPromise.allSettled([p1, p2, p3]).then(results => {\n  console.log(results);\n  // [{status:'fulfilled', value:'Success 1'}, {status:'rejected', reason:'Error 2'}, ...]\n});\n\n// Promise.all fails fast on p2 rejection\nPromise.all([p1, p2, p3]).catch(err => console.log('Failing fast:', err)); // 'Error 2'"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-promise-combinators-mcq-1",
+        "question": "What happens in `Promise.all([p1, p2, p3])` if `p2` rejects after 10ms while `p1` and `p3` resolve at 100ms?",
+        "options": [
+          "Waits 100ms then rejects",
+          "Rejects immediately at 10ms (fail-fast)",
+          "Returns values of p1 and p3",
+          "Throws SyntaxError"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Promise.all` fails fast and rejects as soon as any single promise in array rejects."
+      },
+      {
+        "id": "js-promise-combinators-mcq-2",
+        "question": "Which combinator guarantees that it will NEVER reject as long as an array of promises is passed?",
+        "options": [
+          "Promise.all",
+          "Promise.race",
+          "Promise.allSettled",
+          "Promise.any"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`Promise.allSettled` always fulfills with an array describing outcome status for every promise."
+      },
+      {
+        "id": "js-promise-combinators-mcq-3",
+        "question": "What error is thrown by `Promise.any()` when ALL promises in array reject?",
+        "options": [
+          "TypeError",
+          "ReferenceError",
+          "AggregateError",
+          "RangeError"
+        ],
+        "correctAnswer": 2,
+        "explanation": "If all promises passed to `Promise.any()` reject, it rejects with an `AggregateError` containing array of rejection reasons."
+      },
+      {
+        "id": "js-promise-combinators-mcq-4",
+        "question": "Which combinator is ideal for setting request timeouts (e.g. race API request against a timeout promise)?",
+        "options": [
+          "Promise.all",
+          "Promise.race",
+          "Promise.allSettled",
+          "Promise.any"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Promise.race` completes as soon as first promise settles (whether API response resolves or timeout promise rejects)."
+      },
+      {
+        "id": "js-promise-combinators-mcq-5",
+        "question": "What is returned by `Promise.all([])` when passed an empty array?",
+        "options": [
+          "Rejects immediately",
+          "Fulfills synchronously with empty array []",
+          "Pending forever",
+          "Null"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Passing an empty array to `Promise.all([])` returns a promise fulfilled with empty array `[]` synchronously."
+      }
+    ]
+  },
+  {
+    "id": "js-event-loop",
+    "title": "Event loop",
+    "category": "JAVASCRIPT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Single-threaded runtime, Call Stack, Task Queue (Macrotasks), Microtask Queue execution priority.",
+    "explanation": {
+      "overview": "JavaScript executes code in a single-threaded runtime loop. The Event Loop monitors Call Stack and processes Microtasks and Macrotasks when stack becomes empty.",
+      "sections": [
+        {
+          "heading": "Call Stack & Concurrency",
+          "content": "JS call stack executes frame functions synchronously (LIFO). Long-running synchronous functions block stack execution, rendering browser UI frozen.",
+          "bulletPoints": [
+            "Call Stack: Executes synchronous code frames.",
+            "Web APIs: Browser offloads async tasks (timers, fetch) to background threads."
+          ]
+        },
+        {
+          "heading": "Execution Priority Loop",
+          "content": "1. Execute synchronous call stack code until empty.\n2. Drain entire Microtask queue completely.\n3. Render UI updates (if needed).\n4. Pick ONE Macrotask from task queue and push to stack.\n5. Repeat.",
+          "bulletPoints": [
+            "Microtask Queue drained completely before next macrotask.",
+            "Single-threaded non-blocking I/O model."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "JS single-threaded event loop processes tasks asynchronously.",
+      "Microtasks drain completely before next Macrotask executes.",
+      "Avoid blocking call stack with long synchronous CPU computation."
+    ],
+    "codeExamples": [
+      {
+        "title": "Event Loop Execution Order",
+        "description": "Predicting execution output across call stack, microtasks, and macrotasks.",
+        "code": "console.log('1: Sync Stack');\n\nsetTimeout(() => console.log('2: Macrotask (Timer)'), 0);\n\nPromise.resolve().then(() => console.log('3: Microtask (Promise)'));\n\nconsole.log('4: Sync Stack End');\n\n// Output:\n// 1: Sync Stack\n// 4: Sync Stack End\n// 3: Microtask (Promise)\n// 2: Macrotask (Timer)"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-event-loop-mcq-1",
+        "question": "What is primary role of the JavaScript Event Loop?",
+        "options": [
+          "To compile JavaScript to machine bytecode",
+          "To monitor Call Stack and push queued async callbacks when stack is empty",
+          "To execute multithreaded worker threads",
+          "To allocate garbage collection memory"
+        ],
+        "correctAnswer": 1,
+        "explanation": "The Event Loop continuously checks call stack; when empty, it pushes queued microtasks and macrotasks to stack."
+      },
+      {
+        "id": "js-event-loop-mcq-2",
+        "question": "What happens if synchronous function loop `while(true){}` runs on main JS thread?",
+        "options": [
+          "Offloaded to background web worker",
+          "Event loop blocks; UI freezes and async callbacks cannot execute",
+          "Event loop skips while loop after 1 second",
+          "Throws stack overflow"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Synchronous loops lock call stack, preventing Event Loop from processing any queued events or rendering UI updates."
+      },
+      {
+        "id": "js-event-loop-mcq-3",
+        "question": "Which queue has higher execution priority when call stack clears?",
+        "options": [
+          "Macrotask Queue (setTimeout)",
+          "Microtask Queue (Promise handlers)",
+          "Render Queue",
+          "Idle Callback Queue"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Microtasks always execute before the next macrotask can be pulled from task queue."
+      },
+      {
+        "id": "js-event-loop-mcq-4",
+        "question": "How many macrotasks does Event Loop process per iteration before re-checking microtasks?",
+        "options": [
+          "All macrotasks in queue",
+          "Exactly ONE macrotask",
+          "Five macrotasks",
+          "Zero"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Event Loop processes exactly ONE macrotask, then immediately drains microtask queue completely."
+      },
+      {
+        "id": "js-event-loop-mcq-5",
+        "question": "Where are browser `fetch()` API network operations processed?",
+        "options": [
+          "Inside Call Stack directly",
+          "Offloaded to Browser Web APIs background threads",
+          "Inside Microtask queue",
+          "Inside V8 heap"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browser Web APIs handle network operations in background C++ threads, pushing callback/promise handlers to JS queues upon completion."
+      }
+    ]
+  },
+  {
+    "id": "js-microtasks-macrotasks",
+    "title": "Microtasks/macrotasks",
+    "category": "JAVASCRIPT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Task Queue differentiation: Microtasks (Promises, queueMicrotask, MutationObserver) vs Macrotasks (setTimeout, setInterval, I/O, setImmediate).",
+    "explanation": {
+      "overview": "Asynchronous tasks in JS are divided into Microtasks and Macrotasks. Microtasks run immediately after stack clears, draining completely before Macrotasks.",
+      "sections": [
+        {
+          "heading": "Microtask Queue",
+          "content": "Microtasks include Promise `.then()/.catch()/.finally()`, `queueMicrotask()`, `process.nextTick` (Node.js), and `MutationObserver`.",
+          "bulletPoints": [
+            "Executed immediately after call stack empties.",
+            "Queue drained to 0 items before browser layout/paint or next macrotask.",
+            "Infinite microtask recursion starves UI rendering and macrotasks."
+          ]
+        },
+        {
+          "heading": "Macrotask (Task) Queue",
+          "content": "Macrotasks include `setTimeout`, `setInterval`, `setImmediate` (Node), I/O operations, and UI user interactions.",
+          "bulletPoints": [
+            "Executed one by one after microtask queue is fully drained.",
+            "Browser can perform DOM rendering between macrotasks."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Microtasks (Promises) run before Macrotasks (setTimeout).",
+      "Microtask queue drains completely before next Macrotask runs.",
+      "Recursive microtasks starve rendering and freeze app UI."
+    ],
+    "codeExamples": [
+      {
+        "title": "Microtask vs Macrotask Execution Order",
+        "description": "Demonstrating promise microtasks running before timer macrotasks.",
+        "code": "setTimeout(() => console.log('Macrotask 1'), 0);\n\nPromise.resolve().then(() => {\n  console.log('Microtask 1');\n  queueMicrotask(() => console.log('Microtask 2 (Nested)'));\n});\n\nsetTimeout(() => console.log('Macrotask 2'), 0);\n\n// Output:\n// Microtask 1\n// Microtask 2 (Nested) - Drained microtask queue completely!\n// Macrotask 1\n// Macrotask 2"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-microtasks-macrotasks-mcq-1",
+        "question": "Which operation creates a Microtask?",
+        "options": [
+          "setTimeout()",
+          "Promise.then()",
+          "setInterval()",
+          "requestAnimationFrame()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Promise handlers `.then()` register callbacks into the Microtask Queue."
+      },
+      {
+        "id": "js-microtasks-macrotasks-mcq-2",
+        "question": "What happens if a microtask schedules another microtask recursively without stopping?",
+        "options": [
+          "Browser kills script after 100 iterations",
+          "Microtask queue drains endlessly, starving Macrotasks and freezing UI rendering",
+          "Event loop automatically switches to Macrotask queue",
+          "Throws Stack Overflow"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Because the microtask queue must drain completely to 0, recursive microtasks starve macrotasks and freeze browser UI."
+      },
+      {
+        "id": "js-microtasks-macrotasks-mcq-3",
+        "question": "Which API allows manually enqueueing a microtask without creating a Promise?",
+        "options": [
+          "queueMicrotask()",
+          "postMessage()",
+          "setTimeoutZero()",
+          "setImmediate()"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`queueMicrotask(fn)` enqueues callback directly into JS microtask queue."
+      },
+      {
+        "id": "js-microtasks-macrotasks-mcq-4",
+        "question": "In Node.js event loop, which queue executes even before standard Promise microtasks?",
+        "options": [
+          "setImmediate queue",
+          "process.nextTick queue",
+          "fs I/O queue",
+          "setTimeout queue"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In Node.js, `process.nextTick` queue runs prior to standard Promise microtask queue at tick transitions."
+      },
+      {
+        "id": "js-microtasks-macrotasks-mcq-5",
+        "question": "Is DOM rendering performed before or after microtask queue draining?",
+        "options": [
+          "Before microtasks",
+          "After microtask queue is completely drained",
+          "Simultaneously in parallel thread",
+          "Only during setTimeout"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browser UI rendering occurs AFTER microtask queue is fully emptied, prior to running next macrotask."
+      }
+    ]
+  },
+  {
+    "id": "js-error-handling",
+    "title": "Error handling",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "try/catch/finally blocks, Custom Error classes, unhandled promise rejections, window.onerror.",
+    "explanation": {
+      "overview": "Robust error handling prevents unhandled exceptions from crashing applications. JS provides `try...catch...finally` statements and custom Error classes.",
+      "sections": [
+        {
+          "heading": "try...catch...finally Mechanics",
+          "content": "`try` wraps code that may throw exceptions. `catch(err)` catches threw errors. `finally` executes unconditionally for cleanup.",
+          "bulletPoints": [
+            "`throw`: Raises built-in `Error` instance or custom error.",
+            "`finally`: Executes even if `return` statement exists inside `try` or `catch`.",
+            "Catch Binding: ES2019 allows optional catch binding `catch {}`."
+          ]
+        },
+        {
+          "heading": "Async Errors & Global Handlers",
+          "content": "Synchronous `try/catch` cannot catch async errors thrown inside callbacks or promises unless `await` is used. Use global listeners for uncaught errors.",
+          "bulletPoints": [
+            "Browser: `window.addEventListener('unhandledrejection')` and `window.onerror`.",
+            "Node.js: `process.on('uncaughtException')` and `process.on('unhandledRejection')`.",
+            "Custom Errors: Extend built-in `Error` class (`class AppError extends Error`)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use `try...catch` for synchronous code and `await` calls.",
+      "Extend `Error` class to create domain-specific custom exceptions.",
+      "Register global unhandled rejection handlers to log uncaught async errors."
+    ],
+    "codeExamples": [
+      {
+        "title": "Custom Error Class & Handling",
+        "description": "Extending Error class with statusCode and custom try/catch.",
+        "code": "class ValidationError extends Error {\n  constructor(message) {\n    super(message);\n    this.name = 'ValidationError';\n    this.statusCode = 400;\n  }\n}\n\ntry {\n  throw new ValidationError('Invalid email format');\n} catch (err) {\n  if (err instanceof ValidationError) {\n    console.log(`[${err.statusCode}] ${err.name}: ${err.message}`);\n  } else {\n    throw err;\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-error-handling-mcq-1",
+        "question": "What happens if code inside `try` block returns value `return 10`, but `finally` block contains `return 20`?",
+        "options": [
+          "Returns 10",
+          "Returns 20",
+          "Throws SyntaxError",
+          "Returns undefined"
+        ],
+        "correctAnswer": 1,
+        "explanation": "A `return` statement inside `finally` block overrides any previous `return` statements from `try` or `catch` blocks."
+      },
+      {
+        "id": "js-error-handling-mcq-2",
+        "question": "Can standard synchronous `try { setTimeout(() => { throw new Error('boom'); }, 100); } catch(e) {}` catch the error?",
+        "options": [
+          "Yes",
+          "No, because callback executes asynchronously after try block exits",
+          "Only in strict mode",
+          "Only in Node.js"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Synchronous `try/catch` exits immediately; async callback executes later on event loop, escaping catch block."
+      },
+      {
+        "id": "js-error-handling-mcq-3",
+        "question": "How do you create a custom error class in modern ES6 JavaScript?",
+        "options": [
+          "class MyError extends Error {}",
+          "function MyError() extends Exception",
+          "createErrorClass('MyError')",
+          "Object.create(Error)"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Custom errors extend native built-in `Error` class and invoke `super(message)` inside constructor."
+      },
+      {
+        "id": "js-error-handling-mcq-4",
+        "question": "Which window event fires when a Promise rejects without any `.catch()` handler attached?",
+        "options": [
+          "onerror",
+          "unhandledrejection",
+          "onpromiseerror",
+          "uncaughtexception"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browsers dispatch `unhandledrejection` event when a promise is rejected without rejection handler."
+      },
+      {
+        "id": "js-error-handling-mcq-5",
+        "question": "What is ES2019 optional catch binding feature?",
+        "options": [
+          "Skipping try block",
+          "Omitting error parameter in `catch {}` when error variable is unused",
+          "Catching multiple error types in one line",
+          "Ignoring errors automatically"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Optional catch binding allows writing `catch {}` without specifying unused `catch (err)` parameter."
+      }
+    ]
+  },
+  {
+    "id": "js-memory",
+    "title": "Memory",
+    "category": "JAVASCRIPT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "JavaScript memory model: Call Stack (primitive values, frame pointers) vs Heap (reference objects).",
+    "explanation": {
+      "overview": "JavaScript manages memory automatically. Primitives and execution frames are stored on Call Stack, while reference objects reside in Heap memory.",
+      "sections": [
+        {
+          "heading": "Stack vs Heap Allocation",
+          "content": "The **Stack** stores fixed-size static primitive values (numbers, booleans, symbols, null, undefined) and function frame pointers. The **Heap** allocates dynamic unbounded memory for Objects, Arrays, and Functions.",
+          "bulletPoints": [
+            "Stack Memory: Fast, fixed size, LIFO function execution context stack.",
+            "Heap Memory: Unstructured large memory pool for reference objects.",
+            "Variable References: Stack stores heap memory addresses for objects."
+          ]
+        },
+        {
+          "heading": "Value vs Reference Assignment",
+          "content": "Primitives are copied by value. Objects are copied by reference address pointer.",
+          "bulletPoints": [
+            "Primitive Copy: Independent value duplication.",
+            "Reference Copy: Mutating object via new variable alters original object in heap."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Primitives stored on Stack; Objects stored in Heap.",
+      "Primitives copied by value; Objects copied by reference address pointer.",
+      "Unreachable heap objects are eligible for Garbage Collection."
+    ],
+    "codeExamples": [
+      {
+        "title": "Stack Value vs Heap Reference",
+        "description": "Demonstrating primitive copy by value vs object copy by reference pointer.",
+        "code": "let a = 10;\nlet b = a;\nb = 20;\nconsole.log(a, b); // 10, 20 (Independent primitives on Stack)\n\nconst obj1 = { val: 10 };\nconst obj2 = obj1;\nobj2.val = 20;\nconsole.log(obj1.val); // 20 (Shared Heap memory reference!)"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-memory-mcq-1",
+        "question": "Where are JavaScript primitive values (e.g. booleans, small numbers) stored in memory?",
+        "options": [
+          "Heap memory pool",
+          "Call Stack",
+          "Disk cache",
+          "GPU memory"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Primitives of fixed size are allocated on Call Stack within execution context frames."
+      },
+      {
+        "id": "js-memory-mcq-2",
+        "question": "What happens when variable `b` is assigned an existing object variable `a` (`b = a`)?",
+        "options": [
+          "Creates deep clone of object in heap",
+          "b receives reference address pointer pointing to same heap memory location",
+          "Throws TypeError",
+          "Freezes object"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Object assignments copy memory reference pointer, so both variables point to identical heap object."
+      },
+      {
+        "id": "js-memory-mcq-3",
+        "question": "Where are complex objects, arrays, and functions stored in memory?",
+        "options": [
+          "Call Stack",
+          "Heap memory",
+          "Register memory",
+          "Local Storage"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Dynamic variable-sized complex types reside in unstructured Heap memory."
+      },
+      {
+        "id": "js-memory-mcq-4",
+        "question": "What is logged by `const x = { n: 1 }; const y = { n: 1 }; console.log(x === y);`?",
+        "options": [
+          "true",
+          "false",
+          "undefined",
+          "TypeError"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`===` compares reference memory addresses for objects; `x` and `y` reference distinct heap allocations."
+      },
+      {
+        "id": "js-memory-mcq-5",
+        "question": "How are variable bindings managed on Call Stack during function call and return?",
+        "options": [
+          "Persist forever",
+          "Push execution frame onto stack on call, pop and reclaim frame memory upon return",
+          "Moved to Heap",
+          "Saved to disk"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Function invocation pushes frame onto call stack; returning pops frame and reclaims stack space."
+      }
+    ]
+  },
+  {
+    "id": "js-garbage-collection",
+    "title": "Garbage collection",
+    "category": "JAVASCRIPT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Automatic memory management, Mark-and-Sweep algorithm, reachability root nodes, WeakMap/WeakSet.",
+    "explanation": {
+      "overview": "JavaScript engines automatically manage memory allocation and deallocation via Garbage Collection (GC), using the Mark-and-Sweep algorithm.",
+      "sections": [
+        {
+          "heading": "Mark-and-Sweep Algorithm",
+          "content": "Modern engines mark reachable objects starting from root nodes (global object, active call stack frames). Objects that cannot be reached by traversing references from roots are marked for collection.",
+          "bulletPoints": [
+            "Roots: Global objects, active call stack local variables, active event listeners.",
+            "Mark Phase: Traverses reference tree from roots, marking reachable objects.",
+            "Sweep Phase: Unreachable unmarked objects are reclaimed from heap memory."
+          ]
+        },
+        {
+          "heading": "WeakMap & WeakSet",
+          "content": "WeakMap and WeakSet hold **weak** references to object keys. If an object exists as key ONLY inside a WeakMap, GC can reclaim it automatically.",
+          "bulletPoints": [
+            "Non-enumerable: Cannot iterate keys because GC can reclaim items anytime.",
+            "Keys must be Objects or non-registered Symbols.",
+            "Prevents memory leaks in DOM metadata caching."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "GC uses Mark-and-Sweep algorithm based on reachability from roots.",
+      "Reference counting was replaced due to circular reference bugs.",
+      "Use WeakMap/WeakSet to hold object references without preventing garbage collection."
+    ],
+    "codeExamples": [
+      {
+        "title": "WeakMap Garbage Collection Support",
+        "description": "Demonstrating WeakMap holding weak reference to DOM elements.",
+        "code": "let element = document.createElement('div');\nconst metaMap = new WeakMap();\n\nmetaMap.set(element, { clicks: 42 });\nconsole.log(metaMap.get(element)); // { clicks: 42 }\n\n// When DOM element is removed and dereferenced:\nelement = null;\n// Garbage collector automatically reclaims element and its metadata from WeakMap!"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-garbage-collection-mcq-1",
+        "question": "What primary algorithm do modern JS engines (V8, JavaScriptCore) use for Garbage Collection?",
+        "options": [
+          "Reference Counting",
+          "Mark-and-Sweep",
+          "Stop-the-World Manual Free",
+          "FIFO Queue Clearing"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Mark-and-Sweep algorithm determines reachability from root nodes, resolving circular reference leaks."
+      },
+      {
+        "id": "js-garbage-collection-mcq-2",
+        "question": "Why was legacy Reference Counting garbage collection algorithm abandoned?",
+        "options": [
+          "Too fast",
+          "Could not reclaim circular references where two objects reference each other but are unreachable from roots",
+          "Unsupported in V8",
+          "Consumed no memory"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Circular references caused reference counts never to reach 0, leaking memory indefinitely under reference counting."
+      },
+      {
+        "id": "js-garbage-collection-mcq-3",
+        "question": "What defines an object as 'reachable' in Mark-and-Sweep GC?",
+        "options": [
+          "It has at least one property",
+          "It is accessible via reference chain starting from global or call stack root nodes",
+          "It was created within last 5 minutes",
+          "It is stored in Local Storage"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Reachable objects can be navigated to via active references starting from root nodes."
+      },
+      {
+        "id": "js-garbage-collection-mcq-4",
+        "question": "What unique garbage collection property do WeakMap keys possess?",
+        "options": [
+          "Keys are immutable",
+          "Keys are held weakly; if no other references exist, object key and value can be garbage collected",
+          "Values are automatically stringified",
+          "Keys never expire"
+        ],
+        "correctAnswer": 1,
+        "explanation": "WeakMap references are weak, allowing GC to collect key objects when all external references are dropped."
+      },
+      {
+        "id": "js-garbage-collection-mcq-5",
+        "question": "Can developers manually force immediate Garbage Collection in standard browser production JavaScript?",
+        "options": [
+          "Yes, calling gc()",
+          "No, GC runs automatically controlled non-deterministically by engine heuristics",
+          "Yes, setting window.gc = true",
+          "Yes, calling delete window"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Garbage collection in JS is non-deterministic and managed automatically by engine heuristics without production API."
+      }
+    ]
+  },
+  {
+    "id": "js-memory-leaks",
+    "title": "Memory leaks",
+    "category": "JAVASCRIPT",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Common causes of JS memory leaks: accidental global variables, uncleared timers/listeners, closure retains, detached DOM nodes.",
+    "explanation": {
+      "overview": "A memory leak occurs when allocated memory is no longer needed by application but fails to be reclaimed by garbage collector because unintended references persist.",
+      "sections": [
+        {
+          "heading": "4 Primary Sources of JS Memory Leaks",
+          "content": "1. **Accidental Global Variables**: Undeclared variables attach to `window` root.\n2. **Forgotten Timers / Callbacks**: `setInterval` keeping callbacks alive.\n3. **Detached DOM Elements**: JS objects referencing removed DOM nodes.\n4. **Closure State Retainers**: Closures holding massive outer scopes.",
+          "bulletPoints": [
+            "Globals: Never dereferenced until browser tab closes.",
+            "Timers: `setInterval` holds callback closure until `clearInterval()` is invoked.",
+            "Detached DOM: Retaining JS reference to element removed from document tree."
+          ]
+        },
+        {
+          "heading": "Detection & Prevention",
+          "content": "Use Chrome DevTools Memory tab (Heap Snapshots, Allocation Timelines) to detect leak retainers and memory growth trends over time.",
+          "bulletPoints": [
+            "Always call `clearInterval()` / `removeEventListener()` on component unmount.",
+            "Nullify manual references to detached DOM elements.",
+            "Use strict mode `'use strict'` to throw error on accidental global assignments."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Always clean up timers and event listeners when components unmount.",
+      "Avoid accidental global variables by enabling strict mode.",
+      "Use Chrome DevTools Heap Snapshots to inspect memory leaks."
+    ],
+    "codeExamples": [
+      {
+        "title": "Memory Leak & Fix",
+        "description": "Forgotten interval leak vs proper cleanup pattern.",
+        "code": "// MEMORY LEAK PATTERN:\nfunction startLeak() {\n  const hugeData = new Array(1000000).fill('leak');\n  setInterval(() => {\n    console.log(hugeData.length);\n  }, 1000); // hugeData captured in closure forever!\n}\n\n// PROPER CLEANUP PATTERN:\nfunction startClean() {\n  const hugeData = new Array(1000000).fill('clean');\n  const timerId = setInterval(() => {\n    console.log(hugeData.length);\n  }, 1000);\n  return () => clearInterval(timerId); // Cleanup function destroys interval & closure reference!\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-memory-leaks-mcq-1",
+        "question": "Why does an accidental global variable `foo = 'bar'` (without var/let/const) cause a memory leak?",
+        "options": [
+          "It throws TypeError",
+          "It attaches to window global root node, staying reachable and un-collectable for lifespan of tab",
+          "It gets converted to a stream",
+          "It overwrites V8 heap"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Global variables are properties of root node (`window`/`global`) which GC never reclaims while page is open."
+      },
+      {
+        "id": "js-memory-leaks-mcq-2",
+        "question": "What is a 'Detached DOM node' memory leak?",
+        "options": [
+          "A DOM node without CSS styles",
+          "A DOM element removed from page DOM tree but still referenced by a JavaScript variable",
+          "An iframe element",
+          "A shadow DOM component"
+        ],
+        "correctAnswer": 1,
+        "explanation": "If a DOM node is removed from document tree but a JS variable retains a reference to it, GC cannot free memory."
+      },
+      {
+        "id": "js-memory-leaks-mcq-3",
+        "question": "What happens if `setInterval` is started inside a SPA component that gets unmounted without calling `clearInterval`?",
+        "options": [
+          "Timer stops automatically",
+          "Interval timer continues running in background, retaining closure variables in memory indefinitely",
+          "Throws ReferenceError",
+          "Browser reloads"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`setInterval` callbacks remain active on event loop, preventing all variables referenced in callback closure from being collected."
+      },
+      {
+        "id": "js-memory-leaks-mcq-4",
+        "question": "Which DevTools panel tab is used to record and compare memory Heap Snapshots to find leaks?",
+        "options": [
+          "Console",
+          "Network",
+          "Memory",
+          "Application"
+        ],
+        "correctAnswer": 2,
+        "explanation": "The Memory tab allows taking heap snapshots and inspecting Retainers tree pointing to leaked objects."
+      },
+      {
+        "id": "js-memory-leaks-mcq-5",
+        "question": "How can accidental global variable memory leaks be prevented automatically at language level?",
+        "options": [
+          "Enable `'use strict'` mode",
+          "Use eval()",
+          "Wrap code in try/catch",
+          "Use document.write()"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Strict mode `'use strict'` converts undeclared variable assignments into immediate ReferenceError exceptions."
+      }
+    ]
+  }
+]

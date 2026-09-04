@@ -1,0 +1,1885 @@
+[
+  {
+    "id": "dsa-big-o",
+    "title": "Big-O",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Time complexity vs Space complexity, asymptotic analysis, O(1), O(log N), O(N), O(N log N), O(N^2), O(2^N).",
+    "explanation": {
+      "overview": "Big-O notation describes the worst-case limiting behavior of an algorithm's execution time or memory space usage as input size $N$ grows.",
+      "sections": [
+        {
+          "heading": "Common Time Complexities (Fast to Slow)",
+          "content": "1. $O(1)$ **Constant**: Array index access, Hash Map lookup.\n2. $O(\\log N)$ **Logarithmic**: Binary Search, Balanced BST lookup.\n3. $O(N)$ **Linear**: Single loop search across array.\n4. $O(N \\log N)$ **Linearithmic**: Efficient sorting (Merge Sort, QuickSort).\n5. $O(N^2)$ **Quadratic**: Nested loops (Bubble Sort).\n6. $O(2^N)$ **Exponential**: Recursive Fibonacci without memoization.",
+          "bulletPoints": [
+            "O(1): Instant execution regardless of input size.",
+            "O(log N): Input halved at each step.",
+            "O(N): Execution grows linearly with input."
+          ]
+        },
+        {
+          "heading": "Space Complexity & Auxiliary Memory",
+          "content": "Space complexity measures extra auxiliary memory allocated by algorithm (recursion stack frames, hash tables, temporary arrays) relative to input $N$.",
+          "bulletPoints": [
+            "In-Place Algorithms: $O(1)$ extra space usage.",
+            "Recursion Stack: Recursive calls consume $O(H)$ stack space matching call tree depth."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Big-O measures worst-case asymptotic upper bound growth.",
+      "Hierarchy: $O(1) < O(\\log N) < O(N) < O(N \\log N) < O(N^2) < O(2^N)$.",
+      "Account for both Time complexity and Space complexity."
+    ],
+    "codeExamples": [
+      {
+        "title": "Comparing O(1), O(N), O(N^2)",
+        "description": "Code examples of constant, linear, and quadratic time complexity.",
+        "code": "// O(1) Constant Time:\nfunction getFirst(arr: number[]) {\n  return arr[0]; // Instant index lookup\n}\n\n// O(N) Linear Time:\nfunction findSum(arr: number[]) {\n  let sum = 0;\n  for (let i = 0; i < arr.length; i++) sum += arr[i]; // Single loop\n  return sum;\n}\n\n// O(N^2) Quadratic Time:\nfunction printPairs(arr: number[]) {\n  for (let i = 0; i < arr.length; i++) {\n    for (let j = 0; j < arr.length; j++) { // Nested loops\n      console.log(arr[i], arr[j]);\n    }\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-big-o-mcq-1",
+        "question": "What is time complexity of accessing an element by index `arr[5]` in a standard array?",
+        "options": [
+          "O(N)",
+          "O(1)",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Direct array index access computes memory offset directly in $O(1)$ constant time."
+      },
+      {
+        "id": "dsa-big-o-mcq-2",
+        "question": "What is time complexity of Binary Search algorithm on a sorted array of N elements?",
+        "options": [
+          "O(1)",
+          "O(log N)",
+          "O(N)",
+          "O(N log N)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Binary Search halves search space at each iteration step, yielding $O(\\log N)$ logarithmic time."
+      },
+      {
+        "id": "dsa-big-o-mcq-3",
+        "question": "Order time complexities from FASTEST to SLOWEST growth rate:",
+        "options": [
+          "O(N) < O(1) < O(N^2) < O(log N)",
+          "O(1) < O(log N) < O(N) < O(N log N) < O(N^2)",
+          "O(N^2) < O(N) < O(log N) < O(1)",
+          "O(N log N) < O(N) < O(1)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Correct growth hierarchy is $O(1) < O(\\log N) < O(N) < O(N \\log N) < O(N^2)$."
+      },
+      {
+        "id": "dsa-big-o-mcq-4",
+        "question": "What is time complexity of 2 nested loops running $N$ iterations each `for i in N: for j in N:`?",
+        "options": [
+          "O(2N)",
+          "O(N^2)",
+          "O(N log N)",
+          "O(N)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Nested loops running $N$ times each perform $N \\times N = N^2$ operations ($O(N^2)$)."
+      },
+      {
+        "id": "dsa-big-o-mcq-5",
+        "question": "What does Space Complexity measure in algorithm analysis?",
+        "options": [
+          "Disk file size",
+          "Auxiliary memory allocated by algorithm as input size N increases",
+          "Time in seconds",
+          "Number of lines of code"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Space complexity quantifies additional RAM allocated during execution."
+      }
+    ]
+  },
+  {
+    "id": "dsa-arrays",
+    "title": "Arrays",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Contiguous memory layout, indexed access O(1), search O(N), insertion/deletion O(N), and dynamic arrays.",
+    "explanation": {
+      "overview": "Arrays store elements in contiguous memory locations, enabling instant $O(1)$ random access by index.",
+      "sections": [
+        {
+          "heading": "Time Complexities of Array Operations",
+          "content": "- **Access by Index**: $O(1)$ (Memory address offset = `base + index * element_size`).\n- **Search**: $O(N)$ (Un-sorted array linear scan).\n- **Insertion / Deletion at End**: $O(1)$ amortized.\n- **Insertion / Deletion at Start/Middle**: $O(N)$ (Requires shifting subsequent elements in memory).",
+          "bulletPoints": [
+            "Access: $O(1)$ constant time.",
+            "Insert at Start: $O(N)$ linear time due to memory shifting.",
+            "Delete at End: $O(1)$ constant time."
+          ]
+        },
+        {
+          "heading": "Dynamic Arrays (ArrayList / Vector / JS Array)",
+          "content": "Dynamic arrays automatically resize capacity when full (doubling array capacity). Reallocating memory and copying elements yields $O(1)$ amortized insertion cost.",
+          "bulletPoints": [
+            "Doubling Strategy: Capacity doubles when full.",
+            "Amortized $O(1)$: Occasional $O(N)$ resize cost averaged over $N$ pushes."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Array index access is $O(1)$ constant time.",
+      "Inserting or deleting elements at start/middle costs $O(N)$ due to shifting.",
+      "Dynamic array `push` has $O(1)$ amortized time complexity."
+    ],
+    "codeExamples": [
+      {
+        "title": "Array Shifting & Amortized Push",
+        "description": "Inserting item at start (O(N) shift) vs end (O(1)).",
+        "code": "const arr = [10, 20, 30, 40];\n\n// Insert at end: O(1) amortized\narr.push(50); // [10, 20, 30, 40, 50]\n\n// Insert at start: O(N) because all items shift right in memory!\narr.unshift(5); // [5, 10, 20, 30, 40, 50]"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-arrays-mcq-1",
+        "question": "Why is inserting an element at index 0 of an array an $O(N)$ linear time operation?",
+        "options": [
+          "Memory is full",
+          "All existing N elements must be shifted 1 position right in contiguous memory",
+          "Requires sorting",
+          "Creates hash table"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Inserting at start requires shifting all subsequent elements right in memory."
+      },
+      {
+        "id": "dsa-arrays-mcq-2",
+        "question": "What is amortized time complexity of appending an element to end of a dynamic array `arr.push()`?",
+        "options": [
+          "O(N)",
+          "O(1) amortized",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Array capacity doubling makes append operations run in $O(1)$ amortized time."
+      },
+      {
+        "id": "dsa-arrays-mcq-3",
+        "question": "How does array index access `arr[i]` achieve instant $O(1)$ speed in RAM?",
+        "options": [
+          "Linear search",
+          "Calculates exact memory address offset using `base_address + index * element_size`",
+          "Uses B-Tree",
+          "Uses hash function"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Contiguous memory layout allows calculating target memory address via arithmetic offset."
+      },
+      {
+        "id": "dsa-arrays-mcq-4",
+        "question": "What is worst-case time complexity of linear search on an un-sorted array of N elements?",
+        "options": [
+          "O(1)",
+          "O(log N)",
+          "O(N)",
+          "O(N log N)"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Linear search checks every element in worst case, running in $O(N)$ time."
+      },
+      {
+        "id": "dsa-arrays-mcq-5",
+        "question": "What is space complexity of creating a 2D matrix array of dimensions $N \\times N$?",
+        "options": [
+          "O(N)",
+          "O(N^2)",
+          "O(2N)",
+          "O(1)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "An $N \\times N$ 2D matrix allocates $N^2$ memory cells ($O(N^2)$ space)."
+      }
+    ]
+  },
+  {
+    "id": "dsa-strings",
+    "title": "Strings",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "String immutability, character encoding (ASCII/Unicode), string manipulation, and string building optimization.",
+    "explanation": {
+      "overview": "Strings are sequences of characters. In JavaScript, Python, and Java, strings are immutable primitive values.",
+      "sections": [
+        {
+          "heading": "String Immutability Pitfall",
+          "content": "In immutable string languages, concatenating strings inside a loop (`str += char`) creates a fresh string object on every iteration, leading to an accidental $O(N^2)$ time complexity!",
+          "bulletPoints": [
+            "String Immutability: Modifying string creates new string copy.",
+            "Loop Concatenation Pitfall: `str += char` inside $N$-length loop costs $O(N^2)$ time.",
+            "Array Join Solution: Push chars to array and execute `arr.join('')` ($O(N)$ time)."
+          ]
+        },
+        {
+          "heading": "ASCII vs Unicode Encoding",
+          "content": "ASCII uses 7/8 bits per character (128 chars). Unicode (UTF-8 / UTF-16) uses variable 1-4 bytes to represent global language scripts and emojis.",
+          "bulletPoints": [
+            "ASCII: 256 standard character set.",
+            "UTF-8: Variable length encoding (1 to 4 bytes per character)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Strings are immutable in JS/Python/Java.",
+      "Avoid string concatenation in loops; collect in array and `join('')` ($O(N)$).",
+      "Unicode characters can consume multiple byte code points."
+    ],
+    "codeExamples": [
+      {
+        "title": "Optimized String Building in JS",
+        "description": "Array join pattern vs string concatenation loop.",
+        "code": "// O(N^2) BAD PATTERN (Creates N string objects in memory!):\n// let str = '';\n// for (let i = 0; i < N; i++) str += 'a';\n\n// O(N) OPTIMIZED PATTERN:\nconst buffer: string[] = [];\nfor (let i = 0; i < 10000; i++) {\n  buffer.push('a');\n}\nconst result = buffer.join(''); // Single O(N) string allocation!"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-strings-mcq-1",
+        "question": "What is time complexity of appending $N$ characters one-by-one to a string inside a loop `str += char` in immutable string languages (JS/Java)?",
+        "options": [
+          "O(N)",
+          "O(N^2) quadratic time",
+          "O(1)",
+          "O(log N)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Because strings are immutable, copying strings of length $1, 2, ..., N$ sums to $O(N^2)$ total operations."
+      },
+      {
+        "id": "dsa-strings-mcq-2",
+        "question": "How should string building inside loops be optimized in JavaScript for $O(N)$ efficiency?",
+        "options": [
+          "Use eval()",
+          "Push character substrings to an array and call `arr.join('')`",
+          "Use string slice",
+          "Use regex"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Collecting elements in array and joining once allocates memory in single linear $O(N)$ pass."
+      },
+      {
+        "id": "dsa-strings-mcq-3",
+        "question": "What does 'String Immutability' mean?",
+        "options": [
+          "Strings cannot be printed",
+          "Once created, string character content in memory cannot be modified in-place; alterations create new string instances",
+          "Strings use disk",
+          "Strings are numbers"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Immutability means existing string objects in memory cannot be mutated."
+      },
+      {
+        "id": "dsa-strings-mcq-4",
+        "question": "What is time complexity of checking if a string of length $N$ is a Palindrome using Two Pointers?",
+        "options": [
+          "O(1) space, O(N) time",
+          "O(N^2) time",
+          "O(N) space",
+          "O(log N) time"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Two pointers checking characters from ends run in linear $O(N)$ time and $O(1)$ constant space."
+      },
+      {
+        "id": "dsa-strings-mcq-5",
+        "question": "How many bytes does a standard ASCII character consume in memory?",
+        "options": [
+          "1 byte (8 bits)",
+          "4 bytes",
+          "8 bytes",
+          "16 bytes"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Standard ASCII characters consume exactly 1 byte (8 bits) of storage."
+      }
+    ]
+  },
+  {
+    "id": "dsa-hash-maps",
+    "title": "Hash maps",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Key-value pair lookups, hash function, collision resolution (Chaining vs Open Addressing), O(1) average lookup.",
+    "explanation": {
+      "overview": "Hash Maps (Map / Dictionary) store key-value pairs, providing average $O(1)$ constant time for insertion, deletion, and lookup operations.",
+      "sections": [
+        {
+          "heading": "Hash Function & Collision Resolution",
+          "content": "A **Hash Function** maps key string/object to integer array index. When two keys produce identical bucket indexes (Collision), Hash Maps use:\n- **Separate Chaining**: Bucket contains linked list or red-black tree of colliding key-value pairs.\n- **Open Addressing**: Probes alternative array slots (Linear Probing / Quadratic Probing).",
+          "bulletPoints": [
+            "Hash Function: Converts key into array index.",
+            "Separate Chaining: Linked list at array bucket index.",
+            "Worst-case O(N): High collision rate degrades lookup to $O(N)$."
+          ]
+        },
+        {
+          "heading": "Two-Sum Problem Pattern",
+          "content": "Hash Maps trade $O(N)$ space complexity to optimize nested loop searches ($O(N^2)$) down to single pass $O(N)$ linear time.",
+          "bulletPoints": [
+            "Space-Time Tradeoff: Store visited elements in Map to achieve $O(1)$ lookups."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Hash Maps offer average $O(1)$ lookup, insert, and delete operations.",
+      "Collisions are resolved via Separate Chaining or Open Addressing.",
+      "Use Hash Maps for $O(N)$ time solutions to search/lookup problems."
+    ],
+    "codeExamples": [
+      {
+        "title": "Two-Sum Solution using Hash Map",
+        "description": "Solving Two-Sum in O(N) time with Map.",
+        "code": "export function twoSum(nums: number[], target: number): number[] {\n  const map = new Map<number, number>(); // Stores value -> index\n  \n  for (let i = 0; i < nums.length; i++) {\n    const complement = target - nums[i];\n    if (map.has(complement)) {\n      return [map.get(complement)!, i]; // O(1) Lookup!\n    }\n    map.set(nums[i], i);\n  }\n  return [];\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-hash-maps-mcq-1",
+        "question": "What is AVERAGE time complexity of key lookup `map.get(key)` in a Hash Map?",
+        "options": [
+          "O(N)",
+          "O(1)",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Hash function array bucket mapping executes in average $O(1)$ constant time."
+      },
+      {
+        "id": "dsa-hash-maps-mcq-2",
+        "question": "What is WORST-CASE time complexity of Hash Map lookup if all inserted keys collide into same single bucket index?",
+        "options": [
+          "O(1)",
+          "O(log N)",
+          "O(N)",
+          "O(N log N)"
+        ],
+        "correctAnswer": 2,
+        "explanation": "If all keys collide into single bucket chain, searching linked list takes $O(N)$ linear time."
+      },
+      {
+        "id": "sec-dsa-hash-maps-mcq-3",
+        "question": "What is 'Separate Chaining' collision resolution mechanism?",
+        "options": [
+          "Deleting colliding keys",
+          "Storing colliding key-value pairs in a linked list or tree at array bucket index",
+          "Resizing hash map",
+          "Encrypting keys"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Separate Chaining stores colliding key-value elements in linked list/tree at bucket index."
+      },
+      {
+        "id": "dsa-hash-maps-mcq-4",
+        "question": "How does using a Hash Map improve Two-Sum problem from naive brute-force $O(N^2)$ to optimal solution?",
+        "options": [
+          "Sorts array",
+          "Reduces complement lookup time from $O(N)$ linear search to $O(1)$ Map lookup, achieving $O(N)$ total time",
+          "Uses recursion",
+          "Uses binary search"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Hash Map enables $O(1)$ complement lookups, reducing overall time to $O(N)$."
+      },
+      {
+        "id": "dsa-hash-maps-mcq-5",
+        "question": "What happens when Hash Map Load Factor (ratio of items to bucket array size) exceeds threshold (e.g. 0.75)?",
+        "options": [
+          "Throws error",
+          "Hash Map automatically rehashes: doubles internal array capacity and re-distributes keys",
+          "Deletes keys",
+          "Stops inserts"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Exceeding load factor threshold triggers rehashing to expand bucket array and maintain $O(1)$ speeds."
+      }
+    ]
+  },
+  {
+    "id": "dsa-sets",
+    "title": "Sets",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Unique element collections, O(1) add/has/delete, deduplication, and set operations.",
+    "explanation": {
+      "overview": "A Set is a data structure that stores unique values without duplicates, offering average $O(1)$ lookup, insertion, and deletion times.",
+      "sections": [
+        {
+          "heading": "Set Operations & Deduplication",
+          "content": "- `add(val)`: Adds unique value ($O(1)$).\n- `has(val)`: Checks existence ($O(1)$).\n- `delete(val)`: Removes value ($O(1)$).\n- Array Deduplication: `Array.from(new Set(arr))` removes duplicate items in linear $O(N)$ time.",
+          "bulletPoints": [
+            "Uniqueness: Automatically discards duplicate insertions.",
+            "Fast Existence Check: `set.has(val)` is $O(1)$ vs `arr.includes(val)` ($O(N)$)."
+          ]
+        },
+        {
+          "heading": "Set vs Array Existence Checking",
+          "content": "Replacing `array.includes(x)` inside a loop ($O(N)$) with `set.has(x)` ($O(1)$) optimizes time complexity from $O(N^2)$ to $O(N)$.",
+          "bulletPoints": [
+            "Array Includes: $O(N)$ linear scan.",
+            "Set Has: $O(1)$ instant hash lookup."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Sets store unique elements only.",
+      "`set.has(val)` runs in $O(1)$ constant time.",
+      "Deduplicate arrays efficiently using `[...new Set(arr)]`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Array Deduplication & Set Lookup",
+        "description": "Removing duplicates and instant set existence checking.",
+        "code": "const duplicates = [1, 2, 2, 3, 4, 4, 5];\n\n// Fast linear O(N) array deduplication!\nconst uniqueItems = [...new Set(duplicates)]; // [1, 2, 3, 4, 5]\n\n// Fast O(1) membership check vs O(N) array.includes\nconst seenSet = new Set(uniqueItems);\nconsole.log(seenSet.has(3)); // true (O(1))"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-sets-mcq-1",
+        "question": "What is time complexity of `set.has(value)` in a Hash-based Set?",
+        "options": [
+          "O(N)",
+          "O(1)",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Hash Set existence check executes in average $O(1)$ constant time."
+      },
+      {
+        "id": "dsa-sets-mcq-2",
+        "question": "What is time complexity of deduplicating an array `[...new Set(arr)]` of N elements?",
+        "options": [
+          "O(N^2)",
+          "O(N) linear time",
+          "O(log N)",
+          "O(1)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Constructing Set from N elements processes each item once in $O(N)$ time."
+      },
+      {
+        "id": "dsa-sets-mcq-3",
+        "question": "What happens if you execute `set.add(5)` twice on a JavaScript `Set`?",
+        "options": [
+          "Throws error",
+          "Set retains single instance of 5",
+          "5 is added twice",
+          "Set clears"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Sets enforce uniqueness; duplicate insertions are ignored."
+      },
+      {
+        "id": "dsa-sets-mcq-4",
+        "question": "Why is `set.has(x)` inside a loop running N times better than `arr.includes(x)`?",
+        "options": [
+          "Set uses less RAM",
+          "`set.has(x)` is $O(1)$ making loop $O(N)$, whereas `arr.includes(x)` is $O(N)$ making loop $O(N^2)$",
+          "Set is built-in",
+          "Set is async"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Using $O(1)$ set lookup inside $N$ loop iteration yields $O(N)$ total time instead of $O(N^2)$."
+      },
+      {
+        "id": "dsa-sets-mcq-5",
+        "question": "Do standard JavaScript `Set` instances maintain insertion order during iteration?",
+        "options": [
+          "No, unordered",
+          "Yes, ES6 Set iterates elements in exact insertion order",
+          "Alphabetical order",
+          "Numerical order"
+        ],
+        "correctAnswer": 1,
+        "explanation": "ES6 `Set` iterates elements in order of insertion."
+      }
+    ]
+  },
+  {
+    "id": "dsa-two-pointers",
+    "title": "Two pointers",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Two Pointer pattern, Left/Right converging pointers, Fast/Slow pointers (Floyd Cycle Detection), and O(N) array processing.",
+    "explanation": {
+      "overview": "The Two Pointers pattern uses two pointer indexes to iterate through a data structure simultaneously, optimizing space and time complexity.",
+      "sections": [
+        {
+          "heading": "2 Primary Two Pointer Variations",
+          "content": "1. **Converging Pointers (Left & Right)**: Pointers start at opposite ends (`left = 0`, `right = N-1`) and move toward center. Used for sorted array Two-Sum, Palindromes, Container With Most Water.\n2. **Fast & Slow Pointers (Floyd Cycle Detection)**: `slow` moves 1 step; `fast` moves 2 steps. Used to detect Linked List cycles and find middle node.",
+          "bulletPoints": [
+            "Left/Right Converging: Requires sorted array or opposite boundary traversal.",
+            "Fast/Slow (Tortoise & Hare): Detects loops/cycles in $O(N)$ time and $O(1)$ space."
+          ]
+        },
+        {
+          "heading": "Space Complexity Advantage",
+          "content": "Two pointer algorithms operate in-place, achieving $O(1)$ constant space complexity without allocating extra arrays or Hash Maps.",
+          "bulletPoints": [
+            "In-Place: Modifies array or checks conditions in $O(1)$ extra space."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Converging pointers (Left/Right) optimize sorted array search problems.",
+      "Fast/Slow pointers detect linked list cycles in $O(1)$ space.",
+      "Two Pointers pattern achieves $O(N)$ time and $O(1)$ space."
+    ],
+    "codeExamples": [
+      {
+        "title": "Two Pointers Sorted Two-Sum",
+        "description": "Finding pair with target sum in sorted array using Left/Right pointers.",
+        "code": "export function twoSumSorted(numbers: number[], target: number): number[] {\n  let left = 0;\n  let right = numbers.length - 1;\n\n  while (left < right) {\n    const sum = numbers[left] + numbers[right];\n    if (sum === target) return [left + 1, right + 1]; // Found!\n    else if (sum < target) left++; // Need larger sum, move left rightward\n    else right--; // Need smaller sum, move right leftward\n  }\n  return [];\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-two-pointers-mcq-1",
+        "question": "What prerequisite condition must an array satisfy to apply Converging Left/Right Two Pointers for Two-Sum target searching?",
+        "options": [
+          "Must contain strings",
+          "Array MUST be sorted in ascending/descending order",
+          "Must contain even number of items",
+          "Must use LinkedList"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Converging Two Pointers rely on sorted array order to decide whether to increment `left` or decrement `right`."
+      },
+      {
+        "id": "dsa-two-pointers-mcq-2",
+        "question": "What algorithm uses Fast (2 steps) and Slow (1 step) pointers to detect cycles in a Linked List in $O(1)$ space?",
+        "options": [
+          "Binary Search",
+          "Floyd's Cycle Detection Algorithm (Tortoise and Hare)",
+          "Dijkstra's Algorithm",
+          "KMP Algorithm"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Floyd's Cycle Detection uses Fast and Slow pointers to detect linked list loops."
+      },
+      {
+        "id": "dsa-two-pointers-mcq-3",
+        "question": "What is space complexity of Converging Two Pointers Palindrome check algorithm?",
+        "options": [
+          "O(N)",
+          "O(1) constant space",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Two Pointers algorithms run in-place with $O(1)$ constant space."
+      },
+      {
+        "id": "dsa-two-pointers-mcq-4",
+        "question": "How do Fast and Slow pointers find middle node of a Linked List in single pass?",
+        "options": [
+          "Count nodes first",
+          "When Fast pointer reaches end of list, Slow pointer (moving half speed) is positioned exactly at middle node",
+          "Reverse list",
+          "Use Hash Table"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Fast pointer moving double speed reaches list end when Slow pointer arrives at middle node."
+      },
+      {
+        "id": "dsa-two-pointers-mcq-5",
+        "question": "What is time complexity of Two Pointers reverse array algorithm?",
+        "options": [
+          "O(N^2)",
+          "O(N) linear time",
+          "O(log N)",
+          "O(1)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Swapping elements from both ends inward processes $N/2$ pairs in $O(N)$ linear time."
+      }
+    ]
+  },
+  {
+    "id": "dsa-sliding-window",
+    "title": "Sliding window",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Sliding Window pattern, Fixed window size vs Variable window size, contiguous subarray/substring tracking in O(N).",
+    "explanation": {
+      "overview": "The Sliding Window pattern reduces nested loop $O(N^2)$ operations on contiguous subarrays or substrings to linear $O(N)$ time by maintaining a sliding window window boundaries (`left`, `right`).",
+      "sections": [
+        {
+          "heading": "Fixed vs Variable Sliding Window",
+          "content": "1. **Fixed Window**: Window size $K$ is constant (e.g. Max sum of subarray of size $K$). Slide window right by adding incoming element and subtracting outgoing element.\n2. **Variable Window**: Window shrinks/expands dynamically based on condition (e.g. Longest Substring Without Repeating Characters). Expand `right` pointer; shrink `left` pointer when condition is violated.",
+          "bulletPoints": [
+            "Fixed Window: Constant size $K$. Add `right`, subtract `left`.",
+            "Variable Window: Dynamic size based on validity criteria.",
+            "Contiguous Subarray: Key pattern indicator."
+          ]
+        },
+        {
+          "heading": "Time Complexity Gain",
+          "content": "Instead of recalculating sum/counts for entire subarray on each step ($O(N \\times K)$), updating sliding window incrementally costs $O(1)$ per step, yielding $O(N)$ overall time.",
+          "bulletPoints": [
+            "Incremental Update: $O(1)$ window adjustment.",
+            "Overall Time: $O(N)$ linear execution."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Sliding Window solves contiguous subarray/substring problems in $O(N)$ time.",
+      "Fixed Window: Maintain constant window size $K$.",
+      "Variable Window: Expand `right`, shrink `left` dynamically based on validity."
+    ],
+    "codeExamples": [
+      {
+        "title": "Variable Sliding Window Substring Problem",
+        "description": "Longest Substring Without Repeating Characters in O(N) time.",
+        "code": "export function lengthOfLongestSubstring(s: string): number {\n  const seen = new Set<string>();\n  let left = 0;\n  let maxLength = 0;\n\n  for (let right = 0; right < s.length; right++) {\n    // Shrink window from left if duplicate character found\n    while (seen.has(s[right])) {\n      seen.delete(s[left]);\n      left++;\n    }\n    seen.add(s[right]);\n    maxLength = Math.max(maxLength, right - left + 1);\n  }\n  return maxLength;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-sliding-window-mcq-1",
+        "question": "What problem characteristic strongly suggests applying the Sliding Window pattern?",
+        "options": [
+          "Binary tree traversal",
+          "Contiguous subarray or substring calculation requirements (e.g. max sum of K consecutive elements)",
+          "Graph shortest path",
+          "Sorting arrays"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Contiguous subarray or substring problems are prime candidates for Sliding Window."
+      },
+      {
+        "id": "dsa-sliding-window-mcq-2",
+        "question": "How does Fixed Sliding Window calculate sum of next subarray of size K in $O(1)$ time?",
+        "options": [
+          "Recalculates all K elements",
+          "Subtracts element exiting left window boundary and adds new element entering right window boundary",
+          "Uses binary search",
+          "Uses recursion"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Incremental update subtracts outgoing left item and adds incoming right item in $O(1)$ time."
+      },
+      {
+        "id": "dsa-sliding-window-mcq-3",
+        "question": "What is time complexity of Variable Sliding Window algorithm for Longest Substring Without Repeating Characters?",
+        "options": [
+          "O(N^2)",
+          "O(N) linear time (each character is processed at most twice by left and right pointers)",
+          "O(N log N)",
+          "O(1)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Left and right pointers traverse array at most once, yielding $O(N)$ linear time."
+      },
+      {
+        "id": "dsa-sliding-window-mcq-4",
+        "question": "When should left window boundary `left++` shrink in Variable Sliding Window algorithm?",
+        "options": [
+          "On every step",
+          "When window state violates problem validity constraint (e.g. contains duplicate character or sum exceeds limit)",
+          "When array ends",
+          "Never"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Shrink left boundary whenever current window state violates validity criteria."
+      },
+      {
+        "id": "dsa-sliding-window-mcq-5",
+        "question": "What auxiliary space complexity is typically required by Sliding Window with a character frequency map/Set for ASCII strings?",
+        "options": [
+          "O(N)",
+          "O(1) constant space (at most 128/256 unique character keys in Set)",
+          "O(N^2)",
+          "O(N log N)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "ASCII character sets contain at most 128/256 keys, bounding auxiliary space to $O(1)$."
+      }
+    ]
+  },
+  {
+    "id": "dsa-stack",
+    "title": "Stack",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "LIFO structure, PUSH, POP, PEEK, Monotonic Stack pattern, and call stack execution.",
+    "explanation": {
+      "overview": "A Stack is a Last-In, First-Out (LIFO) data structure where elements are added and removed from the top.",
+      "sections": [
+        {
+          "heading": "Stack Operations & LIFO Order",
+          "content": "All operations at top of stack execute in $O(1)$ constant time:\n- `push(item)`: Adds element to top ($O(1)$).\n- `pop()`: Removes and returns top element ($O(1)$).\n- `peek()` / `top()`: Inspects top element without removing ($O(1)$).",
+          "bulletPoints": [
+            "LIFO: Last item pushed is first item popped.",
+            "Use Cases: Function call stack, undo/redo buffers, balanced parentheses matching."
+          ]
+        },
+        {
+          "heading": "Monotonic Stack Pattern",
+          "content": "A **Monotonic Stack** maintains elements in strictly increasing or decreasing order. Essential for solving Next Greater Element and Daily Temperatures in $O(N)$ time.",
+          "bulletPoints": [
+            "Monotonic Increasing: Elements ordered from smallest to largest.",
+            "Next Greater Element: $O(N)$ solution instead of $O(N^2)$ brute force."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Stack is LIFO (Last-In, First-Out).",
+      "`push`, `pop`, `peek` execute in $O(1)$ constant time.",
+      "Monotonic Stack pattern solves Next Greater Element in $O(N)$ time."
+    ],
+    "codeExamples": [
+      {
+        "title": "Valid Parentheses Stack Algorithm",
+        "description": "Matching parentheses matching using LIFO stack.",
+        "code": "export function isValidParentheses(s: string): boolean {\n  const stack: string[] = [];\n  const map: Record<string, string> = { ')': '(', '}': '{', ']': '[' };\n\n  for (const char of s) {\n    if (char in map) {\n      // Popped top must match opening bracket pair\n      if (stack.pop() !== map[char]) return false;\n    } else {\n      stack.push(char); // Push opening bracket\n    }\n  }\n  return stack.length === 0; // Stack must be empty if valid!\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-stack-mcq-1",
+        "question": "Which processing order governs Stack data structures?",
+        "options": [
+          "First-In, First-Out (FIFO)",
+          "Last-In, First-Out (LIFO)",
+          "Random Access",
+          "Sorted Order"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Stacks follow LIFO (Last-In, First-Out) operation ordering."
+      },
+      {
+        "id": "dsa-stack-mcq-2",
+        "question": "What is time complexity of `push()`, `pop()`, and `peek()` stack operations?",
+        "options": [
+          "O(N)",
+          "O(1)",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Top-of-stack operations execute in $O(1)$ constant time."
+      },
+      {
+        "id": "dsa-stack-mcq-3",
+        "question": "Which problem is classically solved using a Stack data structure?",
+        "options": [
+          "Binary Search",
+          "Valid Parentheses String Matching (`\"{[()]}\"`)",
+          "Shortest Path in Graph",
+          "Array Sorting"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Parentheses matching uses stack LIFO mechanics to pair closing brackets with most recent opening brackets."
+      },
+      {
+        "id": "dsa-stack-mcq-4",
+        "question": "What is a 'Monotonic Stack'?",
+        "options": [
+          "Stack with 1 element",
+          "Stack that maintains elements strictly in increasing or decreasing order",
+          "Stack that uses strings",
+          "Thread-safe stack"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Monotonic Stack maintains strictly ordered elements to solve Next Greater Element problems in $O(N)$ time."
+      },
+      {
+        "id": "dsa-stack-mcq-5",
+        "question": "What error occurs in recursive functions when stack memory exceeds maximum call stack depth?",
+        "options": [
+          "Out of Disk Space",
+          "Stack Overflow Error",
+          "Null Pointer Exception",
+          "Index Out of Bounds"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Exceeding recursion call stack memory triggers Stack Overflow Error."
+      }
+    ]
+  },
+  {
+    "id": "dsa-queue",
+    "title": "Queue",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "FIFO structure, ENQUEUE, DEQUEUE, PEEK, Circular Queue, Deque (Double-Ended Queue), and BFS traversal.",
+    "explanation": {
+      "overview": "A Queue is a First-In, First-Out (FIFO) data structure where elements are added at the rear (enqueue) and removed from the front (dequeue).",
+      "sections": [
+        {
+          "heading": "Queue Operations & FIFO Order",
+          "content": "- **Enqueue**: Adds element to rear/tail ($O(1)$).\n- **Dequeue**: Removes element from front/head ($O(1)$).\n- **Peek**: Inspects front element ($O(1)$).",
+          "bulletPoints": [
+            "FIFO: First item enqueued is first item dequeued.",
+            "Use Cases: BFS Graph/Tree traversal, task scheduling, printer queues."
+          ]
+        },
+        {
+          "heading": "Deque (Double-Ended Queue)",
+          "content": "A **Deque** supports $O(1)$ insertions and deletions at BOTH front and rear ends. Essential for Sliding Window Maximum algorithm.",
+          "bulletPoints": [
+            "Deque: Push/pop at both head and tail in $O(1)$ time.",
+            "Array Shift Warning: JS `array.shift()` is $O(N)$; use linked list or index pointers for true $O(1)$ dequeue!"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Queue is FIFO (First-In, First-Out).",
+      "Core data structure used in Breadth-First Search (BFS) graph traversal.",
+      "JS `array.shift()` is $O(N)$; use double-linked list or Deque for true $O(1)$ dequeue."
+    ],
+    "codeExamples": [
+      {
+        "title": "Queue Implementation for BFS",
+        "description": "LinkedList node based Queue for O(1) enqueue and dequeue.",
+        "code": "class QueueNode<T> {\n  value: T; next: QueueNode<T> | null = null;\n  constructor(val: T) { this.value = val; }\n}\n\nexport class Queue<T> {\n  private head: QueueNode<T> | null = null;\n  private tail: QueueNode<T> | null = null;\n\n  enqueue(val: T): void {\n    const node = new QueueNode(val);\n    if (this.tail) this.tail.next = node;\n    this.tail = node;\n    if (!this.head) this.head = node;\n  }\n\n  dequeue(): T | null {\n    if (!this.head) return null;\n    const val = this.head.value;\n    this.head = this.head.next;\n    if (!this.head) this.tail = null;\n    return val;\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-queue-mcq-1",
+        "question": "Which operational order governs Queue data structures?",
+        "options": [
+          "Last-In, First-Out (LIFO)",
+          "First-In, First-Out (FIFO)",
+          "Random Access",
+          "Priority Order"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Queues follow FIFO (First-In, First-Out) ordering."
+      },
+      {
+        "id": "dsa-queue-mcq-2",
+        "question": "Which graph and tree search algorithm relies on a Queue for level-by-level traversal?",
+        "options": [
+          "Depth-First Search (DFS)",
+          "Breadth-First Search (BFS)",
+          "Binary Search",
+          "QuickSort"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Breadth-First Search (BFS) uses a Queue to process nodes level by level."
+      },
+      {
+        "id": "dsa-queue-mcq-3",
+        "question": "Why is JavaScript `array.shift()` inefficient for implementing high-performance Queue dequeue?",
+        "options": [
+          "Shift returns null",
+          "`array.shift()` re-indexes all remaining N array elements, costing $O(N)$ linear time per dequeue",
+          "Shift is async",
+          "Shift deletes array"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`array.shift()` re-indexes remaining elements in $O(N)$ time; use Linked List for $O(1)$ dequeue."
+      },
+      {
+        "id": "dsa-queue-mcq-4",
+        "question": "What is a Deque (Double-Ended Queue)?",
+        "options": [
+          "Queue with 2 items",
+          "Data structure permitting $O(1)$ push and pop operations at BOTH front and rear ends",
+          "Encrypted queue",
+          "Queue for numbers"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Deque allows $O(1)$ insertions and removals at both head and tail ends."
+      },
+      {
+        "id": "dsa-queue-mcq-5",
+        "question": "What is time complexity of `enqueue` and `dequeue` in a properly implemented Linked List Queue?",
+        "options": [
+          "O(N)",
+          "O(1)",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Linked List based Queue operations execute in $O(1)$ constant time."
+      }
+    ]
+  },
+  {
+    "id": "dsa-linked-list",
+    "title": "Linked list",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Singly vs Doubly Linked Lists, pointer manipulation, node insertion/deletion O(1), and list reversal.",
+    "explanation": {
+      "overview": "A Linked List is a linear collection of data nodes where each node contains a value and a pointer (`next` / `prev`) to adjacent nodes in memory.",
+      "sections": [
+        {
+          "heading": "Singly vs Doubly Linked Lists",
+          "content": "- **Singly Linked List**: Each node points to `next` node.\n- **Doubly Linked List**: Each node points to `next` and `prev` nodes (allows bidirectional traversal).\n- **Non-Contiguous Memory**: Nodes are allocated dynamically in heap memory, connected via pointer references.",
+          "bulletPoints": [
+            "Access by Index: $O(N)$ (must traverse from head node).",
+            "Insert/Delete given node pointer: $O(1)$ constant time.",
+            "No Resizing Overhead: Dynamic size without capacity reallocation."
+          ]
+        },
+        {
+          "heading": "Dummy Head Node Technique",
+          "content": "Using a `dummy` (sentinel) head node simplifies edge-case handling (inserting/deleting at head of list) by eliminating special `if (head === null)` checks.",
+          "bulletPoints": [
+            "Dummy Node: `const dummy = new ListNode(0); dummy.next = head;`.",
+            "List Reversal: In-place pointer reversal in $O(N)$ time and $O(1)$ space."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Linked lists allocate non-contiguous memory connected via pointers.",
+      "Index lookup is $O(N)$; insertion/deletion at known node pointer is $O(1)$.",
+      "Use Dummy Head nodes to simplify pointer manipulation edge cases."
+    ],
+    "codeExamples": [
+      {
+        "title": "In-Place Linked List Reversal",
+        "description": "Reversing Singly Linked List in O(N) time and O(1) space.",
+        "code": "class ListNode {\n  val: number; next: ListNode | null = null;\n  constructor(val: number) { this.val = val; }\n}\n\nexport function reverseList(head: ListNode | null): ListNode | null {\n  let prev: ListNode | null = null;\n  let current: ListNode | null = head;\n\n  while (current !== null) {\n    const nextTemp = current.next; // Store next node pointer\n    current.next = prev;           // Reverse pointer!\n    prev = current;\n    current = nextTemp;\n  }\n  return prev; // New head of reversed list\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-linked-list-mcq-1",
+        "question": "What is time complexity of accessing element at index 50 in a Singly Linked List?",
+        "options": [
+          "O(1)",
+          "O(N)",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Linked lists lack random index access; retrieving index 50 requires traversing pointers sequentially from head ($O(N)$)."
+      },
+      {
+        "id": "dsa-linked-list-mcq-2",
+        "question": "What is time complexity of inserting a new node AFTER a known node pointer reference `curr`?",
+        "options": [
+          "O(N)",
+          "O(1)",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Inserting after a given node pointer reassigns `next` pointers in $O(1)$ constant time."
+      },
+      {
+        "id": "dsa-linked-list-mcq-3",
+        "question": "Why is a Dummy (Sentinel) Head node used when solving linked list deletion problems?",
+        "options": [
+          "Speeds up CPU",
+          "Eliminates special edge-case code for deleting or inserting at the head node of list",
+          "Encrypts pointers",
+          "Allocates array"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Dummy head node provides a stable reference point, eliminating special null checks for list head mutations."
+      },
+      {
+        "id": "dsa-linked-list-mcq-4",
+        "question": "What extra memory overhead does a Doubly Linked List node incur compared to a Singly Linked List node?",
+        "options": [
+          "Double value size",
+          "Additional `prev` pointer reference stored per node",
+          "No extra overhead",
+          "Array overhead"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Doubly Linked List nodes store 2 pointers (`next` and `prev`) per node."
+      },
+      {
+        "id": "dsa-linked-list-mcq-5",
+        "question": "What is space complexity of reversing a Singly Linked List iteratively in-place?",
+        "options": [
+          "O(N)",
+          "O(1) constant space",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Iterative pointer reversal reassigns pointers in-place using $O(1)$ auxiliary space."
+      }
+    ]
+  },
+  {
+    "id": "dsa-binary-search",
+    "title": "Binary search",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "O(log N) divide and conquer search, sorted search space, overflow-safe mid calculation, and search space reduction.",
+    "explanation": {
+      "overview": "Binary Search is an $O(\\log N)$ Divide-and-Conquer algorithm that locates a target value within a sorted search space by halving the search range at each step.",
+      "sections": [
+        {
+          "heading": "Binary Search Algorithm",
+          "content": "Maintain `left` and `right` pointers. Calculate `mid = left + Math.floor((right - left) / 2)` (overflow-safe calculation). If `arr[mid] === target`, return index. If `arr[mid] < target`, search right half (`left = mid + 1`); else search left half (`right = mid - 1`).",
+          "bulletPoints": [
+            "Sorted Prerequisite: Search space MUST be monotonic/sorted.",
+            "Overflow Prevention: Use `left + Math.floor((right - left) / 2)` instead of `(left + right) / 2` to prevent integer overflow in C++/Java."
+          ]
+        },
+        {
+          "heading": "Binary Search on Answer Range",
+          "content": "Binary Search applies beyond array indexes to continuous answer ranges (e.g. Min Capacity to Ship Packages within D Days, Koko Eating Bananas).",
+          "bulletPoints": [
+            "Monotonic Search Space: Any problem where `isPossible(x)` is monotonic can be solved with Binary Search in $O(\\log(\\text{range}))\\times O(\\text{check})$ time."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Binary Search operates in $O(\\log N)$ time on sorted search spaces.",
+      "Use overflow-safe mid: `mid = left + Math.floor((right - left) / 2)`.",
+      "Apply Binary Search on Answer ranges for optimization problems."
+    ],
+    "codeExamples": [
+      {
+        "title": "Binary Search Implementation",
+        "description": "Overflow-safe Binary Search on sorted array.",
+        "code": "export function binarySearch(nums: number[], target: number): number {\n  let left = 0;\n  let right = nums.length - 1;\n\n  while (left <= right) {\n    // Overflow-safe midpoint calculation\n    const mid = left + Math.floor((right - left) / 2);\n    \n    if (nums[mid] === target) return mid;\n    else if (nums[mid] < target) left = mid + 1;\n    else right = mid - 1;\n  }\n  return -1; // Target not found\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-binary-search-mcq-1",
+        "question": "What is worst-case time complexity of Binary Search on a sorted array of N elements?",
+        "options": [
+          "O(N)",
+          "O(log N)",
+          "O(1)",
+          "O(N log N)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Binary Search halves search space at each iteration step, running in $O(\\log N)$ logarithmic time."
+      },
+      {
+        "id": "dsa-binary-search-mcq-2",
+        "question": "Why is `mid = left + Math.floor((right - left) / 2)` preferred over `mid = Math.floor((left + right) / 2)`?",
+        "options": [
+          "Runs faster",
+          "Prevents potential integer overflow bug when `left + right` exceeds maximum integer capacity in languages like C++/Java",
+          "Required by JS",
+          "Avoids floats"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`left + (right - left) / 2` avoids potential integer overflow when `left + right` exceeds 32-bit integer limits."
+      },
+      {
+        "id": "dsa-binary-search-mcq-3",
+        "question": "How many array element comparisons does Binary Search execute at most for a sorted array of 1,000,000 items?",
+        "options": [
+          "1,000,000",
+          "500,000",
+          "At most ~20 comparisons ($\\\\log_2(1,000,000) \\\\approx 20$)",
+          "100"
+        ],
+        "correctAnswer": 2,
+        "explanation": "$\\log_2(1,000,000) \\approx 20$, requiring at most 20 comparisons."
+      },
+      {
+        "id": "dsa-binary-search-mcq-4",
+        "question": "What condition must be satisfied to apply Binary Search to a problem?",
+        "options": [
+          "Input must be a String",
+          "Search space MUST be sorted / monotonic",
+          "Input size must be even",
+          "Must use LinkedList"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Binary Search requires a sorted/monotonic search space to determine which half to eliminate."
+      },
+      {
+        "id": "dsa-binary-search-mcq-5",
+        "question": "What is space complexity of iterative Binary Search?",
+        "options": [
+          "O(N)",
+          "O(1) constant space",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Iterative Binary Search uses only a few index variables, consuming $O(1)$ space."
+      }
+    ]
+  },
+  {
+    "id": "dsa-recursion",
+    "title": "Recursion",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Base case vs Recursive step, Call Stack frame allocation, Stack Overflow, and Memoization.",
+    "explanation": {
+      "overview": "Recursion is a programming technique where a function calls itself to solve smaller subproblems until reaching a terminating Base Case.",
+      "sections": [
+        {
+          "heading": "Base Case & Recursive Step",
+          "content": "Every recursive function requires:\n1. **Base Case**: Stop condition that returns without making further recursive calls.\n2. **Recursive Step**: Reduces problem size toward base case (`return n * factorial(n - 1)`).",
+          "bulletPoints": [
+            "Missing Base Case: Triggers infinite recursion and Stack Overflow.",
+            "Call Stack: Each recursive call allocates a new frame on system Call Stack."
+          ]
+        },
+        {
+          "heading": "Memoization (Top-Down Dynamic Programming)",
+          "content": "Naive recursive Fibonacci `fib(n) = fib(n-1) + fib(n-2)` takes exponential $O(2^N)$ time due to overlapping redundant calls. **Memoization** caches subproblem results in a Map/Array, reducing execution time to $O(N)$ linear time.",
+          "bulletPoints": [
+            "Naive Fib: $O(2^N)$ exponential explosion.",
+            "Memoized Fib: $O(N)$ linear time & $O(N)$ space."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Every recursive function MUST have a terminating Base Case.",
+      "Recursive calls consume Call Stack space ($O(H)$ space complexity).",
+      "Use Memoization to optimize recursive subproblem overlap from $O(2^N)$ to $O(N)$."
+    ],
+    "codeExamples": [
+      {
+        "title": "Memoized Fibonacci Recursion",
+        "description": "Optimizing recursive Fibonacci with memoization map.",
+        "code": "const memo = new Map<number, number>();\n\nexport function fib(n: number): number {\n  if (n <= 1) return n; // Base Cases: fib(0)=0, fib(1)=1\n  if (memo.has(n)) return memo.get(n)!; // Cache Hit!\n\n  // Recursive step with memoization caching\n  const result = fib(n - 1) + fib(n - 2);\n  memo.set(n, result);\n  return result;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-recursion-mcq-1",
+        "question": "What happens if a recursive function omits a Base Case?",
+        "options": [
+          "Returns 0",
+          "Function executes infinite recursive calls until Call Stack memory exhausts, causing a Stack Overflow Error",
+          "Runs in O(1) time",
+          "Compiles to C++"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Omitting a base case causes infinite recursion and Stack Overflow."
+      },
+      {
+        "id": "dsa-recursion-mcq-2",
+        "question": "What is time complexity of naive un-memoized recursive Fibonacci `fib(N) = fib(N-1) + fib(N-2)`?",
+        "options": [
+          "O(N)",
+          "O(2^N) exponential time",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Naive recursive Fibonacci generates binary recursion tree of depth N, taking $O(2^N)$ exponential time."
+      },
+      {
+        "id": "dsa-recursion-mcq-3",
+        "question": "How does Memoization optimize recursive algorithms with overlapping subproblems?",
+        "options": [
+          "Removes recursion",
+          "Caches subproblem results in a Map/Array, avoiding duplicate recalculation of solved subproblems",
+          "Runs on GPU",
+          "Deletes variables"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Memoization stores subproblem solutions, reducing exponential calls to linear $O(N)$."
+      },
+      {
+        "id": "dsa-recursion-mcq-4",
+        "question": "What is space complexity of a recursive function that recurses to maximum depth $H$?",
+        "options": [
+          "O(1)",
+          "O(H) auxiliary Call Stack space",
+          "O(H^2)",
+          "O(2^H)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "The Call Stack retains $H$ frame pointers at maximum recursion depth ($O(H)$ space)."
+      },
+      {
+        "id": "dsa-recursion-mcq-5",
+        "question": "What is Tail Call Optimization (TCO)?",
+        "options": [
+          "Deleting tail node",
+          "Compiler optimization where recursive call is final statement in function, allowing engine to reuse stack frame without growing stack",
+          "Loop unrolling",
+          "Memoization"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Tail Call Optimization reuses current stack frame for tail-recursive calls, avoiding stack growth."
+      }
+    ]
+  },
+  {
+    "id": "dsa-trees",
+    "title": "Trees",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Binary Trees, Binary Search Trees (BST), AVL/Red-Black balanced trees, tree traversals (In-order, Pre-order, Post-order).",
+    "explanation": {
+      "overview": "A Tree is a hierarchical non-linear data structure consisting of nodes connected by edges, starting from a single Root node.",
+      "sections": [
+        {
+          "heading": "Binary Search Tree (BST) Property",
+          "content": "In a **Binary Search Tree (BST)**, for every node:\n- All values in `left` subtree are strictly LESS than node value.\n- All values in `right` subtree are strictly GREATER than node value.",
+          "bulletPoints": [
+            "Balanced BST Operations: Search, Insert, Delete run in $O(\\log N)$ time.",
+            "Unbalanced Degenerate BST: Degenerates to linked list ($O(N)$ operations).",
+            "Self-Balancing Trees: AVL Trees and Red-Black Trees rebalance automatically to maintain $O(\\log N)$ depth."
+          ]
+        },
+        {
+          "heading": "Depth-First Tree Traversals",
+          "content": "1. **In-Order** (Left, Root, Right): Yields elements in **sorted ascending order** for BST!\n2. **Pre-Order** (Root, Left, Right): Useful for tree cloning/serialization.\n3. **Post-Order** (Left, Right, Root): Useful for tree deletion / bottom-up calculations.",
+          "bulletPoints": [
+            "In-Order BST: Always visits nodes in sorted order.",
+            "Pre-Order: Root processed first.",
+            "Post-Order: Children processed before root."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "BST property: Left < Root < Right.",
+      "In-Order traversal on BST visits nodes in sorted ascending order.",
+      "Balanced BSTs achieve $O(\\log N)$ search/insert/delete speed."
+    ],
+    "codeExamples": [
+      {
+        "title": "In-Order BST Traversal",
+        "description": "Recursive In-Order traversal yielding sorted values.",
+        "code": "class TreeNode {\n  val: number;\n  left: TreeNode | null = null;\n  right: TreeNode | null = null;\n  constructor(val: number) { this.val = val; }\n}\n\n// In-Order Traversal (Left -> Root -> Right) yields sorted array for BST!\nexport function inOrderTraversal(root: TreeNode | null, result: number[] = []): number[] {\n  if (root === null) return result;\n  inOrderTraversal(root.left, result);\n  result.push(root.val); // Process root\n  inOrderTraversal(root.right, result);\n  return result;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-trees-mcq-1",
+        "question": "Which tree traversal order visits nodes of a Binary Search Tree (BST) in **sorted ascending order**?",
+        "options": [
+          "Pre-Order",
+          "In-Order (Left, Root, Right)",
+          "Post-Order",
+          "Level-Order"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In-Order traversal (Left, Root, Right) visits BST nodes in sorted order."
+      },
+      {
+        "id": "dsa-trees-mcq-2",
+        "question": "What is time complexity of searching for a value in a Balanced Binary Search Tree (BST) of N nodes?",
+        "options": [
+          "O(N)",
+          "O(log N)",
+          "O(1)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Balanced BSTs halve search space at each step, running in $O(\\log N)$ logarithmic time."
+      },
+      {
+        "id": "dsa-trees-mcq-3",
+        "question": "What is worst-case time complexity of searching an Unbalanced Degenerate BST (e.g., nodes inserted in sorted order 1, 2, 3, 4)?",
+        "options": [
+          "O(1)",
+          "O(log N)",
+          "O(N) linear time (degenerates to linked list)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 2,
+        "explanation": "An unbalanced BST degenerates into a linear linked list ($O(N)$ depth)."
+      },
+      {
+        "id": "dsa-trees-mcq-4",
+        "question": "Which traversal order processes Root node BEFORE visiting left and right child subtrees?",
+        "options": [
+          "In-Order",
+          "Pre-Order (Root, Left, Right)",
+          "Post-Order",
+          "Level-Order"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Pre-Order traversal processes Root first, then Left and Right subtrees."
+      },
+      {
+        "id": "dsa-trees-mcq-5",
+        "question": "What self-balancing Binary Search Tree structure is used by C++ `std::map` and Java `TreeMap`?",
+        "options": [
+          "B-Tree",
+          "Red-Black Tree",
+          "Trie",
+          "Heap"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Red-Black Trees are self-balancing BSTs used by C++ `std::map` and Java `TreeMap`."
+      }
+    ]
+  },
+  {
+    "id": "dsa-bfs",
+    "title": "BFS",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Breadth-First Search, Queue-based level-order traversal, unweighted shortest path, O(V + E) complexity.",
+    "explanation": {
+      "overview": "Breadth-First Search (BFS) is an algorithm for searching tree or graph data structures level-by-level using a **Queue**.",
+      "sections": [
+        {
+          "heading": "BFS Algorithm & Queue Mechanics",
+          "content": "Algorithm steps:\n1. Initialize Queue with start node; mark node as visited.\n2. While Queue is not empty, dequeue current node.\n3. Process node and enqueue all unvisited neighbor nodes.",
+          "bulletPoints": [
+            "Data Structure: Uses **Queue** (FIFO) data structure.",
+            "Visited Set: Track visited nodes to prevent infinite loops in graphs with cycles.",
+            "Time Complexity: $O(V + E)$ where $V$ = Vertices, $E$ = Edges."
+          ]
+        },
+        {
+          "heading": "Shortest Path Guarantee in Unweighted Graphs",
+          "content": "BFS guarantees finding the **shortest path** (fewest number of edges) from source node to target node in unweighted graphs.",
+          "bulletPoints": [
+            "Unweighted Shortest Path: First time target node is dequeued represents shortest distance.",
+            "Level-Order Traversal: Processes nodes at distance $d$ before distance $d+1$."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "BFS uses a Queue (FIFO) for level-by-level traversal.",
+      "Guarantees finding shortest path in unweighted graphs.",
+      "Time complexity: $O(V + E)$; Space complexity: $O(V)$ for Queue & Visited set."
+    ],
+    "codeExamples": [
+      {
+        "title": "BFS Tree Level-Order Traversal",
+        "description": "Level-order traversal of Binary Tree using Queue.",
+        "code": "export function levelOrder(root: TreeNode | null): number[][] {\n  if (!root) return [];\n  const result: number[][] = [];\n  const queue: TreeNode[] = [root]; // Queue initialized with root\n\n  while (queue.length > 0) {\n    const levelSize = queue.length;\n    const currentLevel: number[] = [];\n\n    for (let i = 0; i < levelSize; i++) {\n      const node = queue.shift()!; // Dequeue FIFO\n      currentLevel.push(node.val);\n      if (node.left) queue.push(node.left);\n      if (node.right) queue.push(node.right);\n    }\n    result.push(currentLevel);\n  }\n  return result;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-bfs-mcq-1",
+        "question": "Which data structure is required to implement Breadth-First Search (BFS)?",
+        "options": [
+          "Stack",
+          "Queue (FIFO)",
+          "Heap",
+          "Hash Map"
+        ],
+        "correctAnswer": 1,
+        "explanation": "BFS requires a Queue (FIFO) to explore nodes level-by-level."
+      },
+      {
+        "id": "dsa-bfs-mcq-2",
+        "question": "What shortest path guarantee does BFS provide?",
+        "options": [
+          "Guarantees shortest path in weighted graphs",
+          "Guarantees shortest path (fewest edges) in UNWEIGHTED graphs",
+          "No guarantees",
+          "Guarantees longest path"
+        ],
+        "correctAnswer": 1,
+        "explanation": "BFS guarantees finding shortest path (fewest edge hops) in unweighted graphs."
+      },
+      {
+        "id": "dsa-bfs-mcq-3",
+        "question": "What is time complexity of BFS traversal on a graph with V vertices and E edges?",
+        "options": [
+          "O(V)",
+          "O(V + E)",
+          "O(V * E)",
+          "O(V^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "BFS visits every vertex $V$ and traverses every edge $E$ once ($O(V + E)$)."
+      },
+      {
+        "id": "dsa-bfs-mcq-4",
+        "question": "Why is a `Visited` set required during BFS graph traversal?",
+        "options": [
+          "Speeds up queue",
+          "Prevents infinite loops by avoiding re-visiting already processed graph nodes in cyclic graphs",
+          "Sorts nodes",
+          "Calculates weights"
+        ],
+        "correctAnswer": 1,
+        "explanation": "A Visited set tracks explored nodes, preventing infinite loops in cyclic graphs."
+      },
+      {
+        "id": "dsa-bfs-mcq-5",
+        "question": "What is worst-case space complexity of BFS on a tree with maximum breadth B?",
+        "options": [
+          "O(1)",
+          "O(B) matching maximum width/level size of tree",
+          "O(N^2)",
+          "O(log N)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "BFS Queue stores all nodes present in widest tree level ($O(B)$ space)."
+      }
+    ]
+  },
+  {
+    "id": "dsa-dfs",
+    "title": "DFS",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Depth-First Search, Stack/Recursion implementation, connected components, cycle detection, and Backtracking.",
+    "explanation": {
+      "overview": "Depth-First Search (DFS) is an algorithm for traversing trees or graphs by exploring as deep as possible along each branch before backtracking.",
+      "sections": [
+        {
+          "heading": "DFS Algorithm Mechanics",
+          "content": "Uses **Call Stack (Recursion)** or explicit LIFO Stack. Visits node, marks visited, and recursively explores first unvisited neighbor until reaching leaf/dead end, then backtracks.",
+          "bulletPoints": [
+            "Data Structure: **Call Stack / Recursion** or explicit Stack.",
+            "Deep Exploration: Plunges deep into branch before backtracking.",
+            "Time Complexity: $O(V + E)$."
+          ]
+        },
+        {
+          "heading": "DFS Use Cases & Backtracking",
+          "content": "- **Connected Components**: Count island grids (Number of Islands).\n- **Cycle Detection**: Detect cycles in directed graphs (three-color marking).\n- **Backtracking**: Generate permutations, combinations, and solve Sudoku/N-Queens.",
+          "bulletPoints": [
+            "Backtracking: Undo choices (`visited.delete(node)`) when returning from recursion.",
+            "Topological Sort: Post-order DFS sorting for DAG task scheduling."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "DFS uses Recursion / Call Stack to explore deep branches.",
+      "Primary tool for Backtracking (permutations, N-Queens) and island counting.",
+      "Time complexity: $O(V + E)$; Space complexity: $O(H)$ matching maximum call stack depth."
+    ],
+    "codeExamples": [
+      {
+        "title": "DFS Grid Traversal (Number of Islands)",
+        "description": "Counting connected island components using recursive DFS.",
+        "code": "export function numIslands(grid: string[][]): number {\n  if (!grid || grid.length === 0) return 0;\n  let count = 0;\n\n  function dfs(r: number, c: number) {\n    // Base Cases: Out of bounds or water ('0')\n    if (r < 0 || r >= grid.length || c < 0 || c >= grid[0].length || grid[r][c] === '0') return;\n    grid[r][c] = '0'; // Mark visited in-place!\n    dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1); // Explore 4 directions\n  }\n\n  for (let r = 0; r < grid.length; r++) {\n    for (let c = 0; c < grid[0].length; c++) {\n      if (grid[r][c] === '1') {\n        count++;\n        dfs(r, c); // Sink connected island via DFS!\n      }\n    }\n  }\n  return count;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-dfs-mcq-1",
+        "question": "Which underlying mechanism powers recursive Depth-First Search (DFS)?",
+        "options": [
+          "Queue",
+          "System Call Stack (Recursion)",
+          "Heap",
+          "Hash Table"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Recursive DFS utilizes the system Call Stack to manage call frames."
+      },
+      {
+        "id": "dsa-dfs-mcq-2",
+        "question": "What is primary difference in search pattern between DFS and BFS?",
+        "options": [
+          "DFS uses SQL",
+          "DFS explores as deep as possible down a single branch before backtracking; BFS explores level-by-level outwards",
+          "DFS is faster",
+          "BFS uses recursion"
+        ],
+        "correctAnswer": 1,
+        "explanation": "DFS explores deeply along a single path before backtracking; BFS explores level-by-level."
+      },
+      {
+        "id": "dsa-dfs-mcq-3",
+        "question": "What technique extends DFS to solve combinatorial search problems (N-Queens, Sudoku) by undoing choices upon returning from recursive calls?",
+        "options": [
+          "Binary Search",
+          "Backtracking",
+          "Dynamic Programming",
+          "Sliding Window"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Backtracking uses DFS recursion, undoing choices when returning from dead ends."
+      },
+      {
+        "id": "dsa-dfs-mcq-4",
+        "question": "What is time complexity of DFS on a graph with V vertices and E edges?",
+        "options": [
+          "O(V)",
+          "O(V + E)",
+          "O(V * E)",
+          "O(V^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "DFS visits every vertex $V$ and traverses every edge $E$ once ($O(V + E)$)."
+      },
+      {
+        "id": "dsa-dfs-mcq-5",
+        "question": "What is space complexity of recursive DFS on a tree of height $H$?",
+        "options": [
+          "O(1)",
+          "O(H) call stack depth space",
+          "O(N^2)",
+          "O(2^N)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Recursive DFS call stack space matches maximum tree height depth ($O(H)$)."
+      }
+    ]
+  },
+  {
+    "id": "dsa-heap",
+    "title": "Heap",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Binary Heap complete tree, Min-Heap vs Max-Heap, array representation, insertion/extract O(log N), Priority Queue.",
+    "explanation": {
+      "overview": "A Binary Heap is a complete binary tree that satisfies the Heap Property, serving as efficient implementation for Priority Queues.",
+      "sections": [
+        {
+          "heading": "Min-Heap vs Max-Heap Property",
+          "content": "- **Min-Heap**: Value of parent node is $\\le$ values of its children (root holds MINIMUM element).\n- **Max-Heap**: Value of parent node is $\\ge$ values of its children (root holds MAXIMUM element).",
+          "bulletPoints": [
+            "Min-Heap Root: Always stores minimum element.",
+            "Max-Heap Root: Always stores maximum element.",
+            "Peek Top: $O(1)$ constant time access to min/max."
+          ]
+        },
+        {
+          "heading": "Array Representation & Time Complexities",
+          "content": "Heaps are stored in compact zero-indexed arrays without pointers:\n- Left Child: `2 * i + 1`\n- Right Child: `2 * i + 2`\n- Parent: `Math.floor((i - 1) / 2)`\nOperations: `insert` $O(\\log N)$, `extractMin/Max` $O(\\log N)$, `peek` $O(1)$, `heapify` array $O(N)$.",
+          "bulletPoints": [
+            "Insert (Bubble Up): $O(\\log N)$ time.",
+            "Extract Top (Bubble Down): $O(\\log N)$ time.",
+            "Build Heap (Heapify): $O(N)$ linear time."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Min-Heap root holds smallest element; Max-Heap root holds largest.",
+      "Operations: `peek` $O(1)$, `insert`/`extract` $O(\\log N)$, `heapify` $O(N)$.",
+      "Power Priority Queues and Top-K Frequent Element algorithms."
+    ],
+    "codeExamples": [
+      {
+        "title": "Min-Heap Implementation",
+        "description": "Min-Heap array representation with bubbleUp and bubbleDown.",
+        "code": "export class MinHeap {\n  private heap: number[] = [];\n\n  peek(): number | null { return this.heap.length > 0 ? this.heap[0] : null; }\n\n  insert(val: number): void {\n    this.heap.push(val);\n    this.bubbleUp(this.heap.length - 1); // Rebalance up\n  }\n\n  extractMin(): number | null {\n    if (this.heap.length === 0) return null;\n    const min = this.heap[0];\n    const last = this.heap.pop()!;\n    if (this.heap.length > 0) {\n      this.heap[0] = last;\n      this.bubbleDown(0); // Rebalance down\n    }\n    return min;\n  }\n\n  private bubbleUp(i: number) {\n    while (i > 0) {\n      const p = Math.floor((i - 1) / 2);\n      if (this.heap[i] >= this.heap[p]) break;\n      [this.heap[i], this.heap[p]] = [this.heap[p], this.heap[i]];\n      i = p;\n    }\n  }\n  private bubbleDown(i: number) { /* Sift down logic */ }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-heap-mcq-1",
+        "question": "What is time complexity of peeking minimum element `peek()` at root of a Min-Heap?",
+        "options": [
+          "O(N)",
+          "O(1)",
+          "O(log N)",
+          "O(N^2)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Min-Heap root node holds minimum element, accessible in $O(1)$ constant time."
+      },
+      {
+        "id": "dsa-heap-mcq-2",
+        "question": "What is time complexity of `insert()` or `extractMin()` operations on a Heap of N items?",
+        "options": [
+          "O(1)",
+          "O(log N)",
+          "O(N)",
+          "O(N log N)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Bubbling up or sifting down along heap height depth executes in $O(\\log N)$ time."
+      },
+      {
+        "id": "dsa-heap-mcq-3",
+        "question": "In 0-indexed array representation of a Binary Heap, what index formula calculates Left Child of parent index `i`?",
+        "options": [
+          "`i + 1`",
+          "`2 * i + 1`",
+          "`2 * i + 2`",
+          "`i / 2`"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In 0-indexed array heaps, Left Child is located at index `2 * i + 1`."
+      },
+      {
+        "id": "dsa-heap-mcq-4",
+        "question": "What is time complexity of converting an unsorted array of N elements into a Heap using `heapify` (Floyd's algorithm)?",
+        "options": [
+          "O(N log N)",
+          "O(N) linear time",
+          "O(N^2)",
+          "O(1)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Floyd's bottom-up `heapify` algorithm builds a Heap from array in $O(N)$ linear time."
+      },
+      {
+        "id": "dsa-heap-mcq-5",
+        "question": "Which algorithm pattern uses a Min-Heap of size K to find K Largest Elements in an array of N items in $O(N \\log K)$ time?",
+        "options": [
+          "Binary Search",
+          "Top-K Elements Pattern",
+          "Two Pointers",
+          "Sliding Window"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Maintaining a Min-Heap of size K solves Top-K Largest Elements in $O(N \\log K)$ time."
+      }
+    ]
+  },
+  {
+    "id": "dsa-basic-graphs",
+    "title": "Basic graphs",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Directed vs Undirected graphs, Adjacency List vs Adjacency Matrix, weighted edges, and graph representations.",
+    "explanation": {
+      "overview": "A Graph is a non-linear network data structure consisting of a set of Vertices (Nodes, $V$) connected by Edges ($E$).",
+      "sections": [
+        {
+          "heading": "Directed vs Undirected & Weighted Graphs",
+          "content": "- **Undirected Graph**: Edges are bidirectional (`A <-> B`).\n- **Directed Graph (DAG)**: Edges have direction (`A -> B`).\n- **Weighted Graph**: Edges carry numerical weight cost values.",
+          "bulletPoints": [
+            "Undirected: Symmetry in edge connections.",
+            "Directed (DAG): Directed Acyclic Graph used in task scheduling.",
+            "Weighted: Edges carry distance/cost values (Dijkstra's algorithm)."
+          ]
+        },
+        {
+          "heading": "Adjacency List vs Adjacency Matrix",
+          "content": "- **Adjacency List**: Hash Map/Array of lists (`Map<Node, Node[]>`). Space complexity $O(V + E)$. Ideal for sparse graphs.\n- **Adjacency Matrix**: 2D boolean array $V \\times V$. Space complexity $O(V^2)$. Ideal for dense graphs.",
+          "bulletPoints": [
+            "Adjacency List: $O(V + E)$ space (sparse graphs).",
+            "Adjacency Matrix: $O(V^2)$ space (instant $O(1)$ edge existence check)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Adjacency Lists use $O(V + E)$ space (standard for sparse graphs).",
+      "Adjacency Matrices use $O(V^2)$ space.",
+      "Use Adjacency Lists for BFS and DFS graph traversals."
+    ],
+    "codeExamples": [
+      {
+        "title": "Adjacency List Graph Representation",
+        "description": "Building undirected graph Adjacency List in JavaScript.",
+        "code": "export class Graph {\n  private adjList = new Map<string, string[]>();\n\n  addVertex(v: string) {\n    if (!this.adjList.has(v)) this.adjList.set(v, []);\n  }\n\n  addEdge(v1: string, v2: string) {\n    this.addVertex(v1);\n    this.addVertex(v2);\n    this.adjList.get(v1)!.push(v2); // Add edge v1 -> v2\n    this.adjList.get(v2)!.push(v1); // Add edge v2 -> v1 (Undirected!)\n  }\n\n  getNeighbors(v: string): string[] {\n    return this.adjList.get(v) || [];\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-basic-graphs-mcq-1",
+        "question": "What is space complexity of an Adjacency List representation of a graph with V vertices and E edges?",
+        "options": [
+          "O(V^2)",
+          "O(V + E)",
+          "O(E^2)",
+          "O(1)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Adjacency List stores $V$ vertex entries and $E$ edge references ($O(V + E)$ space)."
+      },
+      {
+        "id": "dsa-basic-graphs-mcq-2",
+        "question": "What is space complexity of an Adjacency Matrix 2D grid representation for a graph of V vertices?",
+        "options": [
+          "O(V + E)",
+          "O(V^2)",
+          "O(V)",
+          "O(E)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Adjacency Matrix allocates a 2D $V \\times V$ grid ($O(V^2)$ space)."
+      },
+      {
+        "id": "dsa-basic-graphs-mcq-3",
+        "question": "Which graph representation allows checking if edge exists between node A and node B in $O(1)$ constant time?",
+        "options": [
+          "Adjacency List",
+          "Adjacency Matrix (`matrix[A][B]`)",
+          "Edge List",
+          "Binary Tree"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Adjacency Matrix cell `matrix[A][B]` direct lookup executes in $O(1)$ constant time."
+      },
+      {
+        "id": "dsa-basic-graphs-mcq-4",
+        "question": "What is a DAG (Directed Acyclic Graph)?",
+        "options": [
+          "Graph with no nodes",
+          "A directed graph containing NO directed cycles",
+          "Undirected graph",
+          "Tree with 3 children"
+        ],
+        "correctAnswer": 1,
+        "explanation": "DAG is a directed graph containing zero directed cycles, enabling Topological Sorting."
+      },
+      {
+        "id": "dsa-basic-graphs-mcq-5",
+        "question": "Which graph representation is best suited for sparse graphs where edge count E is far smaller than $V^2$?",
+        "options": [
+          "Adjacency Matrix",
+          "Adjacency List",
+          "2D Grid",
+          "Dense Matrix"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Adjacency Lists save massive RAM on sparse graphs by storing only actual existing edges."
+      }
+    ]
+  },
+  {
+    "id": "dsa-sorting",
+    "title": "Sorting",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Comparison sorting algorithms: QuickSort, Merge Sort, HeapSort, Bubble/Selection/Insertion sort, stability, and space/time tradeoffs.",
+    "explanation": {
+      "overview": "Sorting rearranges elements of an array in a specific order (ascending or descending).",
+      "sections": [
+        {
+          "heading": "Common Sorting Algorithms Comparison",
+          "content": "- **Merge Sort**: Divide and Conquer. Guaranteed $O(N \\log N)$ time, $O(N)$ space. **Stable**.\n- **QuickSort**: Divide and Conquer (Pivot partitioning). Average $O(N \\log N)$ time, $O(1)$ space. Worst-case $O(N^2)$ if pivot choice is bad. **Unstable**.\n- **HeapSort**: Uses Max-Heap. $O(N \\log N)$ time, $O(1)$ space. **Unstable**.\n- **Bubble / Insertion / Selection Sort**: Simple $O(N^2)$ quadratic algorithms.",
+          "bulletPoints": [
+            "Merge Sort: Stable $O(N \\log N)$ time, $O(N)$ space.",
+            "QuickSort: Average $O(N \\log N)$ time, $O(1)$ space.",
+            "Stability: Preserves relative order of equal elements."
+          ]
+        },
+        {
+          "heading": "Stable vs Unstable Sorting",
+          "content": "A sorting algorithm is **Stable** if it maintains relative original order of items with identical key values.",
+          "bulletPoints": [
+            "Stable Sorts: Merge Sort, Insertion Sort, Timsort.",
+            "Unstable Sorts: QuickSort, HeapSort, Selection Sort."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Merge Sort guarantees $O(N \\log N)$ time and stability ($O(N)$ space).",
+      "QuickSort provides average $O(N \\log N)$ time with $O(1)$ in-place space.",
+      "Stable sorting preserves relative original order of equal elements."
+    ],
+    "codeExamples": [
+      {
+        "title": "Merge Sort Implementation",
+        "description": "Recursive Divide and Conquer Merge Sort algorithm.",
+        "code": "export function mergeSort(arr: number[]): number[] {\n  if (arr.length <= 1) return arr;\n  const mid = Math.floor(arr.length / 2);\n  const left = mergeSort(arr.slice(0, mid));\n  const right = mergeSort(arr.slice(mid));\n  return merge(left, right);\n}\n\nfunction merge(left: number[], right: number[]): number[] {\n  const result: number[] = [];\n  let i = 0, j = 0;\n  while (i < left.length && j < right.length) {\n    if (left[i] <= right[j]) result.push(left[i++]);\n    else result.push(right[j++]);\n  }\n  return result.concat(left.slice(i)).concat(right.slice(j));\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-sorting-mcq-1",
+        "question": "What is WORST-CASE time complexity of QuickSort if pivot choice is consistently worst element?",
+        "options": [
+          "O(N)",
+          "O(N log N)",
+          "O(N^2)",
+          "O(1)"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Bad pivot selection (e.g. sorted array with first element pivot) degrades QuickSort to $O(N^2)$ quadratic time."
+      },
+      {
+        "id": "dsa-sorting-mcq-2",
+        "question": "Which sorting algorithm guarantees $O(N \\log N)$ worst-case time complexity AND is Stable?",
+        "options": [
+          "QuickSort",
+          "Merge Sort",
+          "HeapSort",
+          "Bubble Sort"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Merge Sort guarantees $O(N \\log N)$ time in worst case and is a Stable sorting algorithm."
+      },
+      {
+        "id": "dsa-sorting-mcq-3",
+        "question": "What does it mean for a sorting algorithm to be 'Stable'?",
+        "options": [
+          "Runs in O(1) space",
+          "Preserves relative original order of elements with equal key values",
+          "Never crashes",
+          "Uses no recursion"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Stable sorting maintains relative input sequence order for elements with equal values."
+      },
+      {
+        "id": "dsa-sorting-mcq-4",
+        "question": "What hybrid sorting algorithm is used by JavaScript `Array.prototype.sort()` and Python `sort()`?",
+        "options": [
+          "Bubble Sort",
+          "Timsort (Hybrid Merge Sort + Insertion Sort)",
+          "QuickSort",
+          "HeapSort"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Timsort is hybrid stable sorting algorithm used in V8 JS and Python."
+      },
+      {
+        "id": "dsa-sorting-mcq-5",
+        "question": "What is lower bound theoretical time complexity limit for any comparison-based sorting algorithm?",
+        "options": [
+          "O(N)",
+          "O(\\Omega(N \\log N))",
+          "O(log N)",
+          "O(1)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Comparison-based sorting has a mathematical lower bound of $\\Omega(N \\log N)$ operations."
+      }
+    ]
+  }
+]

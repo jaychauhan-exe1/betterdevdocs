@@ -1,0 +1,1053 @@
+[
+  {
+    "id": "sec-xss",
+    "title": "XSS",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Cross-Site Scripting types (Stored, Reflected, DOM-based), output escaping, Content Security Policy (CSP), and HttpOnly cookies.",
+    "explanation": {
+      "overview": "Cross-Site Scripting (XSS) occurs when an application includes untrusted malicious JavaScript in web page output without proper escaping, allowing attackers to execute scripts in victims' browsers.",
+      "sections": [
+        {
+          "heading": "3 Types of XSS Attacks",
+          "content": "1. **Stored XSS (Persistent)**: Malicious script is saved in database (e.g. comment field) and served to all users viewing page.\n2. **Reflected XSS**: Script is injected into URL request parameter and immediately reflected in response page.\n3. **DOM-based XSS**: Client-side JS reads untrusted data (URL hash) and passes it to unsafe sink (`innerHTML`, `eval`).",
+          "bulletPoints": [
+            "Stored XSS: Saved in DB, hits all visiting users.",
+            "Reflected XSS: Embedded in malicious URL link.",
+            "DOM-based XSS: Injected directly into client-side JS DOM sinks."
+          ]
+        },
+        {
+          "heading": "XSS Defense Mechanisms",
+          "content": "- **Contextual Output Encoding**: Escape HTML special characters (`<`, `>`, `\"`, `'`, `&`).\n- **Content Security Policy (CSP)**: HTTP header restricting executable script origins (`default-src 'self'`).\n- **HttpOnly Cookies**: Prevents `document.cookie` theft via XSS.",
+          "bulletPoints": [
+            "Output Encoding: Escape `<script>` as `&lt;script&gt;`.",
+            "CSP Header: Restricts script execution origins.",
+            "HttpOnly: Protects session cookies from script access."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Always contextual-encode user input before rendering in HTML/DOM.",
+      "Use Content Security Policy (CSP) headers to restrict script execution sources.",
+      "Store session tokens in `HttpOnly` cookies to mitigate XSS token theft."
+    ],
+    "codeExamples": [
+      {
+        "title": "XSS Prevention & CSP Header",
+        "description": "DOMPurify sanitization and Content-Security-Policy header.",
+        "code": "import DOMPurify from 'dompurify';\n\n// Sanitize untrusted HTML before rendering\nconst cleanHtml = DOMPurify.sanitize(userInputComment);\n\n// Set strict Content-Security-Policy header:\n// Content-Security-Policy: default-src 'self'; script-src 'self' https://trustedscripts.com"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-xss-mcq-1",
+        "question": "What is primary cause of Cross-Site Scripting (XSS) vulnerabilities?",
+        "options": [
+          "Weak database passwords",
+          "Rendering untrusted user input in HTML/DOM output without proper sanitization or context encoding",
+          "Missing HTTPS certificate",
+          "SQL syntax error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "XSS occurs when untrusted user input is rendered in DOM/HTML without encoding, executing malicious scripts."
+      },
+      {
+        "id": "sec-xss-mcq-2",
+        "question": "Which XSS type persists malicious script inside database to execute on all visiting users?",
+        "options": [
+          "Reflected XSS",
+          "Stored XSS (Persistent)",
+          "DOM-based XSS",
+          "CORS XSS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Stored XSS persists malicious code in database, triggering on every user view."
+      },
+      {
+        "id": "sec-xss-mcq-3",
+        "question": "What HTTP response header instructs browser to restrict executable script sources to specified trusted domains?",
+        "options": [
+          "X-Frame-Options",
+          "Content-Security-Policy (CSP)",
+          "Access-Control-Allow-Origin",
+          "Strict-Transport-Security"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Content-Security-Policy (CSP) restricts executable script domains."
+      },
+      {
+        "id": "sec-xss-mcq-4",
+        "question": "How does `HttpOnly` cookie flag mitigate damage from an XSS vulnerability?",
+        "options": [
+          "Blocks XSS attack entirely",
+          "Prevents malicious XSS script from reading session cookies via `document.cookie`",
+          "Fixes HTML encoding",
+          "Encrypts URL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`HttpOnly` blocks JS access to cookies, preventing XSS from stealing session tokens."
+      },
+      {
+        "id": "sec-xss-mcq-5",
+        "question": "Which dangerous JavaScript DOM property should NEVER be assigned untrusted user input directly?",
+        "options": [
+          "textContent",
+          "innerHTML",
+          "innerText",
+          "className"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Assigning untrusted input to `innerHTML` executes raw `<script>` tags, causing DOM XSS."
+      }
+    ]
+  },
+  {
+    "id": "sec-csrf",
+    "title": "CSRF",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Cross-Site Request Forgery mechanism, Anti-CSRF tokens (Synchronizer Token Pattern), SameSite cookie attribute, and Custom Request Headers.",
+    "explanation": {
+      "overview": "Cross-Site Request Forgery (CSRF) tricks an authenticated user victim into submitting unintended state-changing HTTP requests (e.g. money transfer, password change) to a target web application.",
+      "sections": [
+        {
+          "heading": "CSRF Attack Mechanics",
+          "content": "A user logs into `bank.com` (session cookie stored in browser). User visits malicious site `attacker.com`. Malicious site contains `<form action=\"https://bank.com/transfer\" method=\"POST\">`. Browser automatically includes `bank.com` session cookies, executing unauthorized transaction!",
+          "bulletPoints": [
+            "Automatic Cookie Transmission: Browsers attach domain cookies automatically on requests.",
+            "Cross-Site Form Submit: Malicious site triggers POST without victim knowledge."
+          ]
+        },
+        {
+          "heading": "CSRF Defense Strategies",
+          "content": "1. **Anti-CSRF Tokens (Synchronizer Token)**: Cryptographic unique token generated per session/form. Malicious cross-site scripts cannot read token due to Same-Origin Policy.\n2. **SameSite Cookie Attribute**: `SameSite=Lax` or `SameSite=Strict` blocks automatic cookie transmission on cross-site POSTs.\n3. **Custom Headers**: Requiring custom headers (`X-Requested-With`) which cross-site forms cannot attach.",
+          "bulletPoints": [
+            "CSRF Tokens: Required hidden input field in forms.",
+            "SameSite=Strict/Lax: Native cookie protection against CSRF.",
+            "Double-Submit Cookie Pattern: Token stored in cookie and sent in header."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "CSRF exploits automatic browser cookie transmission on cross-site requests.",
+      "Use Anti-CSRF Tokens in forms and state-changing POST requests.",
+      "Configure `SameSite=Lax` or `Strict` on authentication cookies."
+    ],
+    "codeExamples": [
+      {
+        "title": "Anti-CSRF Token Form Protection",
+        "description": "Including hidden CSRF token in HTML form and validating on backend.",
+        "code": "<!-- HTML Form with hidden anti-CSRF token -->\n<form action=\"/transfer\" method=\"POST\">\n  <input type=\"hidden\" name=\"_csrf\" value=\"d8a7c2b5e9f1...\" />\n  <input type=\"text\" name=\"amount\" value=\"100\" />\n  <button type=\"submit\">Transfer Funds</button>\n</form>"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-csrf-mcq-1",
+        "question": "What browser behavior is exploited by Cross-Site Request Forgery (CSRF) attacks?",
+        "options": [
+          "Browsers running JavaScript",
+          "Browsers automatically attaching domain authentication cookies to all outgoing requests targeting that domain",
+          "Browser local storage",
+          "Browser caching"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CSRF relies on automatic browser cookie transmission on cross-site requests."
+      },
+      {
+        "id": "sec-csrf-mcq-2",
+        "question": "Why cannot an attacker's site read the Anti-CSRF Token value from victim's `bank.com` form?",
+        "options": [
+          "Token is encrypted",
+          "Same-Origin Policy (SOP) blocks malicious site JavaScript from reading cross-origin HTML DOM elements",
+          "Tokens expire in 1s",
+          "CSS hides token"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Same-Origin Policy prevents cross-origin scripts from reading HTML content or tokens."
+      },
+      {
+        "id": "sec-csrf-mcq-3",
+        "question": "Which `SameSite` cookie attribute value prevents browser from sending cookies on ALL cross-site requests?",
+        "options": [
+          "SameSite=None",
+          "SameSite=Lax",
+          "SameSite=Strict",
+          "SameSite=Default"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`SameSite=Strict` blocks cookie delivery on all cross-site requests."
+      },
+      {
+        "id": "sec-csrf-mcq-4",
+        "question": "Are standard `GET` requests vulnerable to CSRF state-change attacks if GET requests mutate data?",
+        "options": [
+          "No, GET is immune",
+          "Yes! If GET mutates state (`GET /transfer?amt=100`), attackers can trigger attack via `<img>` tags `<img src=\"bank.com/transfer...\">`",
+          "Only in Chrome",
+          "Only with tokens"
+        ],
+        "correctAnswer": 1,
+        "explanation": "If GET requests mutate server state, attackers can trigger actions using simple `<img>` tags."
+      },
+      {
+        "id": "sec-csrf-mcq-5",
+        "question": "Why are APIs using `Authorization: Bearer <token>` (stored in JS memory/header) immune to standard CSRF?",
+        "options": [
+          "Bearer tokens are faster",
+          "Browsers do NOT attach custom `Authorization` HTTP headers automatically to cross-site requests",
+          "JWT is encrypted",
+          "HTTPS blocks CSRF"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browsers do not attach custom `Authorization` headers automatically; client JS must send header explicitly."
+      }
+    ]
+  },
+  {
+    "id": "sec-sql-injection",
+    "title": "SQL injection",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "SQL Injection (SQLi) mechanics, Prepared Statements (Parameterized Queries), ORM safety, and input validation.",
+    "explanation": {
+      "overview": "SQL Injection (SQLi) occurs when malicious SQL statements are inserted into entry fields for execution, manipulating database logic.",
+      "sections": [
+        {
+          "heading": "SQLi Attack Mechanics",
+          "content": "Un-sanitized query concatenation: `SELECT * FROM users WHERE email = '` + userInput + `'`.\nIf input is `' OR '1'='1`, query becomes `SELECT * FROM users WHERE email = '' OR '1'='1'`, returning ALL user records and bypassing authentication!",
+          "bulletPoints": [
+            "Authentication Bypass: `admin' --` or `' OR '1'='1`.",
+            "Data Exfiltration: UNION-based SQLi extracting secret table data.",
+            "Data Destruction: Injecting `; DROP TABLE users; --`."
+          ]
+        },
+        {
+          "heading": "Primary Defense: Prepared Statements",
+          "content": "**Prepared Statements (Parameterized Queries)** separate SQL code from data parameters. Database engine compiles SQL structure first, treating parameters strictly as literals.",
+          "bulletPoints": [
+            "Parameterized Queries: `SELECT * FROM users WHERE email = ?`.",
+            "Complete Defense: Input parameters cannot alter SQL query structure.",
+            "ORMs: Hibernate, Prisma, TypeORM use parameterized queries under the hood."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "SQLi allows attackers to execute arbitrary SQL commands.",
+      "Prepared Statements (Parameterized Queries) completely neutralize SQLi.",
+      "Never concatenate user input strings directly into SQL queries."
+    ],
+    "codeExamples": [
+      {
+        "title": "Vulnerable String Concatenation vs Prepared Statement",
+        "description": "Dangerous SQL concatenation vs safe parameterized query.",
+        "code": "// VULNERABLE SQL INJECTION PATTERN:\n// const query = `SELECT * FROM users WHERE email = '${userInput}'`; // DANGEROUS!\n\n// SAFE PREPARED STATEMENT PATTERN:\nconst sql = 'SELECT id, name, email FROM users WHERE email = ? AND status = ?';\nconst [rows] = await db.execute(sql, [userInputEmail, 'active']);"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-sql-injection-mcq-1",
+        "question": "What primary flaw enables SQL Injection (SQLi) vulnerabilities?",
+        "options": [
+          "Weak database passwords",
+          "Concatenating un-sanitized user input strings directly into SQL query command strings",
+          "Missing indexes",
+          "Using MySQL instead of PostgreSQL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "SQLi occurs when user input string concatenation alters intended SQL query structure."
+      },
+      {
+        "id": "sec-sql-injection-mcq-2",
+        "question": "Why do Prepared Statements (Parameterized Queries) completely neutralize SQL Injection?",
+        "options": [
+          "They encrypt database",
+          "SQL query structure is pre-compiled by DB engine first; input values are treated strictly as data literals, never executable code",
+          "They run faster",
+          "They use SSL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Prepared statements separate query code from data literals, preventing parameter code execution."
+      },
+      {
+        "id": "sec-sql-injection-mcq-3",
+        "question": "What is result of injecting string `' OR '1'='1` into un-parameterized login query `SELECT * FROM users WHERE username = 'INPUT' AND password = 'INPUT'`?",
+        "options": [
+          "Query fails with syntax error",
+          "Evaluation results in TRUE, bypassing password check and returning user records",
+          "Deletes database",
+          "Logs out user"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`'1'='1` evaluates to TRUE, bypassing authentication checks."
+      },
+      {
+        "id": "sec-sql-injection-mcq-4",
+        "question": "Do Object-Relational Mappers (ORMs) like Prisma or TypeORM protect against SQL Injection by default?",
+        "options": [
+          "No, ORMs are vulnerable",
+          "Yes, ORMs automatically use parameterized queries under the hood for built-in query methods",
+          "Only for SELECT",
+          "Only on Linux"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Modern ORMs use parameterized queries for built-in finder methods by default."
+      },
+      {
+        "id": "sec-sql-injection-mcq-5",
+        "question": "Is input sanitization (escaping quotes) alone as effective as Prepared Statements for preventing SQLi?",
+        "options": [
+          "Yes, identical",
+          "No, manual escaping is prone to edge-case bypasses; Prepared Statements are the only 100% reliable defense",
+          "Escaping is better",
+          "Prepared statements are legacy"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Manual escaping is error-prone; Prepared Statements provide guaranteed structural separation."
+      }
+    ]
+  },
+  {
+    "id": "sec-cors",
+    "title": "CORS",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "CORS security model, misconfigurations, Access-Control-Allow-Origin: *, credentials, and wildcard dangers.",
+    "explanation": {
+      "overview": "CORS is a browser enforcement mechanism. Misconfiguring CORS headers can expose sensitive user data to malicious cross-origin websites.",
+      "sections": [
+        {
+          "heading": "CORS Security Misconfigurations",
+          "content": "- **Wildcard Origin with Credentials**: `Access-Control-Allow-Origin: *` combined with `Access-Control-Allow-Credentials: true` (Browsers block this, but improper reflection can bypass).\n- **Dynamic Reflection Misconfiguration**: Server dynamically reflects incoming `Origin` header blindly: `res.setHeader('Access-Control-Allow-Origin', req.headers.origin)`. This allows ANY malicious site to make authenticated requests!",
+          "bulletPoints": [
+            "Origin Reflection Flaw: Blindly returning incoming `Origin` header value.",
+            "Null Origin: Allowing `Access-Control-Allow-Origin: null` (exploitable via sandboxed iframes)."
+          ]
+        },
+        {
+          "heading": "Secure CORS Policy",
+          "content": "Maintain an explicit whitelist of trusted domain origins. Reject un-whitelisted origins.",
+          "bulletPoints": [
+            "Domain Whitelist: Check requesting origin against explicit list (`['https://app.example.com']`).",
+            "Public APIs: Use `*` ONLY for non-authenticated public read APIs."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "CORS is a browser security mechanism, NOT a server access control firewall.",
+      "Never dynamically reflect incoming `Origin` headers blindly.",
+      "Maintain an explicit whitelist of trusted domains for authenticated APIs."
+    ],
+    "codeExamples": [
+      {
+        "title": "Secure Express CORS Whitelist Middleware",
+        "description": "Validating origin against explicit trusted domain whitelist.",
+        "code": "const express = require('express');\nconst cors = require('cors');\nconst app = express();\n\nconst allowedOrigins = ['https://myapp.com', 'https://admin.myapp.com'];\n\napp.use(cors({\n  origin: (origin, callback) => {\n    // Allow requests with no origin (like mobile apps or curl)\n    if (!origin || allowedOrigins.includes(origin)) {\n      callback(null, true);\n    } else {\n      callback(new Error('Blocked by CORS security policy!'));\n    }\n  },\n  credentials: true\n}));"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-cors-mcq-1",
+        "question": "What security vulnerability occurs when a server dynamically reflects incoming `Origin` header into `Access-Control-Allow-Origin` combined with `Allow-Credentials: true`?",
+        "options": [
+          "SQLi vulnerability",
+          "CORS Misconfiguration allowing any malicious website to read authenticated API responses on behalf of victim",
+          "Memory leak",
+          "XSS execution"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Reflecting arbitrary origin headers allows any site to execute authenticated cross-origin reads."
+      },
+      {
+        "id": "sec-cors-mcq-2",
+        "question": "Does CORS prevent an attacker server from making cURL or Python script HTTP requests directly to your backend API?",
+        "options": [
+          "Yes, blocks all non-browser tools",
+          "No, CORS is enforced strictly by WEB BROWSERS; non-browser tools ignore CORS headers",
+          "Only on Linux",
+          "Only with HTTPS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CORS rules are enforced solely by web browsers; backend APIs must use authentication for access control."
+      },
+      {
+        "id": "sec-cors-mcq-3",
+        "question": "Why is `Access-Control-Allow-Origin: null` dangerous?",
+        "options": [
+          "Null causes server crash",
+          "Malicious sites can trigger `null` origin requests using sandboxed iframes `<iframe sandbox=\"allow-scripts\">` to bypass CORS checks",
+          "Browser deletes cookies",
+          "Disables HTTPS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Sandboxed iframes generate `null` origin, allowing attackers to exploit `null` origin whitelist entries."
+      },
+      {
+        "id": "sec-cors-mcq-4",
+        "question": "What is proper CORS configuration for a private authenticated REST API?",
+        "options": [
+          "Access-Control-Allow-Origin: *",
+          "Explicit domain whitelist checking requesting origin against trusted domains list",
+          "Access-Control-Allow-Origin: null",
+          "No headers"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Authenticated APIs must check incoming origins against explicit trusted domain whitelists."
+      },
+      {
+        "id": "sec-cors-mcq-5",
+        "question": "What happens in browser if server returns `Access-Control-Allow-Origin: *` AND `Access-Control-Allow-Credentials: true`?",
+        "options": [
+          "Request succeeds",
+          "Browser rejects response and throws CORS error because wildcard `*` is forbidden with credentials",
+          "Cookies are deleted",
+          "Server reboots"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browsers reject wildcard `*` origin when credentials (`Allow-Credentials: true`) are enabled."
+      }
+    ]
+  },
+  {
+    "id": "sec-password-hashing",
+    "title": "Password hashing",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Salted password hashing, Argon2id, bcrypt, PBKDF2, work factors, avoiding MD5/SHA256, and rainbow tables.",
+    "explanation": {
+      "overview": "Passwords must NEVER be stored in plaintext. Store passwords using adaptive, salted, key-stretching cryptographic password hashing algorithms (Argon2id, bcrypt).",
+      "sections": [
+        {
+          "heading": "Why Standard Hashes (MD5/SHA256) Fail",
+          "content": "Fast general-purpose cryptographic hashes (MD5, SHA1, SHA256) are designed for speed. Modern GPUs can calculate billions of SHA256 hashes per second, making offline brute-force and **Rainbow Table** dictionary attacks trivial.",
+          "bulletPoints": [
+            "Fast Hashes (MD5/SHA256): Insecure for passwords; vulnerable to GPU brute-force.",
+            "Rainbow Tables: Precomputed tables of hash values for common passwords."
+          ]
+        },
+        {
+          "heading": "Adaptive Password Hashing Algorithms & Salting",
+          "content": "- **Salting**: Appending unique random bytes to password before hashing to ensure identical passwords produce different hashes.\n- **Work Factor (Cost)**: Configurable computational delay.\n- **Algorithms**: **Argon2id** (OWASP Winner), **bcrypt**, **PBKDF2**.",
+          "bulletPoints": [
+            "Argon2id: Current gold standard (memory-hard & GPU resistant).",
+            "bcrypt: Battle-tested key-stretching algorithm.",
+            "Unique Salt per User: Defeats precomputed Rainbow Table attacks."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "NEVER use fast hash functions (MD5, SHA256) for password storage.",
+      "Use recommended adaptive algorithms: **Argon2id** or **bcrypt**.",
+      "Salting ensures identical passwords produce distinct hash strings."
+    ],
+    "codeExamples": [
+      {
+        "title": "Bcrypt Password Hashing & Verification",
+        "description": "Hashing password with bcrypt salt cost factor.",
+        "code": "import bcrypt from 'bcrypt';\n\nconst SALT_ROUNDS = 12; // Work factor cost\n\n// 1. Hash password on signup\nexport async function hashPassword(plainTextPassword: string) {\n  const hash = await bcrypt.hash(plainTextPassword, SALT_ROUNDS);\n  return hash; // Store this hash in database!\n}\n\n// 2. Verify password on login\nexport async function verifyPassword(plainText: string, hashInDB: string) {\n  const isMatch = await bcrypt.compare(plainText, hashInDB);\n  return isMatch;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-password-hashing-mcq-1",
+        "question": "Why are SHA256 and MD5 unacceptable algorithms for password storage?",
+        "options": [
+          "They are outdated text formats",
+          "They are fast algorithms; modern GPUs calculate billions of hashes/sec, enabling rapid offline brute-force attacks",
+          "They produce long strings",
+          "They require SSL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "SHA256/MD5 are too fast; attackers use GPUs to test billions of combinations per second."
+      },
+      {
+        "id": "sec-password-hashing-mcq-2",
+        "question": "What is purpose of adding a unique cryptographic **Salt** to a password before hashing?",
+        "options": [
+          "Encrypts hash",
+          "Ensures identical user passwords yield unique hash strings, defeating precomputed Rainbow Table attacks",
+          "Shortens hash string",
+          "Speed up verification"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Salting guarantees two users with identical passwords have completely distinct hashes, breaking Rainbow Tables."
+      },
+      {
+        "id": "sec-password-hashing-mcq-3",
+        "question": "Which password hashing algorithm won OWASP Password Hashing Competition as current gold standard?",
+        "options": [
+          "MD5",
+          "Argon2id",
+          "SHA512",
+          "DES"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Argon2id is current gold standard algorithm for password hashing."
+      },
+      {
+        "id": "sec-password-hashing-mcq-4",
+        "question": "What is 'Work Factor' (Cost Factor) in bcrypt or Argon2id?",
+        "options": [
+          "Number of users",
+          "Configurable computational iteration parameter that controls CPU/memory execution delay per hash",
+          "Length of salt",
+          "Password length"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Work factor tunes CPU/RAM execution time to keep hashing slow against brute-force attacks."
+      },
+      {
+        "id": "sec-password-hashing-mcq-5",
+        "question": "What is a 'Rainbow Table'?",
+        "options": [
+          "Colorful database schema",
+          "Precomputed table of plaintexts and corresponding hash values used to reverse fast unsalted password hashes",
+          "CSS color palette",
+          "Encryption key"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Rainbow Tables store precomputed hash lookups to reverse unsalted passwords instantly."
+      }
+    ]
+  },
+  {
+    "id": "sec-jwt-security",
+    "title": "JWT security",
+    "category": "SECURITY",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "JWT security vulnerabilities: 'none' algorithm attack, weak secret keys, token storage (cookie vs localStorage), and token revocation.",
+    "explanation": {
+      "overview": "JWT tokens must be configured securely to prevent signature forgery, token theft, and replay attacks.",
+      "sections": [
+        {
+          "heading": "Critical JWT Vulnerabilities",
+          "content": "- **Algorithm 'none' Attack**: Attacker modifies header `{\"alg\": \"none\"}` and strips signature. Flawed libraries accept un-signed forged admin claims!\n- **Weak Secret Keys**: Low-entropy secret keys (`secret123`) cracked in seconds using hashcat.\n- **Algorithm Confusion**: Tricking server into verifying RS256 token using public key as HS256 secret key.",
+          "bulletPoints": [
+            "Ban 'none' Alg: Reject tokens specifying `\"alg\": \"none\"`.",
+            "High Entropy Secrets: Use 256-bit random secret keys.",
+            "Explicit Verification: Explicitly specify expected algorithm `jwt.verify(token, key, { algorithms: ['RS256'] })`."
+          ]
+        },
+        {
+          "heading": "Token Storage: Cookies vs LocalStorage",
+          "content": "Storing JWTs in `localStorage` exposes tokens to XSS theft. Storing JWTs in `HttpOnly`, `Secure`, `SameSite` cookies protects tokens against XSS.",
+          "bulletPoints": [
+            "localStorage: Vulnerable to XSS token theft via `localStorage.getItem()`.",
+            "HttpOnly Cookie: Immune to XSS script access."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Never allow `\"alg\": \"none\"` in JWT verification options.",
+      "Store JWT access tokens in `HttpOnly` cookies to protect against XSS.",
+      "Use high-entropy 256-bit secret keys."
+    ],
+    "codeExamples": [
+      {
+        "title": "Secure JWT Verification in Node.js",
+        "description": "Explicitly restricting algorithms and verifying token signature.",
+        "code": "import jwt from 'jsonwebtoken';\n\nexport function verifyAccessToken(token: string) {\n  return jwt.verify(token, process.env.JWT_SECRET!,\n    // Explicitly restrict allowed algorithms to prevent alg confusion/none attacks!\n    { algorithms: ['HS256'] }\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-jwt-security-mcq-1",
+        "question": "What is the infamous 'alg: none' JWT vulnerability attack?",
+        "options": [
+          "Attacker deletes token",
+          "Attacker modifies JWT header to specify `\"alg\": \"none\"` and strips signature, tricking vulnerable libraries into accepting forged admin payloads",
+          "Attacker encrypts payload",
+          "Attacker changes URL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Flawed JWT libraries accepted `\"alg\": \"none\"` tokens without checking signatures."
+      },
+      {
+        "id": "sec-jwt-security-mcq-2",
+        "question": "Why is storing JWT access tokens in browser `localStorage` security risky?",
+        "options": [
+          "localStorage expires in 1h",
+          "Any XSS vulnerability on page allows malicious JavaScript scripts to read token via `localStorage.getItem()`",
+          "localStorage is slow",
+          "localStorage requires HTTPS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "XSS scripts can inspect and steal `localStorage` contents directly."
+      },
+      {
+        "id": "sec-jwt-security-mcq-3",
+        "question": "Where is safest client-side location to store a JWT access token?",
+        "options": [
+          "Global JS variable",
+          "localStorage",
+          "An `HttpOnly`, `Secure`, `SameSite` Cookie",
+          "URL query string"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`HttpOnly` cookies block JS script access, neutralizing XSS token theft."
+      },
+      {
+        "id": "sec-jwt-security-mcq-4",
+        "question": "What is 'Algorithm Confusion Attack' on JWTs?",
+        "options": [
+          "Using wrong password",
+          "Tricking server into verifying an RS256 asymmetric token using RS256 public key as HS256 symmetric secret key",
+          "Using MD5",
+          "Token expiration"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Algorithm confusion tricks server into verifying asymmetric tokens as symmetric tokens using public keys."
+      },
+      {
+        "id": "sec-jwt-security-mcq-5",
+        "question": "How should short-lived JWT access tokens (15m) be paired with long-lived Refresh Tokens for high security?",
+        "options": [
+          "Store refresh token in localStorage",
+          "Store short-lived access token in RAM/Cookie and store Refresh Token in HttpOnly cookie with database/Redis revocation tracking",
+          "Use no access token",
+          "Never expire access token"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Short-lived access tokens limit window of stolen tokens; refresh tokens allow revocable session renewals."
+      }
+    ]
+  },
+  {
+    "id": "sec-cookies",
+    "title": "Cookies",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Cookie security flags: HttpOnly, Secure, SameSite, Domain/Path scoping, Prefix flags (__Host-, __Secure-).",
+    "explanation": {
+      "overview": "Cookies store session and state data. Securing cookies requires configuring security flags and scoping prefixes.",
+      "sections": [
+        {
+          "heading": "Security Flags Review",
+          "content": "- `HttpOnly`: Prevents client JS access (`document.cookie`), mitigating XSS token theft.\n- `Secure`: Forces HTTPS transmission only.\n- `SameSite=Lax/Strict`: Mitigates CSRF attacks.",
+          "bulletPoints": [
+            "HttpOnly: Protects against XSS cookie theft.",
+            "Secure: Protects against Man-in-the-Middle network sniffing.",
+            "SameSite: Protects against CSRF cross-site submission."
+          ]
+        },
+        {
+          "heading": "Cookie Prefixes (__Host- and __Secure-)",
+          "content": "Cookie Prefixes enforce browser security constraints on cookie creation:\n- `__Secure-`: Cookie MUST have `Secure` flag and originate from HTTPS.\n- `__Host-`: Cookie MUST have `Secure` flag, originate from HTTPS, specify `Path=/`, and MUST NOT specify a `Domain` attribute.",
+          "bulletPoints": [
+            "__Host-CookieName: Maximum security prefix (locks path to `/` and disables subdomain overrides).",
+            "Prevents Subdomain Injection: Stops compromised subdomains from overwriting parent domain session cookies."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Always set `HttpOnly`, `Secure`, and `SameSite=Lax/Strict` on auth cookies.",
+      "Use `__Host-` cookie prefix for maximum security isolation.",
+      "Restrict cookie scope with explicit `Path` and `Domain`."
+    ],
+    "codeExamples": [
+      {
+        "title": "__Host- Cookie Prefix Example",
+        "description": "Setting maximum security __Host- cookie header.",
+        "code": "// __Host- prefix enforces Secure, Path=/, and NO Domain attribute!\nSet-Cookie: __Host-sessionId=xyz123;\n  Path=/;\n  Secure;\n  HttpOnly;\n  SameSite=Strict"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-cookies-mcq-1",
+        "question": "What security constraints does the `__Host-` cookie prefix enforce on browsers?",
+        "options": [
+          "Cookie expires in 1h",
+          "Cookie MUST include `Secure` flag, originate from HTTPS, have `Path=/`, and MUST NOT specify a `Domain` attribute",
+          "Cookie is read-only",
+          "Cookie uses RSA"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`__Host-` prefix enforces `Secure`, `Path=/`, and forbids `Domain` overrides."
+      },
+      {
+        "id": "sec-cookies-mcq-2",
+        "question": "What attack does setting `HttpOnly` flag on session cookies prevent?",
+        "options": [
+          "SQL Injection",
+          "XSS scripts from stealing session cookies via `document.cookie`",
+          "CSRF attacks",
+          "DDoS attacks"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`HttpOnly` blocks JS `document.cookie` access, defending against XSS cookie theft."
+      },
+      {
+        "id": "sec-cookies-mcq-3",
+        "question": "What attack does setting `SameSite=Lax` or `Strict` flag on session cookies mitigate?",
+        "options": [
+          "SQL Injection",
+          "CSRF (Cross-Site Request Forgery)",
+          "XSS",
+          "Buffer overflow"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SameSite` restricts cross-site cookie transmission, defending against CSRF."
+      },
+      {
+        "id": "sec-cookies-mcq-4",
+        "question": "Why is setting `Domain=.example.com` potentially risky if subdomains (`blog.example.com`) are insecure?",
+        "options": [
+          "Cookies expire fast",
+          "Compromised subdomains can overwrite parent domain cookies (Cookie Tossing / Invalidation)",
+          "Slowing down requests",
+          "Invalidating HTTPS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Wildcard `Domain=.example.com` allows insecure subdomains to read or overwrite parent cookies."
+      },
+      {
+        "id": "sec-cookies-mcq-5",
+        "question": "What happens if browser sends HTTP request over unencrypted `http://` for a cookie marked with `Secure` flag?",
+        "options": [
+          "Cookie is sent",
+          "Browser suppresses cookie and does NOT send it over unencrypted http:// link",
+          "Cookie is deleted",
+          "Server reboots"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Secure` flag restricts cookie transmission strictly to HTTPS."
+      }
+    ]
+  },
+  {
+    "id": "sec-authorization",
+    "title": "Authorization",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Broken Object Level Authorization (BOLA/IDOR), Principle of Least Privilege, and server-side permission checks.",
+    "explanation": {
+      "overview": "Broken Object Level Authorization (BOLA), also known as Insecure Direct Object References (IDOR), is the #1 security vulnerability on OWASP API Security Top 10 list.",
+      "sections": [
+        {
+          "heading": "BOLA / IDOR Vulnerability Mechanics",
+          "content": "BOLA occurs when an API endpoint accesses objects by ID parameter (`/api/invoices/1001`) but fails to verify whether current authenticated user OWNS invoice `1001`.",
+          "bulletPoints": [
+            "OWASP API #1: BOLA is the most common severe API flaw.",
+            "Exploit: Changing URL ID parameter from `/invoices/1001` to `/invoices/1002` reveals another user's private data."
+          ]
+        },
+        {
+          "heading": "BOLA Defense Strategy",
+          "content": "Always validate object ownership on backend: `WHERE invoice_id = :id AND owner_user_id = :current_user_id`.",
+          "bulletPoints": [
+            "Contextual Checks: Verify user ownership or tenant permission scope.",
+            "UUID Keys: Use un-guessable Random UUIDs (`v4`) instead of sequential integer IDs (`1, 2, 3`)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "BOLA / IDOR is the #1 API security vulnerability.",
+      "Always verify user ownership/permissions on backend for object ID queries.",
+      "Use un-guessable UUIDs for public resource identifiers."
+    ],
+    "codeExamples": [
+      {
+        "title": "BOLA Vulnerable vs Secure Query",
+        "description": "Vulnerable IDOR endpoint vs Secure ownership query.",
+        "code": "// VULNERABLE TO BOLA / IDOR:\n// const invoice = await db.query('SELECT * FROM invoices WHERE id = ?', [req.params.id]);\n\n// SECURE (Enforces ownership check!):\nconst invoice = await db.query(\n  'SELECT * FROM invoices WHERE id = ? AND user_id = ?',\n  [req.params.id, req.user.id] // Scoped to authenticated user!\n);\nif (!invoice) return res.status(404).json({ error: 'Invoice not found' });"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-authorization-mcq-1",
+        "question": "What is Broken Object Level Authorization (BOLA / IDOR)?",
+        "options": [
+          "SQL syntax error",
+          "Vulnerability where API endpoint fails to verify if authenticated user has permission to access target object ID",
+          "Expired password",
+          "CORS failure"
+        ],
+        "correctAnswer": 1,
+        "explanation": "BOLA occurs when API accesses objects by ID without verifying user ownership."
+      },
+      {
+        "id": "sec-authorization-mcq-2",
+        "question": "How does an attacker exploit a BOLA flaw in `/api/v1/documents/50`?",
+        "options": [
+          "Injects JavaScript",
+          "Changes ID parameter in URL to `/api/v1/documents/51` to access another user's private document",
+          "Deletes index",
+          "Sends 404"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Attackers iterate object IDs to exfiltrate other users' records."
+      },
+      {
+        "id": "sec-authorization-mcq-3",
+        "question": "What query refactoring prevents BOLA when fetching a record by ID?",
+        "options": [
+          "`SELECT * FROM items WHERE id = ?`",
+          "`SELECT * FROM items WHERE id = ? AND owner_id = ?` (scoping query to authenticated user ID)",
+          "`SELECT * FROM items`",
+          "Using ORDER BY"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Scoping queries to `owner_id = current_user_id` ensures users access only owned records."
+      },
+      {
+        "id": "sec-authorization-mcq-4",
+        "question": "Why does using Random UUIDs (`c29f4a81-1234...`) instead of sequential integers (`1, 2, 3`) mitigate simple IDOR enumeration attacks?",
+        "options": [
+          "UUIDs encrypt data",
+          "UUIDs are mathematically impossible to guess or enumerate sequentially",
+          "UUIDs disable CORS",
+          "UUIDs run faster"
+        ],
+        "correctAnswer": 1,
+        "explanation": "UUIDs eliminate simple sequential ID enumeration guessing."
+      },
+      {
+        "id": "sec-authorization-mcq-5",
+        "question": "What security principle states users should be granted ONLY minimum permissions required to perform their task?",
+        "options": [
+          "Principle of Maximum Speed",
+          "Principle of Least Privilege",
+          "Principle of Open Access",
+          "Zero Trust Design"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Principle of Least Privilege restricts permissions to absolute minimum required scope."
+      }
+    ]
+  },
+  {
+    "id": "sec-rate-limiting",
+    "title": "Rate limiting",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Brute-force protection, login throttling, IP vs User account rate limiting, and CAPTCHA integration.",
+    "explanation": {
+      "overview": "Security rate limiting protects authentication endpoints (login, password reset, 2FA verification) against automated brute-force credential stuffing and dictionary attacks.",
+      "sections": [
+        {
+          "heading": "Brute-Force & Credential Stuffing Defense",
+          "content": "Attackers use botnets to test millions of leaked username/password combinations. Rate limiting restricts attempts per IP and per targeted user account.",
+          "bulletPoints": [
+            "Per-IP Limiting: Restricts requests from single IP address (e.g. max 5 login attempts / min).",
+            "Per-Account Limiting: Restricts failed attempts targeting single user account across multiple IPs.",
+            "Account Lockout: Temporarily lock account after 5 failed login attempts."
+          ]
+        },
+        {
+          "heading": "Progressive Throttling & CAPTCHA",
+          "content": "- **Progressive Delay**: Increase wait duration after each failed attempt (1s, 2s, 4s, 8s).\n- **CAPTCHA**: Trigger Cloudflare Turnstile or reCAPTCHA after 3 failed attempts to verify human presence.",
+          "bulletPoints": [
+            "Progressive Delay: Slows down automated brute-force bots.",
+            "reCAPTCHA / Turnstile: Distinguishes human users from automated scripts."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Rate limit sensitive security endpoints (login, password reset, 2FA).",
+      "Combine per-IP limiting with per-account failed attempt lockouts.",
+      "Integrate CAPTCHA or progressive delays after multiple failed logins."
+    ],
+    "codeExamples": [
+      {
+        "title": "Express Login Brute-Force Rate Limiter",
+        "description": "Applying strict rate limiter middleware on login route.",
+        "code": "import rateLimit from 'express-rate-limit';\n\n// Strict rate limiter for login route\nexport const loginLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 5, // Limit each IP to 5 failed login attempts per window\n  message: { error: 'Too many failed login attempts. Try again in 15 minutes.' },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\napp.post('/api/v1/auth/login', loginLimiter, handleLogin);"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-rate-limiting-mcq-1",
+        "question": "What primary security attack is neutralized by applying rate limits to `/api/login`?",
+        "options": [
+          "SQL Injection",
+          "Automated Brute-Force and Credential Stuffing password attacks",
+          "XSS attacks",
+          "CORS misconfiguration"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Rate limiting login endpoints stops automated password guessing and credential stuffing."
+      },
+      {
+        "id": "sec-rate-limiting-mcq-2",
+        "question": "Why is rate limiting by IP address ALONE insufficient to stop distributed botnet credential stuffing attacks?",
+        "options": [
+          "IPs are secret",
+          "Botnets distribute attack traffic across thousands of distinct residential proxy IPs",
+          "IPs use SSL",
+          "IPs do not exist on mobile"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Distributed botnets use thousands of residential IPs, bypassing per-IP limits."
+      },
+      {
+        "id": "sec-rate-limiting-mcq-3",
+        "question": "What secondary rate-limiting control complements per-IP limits during login attack?",
+        "options": [
+          "Disabling HTTPS",
+          "Per-Account Throttling / Lockout (tracking failed attempts against targeted username/email)",
+          "Deleting user",
+          "Using GET"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Per-account throttling tracks failed attempts targeting a specific user account regardless of IP."
+      },
+      {
+        "id": "sec-rate-limiting-mcq-4",
+        "question": "What is 'Progressive Delay' in login rate limiting?",
+        "options": [
+          "Server reboot",
+          "Gradually increasing delay response time after each consecutive failed login attempt (1s, 2s, 4s, 8s)",
+          "Immediate IP ban",
+          "Disabling JavaScript"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Progressive delay increases wait times on consecutive failures to slow down automated bots."
+      },
+      {
+        "id": "sec-rate-limiting-mcq-5",
+        "question": "Which modern privacy-friendly CAPTCHA alternative replaces legacy image puzzle reCAPTCHAs?",
+        "options": [
+          "Cloudflare Turnstile",
+          "Flash plugin",
+          "Basic Auth",
+          "MD5 hash"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Cloudflare Turnstile provides frictionless, privacy-preserving CAPTCHA validation."
+      }
+    ]
+  },
+  {
+    "id": "sec-file-upload-security",
+    "title": "File upload security",
+    "category": "SECURITY",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Restricting upload vulnerabilities, validating MIME types & Magic Bytes, randomizing file names, and disabling execution permissions.",
+    "explanation": {
+      "overview": "Insecure file uploads allow attackers to upload executable malware (PHP web shells, executable binaries) or trigger Remote Code Execution (RCE) on host servers.",
+      "sections": [
+        {
+          "heading": "4 Critical File Upload Vulnerabilities",
+          "content": "1. **Remote Code Execution (RCE)**: Attacker uploads `.php` shell file into web root directory and executes it via URL.\n2. **Path Traversal**: Filename `../../etc/passwd` overwrites critical system files.\n3. **MIME / Extension Spoofing**: Renaming `shell.php` to `shell.php.png`.\n4. **Storage Exhaustion (Zip Bombs)**: Uploading tiny zip file that expands into petabytes of data.",
+          "bulletPoints": [
+            "RCE: Uploading executable code into web root.",
+            "Path Traversal: Arbitrary file overwrites using `../`.",
+            "Zip Bomb: Decompression denial of service."
+          ]
+        },
+        {
+          "heading": "File Upload Security Defenses",
+          "content": "- **Store Outside Web Root**: Store uploads on AWS S3 or non-executable isolated directory.\n- **Randomize Filenames**: Generate random UUID filenames (`uuidv4()`).\n- **Magic Bytes Validation**: Inspect binary file headers (e.g. PNG header `89 50 4E 47`) to verify file type.\n- **Disable Execution**: Set `noexec` directory permissions (`php_flag engine off`).",
+          "bulletPoints": [
+            "Store in Object Storage (S3): Keeps files completely off web app servers.",
+            "Validate Magic Bytes: Ignore user-supplied extension.",
+            "UUID Filenames: Neutralizes path traversal attacks."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Store uploaded files in AWS S3 or outside web root directory.",
+      "Validate Magic Bytes binary headers instead of trusting file extensions.",
+      "Rename files to random UUIDs to prevent Path Traversal attacks."
+    ],
+    "codeExamples": [
+      {
+        "title": "Magic Bytes Binary File Validation",
+        "description": "Inspecting binary header magic bytes to verify genuine PNG image.",
+        "code": "import fs from 'fs/promises';\n\nexport async function isGenuinePNG(filePath: string): Promise<boolean> {\n  const buffer = await fs.readFile(filePath);\n  // PNG Magic Bytes header sequence: 89 50 4E 47 0D 0A 1A 0A\n  if (buffer.length < 8) return false;\n  return (\n    buffer[0] === 0x89 &&\n    buffer[1] === 0x50 &&\n    buffer[2] === 0x4E &&\n    buffer[3] === 0x47\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-file-upload-security-mcq-1",
+        "question": "What severe security vulnerability occurs if a web server allows users to upload `.php` files into a web-accessible directory?",
+        "options": [
+          "CSRF",
+          "Remote Code Execution (RCE) allowing attacker to execute web shell commands on server",
+          "SQLi",
+          "CORS failure"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Uploading executable `.php` files into web root allows attackers to execute RCE web shells."
+      },
+      {
+        "id": "sec-file-upload-security-mcq-2",
+        "question": "Why is inspecting Magic Bytes binary headers superior to checking `file.originalname` extension `.png`?",
+        "options": [
+          "Magic bytes are faster",
+          "Extensions are easily spoofed by attackers by renaming `malware.exe` to `malware.png`; Magic Bytes verify actual binary file signature",
+          "Magic bytes encrypt file",
+          "Required by HTML5"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Magic Bytes check actual binary content signatures, preventing extension spoofing."
+      },
+      {
+        "id": "sec-file-upload-security-mcq-3",
+        "question": "How does storing user uploaded files in AWS S3 eliminate Remote Code Execution risks?",
+        "options": [
+          "S3 encrypts files",
+          "S3 stores files as non-executable static binary objects in isolated cloud storage outside application server web root",
+          "S3 deletes files",
+          "S3 uses SSL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "S3 stores files as static objects outside web server root, preventing script execution."
+      },
+      {
+        "id": "sec-file-upload-security-mcq-4",
+        "question": "What security risk does filename `../../../../var/www/index.html` present if not sanitized?",
+        "options": [
+          "SQL Injection",
+          "Path Traversal attack overwriting critical system files",
+          "XSS",
+          "Memory leak"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Path traversal filenames (`../`) attempt to overwrite arbitrary system files."
+      },
+      {
+        "id": "sec-file-upload-security-mcq-5",
+        "question": "What is a 'Zip Bomb' (Decompression Bomb) upload attack?",
+        "options": [
+          "A virus",
+          "A tiny compressed archive file (e.g. 42KB) that expands into petabytes of uncompressed data when extracted, exhausting disk space",
+          "SQL injection in zip",
+          "XSS in zip"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Zip bombs expand exponentially upon decompression, triggering disk storage Denial of Service."
+      }
+    ]
+  }
+]

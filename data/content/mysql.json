@@ -1,0 +1,2197 @@
+[
+  {
+    "id": "mysql-select",
+    "title": "SELECT",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Querying table columns, column aliases (AS), DISTINCT values, and expression calculations.",
+    "explanation": {
+      "overview": "The `SELECT` statement retrieves zero or more rows from database tables.",
+      "sections": [
+        {
+          "heading": "Column Selection & Aliasing",
+          "content": "Specify explicit column names rather than `SELECT *` to optimize network bandwidth and memory. Use `AS` to assign clean column aliases.",
+          "bulletPoints": [
+            "Explicit Columns: `SELECT id, name, email FROM users`.",
+            "Column Aliases: `SELECT price * 1.1 AS price_with_tax FROM products`.",
+            "Avoid SELECT *: `SELECT *` forces engine to read unnecessary columns from disk."
+          ]
+        },
+        {
+          "heading": "SELECT DISTINCT",
+          "content": "`SELECT DISTINCT column` filters out duplicate rows from result set.",
+          "bulletPoints": [
+            "Uniqueness: Returns unique values across selected columns.",
+            "Performance: Requires temporary table sorting to remove duplicates."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Avoid `SELECT *` in production to minimize I/O overhead.",
+      "Use `AS` for clear column aliases.",
+      "Use `SELECT DISTINCT` to return unique column values."
+    ],
+    "codeExamples": [
+      {
+        "title": "SELECT Column Aliases & DISTINCT",
+        "description": "Querying specific columns with aliases and DISTINCT filter.",
+        "code": "-- Select distinct user countries with alias\nSELECT DISTINCT country_code AS country\nFROM users\nWHERE is_active = 1;\n\n-- Column expression calculation\nSELECT name, price, price * 0.9 AS discounted_price\nFROM products;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-select-mcq-1",
+        "question": "Why is `SELECT * FROM table` discouraged in production web applications?",
+        "options": [
+          "Syntax error in MySQL 8",
+          "Increases I/O overhead, network payload size, and prevents covered index optimizations by reading unneeded columns",
+          "Deletes index",
+          "Disables caching"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SELECT *` fetches unneeded columns, increasing disk I/O, RAM, and network payload sizes."
+      },
+      {
+        "id": "mysql-select-mcq-2",
+        "question": "Which keyword eliminates duplicate rows from a query result set?",
+        "options": [
+          "UNIQUE",
+          "DISTINCT",
+          "DIFFERENT",
+          "SINGLE"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SELECT DISTINCT` filters out duplicate rows from query output."
+      },
+      {
+        "id": "mysql-select-mcq-3",
+        "question": "How do you rename column `first_name` to `firstName` in query result set?",
+        "options": [
+          "SELECT first_name TO firstName",
+          "SELECT first_name AS firstName",
+          "SELECT first_name -> firstName",
+          "SELECT RENAME(first_name, firstName)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "The `AS` keyword assigns custom column aliases in SQL output."
+      },
+      {
+        "id": "mysql-select-mcq-4",
+        "question": "What is result of `SELECT 5 + 10 AS total;` executed in MySQL?",
+        "options": [
+          "Error",
+          "Single row with column `total` containing value 15",
+          "Null",
+          "15 rows"
+        ],
+        "correctAnswer": 1,
+        "explanation": "MySQL evaluates mathematical expressions directly in `SELECT` without needing a `FROM` table."
+      },
+      {
+        "id": "mysql-select-mcq-5",
+        "question": "Does `SELECT DISTINCT colA, colB` check uniqueness on colA alone or the combination of colA and colB?",
+        "options": [
+          "colA alone",
+          "The combined values of (colA + colB) tuple",
+          "colB alone",
+          "Random"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`DISTINCT` evaluates uniqueness across the entire combination of selected columns."
+      }
+    ]
+  },
+  {
+    "id": "mysql-where",
+    "title": "WHERE",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Filtering rows, comparison operators, AND/OR/NOT logic, IN, BETWEEN, LIKE pattern matching, and NULL handling.",
+    "explanation": {
+      "overview": "The `WHERE` clause filters records before any grouping or aggregation takes place.",
+      "sections": [
+        {
+          "heading": "Comparison & Logical Operators",
+          "content": "Filters rows using `=`, `<>`, `>`, `<`, `>=`, `<=`, `IN()`, `BETWEEN ... AND`, and wildcard `LIKE 'term%'` (`%` matches string, `_` matches single char).",
+          "bulletPoints": [
+            "`IN ('A', 'B')`: Matches value against list.",
+            "`BETWEEN 10 AND 50`: Inclusive range filter.",
+            "`LIKE 'Alex%'`: Prefix string search (can utilize index)."
+          ]
+        },
+        {
+          "heading": "Three-Valued Logic & NULL Handling",
+          "content": "SQL uses Three-Valued Logic: `TRUE`, `FALSE`, and `UNKNOWN`. Comparisons with `NULL` evaluate to `UNKNOWN`. Never use `= NULL`; use `IS NULL` or `IS NOT NULL`.",
+          "bulletPoints": [
+            "`IS NULL` / `IS NOT NULL`: Correct syntax for checking nulls.",
+            "`col = NULL`: Always evaluates to FALSE/UNKNOWN!"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`WHERE` filters individual rows prior to aggregation.",
+      "Use `IS NULL` instead of `= NULL` to test for null values.",
+      "Leading wildcards `LIKE '%term'` disable index usage (full table scan)."
+    ],
+    "codeExamples": [
+      {
+        "title": "WHERE Clause Filtering & NULL Checking",
+        "description": "Filtering with IN, BETWEEN, LIKE, and IS NULL.",
+        "code": "SELECT id, name, status, created_at\nFROM users\nWHERE status IN ('active', 'pending')\n  AND age BETWEEN 18 AND 65\n  AND email LIKE '%@gmail.com'\n  AND deleted_at IS NULL;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-where-mcq-1",
+        "question": "What is result of query `SELECT * FROM users WHERE deleted_at = NULL;`?",
+        "options": [
+          "Returns rows where deleted_at is NULL",
+          "Returns 0 rows because comparison `= NULL` evaluates to UNKNOWN",
+          "Throws syntax error",
+          "Returns all rows"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In SQL, comparing `= NULL` evaluates to `UNKNOWN` (false); use `IS NULL` instead."
+      },
+      {
+        "id": "mysql-where-mcq-2",
+        "question": "Which `LIKE` wildcard pattern prevents MySQL from utilizing an index on `name` column?",
+        "options": [
+          "LIKE 'Alex%' (prefix wildcard)",
+          "LIKE '%Alex' (leading wildcard forces full table scan)",
+          "LIKE 'Alex'",
+          "LIKE 'A_ex'"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Leading wildcards `LIKE '%Alex'` prevent index B-Tree traversal, triggering full table scan."
+      },
+      {
+        "id": "mysql-where-mcq-3",
+        "question": "What does `WHERE status IN ('active', 'pending')` check?",
+        "options": [
+          "status equals both simultaneously",
+          "status equals 'active' OR status equals 'pending'",
+          "status contains string",
+          "status is not null"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`IN ('active', 'pending')` is shorthand for `status = 'active' OR status = 'pending'`."
+      },
+      {
+        "id": "mysql-where-mcq-4",
+        "question": "Is `WHERE price BETWEEN 10 AND 50` inclusive or exclusive of values 10 and 50?",
+        "options": [
+          "Exclusive (11 to 49)",
+          "Inclusive (includes 10 and 50)",
+          "Includes 10, excludes 50",
+          "Random"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`BETWEEN val1 AND val2` is inclusive of both boundary values."
+      },
+      {
+        "id": "mysql-where-mcq-5",
+        "question": "What is operator precedence order between `AND` and `OR` in SQL `WHERE` clause?",
+        "options": [
+          "OR evaluates before AND",
+          "AND evaluates before OR",
+          "Evaluates strictly right to left",
+          "Evaluates strictly left to right"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`AND` has higher operator precedence than `OR`; use parentheses `()` to clarify intended logic."
+      }
+    ]
+  },
+  {
+    "id": "mysql-group-by",
+    "title": "GROUP BY",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Grouping rows by column values, aggregating subsets, and ONLY_FULL_GROUP_BY SQL mode.",
+    "explanation": {
+      "overview": "The `GROUP BY` clause groups rows sharing identical column values into summary rows, typically combined with aggregate functions (`COUNT`, `SUM`, `AVG`).",
+      "sections": [
+        {
+          "heading": "Grouping & Aggregations",
+          "content": "`GROUP BY department_id` collapses all rows sharing same `department_id` into single summary output row per department.",
+          "bulletPoints": [
+            "Syntax: `SELECT dept_id, COUNT(*) FROM emp GROUP BY dept_id`.",
+            "Aggregation: Aggregates summarize all rows belonging to group bucket."
+          ]
+        },
+        {
+          "heading": "ONLY_FULL_GROUP_BY SQL Mode",
+          "content": "MySQL 8 enables `ONLY_FULL_GROUP_BY` by default. Every non-aggregated column in `SELECT` list MUST be included in `GROUP BY` clause.",
+          "bulletPoints": [
+            "Strict Mode: Prevents non-deterministic random column value selection.",
+            "Rule: Non-aggregated SELECT columns must appear in `GROUP BY` clause."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`GROUP BY` summarizes rows with matching values.",
+      "MySQL `ONLY_FULL_GROUP_BY` mode requires all non-aggregated SELECT columns to be listed in `GROUP BY`.",
+      "Combine with aggregate functions (`COUNT`, `SUM`, `AVG`)."
+    ],
+    "codeExamples": [
+      {
+        "title": "GROUP BY Department Aggregation",
+        "description": "Grouping employees by department with COUNT and AVG salary.",
+        "code": "SELECT \n  department_id,\n  COUNT(*) AS total_employees,\n  AVG(salary) AS average_salary,\n  MAX(salary) AS highest_salary\nFROM employees\nGROUP BY department_id;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-group-by-mcq-1",
+        "question": "What error occurs in MySQL 8 under default `ONLY_FULL_GROUP_BY` mode for `SELECT dept_id, name, COUNT(*) FROM emp GROUP BY dept_id;`?",
+        "options": [
+          "Syntax error",
+          "Error: `name` is not in GROUP BY clause and contains nonaggregated column",
+          "Returns null",
+          "Warning"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Strict `ONLY_FULL_GROUP_BY` requires every non-aggregated SELECT column (`name`) to be in `GROUP BY`."
+      },
+      {
+        "id": "mysql-group-by-mcq-2",
+        "question": "Can a `GROUP BY` clause group by multiple columns `GROUP BY country, city`?",
+        "options": [
+          "No, max 1 column",
+          "Yes, creates distinct summary group for each unique combination of (country, city)",
+          "Only in Postgres",
+          "Only with indexes"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Grouping by multiple columns produces summary buckets for each unique tuple combination."
+      },
+      {
+        "id": "mysql-group-by-mcq-3",
+        "question": "Where does `GROUP BY` appear in SQL query execution order relative to `WHERE` clause?",
+        "options": [
+          "Before WHERE",
+          "After WHERE (WHERE filters rows FIRST, then GROUP BY groups filtered rows)",
+          "Simultaneously",
+          "Optional"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`WHERE` filters source rows first; `GROUP BY` aggregates the remaining filtered rows."
+      },
+      {
+        "id": "mysql-group-by-mcq-4",
+        "question": "How are NULL values grouped in a `GROUP BY status` query?",
+        "options": [
+          "Discarded",
+          "All NULL values are grouped together into a single summary group row",
+          "Each NULL gets separate row",
+          "Throws error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "MySQL treats all `NULL` values as equivalent for grouping, collapsing them into single group."
+      },
+      {
+        "id": "mysql-group-by-mcq-5",
+        "question": "What happens if an aggregate function `SUM(amount)` is called WITHOUT a `GROUP BY` clause?",
+        "options": [
+          "Throws error",
+          "Aggregates entire table into single single-row summary result",
+          "Returns empty set",
+          "Returns 0"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Without `GROUP BY`, aggregate functions treat all matching rows in table as single group."
+      }
+    ]
+  },
+  {
+    "id": "mysql-having",
+    "title": "HAVING",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Filtering aggregated groups, HAVING vs WHERE, and performance implications of group filtering.",
+    "explanation": {
+      "overview": "The `HAVING` clause filters aggregated groups created by `GROUP BY`, whereas `WHERE` filters individual raw rows prior to grouping.",
+      "sections": [
+        {
+          "heading": "WHERE vs HAVING Differences",
+          "content": "- `WHERE`: Filters individual rows **before** `GROUP BY` aggregation (cannot filter aggregate functions like `COUNT(*) > 5`).\n- `HAVING`: Filters aggregated group buckets **after** `GROUP BY` aggregation.",
+          "bulletPoints": [
+            "WHERE: Row-level filter, executed before grouping.",
+            "HAVING: Group-level filter, executed after grouping (can filter `COUNT()`, `SUM()`)."
+          ]
+        },
+        {
+          "heading": "Combining WHERE and HAVING",
+          "content": "Filter raw rows early with `WHERE` to minimize rows passed to `GROUP BY`, then apply `HAVING` for group aggregate conditions.",
+          "bulletPoints": [
+            "Optimization: Filter non-aggregate conditions in `WHERE` clause to leverage indexes."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`WHERE` filters rows before grouping; `HAVING` filters aggregated groups.",
+      "Use `HAVING` to filter aggregate values (`HAVING COUNT(*) > 10`).",
+      "Filter un-aggregated columns in `WHERE` clause to utilize indexes."
+    ],
+    "codeExamples": [
+      {
+        "title": "WHERE vs HAVING in Single Query",
+        "description": "Filtering active users with WHERE and total orders with HAVING.",
+        "code": "SELECT \n  user_id,\n  COUNT(order_id) AS total_orders,\n  SUM(total_amount) AS total_spent\nFROM orders\nWHERE status = 'completed' -- WHERE filters individual rows FIRST!\nGROUP BY user_id\nHAVING COUNT(order_id) >= 5 -- HAVING filters aggregated groups LAST!\nORDER BY total_spent DESC;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-having-mcq-1",
+        "question": "Why fails `SELECT dept_id, COUNT(*) FROM emp WHERE COUNT(*) > 5 GROUP BY dept_id;`?",
+        "options": [
+          "Syntax error in GROUP BY",
+          "Aggregate functions like `COUNT(*)` cannot be evaluated inside `WHERE` clause (use `HAVING` instead)",
+          "dept_id is invalid",
+          "WHERE must follow GROUP BY"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`WHERE` executes before aggregation occurs; filtering aggregate calculations requires `HAVING`."
+      },
+      {
+        "id": "mysql-having-mcq-2",
+        "question": "What is primary difference between `WHERE` and `HAVING` clauses?",
+        "options": [
+          "WHERE is faster",
+          "WHERE filters individual rows before grouping; HAVING filters aggregated groups after `GROUP BY`",
+          "HAVING is for text",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`WHERE` filters input rows before `GROUP BY`; `HAVING` filters output group buckets after."
+      },
+      {
+        "id": "mysql-having-mcq-3",
+        "question": "Where should un-aggregated column condition `status = 'active'` be placed for optimal query index performance?",
+        "options": [
+          "Inside HAVING clause",
+          "Inside WHERE clause (allows MySQL to utilize table index before grouping)",
+          "Inside GROUP BY",
+          "Inside ORDER BY"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Filtering in `WHERE` allows index scanning and reduces rows sent to `GROUP BY`."
+      },
+      {
+        "id": "mysql-having-mcq-4",
+        "question": "Can `HAVING` clause be used without a `GROUP BY` clause in MySQL?",
+        "options": [
+          "No",
+          "Yes, treats entire table as single aggregated group",
+          "Only in strict mode",
+          "Only with primary keys"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Without `GROUP BY`, `HAVING` treats entire table as single summary group."
+      },
+      {
+        "id": "mysql-having-mcq-5",
+        "question": "In standard SQL execution order, which clause executes directly AFTER `GROUP BY`?",
+        "options": [
+          "WHERE",
+          "HAVING",
+          "ORDER BY",
+          "LIMIT"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Execution sequence: `FROM` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY` -> `LIMIT`."
+      }
+    ]
+  },
+  {
+    "id": "mysql-order-by",
+    "title": "ORDER BY",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Sorting query results, ASC vs DESC, multi-column sorting, NULL sorting placement, and Filesort.",
+    "explanation": {
+      "overview": "The `ORDER BY` clause sorts query output rows in ascending (`ASC`) or descending (`DESC`) order based on one or more columns.",
+      "sections": [
+        {
+          "heading": "ASC / DESC & Multi-Column Sorting",
+          "content": "`ORDER BY created_at DESC, name ASC` sorts primary rows by newest `created_at` date, breaking ties by alphabetical `name`.",
+          "bulletPoints": [
+            "Default Order: `ASC` (ascending: A to Z, 1 to 9).",
+            "Multi-Column: Sorts sequentially by primary, secondary, and tertiary columns."
+          ]
+        },
+        {
+          "heading": "NULL Sorting Behavior & Filesort",
+          "content": "In MySQL `ASC` sorting, `NULL` values appear first (lowest value). If MySQL cannot use an index for sorting, `EXPLAIN` shows `Using filesort`.",
+          "bulletPoints": [
+            "NULLs in ASC: Placed at start of output set.",
+            "Filesort Warning: Indicates MySQL performed extra memory/disk sort pass because no suitable index was available."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`ORDER BY` defaults to ascending (`ASC`) order.",
+      "In MySQL `ASC` queries, `NULL` values sort first.",
+      "`Using filesort` in EXPLAIN indicates sorting without an index."
+    ],
+    "codeExamples": [
+      {
+        "title": "Multi-Column ORDER BY",
+        "description": "Sorting by multiple columns and directions.",
+        "code": "SELECT id, category, price, title\nFROM products\nWHERE is_available = 1\nORDER BY category ASC, price DESC, title ASC\nLIMIT 20;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-order-by-mcq-1",
+        "question": "What is default sort direction if `ASC` or `DESC` is omitted in `ORDER BY price`?",
+        "options": [
+          "DESC",
+          "ASC (ascending: lowest to highest)",
+          "Random",
+          "Index order"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ORDER BY` defaults to ascending (`ASC`) order."
+      },
+      {
+        "id": "mysql-order-by-mcq-2",
+        "question": "Where do `NULL` values appear by default in a MySQL `ORDER BY age ASC` query?",
+        "options": [
+          "At very end of result set",
+          "At very beginning of result set (treated as lowest value)",
+          "Omitted from result set",
+          "Random"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In MySQL ascending sorts, `NULL` values are treated as minimum value and placed first."
+      },
+      {
+        "id": "mysql-order-by-mcq-3",
+        "question": "What does `Using filesort` in `EXPLAIN` query plan indicate?",
+        "options": [
+          "Query is fast",
+          "MySQL had to perform extra in-memory or disk sorting pass because no index matched sort order",
+          "Query read files",
+          "Index was used"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Using filesort` means MySQL performed an extra sort operation because index order did not match `ORDER BY`."
+      },
+      {
+        "id": "mysql-order-by-mcq-4",
+        "question": "What does `ORDER BY status ASC, created_at DESC` execute?",
+        "options": [
+          "Sorts status DESC first",
+          "Sorts primarily by status ASC; when status values match, breaks tie using created_at DESC",
+          "Sorts created_at first",
+          "Syntax error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Multi-column sort orders primarily by first column, using secondary column to break ties."
+      },
+      {
+        "id": "mysql-order-by-mcq-5",
+        "question": "Can you sort query results by a column alias defined in `SELECT` `SELECT price * 0.9 AS disc FROM items ORDER BY disc ASC;`?",
+        "options": [
+          "No",
+          "Yes, because ORDER BY executes after SELECT in SQL processing pipeline",
+          "Only in Postgres",
+          "Only with indexes"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ORDER BY` executes after `SELECT` phase, permitting reference to column aliases."
+      }
+    ]
+  },
+  {
+    "id": "mysql-joins",
+    "title": "Joins",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "INNER JOIN, LEFT JOIN, RIGHT JOIN, FULL OUTER JOIN, CROSS JOIN, and join condition indexing.",
+    "explanation": {
+      "overview": "JOIN clauses combine columns from two or more tables based on related foreign key columns.",
+      "sections": [
+        {
+          "heading": "4 Core JOIN Types",
+          "content": "- **INNER JOIN**: Returns rows with matching keys in BOTH tables.\n- **LEFT JOIN (LEFT OUTER JOIN)**: Returns ALL rows from left table, plus matched columns from right table (fills `NULL` for missing right matches).\n- **RIGHT JOIN**: Returns ALL rows from right table, plus matched columns from left table.\n- **CROSS JOIN**: Produces Cartesian product ($M \\times N$ rows) matching every left row with every right row.",
+          "bulletPoints": [
+            "INNER JOIN: Intersection of both tables.",
+            "LEFT JOIN: All left rows retained regardless of right matches.",
+            "FULL OUTER JOIN: Emulated in MySQL using `LEFT JOIN ... UNION ... RIGHT JOIN`."
+          ]
+        },
+        {
+          "heading": "JOIN Index Optimization",
+          "content": "Always index foreign key join condition columns (`ON a.user_id = b.id`). Lack of index forces nested loop full table scans.",
+          "bulletPoints": [
+            "Index FK Columns: Drastically accelerates join lookup speeds.",
+            "Join Order: MySQL optimizer starts join with smaller filtered table."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "INNER JOIN returns matching pairs; LEFT JOIN preserves all left table rows.",
+      "Index foreign key columns on JOIN conditions.",
+      "MySQL emulates FULL OUTER JOIN using `UNION` of LEFT and RIGHT joins."
+    ],
+    "codeExamples": [
+      {
+        "title": "INNER JOIN vs LEFT JOIN",
+        "description": "Comparing INNER JOIN and LEFT JOIN query patterns.",
+        "code": "-- INNER JOIN: Only users who have placed orders\nSELECT u.name, o.id AS order_id, o.total_amount\nFROM users u\nINNER JOIN orders o ON u.id = o.user_id;\n\n-- LEFT JOIN: ALL users including those with 0 orders\nSELECT u.name, o.id AS order_id\nFROM users u\nLEFT JOIN orders o ON u.id = o.user_id\nWHERE o.id IS NULL; -- Finds users with 0 orders!"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-joins-mcq-1",
+        "question": "Which JOIN returns ONLY rows where join condition matches in BOTH tables?",
+        "options": [
+          "LEFT JOIN",
+          "INNER JOIN",
+          "RIGHT JOIN",
+          "CROSS JOIN"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`INNER JOIN` returns matching row intersections across both tables."
+      },
+      {
+        "id": "mysql-joins-mcq-2",
+        "question": "What values appear for right table columns in a `LEFT JOIN` when a left row has NO matching right table record?",
+        "options": [
+          "0",
+          "NULL",
+          "Empty string",
+          "Row is omitted"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`LEFT JOIN` preserves left rows, filling right table columns with `NULL` when unmatched."
+      },
+      {
+        "id": "mysql-joins-mcq-3",
+        "question": "How is a FULL OUTER JOIN emulated in MySQL since MySQL lacks native `FULL OUTER JOIN` syntax?",
+        "options": [
+          "CROSS JOIN",
+          "Combining LEFT JOIN and RIGHT JOIN queries using `UNION`",
+          "INNER JOIN",
+          "NESTED JOIN"
+        ],
+        "correctAnswer": 1,
+        "explanation": "MySQL emulates `FULL OUTER JOIN` using `LEFT JOIN ... UNION ... RIGHT JOIN`."
+      },
+      {
+        "id": "mysql-joins-mcq-4",
+        "question": "What is output row count of a `CROSS JOIN` between Table A (10 rows) and Table B (50 rows)?",
+        "options": [
+          "50",
+          "60",
+          "500 (10 x 50 Cartesian product)",
+          "10"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`CROSS JOIN` creates Cartesian product matching every row ($10 \\times 50 = 500$)."
+      },
+      {
+        "id": "mysql-joins-mcq-5",
+        "question": "Why is indexing foreign key columns `ON u.id = o.user_id` essential for JOIN performance?",
+        "options": [
+          "Prevents SQL injection",
+          "Enables $O(1)$/$O(\\log N)$ index lookups instead of $O(N^2)$ nested loop full table scans",
+          "Compresses database",
+          "Required by SQL syntax"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Indexes allow MySQL join engine to look up matching rows in $O(\\log N)$ time per row."
+      }
+    ]
+  },
+  {
+    "id": "mysql-subqueries",
+    "title": "Subqueries",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Scalar vs Multi-row subqueries, Correlated subqueries, EXISTS vs IN, performance considerations.",
+    "explanation": {
+      "overview": "A Subquery (nested query) is a `SELECT` statement nested inside another SQL query (`WHERE`, `FROM`, or `SELECT` clause).",
+      "sections": [
+        {
+          "heading": "Subquery Types",
+          "content": "- **Scalar Subquery**: Returns single value (1 row, 1 col) used with `=`, `>`, `<`.\n- **Multi-row Subquery**: Returns multiple rows used with `IN`, `ANY`, `ALL`.\n- **Correlated Subquery**: Subquery references columns from outer query, re-evaluating subquery for every outer row processed.",
+          "bulletPoints": [
+            "Scalar: `WHERE salary > (SELECT AVG(salary) FROM emp)`.",
+            "Correlated: References outer alias `WHERE e.dept_id = outer.dept_id`.",
+            "EXISTS: Evaluates boolean presence ($O(1)$ fast exit)."
+          ]
+        },
+        {
+          "heading": "EXISTS vs IN Performance",
+          "content": "`EXISTS` stops scanning subquery as soon as first matching row is found (short-circuit). `IN` constructs full subquery result set before filtering.",
+          "bulletPoints": [
+            "EXISTS: Fast short-circuit presence check.",
+            "IN vs EXISTS: Use `EXISTS` for large subquery datasets."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Scalar subqueries return 1 value; Multi-row subqueries return sets.",
+      "Correlated subqueries execute once per outer row (can be slow).",
+      "Use `EXISTS` instead of `IN` for subqueries returning large datasets."
+    ],
+    "codeExamples": [
+      {
+        "title": "Correlated Subquery & EXISTS",
+        "description": "Using EXISTS to find users with at least 1 completed order.",
+        "code": "-- EXISTS short-circuits on first matching order row\nSELECT u.id, u.name\nFROM users u\nWHERE EXISTS (\n  SELECT 1 FROM orders o\n  WHERE o.user_id = u.id AND o.status = 'completed'\n);"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-subqueries-mcq-1",
+        "question": "What is a 'Correlated Subquery'?",
+        "options": [
+          "A subquery returning 2 columns",
+          "A subquery that references columns from outer query, requiring re-execution for each outer row",
+          "A subquery in FROM clause",
+          "A subquery with JOIN"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Correlated subqueries reference outer query columns, re-evaluating per outer row."
+      },
+      {
+        "id": "mysql-subqueries-mcq-2",
+        "question": "Why is `WHERE EXISTS (SELECT 1 ...)` faster than `WHERE id IN (SELECT id ...)` for large subquery sets?",
+        "options": [
+          "EXISTS uses SSL",
+          "EXISTS short-circuits instantly upon finding first matching row without building full subquery result set",
+          "IN is deprecated",
+          "EXISTS uses disk"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`EXISTS` short-circuits execution as soon as a single matching record is found."
+      },
+      {
+        "id": "mysql-subqueries-mcq-3",
+        "question": "What does a 'Scalar Subquery' return?",
+        "options": [
+          "Array of rows",
+          "Exactly one single value (1 row, 1 column)",
+          "Table format",
+          "Boolean only"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Scalar subqueries return exactly one single cell value (1 row, 1 column)."
+      },
+      {
+        "id": "mysql-subqueries-mcq-4",
+        "question": "What alias requirement exists for subqueries placed in `FROM` clause `SELECT * FROM (SELECT id FROM users) AS sub`?",
+        "options": [
+          "No requirement",
+          "Every derived table subquery in FROM clause MUST be assigned a table alias",
+          "Must be named temp",
+          "Must use JOIN"
+        ],
+        "correctAnswer": 1,
+        "explanation": "MySQL mandates assigning a table alias (`AS alias_name`) to derived table subqueries in `FROM`."
+      },
+      {
+        "id": "mysql-subqueries-mcq-5",
+        "question": "How can most slow Correlated Subqueries be refactored for better performance?",
+        "options": [
+          "Using DELETE",
+          "Refactoring subquery into an `INNER JOIN` or `LEFT JOIN`",
+          "Using UNION",
+          "Using GROUP BY"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Refactoring correlated subqueries into explicit `JOIN` operations enables set-based index optimizations."
+      }
+    ]
+  },
+  {
+    "id": "mysql-ctes",
+    "title": "CTEs",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Common Table Expressions (WITH clause), readable subquery abstractions, and Recursive CTEs.",
+    "explanation": {
+      "overview": "Common Table Expressions (CTEs) define temporary named result sets using `WITH` clause, improving query readability over nested subqueries.",
+      "sections": [
+        {
+          "heading": "Standard CTE Syntax",
+          "content": "`WITH cte_name AS (SELECT ...) SELECT * FROM cte_name;` creates named temporary result set available for duration of single query.",
+          "bulletPoints": [
+            "Readability: Breaks complex queries into modular sequential blocks.",
+            "Multiple CTEs: `WITH cte1 AS (...), cte2 AS (...)`."
+          ]
+        },
+        {
+          "heading": "Recursive CTEs",
+          "content": "`WITH RECURSIVE` enables querying hierarchical tree structures (organizational charts, category trees, bill of materials).",
+          "bulletPoints": [
+            "Anchor Member: Base query establishing starting rows.",
+            "Recursive Member: Joins CTE with itself until empty set returned.",
+            "Use Case: Traversing parent-child category hierarchies."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "CTEs (`WITH`) replace deeply nested subqueries with readable named blocks.",
+      "Use `WITH RECURSIVE` to traverse hierarchical parent-child data.",
+      "Supported natively in MySQL 8.0+."
+    ],
+    "codeExamples": [
+      {
+        "title": "Recursive CTE Category Hierarchy",
+        "description": "Traversing parent-child category tree recursively.",
+        "code": "WITH RECURSIVE CategoryTree AS (\n  -- 1. Anchor Member: Top-level root categories\n  SELECT id, name, parent_id, 1 AS depth\n  FROM categories\n  WHERE parent_id IS NULL\n  \n  UNION ALL\n  \n  -- 2. Recursive Member: Join categories with CTE\n  SELECT c.id, c.name, c.parent_id, ct.depth + 1\n  FROM categories c\n  INNER JOIN CategoryTree ct ON c.parent_id = ct.id\n)\nSELECT * FROM CategoryTree ORDER BY depth, id;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-ctes-mcq-1",
+        "question": "Which SQL keyword initializes a Common Table Expression (CTE)?",
+        "options": [
+          "CREATE CTE",
+          "WITH",
+          "USING",
+          "DECLARE"
+        ],
+        "correctAnswer": 1,
+        "explanation": "The `WITH` keyword introduces a Common Table Expression block."
+      },
+      {
+        "id": "mysql-ctes-mcq-2",
+        "question": "Which MySQL version introduced native support for CTEs and Recursive CTEs?",
+        "options": [
+          "MySQL 5.6",
+          "MySQL 5.7",
+          "MySQL 8.0",
+          "MySQL 4.1"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Common Table Expressions were added natively in MySQL 8.0."
+      },
+      {
+        "id": "mysql-ctes-mcq-3",
+        "question": "What is primary engineering use case for a `WITH RECURSIVE` CTE?",
+        "options": [
+          "Sorting strings",
+          "Traversing hierarchical or graph data structures (e.g. org charts, category trees)",
+          "Encrypting passwords",
+          "Creating indexes"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Recursive CTEs excel at querying hierarchical parent-child relationships."
+      },
+      {
+        "id": "mysql-ctes-mcq-4",
+        "question": "What are 2 component parts of a `WITH RECURSIVE` CTE query combined via `UNION ALL`?",
+        "options": [
+          "Start and Stop",
+          "Anchor Member (initial query) and Recursive Member (references CTE name)",
+          "Header and Body",
+          "WHERE and HAVING"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Recursive CTEs consist of Anchor query unioned with Recursive self-referencing query."
+      },
+      {
+        "id": "mysql-ctes-mcq-5",
+        "question": "What is major readability advantage of CTEs over nested subqueries?",
+        "options": [
+          "CTEs run 100x faster",
+          "CTEs allow writing modular named queries top-to-bottom instead of deeply indented inside-out subqueries",
+          "CTEs bypass SQL syntax",
+          "CTEs auto-index"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CTEs structure complex queries into clean top-to-bottom sequential blocks."
+      }
+    ]
+  },
+  {
+    "id": "mysql-aggregations",
+    "title": "Aggregations",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Aggregate functions: COUNT(*), COUNT(col), SUM, AVG, MIN, MAX, and handling NULLs in aggregations.",
+    "explanation": {
+      "overview": "Aggregate functions perform calculations on a set of column values, returning a single summary value.",
+      "sections": [
+        {
+          "heading": "Core Aggregate Functions",
+          "content": "- `COUNT(*)`: Counts total matching rows (including NULL rows).\n- `COUNT(col)`: Counts non-NULL values in specified column.\n- `SUM(col)`: Calculates total sum of numeric values.\n- `AVG(col)`: Calculates arithmetic mean of non-NULL values.\n- `MIN(col)` / `MAX(col)`: Finds minimum / maximum value.",
+          "bulletPoints": [
+            "COUNT(*) vs COUNT(col): COUNT(*) counts all rows; COUNT(col) ignores NULLs.",
+            "SUM & AVG: Automatically ignore NULL values.",
+            "DISTINCT in Aggregates: `COUNT(DISTINCT user_id)` counts unique users."
+          ]
+        },
+        {
+          "heading": "NULL Handling in Aggregations",
+          "content": "Aggregate functions (except `COUNT(*)`) ignore `NULL` values. If all rows in set are `NULL`, `SUM()` and `AVG()` return `NULL`.",
+          "bulletPoints": [
+            "COALESCE Utility: `COALESCE(SUM(amount), 0)` converts NULL sum result to 0."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`COUNT(*)` counts all rows; `COUNT(col)` ignores NULL values.",
+      "Aggregate functions (SUM, AVG) ignore NULL values.",
+      "Use `COALESCE(SUM(col), 0)` to default NULL sum results to zero."
+    ],
+    "codeExamples": [
+      {
+        "title": "Aggregate Functions & COALESCE",
+        "description": "Calculating order totals and using COALESCE for NULL handling.",
+        "code": "SELECT \n  COUNT(*) AS total_orders,\n  COUNT(discount_code) AS orders_with_discount, -- Ignores NULLs\n  COUNT(DISTINCT user_id) AS unique_buyers,\n  COALESCE(SUM(total_amount), 0) AS total_revenue,\n  AVG(total_amount) AS average_order_value\nFROM orders;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-aggregations-mcq-1",
+        "question": "What is difference between `COUNT(*)` and `COUNT(email)` when table has 10 rows and 2 rows have `email = NULL`?",
+        "options": [
+          "Both return 10",
+          "COUNT(*) returns 10; COUNT(email) returns 8 (ignores NULLs)",
+          "COUNT(email) throws error",
+          "Both return 8"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`COUNT(*)` counts total rows; `COUNT(column)` ignores `NULL` column values."
+      },
+      {
+        "id": "mysql-aggregations-mcq-2",
+        "question": "What does `SUM(amount)` return if ALL matching rows contain `amount = NULL`?",
+        "options": [
+          "0",
+          "NULL",
+          "Throws error",
+          "-1"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Summing a set containing only `NULL` values returns `NULL`."
+      },
+      {
+        "id": "mysql-aggregations-mcq-3",
+        "question": "Which function wraps `SUM(amount)` to guarantee returning `0` instead of `NULL` when table is empty?",
+        "options": [
+          "IFNULL(SUM(amount), 0) or COALESCE(SUM(amount), 0)",
+          "ZERO(SUM(amount))",
+          "EMPTY(SUM(amount))",
+          "DEFAULT(SUM(amount))"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`COALESCE(SUM(amount), 0)` or `IFNULL(...)` converts `NULL` outputs to default `0`."
+      },
+      {
+        "id": "mysql-aggregations-mcq-4",
+        "question": "How do you count total number of UNIQUE buyers in orders table?",
+        "options": [
+          "COUNT(user_id)",
+          "COUNT(DISTINCT user_id)",
+          "DISTINCT COUNT(user_id)",
+          "SUM(UNIQUE user_id)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`COUNT(DISTINCT user_id)` counts unique non-null values."
+      },
+      {
+        "id": "mysql-aggregations-mcq-5",
+        "question": "Does `AVG(rating)` divide total sum by total rows or total NON-NULL rows?",
+        "options": [
+          "Total rows",
+          "Total NON-NULL rows (ignores NULL rows in both numerator and denominator)",
+          "Fixed 100",
+          "Includes nulls as 0"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`AVG()` ignores `NULL` values completely from both sum numerator and row count denominator."
+      }
+    ]
+  },
+  {
+    "id": "mysql-window-functions",
+    "title": "Window functions",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "OVER clause, PARTITION BY, ORDER BY frame, ROW_NUMBER(), RANK(), DENSE_RANK(), LAG(), LEAD().",
+    "explanation": {
+      "overview": "Window Functions perform calculations across a set of table rows related to current row WITHOUT collapsing rows into single summary output rows.",
+      "sections": [
+        {
+          "heading": "OVER & PARTITION BY Syntax",
+          "content": "Syntax: `FUNCTION() OVER (PARTITION BY category ORDER BY price DESC)`. `PARTITION BY` divides rows into window partitions; `ORDER BY` defines row calculation sequence within partition.",
+          "bulletPoints": [
+            "Non-Collapsing: Unlike `GROUP BY`, every individual row remains in output set.",
+            "PARTITION BY: Creates independent window partitions."
+          ]
+        },
+        {
+          "heading": "Ranking & Offset Functions",
+          "content": "- `ROW_NUMBER()`: Sequential row index (1, 2, 3, 4).\n- `RANK()`: Rank with gaps for ties (1, 2, 2, 4).\n- `DENSE_RANK()`: Rank without gaps for ties (1, 2, 2, 3).\n- `LAG(col, offset)`: Accesses column value from previous row.\n- `LEAD(col, offset)`: Accesses column value from next row.",
+          "bulletPoints": [
+            "DENSE_RANK: 1, 2, 2, 3 (no gaps).",
+            "LAG / LEAD: Inter-row comparison (calculating month-over-month growth)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Window functions calculate values across row sets without collapsing rows.",
+      "ROW_NUMBER (sequential), RANK (gaps for ties), DENSE_RANK (no gaps).",
+      "Use `LAG`/`LEAD` to compare current row values against prior/subsequent rows."
+    ],
+    "codeExamples": [
+      {
+        "title": "ROW_NUMBER & LAG Window Functions",
+        "description": "Ranking products per category and comparing sales against previous month.",
+        "code": "SELECT \n  category,\n  name,\n  price,\n  ROW_NUMBER() OVER(PARTITION BY category ORDER BY price DESC) AS rank_in_category\nFROM products;\n\n-- Calculate Month-over-Month sales difference with LAG:\nSELECT \n  month,\n  revenue,\n  LAG(revenue, 1) OVER(ORDER BY month) AS prev_month_revenue,\n  revenue - LAG(revenue, 1) OVER(ORDER BY month) AS mom_growth\nFROM monthly_sales;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-window-functions-mcq-1",
+        "question": "What is key difference between `GROUP BY` and Window Functions (`OVER()`)?",
+        "options": [
+          "GROUP BY is faster",
+          "GROUP BY collapses multiple rows into single summary row; Window Functions perform calculations while retaining all individual rows in result set",
+          "Window functions cannot use SUM",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Window functions perform calculations across partitions without collapsing individual table rows."
+      },
+      {
+        "id": "mysql-window-functions-mcq-2",
+        "question": "What ranking sequence does `DENSE_RANK()` produce for tied scores `[100, 90, 90, 80]`?",
+        "options": [
+          "1, 2, 3, 4",
+          "1, 2, 2, 4 (gaps)",
+          "1, 2, 2, 3 (no rank gaps)",
+          "1, 1, 1, 1"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`DENSE_RANK()` assigns identical ranks to ties without skipping subsequent ranks (1, 2, 2, 3)."
+      },
+      {
+        "id": "mysql-window-functions-mcq-3",
+        "question": "Which window function fetches column value from PREVIOUS row relative to current row in partition?",
+        "options": [
+          "LEAD()",
+          "LAG()",
+          "PREV()",
+          "FIRST_VALUE()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`LAG(column, offset)` accesses column data from preceding rows."
+      },
+      {
+        "id": "mysql-window-functions-mcq-4",
+        "question": "Which MySQL version introduced native support for Window Functions?",
+        "options": [
+          "MySQL 5.6",
+          "MySQL 5.7",
+          "MySQL 8.0",
+          "MySQL 4.0"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Window functions were added natively in MySQL 8.0."
+      },
+      {
+        "id": "mysql-window-functions-mcq-5",
+        "question": "What clause inside `OVER()` partitions rows into distinct window calculation groups?",
+        "options": [
+          "GROUP BY",
+          "PARTITION BY",
+          "DIVIDE BY",
+          "SPLIT BY"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`PARTITION BY` divides dataset into separate calculation partitions."
+      }
+    ]
+  },
+  {
+    "id": "mysql-keys",
+    "title": "Keys",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Primary Keys, Foreign Keys, Candidate Keys, Composite Keys, Unique Keys, and Referential Integrity (CASCADE).",
+    "explanation": {
+      "overview": "Keys enforce entity uniqueness and relational referential integrity across database tables.",
+      "sections": [
+        {
+          "heading": "Primary Key vs Unique Key",
+          "content": "- **Primary Key (PK)**: Uniquely identifies each row in table. MUST be unique and NOT NULL. Only ONE Primary Key allowed per table.\n- **Unique Key**: Enforces unique values across column(s), but ALLOWS `NULL` values. Multiple Unique keys allowed per table.",
+          "bulletPoints": [
+            "Primary Key: Exactly 1 per table, NOT NULL, clustered index in InnoDB.",
+            "Unique Key: Multiple allowed per table, permits NULL values."
+          ]
+        },
+        {
+          "heading": "Foreign Keys & Referential Actions",
+          "content": "Foreign Keys (FK) link columns to Primary Key of another table. `ON DELETE` referential actions dictate behavior when referenced parent row is deleted:\n- `CASCADE`: Automatically deletes child rows.\n- `SET NULL`: Sets child FK column to `NULL`.\n- `RESTRICT` / `NO ACTION`: Rejects parent row deletion if child rows exist.",
+          "bulletPoints": [
+            "CASCADE: Automatically deletes child rows.",
+            "RESTRICT: Prevents parent deletion if children exist."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Primary Key must be UNIQUE and NOT NULL (1 per table).",
+      "Unique Keys enforce uniqueness but permit NULL values.",
+      "`ON DELETE CASCADE` automatically purges child rows."
+    ],
+    "codeExamples": [
+      {
+        "title": "Primary & Foreign Key Table Definition",
+        "description": "Creating tables with PK, Unique key, and Foreign Key CASCADE.",
+        "code": "CREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  email VARCHAR(255) NOT NULL UNIQUE,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n) ENGINE=InnoDB;\n\nCREATE TABLE orders (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  user_id INT NOT NULL,\n  total_amount DECIMAL(10,2) NOT NULL,\n  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE\n) ENGINE=InnoDB;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-keys-mcq-1",
+        "question": "What is key difference between Primary Key and Unique Key constraints in MySQL?",
+        "options": [
+          "Unique Key is faster",
+          "A table can have only ONE Primary Key (which cannot contain NULLs); a table can have MULTIPLE Unique Keys (which allow NULLs)",
+          "Primary Key uses text",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Tables have max 1 Primary Key (no NULLs allowed); multiple Unique keys are allowed (permits NULLs)."
+      },
+      {
+        "id": "mysql-keys-mcq-2",
+        "question": "What happens when parent row in `users` table is deleted if child `orders` table FK specifies `ON DELETE CASCADE`?",
+        "options": [
+          "Throws error",
+          "MySQL automatically deletes all matching child order rows belonging to deleted user",
+          "Sets user_id to 0",
+          "Does nothing"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ON DELETE CASCADE` automatically deletes dependent child table rows."
+      },
+      {
+        "id": "mysql-keys-mcq-3",
+        "question": "What is a 'Composite Key'?",
+        "options": [
+          "A key using JSON",
+          "A primary key or unique index composed of 2 or more combined columns",
+          "An encrypted key",
+          "A foreign key"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Composite Keys combine two or more columns to form a unique key identifier."
+      },
+      {
+        "id": "mysql-keys-mcq-4",
+        "question": "What referential action prevents parent row deletion if matching child rows exist?",
+        "options": [
+          "CASCADE",
+          "SET NULL",
+          "RESTRICT (or NO ACTION)",
+          "SET DEFAULT"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`RESTRICT` rejects parent row deletion if child table references exist."
+      },
+      {
+        "id": "mysql-keys-mcq-5",
+        "question": "Which storage engine in MySQL enforces Foreign Key constraints natively?",
+        "options": [
+          "MyISAM",
+          "InnoDB",
+          "MEMORY",
+          "CSV"
+        ],
+        "correctAnswer": 1,
+        "explanation": "InnoDB is default storage engine that enforces Foreign Key constraints."
+      }
+    ]
+  },
+  {
+    "id": "mysql-indexes",
+    "title": "Indexes",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "B-Tree index structure, Clustered vs Secondary indexes, Covered indexes, and index trade-offs.",
+    "explanation": {
+      "overview": "Indexes are specialized B-Tree data structures that accelerate row retrieval speed from $O(N)$ full table scans to $O(\\log N)$ logarithmic index lookups.",
+      "sections": [
+        {
+          "heading": "Clustered vs Secondary Indexes (InnoDB)",
+          "content": "- **Clustered Index**: Primary Key index. InnoDB stores complete actual table row data directly inside B-Tree leaf nodes. Only 1 Clustered Index per table!\n- **Secondary Index**: Any non-primary index. B-Tree leaf nodes store Secondary Index column value + Primary Key pointer.",
+          "bulletPoints": [
+            "Clustered Index: Leaf nodes store full table row data.",
+            "Secondary Index: Leaf nodes store PK value pointer.",
+            "Double Lookup (Bookmark Lookup): Secondary index lookup retrieves PK, then traverses Clustered index to fetch full row."
+          ]
+        },
+        {
+          "heading": "Covering Index Optimization",
+          "content": "A **Covering Index** contains ALL columns requested by `SELECT` query. MySQL answers query directly from Secondary Index B-Tree, skipping Clustered Index bookmark lookup!",
+          "bulletPoints": [
+            "Covering Index: `EXPLAIN` displays `Using index`.",
+            "Index Tradeoff: Indexes speed up `SELECT` reads, but slow down `INSERT`, `UPDATE`, `DELETE` writes due to B-Tree rebalancing overhead."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "InnoDB Clustered Index stores full row data in PK B-Tree leaf nodes.",
+      "Secondary indexes store PK pointers.",
+      "Covering indexes satisfy queries directly from index without double lookups.",
+      "Indexes speed up reads but slow down writes."
+    ],
+    "codeExamples": [
+      {
+        "title": "Creating Index & Covering Index Query",
+        "description": "Creating secondary index and executing covering index query.",
+        "code": "-- Create secondary index on email\nCREATE INDEX idx_users_email ON users(email);\n\n-- Covering Index Query: Index contains both email and PK id!\n-- EXPLAIN shows 'Using index' (No table lookup required!)\nSELECT id, email FROM users WHERE email = 'alex@example.com';"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-indexes-mcq-1",
+        "question": "What data structure does MySQL InnoDB storage engine use for standard indexes?",
+        "options": [
+          "Hash Table",
+          "B-Tree (B+Tree)",
+          "Red-Black Tree",
+          "Linked List"
+        ],
+        "correctAnswer": 1,
+        "explanation": "InnoDB uses B+Tree structures for clustered and secondary indexes."
+      },
+      {
+        "id": "mysql-indexes-mcq-2",
+        "question": "What is stored in leaf nodes of an InnoDB Clustered Index (Primary Key)?",
+        "options": [
+          "Pointer to disk block",
+          "Complete actual row data columns",
+          "Row count",
+          "Hash key"
+        ],
+        "correctAnswer": 1,
+        "explanation": "InnoDB Clustered Index stores full row data directly inside Primary Key B-Tree leaf nodes."
+      },
+      {
+        "id": "mysql-indexes-mcq-3",
+        "question": "What is stored in leaf nodes of an InnoDB Secondary Index?",
+        "options": [
+          "Full row data",
+          "Indexed column value plus Primary Key value pointer",
+          "Disk offset",
+          "Null"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Secondary index leaf nodes store indexed column value and Primary Key pointer."
+      },
+      {
+        "id": "mysql-indexes-mcq-4",
+        "question": "What is a 'Covering Index' in MySQL?",
+        "options": [
+          "An index on all table columns",
+          "An index containing ALL columns requested by query, allowing MySQL to satisfy query directly from index without reading table rows",
+          "An encrypted index",
+          "A primary key"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Covering index includes all queried columns, eliminating table row lookup."
+      },
+      {
+        "id": "mysql-indexes-mcq-5",
+        "question": "How do excessive indexes affect `INSERT` and `DELETE` write performance?",
+        "options": [
+          "Speeds up writes",
+          "Slows down write performance because MySQL must update and rebalance B-Trees for all table indexes on every mutation",
+          "No impact",
+          "Unlocks table"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Every write requires updating all secondary index B-Tree structures."
+      }
+    ]
+  },
+  {
+    "id": "mysql-composite-indexes",
+    "title": "Composite indexes",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Multi-column indexes, Leftmost Prefix Rule, column order strategy, and range condition index stops.",
+    "explanation": {
+      "overview": "A Composite Index (Compound Index) is an index built on multiple columns `INDEX(colA, colB, colC)`.",
+      "sections": [
+        {
+          "heading": "Leftmost Prefix Rule",
+          "content": "A composite index on `(colA, colB, colC)` can be used by queries filtering on:\n- `colA`\n- `colA, colB`\n- `colA, colB, colC`\nIt CANNOT be used if query filters ONLY on `colB` or `colC` without `colA`!",
+          "bulletPoints": [
+            "Leftmost Rule: Index search MUST begin from leftmost column.",
+            "Valid: `WHERE colA = 1 AND colB = 2`.",
+            "Invalid (Skip Leftmost): `WHERE colB = 2` (cannot use index!)."
+          ]
+        },
+        {
+          "heading": "Range Condition Index Truncation",
+          "content": "When a composite index encounters a range condition (`>`, `<`, `LIKE 'a%'`), MySQL uses index columns up to range column, but CANNOT use subsequent composite index columns for B-Tree lookup!",
+          "bulletPoints": [
+            "Range Rule: `WHERE colA = 1 AND colB > 10 AND colC = 5` uses index for `colA` and `colB`, but truncates `colC` index lookup!"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Composite indexes enforce Leftmost Prefix Rule.",
+      "Query MUST filter leftmost column to utilize composite index.",
+      "Range conditions (`>`, `<`) truncate subsequent composite index columns."
+    ],
+    "codeExamples": [
+      {
+        "title": "Composite Index Leftmost Prefix",
+        "description": "Creating composite index and valid vs invalid query patterns.",
+        "code": "CREATE INDEX idx_status_created_user ON orders(status, created_at, user_id);\n\n-- USES INDEX (Leftmost prefix status matched!):\nSELECT * FROM orders WHERE status = 'completed' AND created_at > '2026-01-01';\n\n-- CANNOT USE INDEX (Missing status leftmost column!):\nSELECT * FROM orders WHERE user_id = 42;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-composite-indexes-mcq-1",
+        "question": "According to Leftmost Prefix Rule, can query `WHERE city = 'NYC'` use composite index `INDEX(country, city, state)`?",
+        "options": [
+          "Yes, fully",
+          "No, because `country` (the leftmost column of index) is omitted from WHERE clause",
+          "Only in MySQL 8",
+          "Only with ORDER BY"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Leftmost Prefix Rule mandates filtering on first column (`country`) to use index."
+      },
+      {
+        "id": "mysql-composite-indexes-mcq-2",
+        "question": "For composite index `INDEX(status, age, name)`, which query uses index for ALL 3 columns?",
+        "options": [
+          "`WHERE status = 'A' AND age > 20 AND name = 'Bob'` (range `age > 20` truncates `name` index lookup)",
+          "`WHERE status = 'A' AND age = 25 AND name = 'Bob'` (equality on all columns)",
+          "`WHERE age = 25 AND name = 'Bob'`",
+          "`WHERE name = 'Bob'\""
+        ],
+        "correctAnswer": 1,
+        "explanation": "Equality conditions on `status`, `age`, and `name` allow B-Tree to use all 3 composite columns."
+      },
+      {
+        "id": "mysql-composite-indexes-mcq-3",
+        "question": "How should column order be chosen when designing composite index `(col1, col2)` for equality queries?",
+        "options": [
+          "Place column with HIGHEST selectivity (most distinct values) first",
+          "Place text columns first",
+          "Alphabetical order",
+          "Random"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Placing high-selectivity columns first narrows B-Tree search space faster."
+      },
+      {
+        "id": "mysql-composite-indexes-mcq-4",
+        "question": "Does column order in `WHERE colB = 2 AND colA = 1` prevent MySQL query optimizer from using `INDEX(colA, colB)`?",
+        "options": [
+          "Yes, must match exact order",
+          "No, MySQL optimizer automatically re-orders equality WHERE clauses to match index column sequence",
+          "Only in MyISAM",
+          "Throws error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "MySQL query optimizer automatically reorders `AND` equality conditions to match index."
+      },
+      {
+        "id": "mysql-composite-indexes-mcq-5",
+        "question": "What happens to composite index `INDEX(a, b, c)` when query uses `WHERE a = 1 AND b LIKE 'X%' AND c = 10`?",
+        "options": [
+          "Uses all 3 columns",
+          "Uses `a` and `b`, but range condition `LIKE 'X%'` truncates `c` index lookup",
+          "Uses only c",
+          "Full table scan"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Range conditions (like `LIKE 'X%'`) prevent using subsequent index columns (`c`) for B-Tree lookup."
+      }
+    ]
+  },
+  {
+    "id": "mysql-normalization",
+    "title": "Normalization",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Database normalization forms: 1NF (atomic values), 2NF (no partial dependencies), 3NF (no transitive dependencies), BCNF, and denormalization trade-offs.",
+    "explanation": {
+      "overview": "Normalization is database design process of organizing columns and tables to reduce data redundancy and eliminate update/delete anomalies.",
+      "sections": [
+        {
+          "heading": "1NF, 2NF, 3NF Normal Forms",
+          "content": "- **1NF (First Normal Form)**: Each cell contains atomic single values (no arrays/comma-separated strings in cells); unique row keys.\n- **2NF (Second Normal Form)**: Must be 1NF AND all non-key columns must fully depend on entire primary key (eliminates partial key dependencies).\n- **3NF (Third Normal Form)**: Must be 2NF AND non-key columns must not depend on other non-key columns (eliminates transitive dependencies: *non-key -> non-key*).",
+          "bulletPoints": [
+            "1NF: Atomic column values.",
+            "2NF: No partial PK dependencies.",
+            "3NF: No transitive non-key dependencies."
+          ]
+        },
+        {
+          "heading": "Denormalization Tradeoffs",
+          "content": "Denormalization intentionally introduces redundant data to optimize read performance and eliminate complex joins in high-scale systems.",
+          "bulletPoints": [
+            "Normalization: Minimizes storage & update anomalies; increases join count.",
+            "Denormalization: Faster reads; requires managing multi-table update sync."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "1NF requires atomic column values.",
+      "2NF eliminates partial dependencies; 3NF eliminates transitive dependencies.",
+      "Denormalize selectively for high-read performance."
+    ],
+    "codeExamples": [
+      {
+        "title": "3NF Normalized Schema Example",
+        "description": "Splitting customer address to satisfy 3NF.",
+        "code": "-- VIOLATES 3NF (Transitive dependency: zip_code -> city, state):\n-- CREATE TABLE users (id INT, zip_code VARCHAR(10), city VARCHAR(50), state VARCHAR(50));\n\n-- SATISFIES 3NF (Separated into zip_codes reference table):\nCREATE TABLE zip_codes (\n  zip_code VARCHAR(10) PRIMARY KEY,\n  city VARCHAR(50) NOT NULL,\n  state VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100) NOT NULL,\n  zip_code VARCHAR(10),\n  FOREIGN KEY (zip_code) REFERENCES zip_codes(zip_code)\n);"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-normalization-mcq-1",
+        "question": "What requirement must a table satisfy to comply with 1NF (First Normal Form)?",
+        "options": [
+          "Have foreign keys",
+          "Every cell column value must be atomic (no multi-value comma lists) and rows must be unique",
+          "No joins allowed",
+          "Must use BCNF"
+        ],
+        "correctAnswer": 1,
+        "explanation": "1NF mandates atomic single values in every table cell."
+      },
+      {
+        "id": "mysql-normalization-mcq-2",
+        "question": "What type of dependency does 3NF (Third Normal Form) eliminate?",
+        "options": [
+          "Partial primary key dependencies",
+          "Transitive dependencies (where a non-key column depends on another non-key column)",
+          "Foreign key dependencies",
+          "Atomic dependencies"
+        ],
+        "correctAnswer": 1,
+        "explanation": "3NF requires that non-key columns depend ONLY on the primary key, eliminating transitive dependencies."
+      },
+      {
+        "id": "mysql-normalization-mcq-3",
+        "question": "What type of dependency does 2NF (Second Normal Form) eliminate?",
+        "options": [
+          "Transitive dependencies",
+          "Partial dependencies (where a non-key column depends on only part of a composite primary key)",
+          "Atomic cell values",
+          "No dependencies"
+        ],
+        "correctAnswer": 1,
+        "explanation": "2NF requires non-key attributes to depend on the whole composite primary key."
+      },
+      {
+        "id": "mysql-normalization-mcq-4",
+        "question": "Why do high-scale read-heavy systems selectively Denormalize database tables?",
+        "options": [
+          "To pass 3NF",
+          "To reduce costly multi-table JOIN operations and improve read query latency",
+          "To save disk space",
+          "To prevent SQL injection"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Denormalization duplicates data to avoid expensive multi-table joins on read queries."
+      },
+      {
+        "id": "mysql-normalization-mcq-5",
+        "question": "What anomaly occurs when updating a customer's address in an un-normalized table requires updating 500 duplicate order rows?",
+        "options": [
+          "Insert Anomaly",
+          "Update Anomaly",
+          "Delete Anomaly",
+          "Select Anomaly"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Update Anomaly occurs when redundant data must be updated in multiple places."
+      }
+    ]
+  },
+  {
+    "id": "mysql-transactions",
+    "title": "Transactions",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Database transactions, START TRANSACTION, COMMIT, ROLLBACK, autocommit mode, and savepoints.",
+    "explanation": {
+      "overview": "A Transaction is a sequential group of database operations executed as a single atomic unit of work.",
+      "sections": [
+        {
+          "heading": "Transaction Commands",
+          "content": "- `START TRANSACTION` (or `BEGIN`): Starts transaction block.\n- `COMMIT`: Saves all mutations permanently to disk.\n- `ROLLBACK`: Cancels all mutations, restoring database state back to start of transaction.",
+          "bulletPoints": [
+            "COMMIT: Makes changes permanent.",
+            "ROLLBACK: Undoes all changes on error.",
+            "SAVEPOINT: Sets intermediate rollback points inside transaction."
+          ]
+        },
+        {
+          "heading": "autocommit Mode",
+          "content": "By default, MySQL runs in `autocommit = 1` mode, where every individual SQL statement is treated as a separate auto-committed transaction.",
+          "bulletPoints": [
+            "autocommit=1: Statements commit instantly.",
+            "Explicit Transaction: `START TRANSACTION` temporarily disables autocommit for transaction block."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`START TRANSACTION` begins an atomic transaction block.",
+      "`COMMIT` saves changes; `ROLLBACK` undoes changes on error.",
+      "MySQL defaults to `autocommit = 1`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Bank Transfer Transaction",
+        "description": "Executing atomic bank transfer with COMMIT and ROLLBACK error handling.",
+        "code": "START TRANSACTION;\n\n-- Debit Account A\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\n\n-- Credit Account B\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\n\n-- Check if errors occurred\n-- If success:\nCOMMIT;\n-- If error:\n-- ROLLBACK;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-transactions-mcq-1",
+        "question": "What does `ROLLBACK` command execute inside an active transaction block?",
+        "options": [
+          "Saves changes permanently",
+          "Undoes all uncommitted mutations executed during current transaction, restoring prior state",
+          "Deletes database",
+          "Restarts MySQL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ROLLBACK` cancels all uncommitted mutations executed since transaction start."
+      },
+      {
+        "id": "mysql-transactions-mcq-2",
+        "question": "What is default behavior of MySQL `autocommit` system variable?",
+        "options": [
+          "autocommit = 0 (disabled)",
+          "autocommit = 1 (enabled: every standalone SQL statement commits automatically)",
+          "autocommit = 2",
+          "Depends on OS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "MySQL defaults `autocommit = 1`, committing single statements immediately."
+      },
+      {
+        "id": "mysql-transactions-mcq-3",
+        "question": "What does `SAVEPOINT point1;` allow inside a transaction?",
+        "options": [
+          "Commits transaction",
+          "Establishes intermediate rollback marker allowing partial transaction rollback via `ROLLBACK TO point1`",
+          "Backs up database",
+          "Locks table"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Savepoints allow rolling back to intermediate markers without aborting entire transaction."
+      },
+      {
+        "id": "mysql-transactions-mcq-4",
+        "question": "Can DDL statements like `ALTER TABLE` or `DROP TABLE` be rolled back inside a MySQL transaction?",
+        "options": [
+          "Yes, fully",
+          "No, DDL statements cause an implicit COMMIT, automatically committing transaction!",
+          "Only in InnoDB",
+          "Only in strict mode"
+        ],
+        "correctAnswer": 1,
+        "explanation": "DDL statements (ALTER, DROP, TRUNCATE) trigger implicit commits in MySQL."
+      },
+      {
+        "id": "mysql-transactions-mcq-5",
+        "question": "What command permanently saves all transaction changes to disk?",
+        "options": [
+          "SAVE",
+          "WRITE",
+          "COMMIT",
+          "PUSH"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`COMMIT` persists all transaction updates permanently to database."
+      }
+    ]
+  },
+  {
+    "id": "mysql-acid",
+    "title": "ACID",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "ACID properties: Atomicity (undo log), Consistency (constraints), Isolation (locks/MVCC), Durability (redo log/WAL).",
+    "explanation": {
+      "overview": "ACID is a set of 4 fundamental properties that guarantee database transaction reliability even during power failures or crashes.",
+      "sections": [
+        {
+          "heading": "The 4 ACID Properties",
+          "content": "- **Atomicity**: All operations in transaction succeed, or ALL fail ('All or Nothing'). Powered by **Undo Log**.\n- **Consistency**: Database transitions from one valid state to another, preserving schema constraints (keys, checks).\n- **Isolation**: Concurrent transactions execute independently without interfering with each other. Powered by **Locks** and **MVCC**.\n- **Durability**: Once committed, changes survive system crashes/power failures. Powered by **Redo Log** (Write-Ahead Logging).",
+          "bulletPoints": [
+            "Atomicity: Undo Log mechanism for rollbacks.",
+            "Consistency: Schema constraints & validity invariants.",
+            "Isolation: MVCC multi-version concurrency control.",
+            "Durability: Redo Log (WAL) persistent write-ahead logs."
+          ]
+        },
+        {
+          "heading": "InnoDB Implementation Mechanics",
+          "content": "InnoDB uses **Undo Logs** to reverse uncommitted atomic transactions and **Redo Logs** (WAL) to flush committed changes safely to disk after crashes.",
+          "bulletPoints": [
+            "Undo Log: Atomicity rollback engine.",
+            "Redo Log: Durability crash recovery engine."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Atomicity (All or Nothing) uses Undo Logs.",
+      "Consistency maintains schema constraint invariants.",
+      "Isolation (MVCC/Locks) prevents concurrent interference.",
+      "Durability (Redo Log/WAL) ensures committed data survives crashes."
+    ],
+    "codeExamples": [
+      {
+        "title": "ACID Guarantee Breakdown",
+        "description": "How InnoDB enforces ACID properties under the hood.",
+        "code": "-- Atomicity:  Rolls back via Undo Log on failure\n-- Consistency: Enforces FOREIGN KEY & NOT NULL constraints\n-- Isolation:  MVCC read-views isolate concurrent transactions\n-- Durability: Redo Log flushes to disk before COMMIT returns!\n\nSTART TRANSACTION;\nUPDATE accounts SET balance = balance - 500 WHERE id = 1;\nUPDATE accounts SET balance = balance + 500 WHERE id = 2;\nCOMMIT;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-acid-mcq-1",
+        "question": "Which InnoDB log mechanism enforces **Atomicity** by providing rollback capability?",
+        "options": [
+          "Redo Log",
+          "Undo Log",
+          "Binary Log",
+          "Slow Query Log"
+        ],
+        "correctAnswer": 1,
+        "explanation": "InnoDB Undo Logs record reverse operations to roll back uncommitted atomic transactions."
+      },
+      {
+        "id": "mysql-acid-mcq-2",
+        "question": "Which InnoDB log mechanism guarantees **Durability** by flushing committed transactions to disk (Write-Ahead Logging)?",
+        "options": [
+          "Undo Log",
+          "Redo Log",
+          "General Log",
+          "Error Log"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redo Log (WAL) records committed transactions to ensure crash recovery."
+      },
+      {
+        "id": "mysql-acid-mcq-3",
+        "question": "What does **Atomicity** ('All or Nothing') guarantee in a database transaction?",
+        "options": [
+          "All queries run in 1ms",
+          "Either ALL SQL operations in transaction succeed, or ALL operations are rolled back completely",
+          "Only 1 table updated",
+          "Data is encrypted"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Atomicity ensures partial transaction executions never persist."
+      },
+      {
+        "id": "mysql-acid-mcq-4",
+        "question": "What does **Consistency** guarantee in ACID?",
+        "options": [
+          "All queries use index",
+          "Database transitions from one valid state to another, enforcing all schema constraints, keys, and triggers",
+          "Fast reads",
+          "Single-threaded"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Consistency guarantees database invariants and schema constraints remain valid."
+      },
+      {
+        "id": "mysql-acid-mcq-5",
+        "question": "What technique does InnoDB use to provide high-performance **Isolation** for concurrent SELECT reads without locking rows?",
+        "options": [
+          "Table locks",
+          "Multi-Version Concurrency Control (MVCC)",
+          "Single-threaded queue",
+          "Disk cache"
+        ],
+        "correctAnswer": 1,
+        "explanation": "MVCC creates point-in-time snapshot read views, allowing non-blocking reads during concurrent writes."
+      }
+    ]
+  },
+  {
+    "id": "mysql-isolation",
+    "title": "Isolation",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Transaction isolation levels: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE, Dirty Reads, Non-repeatable Reads, Phantom Reads.",
+    "explanation": {
+      "overview": "Transaction Isolation Levels control degree to which concurrent transactions can see each other uncommitted or committed data modifications.",
+      "sections": [
+        {
+          "heading": "4 Isolation Levels & Concurrency Anomalies",
+          "content": "1. **READ UNCOMMITTED**: Lowest isolation. Allows **Dirty Reads** (reading uncommitted data that may roll back).\n2. **READ COMMITTED**: Prevents Dirty Reads. Allows **Non-Repeatable Reads** (re-reading same row yields different values if another transaction commits).\n3. **REPEATABLE READ** (MySQL Default): Prevents Dirty and Non-Repeatable Reads. Uses MVCC snapshots. Prevents Phantom Reads in InnoDB via Next-Key locking!\n4. **SERIALIZABLE**: Highest isolation. Locks all accessed rows sequentially, preventing **Phantom Reads** (new inserted rows appearing in range queries).",
+          "bulletPoints": [
+            "Dirty Read: Reading uncommitted data.",
+            "Non-Repeatable Read: Row value changes between 2 reads.",
+            "Phantom Read: New matching rows appear in range query."
+          ]
+        },
+        {
+          "heading": "MySQL Default: REPEATABLE READ",
+          "content": "MySQL InnoDB defaults to `REPEATABLE READ`. Uses MVCC consistent read snapshots for `SELECT` and Next-Key Locking for write queries to eliminate Phantom Reads.",
+          "bulletPoints": [
+            "Default Level: REPEATABLE READ.",
+            "MVCC Snapshot: Consistent read view created on first SELECT."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "4 Levels: Read Uncommitted, Read Committed, Repeatable Read, Serializable.",
+      "MySQL default isolation level is `REPEATABLE READ`.",
+      "Dirty Reads = uncommitted data; Non-Repeatable = value changed; Phantom = new rows inserted."
+    ],
+    "codeExamples": [
+      {
+        "title": "Setting Transaction Isolation Level",
+        "description": "Configuring transaction isolation level in MySQL session.",
+        "code": "-- Set isolation level for current session\nSET SESSION TRANSACTION ISOLATION LEVEL READ COMMITTED;\n\nSTART TRANSACTION;\nSELECT balance FROM accounts WHERE id = 1;\nCOMMIT;\n\n-- Reset to MySQL default:\nSET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-isolation-mcq-1",
+        "question": "What is default Transaction Isolation Level in MySQL InnoDB?",
+        "options": [
+          "READ UNCOMMITTED",
+          "READ COMMITTED",
+          "REPEATABLE READ",
+          "SERIALIZABLE"
+        ],
+        "correctAnswer": 2,
+        "explanation": "InnoDB defaults to `REPEATABLE READ` isolation level."
+      },
+      {
+        "id": "mysql-isolation-mcq-2",
+        "question": "What is a 'Dirty Read' concurrency anomaly?",
+        "options": [
+          "Reading corrupted disk bytes",
+          "Transaction A reads data modified by Transaction B that has NOT YET BEEN COMMITTED (and may roll back)",
+          "Reading deleted table",
+          "Slow query"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Dirty Read occurs when reading uncommitted data that is later rolled back."
+      },
+      {
+        "id": "mysql-isolation-mcq-3",
+        "question": "What is a 'Phantom Read' concurrency anomaly?",
+        "options": [
+          "Transaction fails",
+          "Transaction A executes range query twice, but Transaction B inserts new matching rows between the 2 reads",
+          "Reading nulls",
+          "Index loss"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Phantom Read occurs when concurrent inserts cause new matching rows to appear in range queries."
+      },
+      {
+        "id": "mysql-isolation-mcq-4",
+        "question": "Which isolation level completely prevents Dirty Reads, Non-Repeatable Reads, and Phantom Reads by executing transactions sequentially?",
+        "options": [
+          "READ COMMITTED",
+          "REPEATABLE READ",
+          "SERIALIZABLE",
+          "NONE"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`SERIALIZABLE` locks rows sequentially, preventing all concurrency anomalies."
+      },
+      {
+        "id": "mysql-isolation-mcq-5",
+        "question": "What happens during a 'Non-Repeatable Read'?",
+        "options": [
+          "Query fails",
+          "Transaction A reads row twice, but Transaction B updates and COMMITS that row in between, yielding different values",
+          "Row is locked",
+          "Index corrupts"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Non-Repeatable Read occurs when re-reading a row returns updated committed values."
+      }
+    ]
+  },
+  {
+    "id": "mysql-explain",
+    "title": "EXPLAIN",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Analyzing query execution plans, EXPLAIN FORMAT=JSON, type column (ALL, index, range, ref, eq_ref, const), key, rows, and Extra.",
+    "explanation": {
+      "overview": "`EXPLAIN` displays the MySQL Optimizer query execution plan, showing how tables are joined and which indexes are utilized.",
+      "sections": [
+        {
+          "heading": "Key EXPLAIN Columns",
+          "content": "- **select_type**: SIMPLE, PRIMARY, SUBQUERY, DERIVED.\n- **type** (Join Access Type - Best to Worst):\n  1. `const` / `system`: Single PK/Unique match.\n  2. `eq_ref`: 1 row match per join (PK lookup).\n  3. `ref`: Non-unique index match.\n  4. `range`: Index range scan (`>`, `<`, `BETWEEN`).\n  5. `index`: Full index scan.\n  6. `ALL`: Full table scan (Worst!).\n- **possible_keys**: Indexes MySQL could use.\n- **key**: Index MySQL actually chose.\n- **rows**: Estimated rows MySQL must scan.",
+          "bulletPoints": [
+            "type ALL: Full table scan (Performance bottleneck!).",
+            "type const/eq_ref: Optimal point lookups.",
+            "rows: Estimated scanned row count."
+          ]
+        },
+        {
+          "heading": "Extra Column Warnings",
+          "content": "- `Using filesort`: Needs in-memory/disk sort pass (add index for ORDER BY).\n- `Using temporary`: Created temp table (needs optimization).\n- `Using index`: Covering index optimization!"
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`EXPLAIN` reveals query execution plans.",
+      "`type: ALL` indicates full table scan; aim for `const`, `eq_ref`, `ref`, or `range`.",
+      "`Using index` in Extra column indicates covering index optimization."
+    ],
+    "codeExamples": [
+      {
+        "title": "EXPLAIN Query Analysis",
+        "description": "Running EXPLAIN to inspect query plan output.",
+        "code": "EXPLAIN SELECT u.name, o.total_amount\nFROM users u\nINNER JOIN orders o ON u.id = o.user_id\nWHERE u.email = 'alex@example.com';\n\n-- Inspect columns: type, key, rows, Extra"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-explain-mcq-1",
+        "question": "What does `type: ALL` in `EXPLAIN` query output indicate?",
+        "options": [
+          "Optimal index scan",
+          "Full table scan (MySQL must read every single table row from disk)",
+          "Covering index match",
+          "Async execution"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`type: ALL` indicates full table scan, reading all table rows."
+      },
+      {
+        "id": "mysql-explain-mcq-2",
+        "question": "Which `type` value in `EXPLAIN` represents fastest possible primary key point lookup?",
+        "options": [
+          "ALL",
+          "range",
+          "const (or system)",
+          "index"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`const` represents single-row primary key or unique index match."
+      },
+      {
+        "id": "mysql-explain-mcq-3",
+        "question": "What does `Using index` in `Extra` column of `EXPLAIN` output mean?",
+        "options": [
+          "Query failed",
+          "Covering Index: Query was satisfied entirely from index B-Tree without reading table data rows",
+          "Full table scan",
+          "Index corrupted"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Using index` indicates covering index optimization."
+      },
+      {
+        "id": "mysql-explain-mcq-4",
+        "question": "Which `EXPLAIN` column displays the index MySQL OPTIMIZER actually selected for execution?",
+        "options": [
+          "possible_keys",
+          "key",
+          "type",
+          "ref"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`key` displays index chosen by query optimizer; `possible_keys` lists candidate indexes."
+      },
+      {
+        "id": "mysql-explain-mcq-5",
+        "question": "What does `rows` column in `EXPLAIN` represent?",
+        "options": [
+          "Total rows in database",
+          "Estimated number of rows MySQL expects to inspect to execute query",
+          "Rows returned to client",
+          "Memory size"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`rows` displays estimated row count MySQL optimizer expects to scan."
+      }
+    ]
+  },
+  {
+    "id": "mysql-query-optimization",
+    "title": "Query optimization",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Optimizing slow queries, eliminating functions on indexed columns, Sargable queries, and slow query log.",
+    "explanation": {
+      "overview": "Query Optimization eliminates full table scans, reduces temporary table filesorts, and ensures queries are Sargable (Search Argument Able).",
+      "sections": [
+        {
+          "heading": "Sargable Queries & Function Pitfalls",
+          "content": "A query is **Sargable** if engine can use indexes. Wrapping indexed columns in SQL functions (`WHERE YEAR(created_at) = 2026` or `WHERE LOWER(email) = 'x'`) prevents index usage!",
+          "bulletPoints": [
+            "Non-Sargable: `WHERE YEAR(created_at) = 2026` (forces full scan!).",
+            "Sargable: `WHERE created_at >= '2026-01-01' AND created_at < '2027-01-01'` (uses index!)."
+          ]
+        },
+        {
+          "heading": "Slow Query Log & Profiling",
+          "content": "Enable MySQL Slow Query Log (`slow_query_log = 1`, `long_query_time = 1`) to automatically capture queries exceeding execution threshold.",
+          "bulletPoints": [
+            "Slow Query Log: Identifies queries exceeding time threshold.",
+            "pt-query-digest: Analyzes slow logs to highlight top optimization targets."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Never wrap indexed columns inside functions in `WHERE` clauses.",
+      "Write Sargable query conditions to enable B-Tree index scans.",
+      "Use Slow Query Log to identify optimization targets."
+    ],
+    "codeExamples": [
+      {
+        "title": "Non-Sargable vs Sargable Refactoring",
+        "description": "Refactoring non-sargable function query to use B-Tree index.",
+        "code": "-- NON-SARGABLE (Prevents index usage on created_at!):\nSELECT * FROM orders WHERE YEAR(created_at) = 2026;\n\n-- REFACTORED SARGABLE (Uses B-Tree index on created_at!):\nSELECT * FROM orders \nWHERE created_at >= '2026-01-01 00:00:00' \n  AND created_at <  '2027-01-01 00:00:00';"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-query-optimization-mcq-1",
+        "question": "Why does `WHERE DATE(created_at) = '2026-01-01'` cause poor query performance on an indexed `created_at` column?",
+        "options": [
+          "DATE function is slow",
+          "Wrapping indexed column in a function prevents MySQL from using B-Tree index (Non-Sargable), forcing full table scan",
+          "Syntax error",
+          "Deletes index"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Applying functions to indexed columns invalidates B-Tree index lookup."
+      },
+      {
+        "id": "mysql-query-optimization-mcq-2",
+        "question": "What does term 'Sargable' (Search Argument Able) mean in SQL query optimization?",
+        "options": [
+          "Query can be searched on Google",
+          "Query condition is written in format allowing database engine to utilize B-Tree indexes efficiently",
+          "Query uses subqueries",
+          "Query uses JSON"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Sargable queries format conditions so engine can utilize index B-Trees."
+      },
+      {
+        "id": "mysql-query-optimization-mcq-3",
+        "question": "Which MySQL feature logs queries taking longer than `long_query_time` seconds to execute?",
+        "options": [
+          "Error Log",
+          "Slow Query Log",
+          "General Log",
+          "Binary Log"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Slow Query Log records queries exceeding execution time threshold."
+      },
+      {
+        "id": "mysql-query-optimization-mcq-4",
+        "question": "How should query `WHERE price * 0.9 < 100` be refactored to make it Sargable on indexed `price` column?",
+        "options": [
+          "WHERE price < 100 / 0.9",
+          "WHERE price * 0.9 < 100",
+          "WHERE MATH(price)",
+          "WHERE price = 100"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Moving arithmetic math off indexed column `WHERE price < (100 / 0.9)` restores Sargability."
+      },
+      {
+        "id": "mysql-query-optimization-mcq-5",
+        "question": "Why is `SELECT COUNT(*) FROM orders WHERE status = 'shipped'` slow on a table with 10 million rows if `status` is NOT indexed?",
+        "options": [
+          "COUNT is slow",
+          "Engine must read all 10,000,000 table rows from disk to count status matches",
+          "MySQL bug",
+          "Locks table"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Without an index, MySQL scans all 10 million rows to evaluate `status` count."
+      }
+    ]
+  },
+  {
+    "id": "mysql-connection-pooling",
+    "title": "Connection pooling",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Database connection overhead, connection poolers (HikariCP, mysql2 pool), min/max pool sizes, and idle connection timeouts.",
+    "explanation": {
+      "overview": "Connection Pooling maintains a reusable cache of active database connections to avoid expensive TCP handshake and authentication overhead per query.",
+      "sections": [
+        {
+          "heading": "Connection Creation Overhead Problem",
+          "content": "Creating a new MySQL connection requires TCP 3-way handshake, TLS exchange, and MySQL authentication (~50-100ms latency). Creating connection per HTTP request overwhelms DB thread limits.",
+          "bulletPoints": [
+            "Connection Overhead: High CPU/RAM cost per new connection.",
+            "Connection Pool: Reuses warm established connections instantly ($<1$ms)."
+          ]
+        },
+        {
+          "heading": "Pool Sizing Parameters",
+          "content": "- `connectionLimit` / `max`: Maximum active connections in pool.\n- `idleTimeout`: Time connection remains idle before closing.\n- Rule of Thumb: $PoolSize = (CPU\\_Cores \\times 2) + Effective\\_Spindle\\_Count$.",
+          "bulletPoints": [
+            "Pool Exhaustion: Requests wait in queue when all pool connections are busy.",
+            "Avoid Excessive Pool Sizes: 500 connections cause CPU thread context switching thrashing!"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Connection pooling reuses active DB connections to bypass TCP/auth overhead.",
+      "Set reasonable max pool sizes (e.g. 10-20 per app node).",
+      "Always release/return connections back to pool after query execution."
+    ],
+    "codeExamples": [
+      {
+        "title": "Node.js mysql2 Connection Pool",
+        "description": "Configuring reusable connection pool with mysql2 library.",
+        "code": "const mysql = require('mysql2/promise');\n\n// Create connection pool instance\nconst pool = mysql.createPool({\n  host: 'localhost',\n  user: 'db_user',\n  password: 'secret_password',\n  database: 'app_db',\n  waitForConnections: true,\n  connectionLimit: 10, // Max 10 active connections\n  queueLimit: 0\n});\n\nasync function getUsers() {\n  // Automatically acquires connection from pool and releases it when finished!\n  const [rows] = await pool.query('SELECT id, name FROM users WHERE is_active = 1');\n  return rows;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-connection-pooling-mcq-1",
+        "question": "What overhead does database Connection Pooling eliminate for web applications?",
+        "options": [
+          "SQL parsing",
+          "Repeated TCP handshake, TLS setup, and MySQL authentication overhead for every incoming HTTP request",
+          "Disk storage",
+          "CSS rendering"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Connection pooling reuses established connections, eliminating connection setup latency."
+      },
+      {
+        "id": "mysql-connection-pooling-mcq-2",
+        "question": "What happens when an incoming API request requests a connection when all connections in pool are busy and queue is full?",
+        "options": [
+          "Creates infinite connections",
+          "Request fails with connection pool exhaustion timeout error",
+          "Restarts MySQL",
+          "Deletes database"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Pool exhaustion causes connection acquisition calls to timeout or throw errors."
+      },
+      {
+        "id": "mysql-connection-pooling-mcq-3",
+        "question": "Why is setting connection pool size to 1,000 connections on a 4-core database server counterproductive?",
+        "options": [
+          "Memory is free",
+          "Causes severe CPU thread context-switching thrashing and RAM exhaustion, slowing query throughput",
+          "MySQL limits to 10",
+          "Disables indexes"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Excessive connections overwhelm CPU cores with context switching, degrading throughput."
+      },
+      {
+        "id": "mysql-connection-pooling-mcq-4",
+        "question": "What must application code do after manually acquiring a connection `conn = await pool.getConnection()`?",
+        "options": [
+          "Close MySQL process",
+          "Must invoke `conn.release()` to return connection back to pool for next request",
+          "Delete pool",
+          "Nothing"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Explicitly acquired pool connections must be released via `conn.release()` to avoid pool leaks."
+      },
+      {
+        "id": "mysql-connection-pooling-mcq-5",
+        "question": "Which MySQL system variable defines maximum allowed concurrent connections server-wide?",
+        "options": [
+          "max_connections",
+          "pool_size",
+          "connection_limit",
+          "max_threads"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`max_connections` limits total server-wide concurrent client connections."
+      }
+    ]
+  },
+  {
+    "id": "mysql-n-plus-1-problem",
+    "title": "N+1 problem",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "N+1 query problem in ORMs, loop database queries, JOIN batching, and DataLoader pattern.",
+    "explanation": {
+      "overview": "The N+1 Query Problem occurs when an application executes 1 initial query to fetch N parent records, followed by N separate query calls inside a loop to fetch child records.",
+      "sections": [
+        {
+          "heading": "The N+1 Query Bottleneck",
+          "content": "Example: Fetch 100 users (`1 query`). For each user in loop, execute `SELECT * FROM orders WHERE user_id = user.id` (`100 queries`). Result: 101 total database roundtrips!",
+          "bulletPoints": [
+            "1 Initial Query: Fetches N parent records.",
+            "N Additional Queries: Executed inside loop per parent record.",
+            "ORM Default: Common pitfall in Prisma, TypeORM, Hibernate, Sequelize lazy loading."
+          ]
+        },
+        {
+          "heading": "Fixing N+1: JOINs & Batch IN Queries",
+          "content": "Fix N+1 using explicit `JOIN` or batch `IN` query:\n- Single JOIN: `SELECT * FROM users u LEFT JOIN orders o ON u.id = o.user_id` (1 query!).\n- Batch IN: `SELECT * FROM orders WHERE user_id IN (1, 2, ..., 100)` (2 queries total!).",
+          "bulletPoints": [
+            "Eager Loading (JOIN): Solves N+1 in single database roundtrip.",
+            "Batch IN Query: Reduces 101 queries to 2 queries.",
+            "DataLoader: Batches GraphQL and ORM queries automatically."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "N+1 problem executes 1 parent query + N child queries inside loop.",
+      "Fix using Eager Loading (`JOIN`) or Batch `IN` queries.",
+      "Use DataLoader in GraphQL to batch child entity lookups."
+    ],
+    "codeExamples": [
+      {
+        "title": "N+1 Problem vs Fixed Batch Query",
+        "description": "Comparing N+1 loop queries vs single batch IN query.",
+        "code": "// N+1 PROBLEM (101 Database Queries!):\nconst users = await db.query('SELECT * FROM users LIMIT 100'); // 1 query\nfor (const user of users) {\n  // Executed 100 times in loop!\n  user.orders = await db.query('SELECT * FROM orders WHERE user_id = ?', [user.id]);\n}\n\n// FIXED WITH BATCH IN (2 Database Queries Total!):\nconst users = await db.query('SELECT * FROM users LIMIT 100'); // 1 query\nconst userIds = users.map(u => u.id);\nconst allOrders = await db.query('SELECT * FROM orders WHERE user_id IN (?)', [userIds]); // 2nd query!"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-n-plus-1-problem-mcq-1",
+        "question": "What is the N+1 Query Problem in database development?",
+        "options": [
+          "Adding 1 to N in SQL",
+          "Executing 1 initial query to fetch N parent records, followed by N separate query executions in a loop for child records (N+1 roundtrips)",
+          "SQL syntax error",
+          "Creating N tables"
+        ],
+        "correctAnswer": 1,
+        "explanation": "N+1 problem issues 1 parent query plus N loop queries for child relations."
+      },
+      {
+        "id": "mysql-n-plus-1-problem-mcq-2",
+        "question": "If you fetch 500 author records and query each author's books inside a `for` loop, how many total database queries execute under N+1 pattern?",
+        "options": [
+          "1",
+          "500",
+          "501 queries",
+          "1000"
+        ],
+        "correctAnswer": 2,
+        "explanation": "1 initial query for 500 authors + 500 loop queries for books = 501 total database queries."
+      },
+      {
+        "id": "mysql-n-plus-1-problem-mcq-3",
+        "question": "How does Eager Loading with `INNER JOIN` solve the N+1 query problem?",
+        "options": [
+          "Deletes child table",
+          "Fetches parent and child records together in a single SQL query roundtrip",
+          "Runs query in Web Worker",
+          "Caches queries"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`JOIN` fetches parents and children together in 1 single database roundtrip."
+      },
+      {
+        "id": "mysql-n-plus-1-problem-mcq-4",
+        "question": "How does Batching with `WHERE user_id IN (1, 2, ..., 500)` resolve N+1 queries?",
+        "options": [
+          "Reduces 501 queries to 2 queries total (1 parent query + 1 batch child query)",
+          "Eliminates database",
+          "Converts queries to REST",
+          "Uses 500 threads"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Batch `IN()` queries reduce N+1 loop queries down to 2 total database queries."
+      },
+      {
+        "id": "mysql-n-plus-1-problem-mcq-5",
+        "question": "Which utility library pattern is commonly used in GraphQL servers to eliminate N+1 resolver queries?",
+        "options": [
+          "DataLoader",
+          "Express",
+          "Axios",
+          "Redux"
+        ],
+        "correctAnswer": 0,
+        "explanation": "DataLoader batches and caches individual key requests across event loop ticks to solve N+1."
+      }
+    ]
+  }
+]

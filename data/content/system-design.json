@@ -1,0 +1,1153 @@
+[
+  {
+    "id": "sys-file-upload",
+    "title": "File upload",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Presigned URLs, direct S3/Cloud Storage upload, multipart chunking, CDN distribution, and metadata DB persistence.",
+    "explanation": {
+      "overview": "Designing scalable file uploads requires offloading binary file payload streaming directly to cloud Object Storage (AWS S3, Google Cloud Storage) using Presigned URLs to prevent application web servers from becoming network I/O bottlenecks.",
+      "sections": [
+        {
+          "heading": "Presigned URL Architecture",
+          "content": "Rather than streaming multi-gigabyte files through application backend servers, the client requests a short-lived **Presigned Upload URL** from backend API. Client uploads file directly to Cloud Object Storage via PUT request.",
+          "bulletPoints": [
+            "Presigned URL: Time-limited signed URL granting write access directly to S3 bucket.",
+            "Offloads Bandwidth: Web application servers handle lightweight JSON metadata without touching heavy file byte streams."
+          ]
+        },
+        {
+          "heading": "Multipart Uploads & Asynchronous Processing",
+          "content": "For files > 100MB, use **Multipart Uploads** to upload file chunks in parallel with retry resilience. Trigger background event notifications (S3 Event -> SQS -> Worker) for processing.",
+          "bulletPoints": [
+            "Multipart Uploads: Parallel chunk upload with individual chunk retries.",
+            "Event-Driven Pipeline: Object Storage emits event triggering async image resizing or virus scanning."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use Presigned URLs for direct client-to-S3 file uploads.",
+      "Use Multipart Uploads for files larger than 100MB.",
+      "Offload post-upload image/video processing to background queues (SQS/Celery)."
+    ],
+    "codeExamples": [
+      {
+        "title": "AWS S3 Presigned URL Generator",
+        "description": "Backend API generating S3 Presigned URL for client upload.",
+        "code": "import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';\nimport { getSignedUrl } from '@aws-sdk/s3-request-presigner';\n\nconst s3 = new S3Client({ region: 'us-east-1' });\n\nexport async function generateUploadUrl(filename: string, fileType: string) {\n  const key = `uploads/${Date.now()}-${filename}`;\n  const command = new PutObjectCommand({\n    Bucket: 'my-app-storage',\n    Key: key,\n    ContentType: fileType\n  });\n  \n  // Generates 15-minute valid presigned PUT URL\n  const uploadUrl = await getSignedUrl(s3, command, { expiresIn: 900 });\n  return { uploadUrl, key };\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-file-upload-mcq-1",
+        "question": "What is primary system design advantage of using AWS S3 Presigned URLs for file uploads?",
+        "options": [
+          "Encrypts file twice",
+          "Clients upload binary files directly to Object Storage, preventing app web servers from becoming network I/O bottlenecks",
+          "Deletes file after 1 hour",
+          "Faster CSS loading"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Presigned URLs allow direct client-to-storage uploads, keeping backend servers free of heavy I/O."
+      },
+      {
+        "id": "sys-file-upload-mcq-2",
+        "question": "What upload strategy should be used for reliable 5GB video file uploads over spotty mobile networks?",
+        "options": [
+          "Single POST request",
+          "Multipart Uploads (chunks uploaded in parallel with independent chunk retry capabilities)",
+          "Base64 string in JSON",
+          "WebSocket string"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Multipart uploads break large files into independent chunks, enabling parallel uploads and partial retries."
+      },
+      {
+        "id": "sys-file-upload-mcq-3",
+        "question": "How should post-upload tasks (thumbnail generation, virus scanning, video transcoding) be executed?",
+        "options": [
+          "Synchronously inside upload HTTP request handler",
+          "Asynchronously by pushing an event notification to message queue (SQS/Kafka) for background workers",
+          "Inside client browser",
+          "In database trigger"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Post-processing tasks belong in background queues to prevent delaying client HTTP upload responses."
+      },
+      {
+        "id": "sys-file-upload-mcq-4",
+        "question": "Which cloud service component delivers uploaded static images to global users with minimal latency?",
+        "options": [
+          "Relational Database",
+          "Content Delivery Network (CDN) like Cloudflare or AWS CloudFront",
+          "Message Queue",
+          "Load Balancer"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CDNs cache static assets at edge locations close to users worldwide."
+      },
+      {
+        "id": "sys-file-upload-mcq-5",
+        "question": "Where should uploaded file metadata (file name, size, user ID, S3 key, content type) be stored?",
+        "options": [
+          "Inside image EXIF header",
+          "Relational or NoSQL database",
+          "Inside S3 key string",
+          "In browser cookie"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Databases index structured file metadata for fast querying, search, and access control checks."
+      }
+    ]
+  },
+  {
+    "id": "sys-image-processing",
+    "title": "Image processing",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Asynchronous image pipelines, worker pools, Sharp/FFmpeg processing, WebP/AVIF compression, and CDN caching.",
+    "explanation": {
+      "overview": "Scalable image processing decouples CPU-heavy image operations (resizing, WebP conversion, watermark insertion) from user-facing web servers using asynchronous job queues and edge CDN caching.",
+      "sections": [
+        {
+          "heading": "Event-Driven Image Pipeline",
+          "content": "1. User uploads original image to S3 bucket.\n2. S3 emits `ObjectCreated` event to SQS queue.\n3. Worker pool (Node.js Sharp, Go, or AWS Lambda) picks up job, generates responsive WebP variants, and uploads to S3.\n4. CDN edges cache image variants.",
+          "bulletPoints": [
+            "Event Driven: S3 event triggers SQS queue message.",
+            "Worker Pool: Dedicated image processing workers (Sharp / ImageMagick).",
+            "Modern Formats: Convert JPEG/PNG to WebP or AVIF (30-50% smaller size)."
+          ]
+        },
+        {
+          "heading": "On-The-Fly vs Batch Processing",
+          "content": "- **Batch Pre-Processing**: Generates predefined avatar sizes (`sm`, `md`, `lg`) on upload.\n- **On-The-Fly Dynamic Resizing**: Serverless function (AWS Lambda@Edge) resizes image dynamically on first request URL `/img/logo.png?w=300&h=300` and caches result on CDN.",
+          "bulletPoints": [
+            "On-The-Fly: Generates custom resolutions dynamically on first request.",
+            "Edge Caching: Subsequent requests served instantly from CDN edge cache."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Decouple CPU-heavy image processing from main web servers using worker pools.",
+      "Convert images to modern formats (WebP / AVIF) for 30-50% bandwidth reduction.",
+      "Cache processed image variants aggressively on CDN edge nodes."
+    ],
+    "codeExamples": [
+      {
+        "title": "Node.js Sharp Image Processing Worker",
+        "description": "Resizing image and converting to WebP format.",
+        "code": "import sharp from 'sharp';\nimport fs from 'fs/promises';\n\nexport async function processAvatarJob(inputBuffer: Buffer): Promise<Buffer> {\n  // Resize to 300x300 and convert to efficient WebP format\n  const processedBuffer = await sharp(inputBuffer)\n    .resize(300, 300, { fit: 'cover' })\n    .webp({ quality: 80 })\n    .toBuffer();\n    \n  return processedBuffer;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-image-processing-mcq-1",
+        "question": "Why should image resizing NOT be executed synchronously inside main API HTTP server thread?",
+        "options": [
+          "Image quality degrades",
+          "CPU-intensive image processing blocks server event loop, stalling concurrent user requests",
+          "S3 rejects uploaded bytes",
+          "Format error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Image processing consumes heavy CPU cycles, blocking main API server threads."
+      },
+      {
+        "id": "sys-image-processing-mcq-2",
+        "question": "What image format offers ~30-50% smaller file size than JPEG while maintaining equivalent visual quality?",
+        "options": [
+          "BMP",
+          "WebP (or AVIF)",
+          "TIFF",
+          "GIF"
+        ],
+        "correctAnswer": 1,
+        "explanation": "WebP and AVIF formats provide superior compression efficiency compared to legacy JPEG/PNG."
+      },
+      {
+        "id": "sys-image-processing-mcq-3",
+        "question": "How does 'On-The-Fly' image resizing with CDN caching operate?",
+        "options": [
+          "Resizes image in client JS",
+          "First request triggers serverless edge function to resize image; result is cached on CDN for subsequent requests",
+          "Pre-generates 100 sizes on upload",
+          "Stores images in SQL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "On-The-Fly resizes dynamically on first request and caches output on CDN."
+      },
+      {
+        "id": "sys-image-processing-mcq-4",
+        "question": "What component acts as buffer between Object Storage events and image processing workers?",
+        "options": [
+          "SQL Database",
+          "Message Queue (SQS / RabbitMQ / Kafka)",
+          "Load Balancer",
+          "Browser LocalStorage"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Message queues buffer upload notification events for asynchronous processing by worker pools."
+      },
+      {
+        "id": "sys-image-processing-mcq-5",
+        "question": "What feature of AWS Lambda makes it ideal for image processing worker tasks?",
+        "options": [
+          "Persistent disk storage",
+          "Auto-scaling concurrency to handle unpredictable spikes in upload processing jobs",
+          "Runs C++ only",
+          "Built-in database"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Serverless functions (Lambda) scale worker instances automatically to handle upload bursts."
+      }
+    ]
+  },
+  {
+    "id": "sys-rate-limiter",
+    "title": "Rate limiter",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Designing distributed rate limiters, API Gateway layer placement, Redis cluster counters, and fallback strategies.",
+    "explanation": {
+      "overview": "A Rate Limiter restricts number of request calls a user or IP can make to an API within a given window, preventing DDoS attacks, brute-force attempts, and resource starvation.",
+      "sections": [
+        {
+          "heading": "Placement: API Gateway vs Application Layer",
+          "content": "- **API Gateway Placement**: Rate limiter sits at edge (Kong, AWS API Gateway, NGINX) blocking malicious requests before they hit backend microservices.\n- **Application Placement**: Rate limiter embedded inside middleware for granular per-user business logic rules.",
+          "bulletPoints": [
+            "API Gateway: Edge protection, protects internal backend infrastructure.",
+            "Application Layer: Fine-grained per-tenant or per-route rate limits."
+          ]
+        },
+        {
+          "heading": "Distributed Rate Limiter Architecture",
+          "content": "Uses centralized Redis cluster holding atomic counters or sliding window logs (`INCR`, `ZSET`, or Lua scripts). In case of Redis cluster failure, rate limiter should **fail-open** to ensure application availability.",
+          "bulletPoints": [
+            "Redis Central Store: Shared counter synchronized across multiple app instances.",
+            "Fail-Open Strategy: Allow traffic if rate limiter cache fails, ensuring high availability."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Place rate limiters at API Gateway edge for infrastructure protection.",
+      "Use centralized Redis cluster for atomic request counters across nodes.",
+      "Adopt a 'fail-open' strategy on rate limiter infrastructure failure."
+    ],
+    "codeExamples": [
+      {
+        "title": "Distributed Rate Limiter Architecture",
+        "description": "API Gateway rate limiting flow with Redis cluster.",
+        "code": "Client Request -> [ API Gateway / NGINX ]\n                        |\n             (Check Redis Atomic Counter)\n                        |\n         +--------------+--------------+\n         |                             |\n[ Allowed (Count <= Limit) ]   [ Rejected (Count > Limit) ]\n         |                             |\nForward to Microservice        Return HTTP 429 + Retry-After"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-rate-limiter-mcq-1",
+        "question": "Where should a system-wide rate limiter be placed to protect internal backend microservices from DDoS attacks?",
+        "options": [
+          "Inside database triggers",
+          "At the API Gateway / NGINX reverse proxy edge layer",
+          "Inside client browser",
+          "In DNS server"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Placing rate limiter at API Gateway edge blocks malicious traffic before reaching internal microservices."
+      },
+      {
+        "id": "sys-rate-limiter-mcq-2",
+        "question": "What is 'Fail-Open' strategy in rate limiter system design?",
+        "options": [
+          "Block all traffic on error",
+          "If rate limiter cache (Redis) fails, allow API requests through to ensure application remains available",
+          "Restart database",
+          "Log out users"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Fail-open prioritizes system availability over strict rate enforcement if rate limiter fails."
+      },
+      {
+        "id": "sys-rate-limiter-mcq-3",
+        "question": "Why are local in-memory counters inside web servers unsuitable for a multi-instance microservice cluster behind a Load Balancer?",
+        "options": [
+          "In-memory is slow",
+          "Load balancer routes requests across different server nodes, allowing a client to bypass rate limits by hitting different nodes",
+          "Local memory is read-only",
+          "In-memory uses SSL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Local memory counters are isolated per node; clients can bypass limits by hitting different cluster nodes."
+      },
+      {
+        "id": "sys-rate-limiter-mcq-4",
+        "question": "Which Redis implementation provides atomic, race-condition-free rate limiting execution?",
+        "options": [
+          "MULTI without EXEC",
+          "Redis Lua script",
+          "GET and SET in JS",
+          "Keys command"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis Lua scripts execute atomically, eliminating race conditions across concurrent API nodes."
+      },
+      {
+        "id": "sys-rate-limiter-mcq-5",
+        "question": "What header should rate-limited 429 HTTP responses include to inform clients when to retry?",
+        "options": [
+          "Retry-After",
+          "X-Wait",
+          "Cache-Control",
+          "Access-Control-Allow-Origin"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`Retry-After` header specifies seconds to wait before making subsequent requests."
+      }
+    ]
+  },
+  {
+    "id": "sys-caching",
+    "title": "Caching",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Multi-tier caching architecture, Client cache, CDN, Reverse Proxy, Application cache, DB cache, and invalidation strategies.",
+    "explanation": {
+      "overview": "Caching stores copies of data in high-speed storage layers (RAM / Edge CDNs) to serve future requests faster and reduce database query load.",
+      "sections": [
+        {
+          "heading": "Multi-Tier Caching Layers",
+          "content": "1. **Browser/Client Cache**: Caches static assets & HTTP responses (`Cache-Control`).\n2. **CDN Cache**: Edge nodes cache static files & dynamic API responses globally.\n3. **Reverse Proxy / Gateway Cache**: NGINX / Varnish cache hot API endpoints.\n4. **Application Cache**: Redis / Memcached in-memory key-value cache.\n5. **Database Buffer Pool**: InnoDB Buffer Pool caches index & data pages in RAM.",
+          "bulletPoints": [
+            "Browser: Local device RAM/Disk cache.",
+            "CDN: Edge servers close to users.",
+            "App Cache: In-memory Redis/Memcached cluster."
+          ]
+        },
+        {
+          "heading": "Cache Invalidation Strategies",
+          "content": "- **Purge on Write**: Delete/update cache key immediately when database record is updated.\n- **TTL Expiration**: Expire cache items after set lifespan (e.g. 5 minutes).\n- **Cache Tagging**: Invalidate group of related cache keys simultaneously.",
+          "bulletPoints": [
+            "Hard Problem: 'There are only two hard things in Computer Science: cache invalidation and naming things.'",
+            "Write-Through vs Cache-Aside."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Implement multi-tier caching (Browser, CDN, Redis, DB Buffer Pool).",
+      "Use Redis/Memcached for application-level caching.",
+      "Combine TTL expiration with active purging on database updates."
+    ],
+    "codeExamples": [
+      {
+        "title": "Multi-Tier Cache Flow Diagram",
+        "description": "Request flow through CDN, API Gateway, Redis, and Database.",
+        "code": "[ Client Browser ]\n       |\n(1. Check CDN Cache)\n       |\n[ API Gateway / NGINX ]\n       |\n(2. Check Redis App Cache)\n       |\n[ Application Service ]\n       |\n(3. Query DB Buffer Pool -> Disk Storage)"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-caching-mcq-1",
+        "question": "Which caching tier serves static asset requests with lowest network latency for global users?",
+        "options": [
+          "Database Buffer Pool",
+          "Content Delivery Network (CDN) edge nodes",
+          "Redis backend cache",
+          "Browser LocalStorage"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CDNs cache content at edge locations geographically close to users, minimizing network latency."
+      },
+      {
+        "id": "sys-caching-mcq-2",
+        "question": "What is primary challenge associated with caching dynamic database queries?",
+        "options": [
+          "High disk cost",
+          "Cache invalidation: ensuring cached data remains synchronized when underlying database records update",
+          "Slow memory speed",
+          "CORS policy"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Cache invalidation (keeping cached data in sync with DB updates) is a complex engineering challenge."
+      },
+      {
+        "id": "sys-caching-mcq-3",
+        "question": "What is function of InnoDB Buffer Pool in MySQL?",
+        "options": [
+          "Caches client cookies",
+          "Allocates dedicated RAM to cache database table data and index pages, avoiding disk I/O reads",
+          "Compresses HTML",
+          "Manages connections"
+        ],
+        "correctAnswer": 1,
+        "explanation": "InnoDB Buffer Pool caches frequently accessed data and index pages in server RAM."
+      },
+      {
+        "id": "sys-caching-mcq-4",
+        "question": "What is Cache Invalidation strategy 'Purge on Write'?",
+        "options": [
+          "Clear cache every 24 hours",
+          "Explicitly deleting or updating corresponding Redis cache key immediately when a database record is modified",
+          "Write only to cache",
+          "Delete database"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Purge on Write invalidates or updates matching cache keys as soon as source data updates."
+      },
+      {
+        "id": "sys-caching-mcq-5",
+        "question": "Which in-memory key-value store supports advanced data structures (Hashes, Sorted Sets, Streams) unlike Memcached?",
+        "options": [
+          "Redis",
+          "Varnish",
+          "NGINX",
+          "SQLite"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Redis supports complex data structures (Strings, Hashes, Lists, Sets, ZSETs, Streams)."
+      }
+    ]
+  },
+  {
+    "id": "sys-queue",
+    "title": "Queue",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Message queues (RabbitMQ, SQS, Kafka), asynchronous decoupling, load leveling (smoothing spikes), and dead-letter queues.",
+    "explanation": {
+      "overview": "Message Queues enable asynchronous point-to-point communication between software components, decoupling producers from consumers.",
+      "sections": [
+        {
+          "heading": "3 Core Benefits of Message Queues",
+          "content": "1. **Decoupling**: Producer services do not need to know consumer implementation details or availability.\n2. **Load Leveling (Spike Smoothing)**: Queue buffers sudden traffic bursts (e.g. Black Friday orders), allowing worker instances to process messages at steady capacity.\n3. **Resilience & Retries**: Failed messages remain in queue for retry without losing client data.",
+          "bulletPoints": [
+            "Decoupling: Producers and consumers scale independently.",
+            "Load Leveling: Protects downstream services from traffic spikes.",
+            "Dead-Letter Queue (DLQ): Holds permanently failing messages for developer inspection."
+          ]
+        },
+        {
+          "heading": "At-Least-Once Delivery & Idempotency",
+          "content": "Message queues (SQS, RabbitMQ) typically guarantee **At-Least-Once** delivery. Consumers MUST be **Idempotent** to safely handle duplicate message deliveries.",
+          "bulletPoints": [
+            "At-Least-Once: Messages may be delivered more than once.",
+            "Consumer Idempotency: Use message IDs to track processed messages."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Message queues smooth traffic spikes and decouple microservices.",
+      "Message delivery is typically 'At-Least-Once'; workers MUST be idempotent.",
+      "Use Dead-Letter Queues (DLQ) to isolate failing messages for debugging."
+    ],
+    "codeExamples": [
+      {
+        "title": "Decoupled Queue Producer & Consumer",
+        "description": "Producer sending order event to queue, worker consuming with DLQ fallback.",
+        "code": "// PRODUCER (API Endpoint):\napp.post('/api/orders', async (req, res) => {\n  const order = await saveOrderToDB(req.body);\n  // Push event to queue and return 202 Accepted immediately!\n  await queue.send('order-created-queue', { orderId: order.id });\n  res.status(202).json({ status: 'Order queued for processing' });\n});\n\n// WORKER (Background Process):\nqueue.consume('order-created-queue', async (msg) => {\n  try {\n    await processOrderPayment(msg.orderId);\n    queue.ack(msg); // Acknowledge message removal!\n  } catch (err) {\n    queue.nack(msg, false, false); // Send to Dead-Letter Queue (DLQ)\n  }\n});"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-queue-mcq-1",
+        "question": "What is 'Load Leveling' (Traffic Smoothing) in message queue architecture?",
+        "options": [
+          "Balancing HTTP requests across web servers",
+          "Queue buffers sudden flash-traffic bursts, allowing background workers to process jobs at a steady manageable rate",
+          "Deleting slow database queries",
+          "Equalizing CPU cores"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Queues act as buffer reservoirs, absorbing high-traffic spikes and protecting workers."
+      },
+      {
+        "id": "sys-queue-mcq-2",
+        "question": "Why MUST background message queue consumer workers be implemented as **Idempotent**?",
+        "options": [
+          "Queues delete data",
+          "Distributed message queues guarantee 'At-Least-Once' delivery, meaning duplicate messages may be delivered to workers",
+          "Workers run in browser",
+          "Required by Node"
+        ],
+        "correctAnswer": 1,
+        "explanation": "'At-Least-Once' delivery means duplicate messages occur; workers must safely handle re-processing."
+      },
+      {
+        "id": "sys-queue-mcq-3",
+        "question": "What is a 'Dead-Letter Queue' (DLQ)?",
+        "options": [
+          "A deleted queue",
+          "A specialized secondary queue that stores messages that repeatedly failed processing for manual developer inspection",
+          "A queue for deleted users",
+          "An empty queue"
+        ],
+        "correctAnswer": 1,
+        "explanation": "DLQ stores un-processable poison messages after retry attempts are exhausted."
+      },
+      {
+        "id": "sys-queue-mcq-4",
+        "question": "What message acknowledgement behavior prevents job loss if a background worker node crashes mid-execution?",
+        "options": [
+          "Auto-delete on fetch",
+          "Explicit Consumer Acknowledgment (`ack`): Queue retains message until worker explicitly confirms successful processing",
+          "No acknowledgment",
+          "Client polling"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Explicit `ack` ensures queue re-delivers message to another worker if consumer crashes."
+      },
+      {
+        "id": "sys-queue-mcq-5",
+        "question": "Which AWS managed service provides scalable distributed SQS message queues?",
+        "options": [
+          "AWS SNS",
+          "AWS SQS (Simple Queue Service)",
+          "AWS DynamoDB",
+          "AWS EC2"
+        ],
+        "correctAnswer": 1,
+        "explanation": "AWS SQS is Amazon managed message queue service."
+      }
+    ]
+  },
+  {
+    "id": "sys-background-jobs",
+    "title": "Background jobs",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Asynchronous job processing, task schedulers (Cron, BullMQ, Celery), retry strategies (exponential backoff), and job monitoring.",
+    "explanation": {
+      "overview": "Background Jobs execute long-running or scheduled tasks (sending emails, generating PDF reports, billing charges) asynchronously outside HTTP request-response cycle.",
+      "sections": [
+        {
+          "heading": "Job Framework Architecture (BullMQ / Celery)",
+          "content": "A background job system consists of:\n1. **Producer**: Web app enqueues job with payload data.\n2. **Broker / Storage**: Redis or Database holding job queue state.\n3. **Worker Pool**: Dedicated worker processes executing jobs.\n4. **Scheduler**: Cron-based scheduler for recurring tasks.",
+          "bulletPoints": [
+            "BullMQ (Node/Redis) / Celery (Python/Redis): Standard production job frameworks.",
+            "Decoupled Execution: Returns fast HTTP responses to client while job processes in background."
+          ]
+        },
+        {
+          "heading": "Exponential Backoff Retry Strategy",
+          "content": "When jobs fail due to transient errors (3rd party API rate limits, network glitches), retry using **Exponential Backoff with Jitter** (`delay = 2^attempt * base + random_jitter`).",
+          "bulletPoints": [
+            "Exponential Backoff: Gradually increases delay between retries (2s, 4s, 8s, 16s).",
+            "Jitter: Adds random noise to prevent synchronized retry stampedes."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Execute long-running tasks in background workers.",
+      "Use Exponential Backoff with Jitter for job retries.",
+      "Track job states (Active, Completed, Failed, Delayed) with dashboard monitoring."
+    ],
+    "codeExamples": [
+      {
+        "title": "BullMQ Job Producer & Worker",
+        "description": "Enqueuing email job and processing with exponential backoff retries.",
+        "code": "import { Queue, Worker } from 'bullmq';\nconst connection = { host: 'localhost', port: 6379 };\n\n// 1. PRODUCER: Enqueue job with exponential backoff retry options\nconst emailQueue = new Queue('emailQueue', { connection });\nawait emailQueue.add('sendWelcomeEmail', \n  { email: 'user@example.com' },\n  { attempts: 5, backoff: { type: 'exponential', delay: 1000 } }\n);\n\n// 2. WORKER: Process jobs in background worker pool\nconst worker = new Worker('emailQueue', async job => {\n  console.log(`Processing job ${job.id} for ${job.data.email}`);\n  await sendEmail(job.data.email);\n}, { connection });"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-background-jobs-mcq-1",
+        "question": "What is purpose of 'Exponential Backoff' when retrying failed background jobs?",
+        "options": [
+          "Increases CPU speed",
+          "Gradually increases wait time between successive retry attempts (e.g. 2s, 4s, 8s, 16s) to prevent overwhelming failing downstream services",
+          "Cancels job",
+          "Deletes queue"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Exponential backoff increases wait duration between retries, giving failing services time to recover."
+      },
+      {
+        "id": "sys-background-jobs-mcq-2",
+        "question": "Why is 'Jitter' (random noise) added to exponential backoff retry delays?",
+        "options": [
+          "To encrypt job",
+          "To prevent synchronized retry stampedes where thousands of failed workers retry at identical second intervals",
+          "To speed up workers",
+          "Required by Redis"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Jitter randomizes retry intervals, spreading out worker retries over time."
+      },
+      {
+        "id": "sys-background-jobs-mcq-3",
+        "question": "Which popular Node.js library uses Redis for reliable background job processing and delayed tasks?",
+        "options": [
+          "Express",
+          "BullMQ",
+          "Axios",
+          "Prisma"
+        ],
+        "correctAnswer": 1,
+        "explanation": "BullMQ is a leading Redis-backed background job queue library for Node.js."
+      },
+      {
+        "id": "sys-background-jobs-mcq-4",
+        "question": "Which task type should be moved to a Background Job worker rather than handled in HTTP request?",
+        "options": [
+          "Validating user password",
+          "Generating a 500-page PDF report and emailing it to user",
+          "Reading user session from Redis",
+          "Returning HTTP 200"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Generating heavy PDF reports takes seconds/minutes and belongs in background job workers."
+      },
+      {
+        "id": "sys-background-jobs-mcq-5",
+        "question": "What mechanism handles recurring periodic background jobs (e.g. sending daily digest emails at 8:00 AM)?",
+        "options": [
+          "HTTP GET request",
+          "Cron Scheduler (Repeatable Jobs)",
+          "Database trigger",
+          "CSS animation"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Cron schedulers trigger repeatable jobs on predefined time schedules."
+      }
+    ]
+  },
+  {
+    "id": "sys-websockets",
+    "title": "WebSockets",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Full-duplex real-time communication, HTTP Upgrade handshake, Redis Pub/Sub horizontal scaling, and heartbeat ping/pong.",
+    "explanation": {
+      "overview": "WebSocket protocol (ws://, wss://) provides persistent, full-duplex, bidirectional communication channels over a single TCP connection.",
+      "sections": [
+        {
+          "heading": "HTTP Upgrade Handshake & Full-Duplex",
+          "content": "Client initiates standard HTTP request with `Upgrade: websocket` header. Server responds with `101 Switching Protocols`. Connection switches from HTTP to persistent binary/text WebSocket frame protocol.",
+          "bulletPoints": [
+            "Upgrade Handshake: HTTP GET request with `Upgrade: websocket` header.",
+            "101 Switching Protocols: Upgrades TCP connection.",
+            "Bi-directional: Server and client push data messages spontaneously with minimal frame overhead (2-10 bytes)."
+          ]
+        },
+        {
+          "heading": "Horizontal Scaling with Redis Pub/Sub",
+          "content": "Persistent WebSocket connections tie Client A to Server Node 1 and Client B to Server Node 2. Use **Redis Pub/Sub** message broker to broadcast messages across all WebSocket server nodes.",
+          "bulletPoints": [
+            "Stateful Connection Challenge: Clients tied to specific server node.",
+            "Redis Pub/Sub Broadcast: Server 1 publishes chat message to Redis channel; Server 2 receives event and pushes message down Client B socket connection."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "WebSockets provide persistent bi-directional full-duplex communication.",
+      "Initial connection established via HTTP `101 Switching Protocols` handshake.",
+      "Scale WebSocket server clusters horizontally using Redis Pub/Sub message broker."
+    ],
+    "codeExamples": [
+      {
+        "title": "WebSocket Redis Pub/Sub Cluster Architecture",
+        "description": "Scaling WebSockets across multiple server nodes using Redis Pub/Sub.",
+        "code": "Client A (Node 1) -> Send Chat Message\n                        |\n           [ Node 1 Server Instance ]\n                        |\n          (Publish to Redis Pub/Sub Channel)\n                        |\n             [ Redis Pub/Sub Broker ]\n                        |\n      (Broadcast to All Nodes in Cluster)\n                        |\n           [ Node 2 Server Instance ]\n                        |\nClient B (Node 2) <- Receive Real-time Message"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-websockets-mcq-1",
+        "question": "Which HTTP status code is returned by server during WebSocket connection Upgrade handshake?",
+        "options": [
+          "200 OK",
+          "101 Switching Protocols",
+          "301 Moved",
+          "204 No Content"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`101 Switching Protocols` confirms connection upgrade from HTTP to WebSocket."
+      },
+      {
+        "id": "sys-websockets-mcq-2",
+        "question": "What is primary advantage of WebSockets over HTTP Polling for real-time chat applications?",
+        "options": [
+          "WebSockets use SQL",
+          "Persistent full-duplex connection allows server to push data instantly with low frame overhead without polling roundtrips",
+          "WebSockets disable SSL",
+          "Easier CSS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "WebSockets maintain open TCP channels, allowing instant server-push without polling overhead."
+      },
+      {
+        "id": "sys-websockets-mcq-3",
+        "question": "How do you broadcast a message from Client on Server Node 1 to Client on Server Node 2 in a load-balanced cluster?",
+        "options": [
+          "Direct TCP socket connection between clients",
+          "Use central Redis Pub/Sub message broker to broadcast messages across all WebSocket server nodes",
+          "Write to disk",
+          "Restart Load Balancer"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis Pub/Sub acts as message bus interconnecting stateful WebSocket server nodes."
+      },
+      {
+        "id": "sys-websockets-mcq-4",
+        "question": "How do WebSocket servers detect silently dropped or dead TCP connections?",
+        "options": [
+          "HTTP GET request",
+          "Periodic Ping/Pong heartbeat frames sent between server and client",
+          "Database query",
+          "Re-connecting DNS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Ping/Pong heartbeat frames detect dead TCP socket connections."
+      },
+      {
+        "id": "sys-websockets-mcq-5",
+        "question": "What URL scheme prefix identifies encrypted secure WebSocket connections?",
+        "options": [
+          "http://",
+          "ws://",
+          "wss://",
+          "https://"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`wss://` (WebSocket Secure) specifies TLS encrypted WebSocket connections."
+      }
+    ]
+  },
+  {
+    "id": "sys-load-balancing",
+    "title": "Load balancing",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Layer 4 vs Layer 7 load balancing, algorithms (Round Robin, Least Connections, IP Hash), health checks, and NGINX/HAProxy.",
+    "explanation": {
+      "overview": "A Load Balancer distributes incoming network traffic across multiple backend servers to ensure high availability, fault tolerance, and responsiveness.",
+      "sections": [
+        {
+          "heading": "Layer 4 vs Layer 7 Load Balancing",
+          "content": "- **Layer 4 (Transport)**: Routes packets based on IP address and TCP/UDP port numbers without inspecting application payload (Ultra-fast, HAProxy, AWS NLB).\n- **Layer 7 (Application)**: Inspects HTTP headers, cookies, and URL paths (`/api` vs `/static`) to route traffic dynamically (NGINX, AWS ALB).",
+          "bulletPoints": [
+            "L4 Load Balancing: Fast TCP packet routing based on IP:Port.",
+            "L7 Load Balancing: Content-aware HTTP routing (headers, cookies, URL paths)."
+          ]
+        },
+        {
+          "heading": "Load Balancing Algorithms",
+          "content": "- **Round Robin**: Routes requests sequentially to server list.\n- **Weighted Round Robin**: Distributes traffic based on server hardware capacity.\n- **Least Connections**: Routes to server with fewest active connections.\n- **IP Hash**: Maps client IP to specific server node (Sticky sessions).",
+          "bulletPoints": [
+            "Round Robin: Equal sequential distribution.",
+            "Least Connections: Ideal for requests with variable processing times.",
+            "Health Checks: Automatically removes unhealthy nodes from pool."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Layer 4 balances TCP packets; Layer 7 balances content-aware HTTP requests.",
+      "Algorithms: Round Robin, Least Connections, IP Hash.",
+      "Health checks automatically remove failing backend server nodes."
+    ],
+    "codeExamples": [
+      {
+        "title": "NGINX Layer 7 Load Balancer Config",
+        "description": "Configuring NGINX upstream server pool with Least Connections algorithm.",
+        "code": "http {\n  # Upstream pool of application backend servers\n  upstream app_cluster {\n    least_conn; # Route to server with fewest active connections!\n    server 10.0.0.1:4000 max_fails=3 fail_timeout=10s;\n    server 10.0.0.2:4000 max_fails=3 fail_timeout=10s;\n    server 10.0.0.3:4000 backup; # Fallback server\n  }\n\n  server {\n    listen 80;\n    location / {\n      proxy_pass http://app_cluster;\n      proxy_set_header Host $host;\n    }\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-load-balancing-mcq-1",
+        "question": "What is primary operational difference between Layer 4 and Layer 7 Load Balancing?",
+        "options": [
+          "L4 uses SSL, L7 does not",
+          "L4 routes packets based on IP/Port without inspecting payload; L7 inspects HTTP headers, cookies, and URL paths for content routing",
+          "L4 is slower than L7",
+          "L7 works only on Windows"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Layer 4 routes at transport layer (IP/Port); Layer 7 inspects HTTP payload for content routing."
+      },
+      {
+        "id": "sys-load-balancing-mcq-2",
+        "question": "Which load balancing algorithm is best for backend servers processing long-running requests with variable execution durations?",
+        "options": [
+          "Round Robin",
+          "Least Connections",
+          "Random",
+          "First Come First Served"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Least Connections sends incoming requests to server handling fewest active connections."
+      },
+      {
+        "id": "sys-load-balancing-mcq-3",
+        "question": "How does a load balancer detect and handle a backend server node crash?",
+        "options": [
+          "Client reports crash",
+          "Periodic Health Checks detect failed responses, automatically removing unhealthy server node from active routing pool",
+          "Reboots load balancer",
+          "Deletes DNS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Health checks probe backend nodes, routing traffic away from failing servers."
+      },
+      {
+        "id": "sys-load-balancing-mcq-4",
+        "question": "Which algorithm maps a client IP address to the same backend server instance consistently?",
+        "options": [
+          "Round Robin",
+          "Weighted Round Robin",
+          "IP Hash",
+          "Random"
+        ],
+        "correctAnswer": 2,
+        "explanation": "IP Hash computes hash of client IP to route requests to same server (sticky sessions)."
+      },
+      {
+        "id": "sys-load-balancing-mcq-5",
+        "question": "Which open-source software is widely used as a high-performance Layer 7 reverse proxy and load balancer?",
+        "options": [
+          "NGINX (or HAProxy)",
+          "Redis",
+          "MongoDB",
+          "RabbitMQ"
+        ],
+        "correctAnswer": 0,
+        "explanation": "NGINX and HAProxy are leading open-source load balancing reverse proxies."
+      }
+    ]
+  },
+  {
+    "id": "sys-horizontal-scaling",
+    "title": "Horizontal scaling",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Vertical scaling (Scale Up) vs Horizontal scaling (Scale Out), stateless application servers, and auto-scaling groups.",
+    "explanation": {
+      "overview": "Scaling expands system capacity. **Vertical Scaling (Scale Up)** adds hardware resources (CPU, RAM) to single server; **Horizontal Scaling (Scale Out)** adds more server instances to system cluster.",
+      "sections": [
+        {
+          "heading": "Vertical vs Horizontal Scaling Comparison",
+          "content": "- **Vertical Scaling (Scale Up)**: Upgrading server hardware (e.g. 8 cores to 64 cores, 16GB RAM to 256GB RAM). Has hard hardware limits, high single point of failure (SPOF) risk, and requires downtime to upgrade.\n- **Horizontal Scaling (Scale Out)**: Adding multiple commodity server instances behind a Load Balancer. Infinite capacity ceiling, fault tolerant, zero-downtime rolling upgrades.",
+          "bulletPoints": [
+            "Scale Up: Upgrade single machine hardware. Hard capacity ceiling, expensive.",
+            "Scale Out: Add more machines to cluster. Infinite scaling, fault-tolerant."
+          ]
+        },
+        {
+          "heading": "Stateless Application Rule",
+          "content": "To enable seamless horizontal scaling, web application servers MUST be **Stateless**. Move session data to Redis and persistent files to Cloud Object Storage.",
+          "bulletPoints": [
+            "Statelessness: Any web server node can process any request.",
+            "Auto-Scaling Groups: Automatically add/remove server instances based on CPU utilization metrics."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Horizontal scaling (Scale Out) adds more server instances for infinite capacity.",
+      "Application web servers must be stateless to enable scale-out.",
+      "Use Auto-Scaling Groups to dynamically adjust instance count based on traffic load."
+    ],
+    "codeExamples": [
+      {
+        "title": "Horizontal Auto-Scaling Architecture",
+        "description": "Load balancer distributing traffic across stateless server instances.",
+        "code": "                  [ Internet Traffic Spike ]\n                              |\n                     [ Load Balancer ]\n                              |\n      +-----------------------+-----------------------+\n      |                       |                       |\n[ Server Instance 1 ]   [ Server Instance 2 ]   [ Server Instance 3 ]\n(Stateless Node)        (Stateless Node)        (Auto-Scaled Node)\n      |                       |                       |\n      +-----------------------+-----------------------+\n                              |\n               [ Central Shared State: Redis / DB ]"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-horizontal-scaling-mcq-1",
+        "question": "What is fundamental difference between Vertical Scaling (Scale Up) and Horizontal Scaling (Scale Out)?",
+        "options": [
+          "Vertical adds databases; Horizontal adds CSS",
+          "Vertical adds hardware resources (CPU/RAM) to a single machine; Horizontal adds more server instances to a cluster",
+          "Horizontal is limited to 4 nodes",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Vertical scaling upgrades hardware on single server; Horizontal scaling adds more server instances."
+      },
+      {
+        "id": "sys-horizontal-scaling-mcq-2",
+        "question": "What architectural requirement must web application servers meet to allow seamless Horizontal Scaling?",
+        "options": [
+          "Must run Windows",
+          "Must be STATELESS so any server instance can handle any incoming user request",
+          "Must use single-threaded code",
+          "Must use C++"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Stateless web servers do not retain local session memory, allowing any node to handle requests."
+      },
+      {
+        "id": "sys-horizontal-scaling-mcq-3",
+        "question": "What is major limitation of Vertical Scaling (Scale Up)?",
+        "options": [
+          "Cannot run Linux",
+          "Hard hardware physical limit ceiling and single point of failure (SPOF) risk",
+          "Slow network speed",
+          "Requires NoSQL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Single machines have physical RAM/CPU limits and risk downtime if hardware fails."
+      },
+      {
+        "id": "sys-horizontal-scaling-mcq-4",
+        "question": "What AWS feature automatically provisions or terminates server instances based on CPU threshold metrics?",
+        "options": [
+          "Auto Scaling Groups",
+          "S3 Bucket",
+          "Route 53",
+          "CloudFront"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Auto Scaling Groups adjust instance capacity dynamically based on metrics."
+      },
+      {
+        "id": "sys-horizontal-scaling-mcq-5",
+        "question": "Where should user uploaded images be saved in a horizontally scaled web architecture?",
+        "options": [
+          "On local server hard drive",
+          "Centralized Object Storage (AWS S3) accessible by all server instances",
+          "Inside application git repo",
+          "In browser cookie"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Storing files on local server disk breaks statelessness; centralized Object Storage is required."
+      }
+    ]
+  },
+  {
+    "id": "sys-database-scaling",
+    "title": "Database scaling",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Read Replicas, Primary-Replica replication, Database Sharding (Horizontal Partitioning), consistent hashing, and CQRS.",
+    "explanation": {
+      "overview": "Scaling databases requires separating read and write traffic, partitioning data across multiple nodes, and employing specialized data stores.",
+      "sections": [
+        {
+          "heading": "Primary-Replica Read Scaling",
+          "content": "Most web apps have 80-90% read traffic. Use 1 **Primary (Writer)** database node for writes, asynchronously replicating data to multiple **Replica (Reader)** nodes for read queries.",
+          "bulletPoints": [
+            "Primary Node: Handles INSERT, UPDATE, DELETE writes.",
+            "Replica Nodes: Handle SELECT reads.",
+            "Replication Lag: Replicas update asynchronously, introducing brief read-after-write eventual consistency delay."
+          ]
+        },
+        {
+          "heading": "Database Sharding (Horizontal Partitioning)",
+          "content": "Sharding splits a single massive dataset across multiple independent database nodes based on a **Shard Key** (`user_id % num_shards` or Consistent Hashing).",
+          "bulletPoints": [
+            "Shard Key: Dictates which database node holds specific record.",
+            "Sharding Tradeoffs: Cross-shard JOINs and cross-shard transactions become difficult or impossible."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use Primary-Replica replication to scale read queries.",
+      "Use Database Sharding to split dataset across multiple writer nodes.",
+      "Sharding sacrifices cross-shard JOIN capabilities."
+    ],
+    "codeExamples": [
+      {
+        "title": "Database Sharding & Read Replica Architecture",
+        "description": "Primary-Replica replication and horizontal sharding by Shard Key.",
+        "code": "[ API Server ]\n   |\n   +---> [ Writes (INSERT/UPDATE) ] ----> [ Primary Writer DB ]\n   |                                              |\n   |                                    (Async Replication)\n   |                                              v\n   +---> [ Reads (SELECT) ] --------> [ Read Replica DB Pool ]\n\n-- Sharding by Shard Key (user_id):\n-- Shard 1 (Users 1-1,000,000)      -> DB Node A\n-- Shard 2 (Users 1,000,001-2,000,000) -> DB Node B"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-database-scaling-mcq-1",
+        "question": "What is primary role of Read Replicas in database scaling architecture?",
+        "options": [
+          "Encrypt database",
+          "Scale SELECT read query capacity by offloading read queries from Primary writer node",
+          "Delete old data",
+          "Handle writes"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Read Replicas offload SELECT query volume from the Primary writer database."
+      },
+      {
+        "id": "sys-database-scaling-mcq-2",
+        "question": "What is 'Replication Lag' in Primary-Replica database setup?",
+        "options": [
+          "Slow network cables",
+          "Delay between committing write on Primary node and data replicating to Replica reader node (eventual consistency)",
+          "Query error",
+          "Backup delay"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Replication lag is the brief time window before writes on Primary reflect on Read Replicas."
+      },
+      {
+        "id": "sys-database-scaling-mcq-3",
+        "question": "What is Database Sharding (Horizontal Partitioning)?",
+        "options": [
+          "Backing up DB to ZIP file",
+          "Splitting a single large database table across multiple separate database server nodes based on a Shard Key",
+          "Adding RAM",
+          "Creating views"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Sharding partitions data rows across multiple database servers based on a Shard Key."
+      },
+      {
+        "id": "sys-database-scaling-mcq-4",
+        "question": "What major engineering drawback does Database Sharding introduce?",
+        "options": [
+          "Slower index reads",
+          "Cross-shard JOINs and cross-shard ACID transactions become extremely complex or unsupported",
+          "Disables primary keys",
+          "Limits table names"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Sharding makes executing JOINs across different database nodes complex and inefficient."
+      },
+      {
+        "id": "sys-database-scaling-mcq-5",
+        "question": "What pattern separates read data models from write data models cleanly (Command Query Responsibility Segregation)?",
+        "options": [
+          "CQRS",
+          "MVC",
+          "REST",
+          "ACID"
+        ],
+        "correctAnswer": 0,
+        "explanation": "CQRS separates data update commands from read query models."
+      }
+    ]
+  },
+  {
+    "id": "sys-redis-architecture",
+    "title": "Redis architecture",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Redis persistence (RDB snapshots, AOF log), Redis Sentinel high availability, Redis Cluster sharding, and memory optimization.",
+    "explanation": {
+      "overview": "Redis architecture supports high availability via Redis Sentinel and horizontal dataset partitioning via Redis Cluster.",
+      "sections": [
+        {
+          "heading": "Persistence Mechanics: RDB vs AOF",
+          "content": "- **RDB (Redis Database Backup)**: Point-in-time compact binary snapshots saved to disk at specified intervals (e.g. every 5 minutes). Fast recovery, but risks data loss since last snapshot.\n- **AOF (Append Only File)**: Logs every write command executed by server to disk. Superior durability (fsync options: `always`, `everysec`), but larger file size.",
+          "bulletPoints": [
+            "RDB: Fast point-in-time compact snapshots.",
+            "AOF: Append-only write log (`everysec` recommended).",
+            "Combination: Combine RDB + AOF for maximum durability and fast recovery."
+          ]
+        },
+        {
+          "heading": "Redis Sentinel & Redis Cluster",
+          "content": "- **Redis Sentinel**: Provides high availability monitoring, automatic master failover, and configuration provider.\n- **Redis Cluster**: Provides automatic data sharding across 16,384 hash slots across multiple master nodes.",
+          "bulletPoints": [
+            "Sentinel: Automatic master failover monitoring.",
+            "Redis Cluster: Data sharding across 16,384 hash slots."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "RDB provides point-in-time binary snapshots; AOF logs write commands.",
+      "Use Redis Sentinel for automatic master failover monitoring.",
+      "Redis Cluster partitions data across 16,384 hash slots."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis Persistence Configuration",
+        "description": "Configuring RDB snapshots and AOF persistence in redis.conf.",
+        "code": "# RDB Snapshot configuration\nsave 900 1    # Save snapshot if >= 1 key changed in 900s\nsave 300 10   # Save snapshot if >= 10 keys changed in 300s\n\n# AOF Persistence configuration\nappendonly yes\nappendfsync everysec # Flush AOF log to disk every second"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-redis-architecture-mcq-1",
+        "question": "What is difference between Redis RDB snapshots and AOF persistence?",
+        "options": [
+          "RDB is text, AOF is JSON",
+          "RDB creates point-in-time compact binary snapshots; AOF logs every individual write command to append-only file",
+          "AOF is for RAM only",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "RDB saves compact point-in-time snapshots; AOF logs all write commands sequentially."
+      },
+      {
+        "id": "sys-redis-architecture-mcq-2",
+        "question": "What is primary role of Redis Sentinel in a production deployment?",
+        "options": [
+          "Encrypt keys",
+          "Provides high-availability monitoring and automatic master failover promotion if primary Redis node crashes",
+          "Shards data",
+          "Compresses RAM"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis Sentinel monitors nodes and manages automatic master failover promotion."
+      },
+      {
+        "id": "sys-redis-architecture-mcq-3",
+        "question": "How many total Hash Slots does Redis Cluster use to shard data across master nodes?",
+        "options": [
+          "1,000",
+          "16,384",
+          "65,536",
+          "100"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis Cluster partitions keyspace into 16,384 fixed hash slots (`CRC16(key) % 16384`)."
+      },
+      {
+        "id": "sys-redis-architecture-mcq-4",
+        "question": "Which `appendfsync` setting for AOF offers recommended balance between high performance and data durability?",
+        "options": [
+          "appendfsync always",
+          "appendfsync everysec (flushes to disk every 1 second)",
+          "appendfsync no",
+          "appendfsync hourly"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`appendfsync everysec` provides excellent performance with at most 1 second of potential write loss."
+      },
+      {
+        "id": "sys-redis-architecture-mcq-5",
+        "question": "How does Redis calculate which cluster hash slot a key `user:42` belongs to?",
+        "options": [
+          "MD5(key)",
+          "CRC16(key) % 16384",
+          "SHA256(key) % 100",
+          "Random assignment"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis Cluster maps keys to hash slots using `CRC16(key) % 16384` algorithm."
+      }
+    ]
+  }
+]
