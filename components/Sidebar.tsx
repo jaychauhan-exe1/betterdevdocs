@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { Topic, CategoryType } from "@/data/topics";
+import React from "react";
+import { TOPICS, CategoryType } from "@/data/topics";
+import { useStudyStore } from "@/store/useStudyStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
@@ -27,16 +28,6 @@ import {
   Star,
 } from "lucide-react";
 
-interface SidebarProps {
-  topics: Topic[];
-  activeTopicId: string;
-  onSelectTopic: (topicId: string) => void;
-  completedTopics: Set<string>;
-  onToggleComplete: (topicId: string, e?: React.MouseEvent) => void;
-  isOpen: boolean;
-  onCloseMobile: () => void;
-}
-
 const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
   JAVASCRIPT: <Code2 className="w-4 h-4 text-muted-foreground" />,
   REACT: <Zap className="w-4 h-4 text-muted-foreground" />,
@@ -49,35 +40,35 @@ const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
   DSA: <Binary className="w-4 h-4 text-muted-foreground" />,
 };
 
-export default function Sidebar({
-  topics,
-  activeTopicId,
-  onSelectTopic,
-  completedTopics,
-  onToggleComplete,
-  isOpen,
-  onCloseMobile,
-}: SidebarProps) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [filterState, setFilterState] = useState<"all" | "important" | "uncompleted" | "completed">("all");
-  const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
+export default function Sidebar() {
+  const {
+    activeTopicId,
+    setActiveTopicId,
+    completedTopics,
+    toggleTopicComplete,
+    isSidebarOpen,
+    setSidebarOpen,
+    searchQuery,
+    setSearchQuery,
+    filterState,
+    setFilterState,
+    collapsedCategories,
+    toggleCategoryCollapsed,
+  } = useStudyStore();
 
-  const categories = Array.from(new Set(topics.map((t) => t.category))) as CategoryType[];
+  const categories = Array.from(new Set(TOPICS.map((t) => t.category))) as CategoryType[];
 
   const toggleCategory = (category: string) => {
-    setCollapsedCategories((prev) => ({
-      ...prev,
-      [category]: !prev[category],
-    }));
+    toggleCategoryCollapsed(category);
   };
 
-  const filteredTopics = topics.filter((topic) => {
+  const filteredTopics = TOPICS.filter((topic) => {
     const matchesSearch =
       topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       topic.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
       topic.category.toLowerCase().includes(searchQuery.toLowerCase());
 
-    const isCompleted = completedTopics.has(topic.id);
+    const isCompleted = completedTopics.includes(topic.id);
 
     if (filterState === "important" && !topic.isImportant) return false;
     if (filterState === "completed" && !isCompleted) return false;
@@ -86,25 +77,24 @@ export default function Sidebar({
     return matchesSearch;
   });
 
-  const totalCount = topics.length;
-  const completedCount = completedTopics.size;
+  const totalCount = TOPICS.length;
+  const completedCount = completedTopics.length;
   const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
   return (
     <>
       {/* Mobile Backdrop */}
-      {isOpen && (
+      {isSidebarOpen && (
         <div
           className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden transition-opacity"
-          onClick={onCloseMobile}
+          onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-50 w-84 sm:w-96 bg-card border-r border-border flex flex-col transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed top-0 bottom-0 left-0 z-50 w-84 sm:w-96 bg-card border-r border-border flex flex-col transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
       >
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-border flex flex-col gap-3.5 bg-card">
@@ -124,7 +114,7 @@ export default function Sidebar({
             <Button
               variant="ghost"
               size="icon"
-              onClick={onCloseMobile}
+              onClick={() => setSidebarOpen(false)}
               className="lg:hidden"
               aria-label="Close sidebar"
             >
@@ -212,8 +202,13 @@ export default function Sidebar({
             const categoryTopics = filteredTopics.filter((t) => t.category === category);
             if (categoryTopics.length === 0) return null;
 
-            const isCollapsed = collapsedCategories[category];
-            const catCompleted = categoryTopics.filter((t) => completedTopics.has(t.id)).length;
+            const activeCategory = TOPICS.find((t) => t.id === activeTopicId)?.category;
+            const isCollapsed =
+              collapsedCategories[category] !== undefined
+                ? collapsedCategories[category]
+                : category !== activeCategory;
+
+            const catCompleted = categoryTopics.filter((t) => completedTopics.includes(t.id)).length;
 
             return (
               <div key={category} className="space-y-1">
@@ -242,27 +237,26 @@ export default function Sidebar({
                 {!isCollapsed && (
                   <div className="space-y-1 pl-1">
                     {categoryTopics.map((topic) => {
-                      const isCompleted = completedTopics.has(topic.id);
+                      const isCompleted = completedTopics.includes(topic.id);
                       const isActive = topic.id === activeTopicId;
 
                       return (
                         <div
                           key={topic.id}
                           onClick={() => {
-                            onSelectTopic(topic.id);
-                            onCloseMobile();
+                            setActiveTopicId(topic.id);
+                            setSidebarOpen(false);
                           }}
-                          className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm sm:text-base cursor-pointer transition-all ${
-                            isActive
-                              ? "bg-secondary text-foreground font-medium"
-                              : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground font-normal"
-                          }`}
+                          className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm sm:text-base cursor-pointer transition-all ${isActive
+                            ? "bg-secondary text-foreground font-medium"
+                            : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground font-normal"
+                            }`}
                         >
                           <div className="flex items-center gap-3 min-w-0 pr-2">
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
-                                onToggleComplete(topic.id, e);
+                                toggleTopicComplete(topic.id);
                               }}
                               className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
                             >
@@ -275,9 +269,8 @@ export default function Sidebar({
 
                             <div className="flex items-center gap-1.5 truncate">
                               <span
-                                className={`truncate ${
-                                  isCompleted ? "line-through text-muted-foreground" : ""
-                                }`}
+                                className={`truncate ${isCompleted ? "line-through text-muted-foreground" : ""
+                                  }`}
                               >
                                 {topic.title}
                               </span>

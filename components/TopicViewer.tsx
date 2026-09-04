@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Topic } from "@/data/topics";
+import { TOPICS, Topic } from "@/data/topics";
+import { useStudyStore } from "@/store/useStudyStore";
 import CodePlayground from "./CodePlayground";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -31,11 +32,11 @@ import {
 } from "lucide-react";
 
 interface TopicViewerProps {
-  topic: Topic;
-  allTopics: Topic[];
-  isCompleted: boolean;
-  onToggleComplete: (topicId: string) => void;
-  onSelectTopic: (topicId: string) => void;
+  topic?: Topic;
+  allTopics?: Topic[];
+  isCompleted?: boolean;
+  onToggleComplete?: (topicId: string) => void;
+  onSelectTopic?: (topicId: string) => void;
 }
 
 // Helper to render **bold** and `code` inline highlights strictly inside explanation text
@@ -64,13 +65,17 @@ function renderFormattedText(text: string) {
   });
 }
 
-export default function TopicViewer({
-  topic,
-  allTopics,
-  isCompleted,
-  onToggleComplete,
-  onSelectTopic,
-}: TopicViewerProps) {
+export default function TopicViewer(props: TopicViewerProps) {
+  const storeActiveTopic = useStudyStore((state) => state.getActiveTopic());
+  const storeIsCompleted = useStudyStore((state) => state.isTopicCompleted(storeActiveTopic.id));
+  const toggleTopicComplete = useStudyStore((state) => state.toggleTopicComplete);
+  const setActiveTopicId = useStudyStore((state) => state.setActiveTopicId);
+
+  const topic = props.topic || storeActiveTopic;
+  const allTopics = props.allTopics || TOPICS;
+  const isCompleted = props.isCompleted !== undefined ? props.isCompleted : storeIsCompleted;
+  const onToggleComplete = props.onToggleComplete || toggleTopicComplete;
+  const onSelectTopic = props.onSelectTopic || setActiveTopicId;
   const [activeTab, setActiveTab] = useState<string>("explanation");
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 

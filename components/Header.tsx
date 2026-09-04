@@ -1,33 +1,33 @@
 "use client";
 
 import React from "react";
-import { Topic } from "@/data/topics";
+import { TOPICS } from "@/data/topics";
+import { useStudyStore } from "@/store/useStudyStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Menu, RotateCcw, CheckCircle2 } from "lucide-react";
 
-interface HeaderProps {
-  activeTopic: Topic;
-  completedCount: number;
-  totalCount: number;
-  onToggleSidebar: () => void;
-  onResetProgress: () => void;
-}
+export default function Header() {
+  const activeTopic = useStudyStore((state) => state.getActiveTopic());
+  const completedCount = useStudyStore((state) => state.completedTopics.length);
+  const toggleSidebar = useStudyStore((state) => state.toggleSidebar);
+  const resetProgress = useStudyStore((state) => state.resetProgress);
 
-export default function Header({
-  activeTopic,
-  completedCount,
-  totalCount,
-  onToggleSidebar,
-  onResetProgress,
-}: HeaderProps) {
+  const totalCount = TOPICS.length;
+
+  const handleReset = () => {
+    if (window.confirm("Are you sure you want to reset all topic completion progress?")) {
+      resetProgress();
+    }
+  };
+
   return (
     <header className="sticky top-0 z-30 h-14 bg-background/90 backdrop-blur-md border-b border-border px-4 lg:px-8 flex items-center justify-between font-normal">
       <div className="flex items-center gap-3 font-normal">
         <Button
           variant="ghost"
           size="icon"
-          onClick={onToggleSidebar}
+          onClick={toggleSidebar}
           className="lg:hidden"
           aria-label="Toggle Navigation"
         >
@@ -56,7 +56,7 @@ export default function Header({
         <Button
           variant="outline"
           size="sm"
-          onClick={onResetProgress}
+          onClick={handleReset}
           className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-normal"
           title="Reset topic completion progress"
         >
