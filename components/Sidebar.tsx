@@ -27,6 +27,8 @@ import {
   Binary,
   Star,
 } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
+
 
 const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
   JAVASCRIPT: <Code2 className="w-4 h-4 text-muted-foreground" />,
@@ -304,8 +306,10 @@ export default function Sidebar() {
 
         {/* Footer */}
         <div className="p-3.5 border-t border-border bg-card text-xs text-muted-foreground flex items-center justify-between font-normal">
-          <span>Shadcn UI Edition</span>
-          <span>v3.0</span>
+          <span>Contribute on</span>
+          <a href="https://github.com/jaychauhan-exe1/devdocs" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors flex gap-2 items-center">
+            <FaGithub />
+            <span>Github</span></a>
         </div>
       </aside>
     </>

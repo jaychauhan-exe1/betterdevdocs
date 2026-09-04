@@ -1,11 +1,22 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { TOPICS } from "@/data/topics";
 import { useStudyStore } from "@/store/useStudyStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Menu, RotateCcw, CheckCircle2 } from "lucide-react";
+import { FaGithub } from "react-icons/fa";
+
+function formatStarCount(count: number): string {
+  if (count >= 1000000) {
+    return (count / 1000000).toFixed(1) + "M";
+  }
+  if (count >= 1000) {
+    return (count / 1000).toFixed(1) + "K";
+  }
+  return count.toString();
+}
 
 export default function Header() {
   const activeTopic = useStudyStore((state) => state.getActiveTopic());
@@ -13,7 +24,25 @@ export default function Header() {
   const toggleSidebar = useStudyStore((state) => state.toggleSidebar);
   const resetProgress = useStudyStore((state) => state.resetProgress);
 
+  const [starCount, setStarCount] = useState<string | null>(null);
+
   const totalCount = TOPICS.length;
+
+  useEffect(() => {
+    fetch("https://api.github.com/repos/jaychauhan-exe1/devdocs")
+      .then((res) => {
+        if (!res.ok) throw new Error("API response not ok");
+        return res.json();
+      })
+      .then((data) => {
+        if (typeof data?.stargazers_count === "number") {
+          setStarCount(formatStarCount(data.stargazers_count));
+        }
+      })
+      .catch((err) => {
+        console.warn("Failed to fetch live GitHub stars, using fallback", err);
+      });
+  }, []);
 
   const handleReset = () => {
     if (window.confirm("Are you sure you want to reset all topic completion progress?")) {
@@ -46,6 +75,21 @@ export default function Header() {
       </div>
 
       <div className="flex items-center gap-3 font-normal">
+        {/* Dynamic GitHub Star Badge */}
+        <a
+          href="https://github.com/jaychauhan-exe1/devdocs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-secondary/50 hover:bg-secondary text-xs font-medium text-foreground transition-all hover:scale-105 active:scale-95"
+          title="Star on GitHub"
+        >
+          <FaGithub className="w-4 h-4 text-foreground" />
+          <span className="text-xs font-semibold">
+            {starCount || "0"}
+          </span>
+        </a>
+
+        {/* Progress Counter */}
         <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-xl border border-border bg-card text-xs text-muted-foreground font-normal">
           <CheckCircle2 className="w-3.5 h-3.5 text-foreground" />
           <span>
@@ -53,6 +97,7 @@ export default function Header() {
           </span>
         </div>
 
+        {/* Reset Progress Button */}
         <Button
           variant="outline"
           size="sm"
