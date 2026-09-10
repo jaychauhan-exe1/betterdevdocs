@@ -253,6 +253,133 @@ html body .cl-providerBadgeText {
   border: 1px solid #3f3f46 !important;
 }
 
+.cl-lastAuthenticationStrategyBadge {
+  background-color: rgb(41, 76, 235);
+  color: #e4e4e7;
+}
+
+/* ==========================================================================
+   Clerk OTP Verification Code Modal Styling (Premium Minimalist Theme)
+   ========================================================================== */
+
+/* Outer OTP Container -> Full Width Centered */
+html body .cl-otpCodeField,
+html body .cl-otpCodeFieldInputContainer,
+html body [data-input-otp-container="true"] {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  width: 100% !important;
+  max-width: 360px !important;
+  margin: 0 auto !important;
+  position: relative !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+html body .cl-otpCodeFieldInputs,
+html body [data-input-otp-container="true"]>div:first-child {
+  display: flex !important;
+  gap: 0.5rem !important;
+  width: 100% !important;
+  justify-content: center !important;
+  align-items: center !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  padding: 0.5rem 0 !important;
+}
+
+/* Individual Digit Slots (Each of the 6 boxes) */
+html body .cl-otpCodeFieldInputs>div,
+html body [data-input-otp-container="true"]>div:first-child>div {
+  width: 2.75rem !important;
+  height: 3.25rem !important;
+  min-width: 2.75rem !important;
+  flex: 0 0 2.75rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background-color: #18181b !important;
+  border: 1px solid #3f3f46 !important;
+  border-radius: 0.75rem !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  text-align: center !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.4) !important;
+  transition: all 0.15s ease-in-out !important;
+}
+
+/* Focused Digit Slot */
+html body .cl-otpCodeFieldInputs>div[data-status="focused"],
+html body .cl-otpCodeFieldInputs>div:focus,
+html body [data-input-otp-container="true"]>div:first-child>div[data-status="focused"],
+html body [data-input-otp-container="true"]>div:first-child>div:focus {
+  border-color: #ffffff !important;
+  background-color: #27272a !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Overlay Input (Invisible & Transparent) */
+html body input[data-input-otp="true"],
+html body .cl-otpCodeFieldInputContainer input {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  pointer-events: auto !important;
+}
+
+/* Email Identity Preview Text & Pencil Edit Icon -> Pure White */
+html body .cl-identityPreview,
+html body .cl-identityPreviewText,
+html body .cl-identityPreviewTitle,
+html body [class*="identityPreviewText"] {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 0.9rem !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+html body .cl-identityPreviewEditButton,
+html body .cl-identityPreviewEditButtonIcon,
+html body [class*="identityPreviewEditButton"] svg,
+html body [class*="identityPreviewEditButton"] path {
+  color: #ffffff !important;
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+  opacity: 1 !important;
+}
+
+/* Resend Code Link -> Light Gray & Underlined */
+html body .cl-formResendCodeLink,
+html body .cl-formResendCodeLinkText,
+html body [class*="resendCodeLink"] {
+  color: #e4e4e7 !important;
+  -webkit-text-fill-color: #e4e4e7 !important;
+  font-weight: 500 !important;
+  text-decoration: underline !important;
+  cursor: pointer !important;
+  opacity: 1 !important;
+}
+
+html body .cl-formResendCodeLink:hover,
+html body .cl-formResendCodeLinkText:hover {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
 /* Hide Footer Watermarks & Dev Mode Banners */
 html body .cl-footer,
 html body .cl-footerAction,
@@ -315,9 +442,4 @@ button.cl-button[data-variant="solid"] * {
 
 .cl-socialButtonsBlockButton:hover {
   background-color: #18181b;
-}
-
-.cl-lastAuthenticationStrategyBadge {
-  background-color: #18181b;
-  color: #e4e4e7;
 }

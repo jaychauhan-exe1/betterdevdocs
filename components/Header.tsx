@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Menu, CheckCircle2 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 function formatStarCount(count: number): string {
   if (count >= 1000000) {
@@ -19,6 +21,7 @@ function formatStarCount(count: number): string {
 }
 
 export default function Header() {
+  const pathname = usePathname();
   const activeTopic = useStudyStore((state) => state.getActiveTopic());
   const toggleSidebar = useStudyStore((state) => state.toggleSidebar);
   const getRoleFilteredTopics = useStudyStore((state) => state.getRoleFilteredTopics);
@@ -70,13 +73,51 @@ export default function Header() {
         </Button>
 
         <div className="flex items-center gap-2 text-xs font-normal">
-          <Badge variant="secondary" className="font-medium uppercase text-[10px]">
-            {activeTopic.category}
-          </Badge>
-          <span className="text-muted-foreground font-normal">/</span>
-          <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
-            {activeTopic.title}
-          </span>
+          {pathname === "/progress" ? (
+            <>
+              <Link href="/">
+                <Badge variant="secondary" className="font-medium uppercase text-[10px] hover:bg-secondary/80 cursor-pointer transition-colors">
+                  PROGRESS
+                </Badge>
+              </Link>
+              <span className="text-muted-foreground font-normal">/</span>
+              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+                Quest Roadmap
+              </span>
+            </>
+          ) : pathname === "/sign-in" ? (
+            <>
+              <Badge variant="secondary" className="font-medium uppercase text-[10px]">
+                AUTH
+              </Badge>
+              <span className="text-muted-foreground font-normal">/</span>
+              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+                Sign In
+              </span>
+            </>
+          ) : pathname === "/sign-up" ? (
+            <>
+              <Badge variant="secondary" className="font-medium uppercase text-[10px]">
+                AUTH
+              </Badge>
+              <span className="text-muted-foreground font-normal">/</span>
+              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+                Sign Up
+              </span>
+            </>
+          ) : (
+            <>
+              <Link href="/">
+                <Badge variant="secondary" className="font-medium uppercase text-[10px] hover:bg-secondary/80 cursor-pointer transition-colors">
+                  {activeTopic.category}
+                </Badge>
+              </Link>
+              <span className="text-muted-foreground font-normal">/</span>
+              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+                {activeTopic.title}
+              </span>
+            </>
+          )}
         </div>
       </div>
 

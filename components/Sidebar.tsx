@@ -1,5 +1,5 @@
 "use client";
-
+import Link from "next/link";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TOPICS, CategoryType } from "@/data/topics";
@@ -30,6 +30,8 @@ import { RoleSwitcher } from "@/components/RoleSwitcher";
 import { AnimatedCheckmark } from "@/components/AnimatedCheckmark";
 import { triggerHaptic } from "@/lib/haptics";
 
+import { usePathname, useRouter } from "next/navigation";
+
 const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
   JAVASCRIPT: <Code2 className="w-4 h-4 text-muted-foreground" />,
   REACT: <Zap className="w-4 h-4 text-muted-foreground" />,
@@ -43,6 +45,10 @@ const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
 };
 
 export default function Sidebar() {
+  const pathname = usePathname();
+  const router = useRouter();
+  const isProgressPage = pathname === "/progress";
+
   const {
     activeTopicId,
     setActiveTopicId,
@@ -85,6 +91,18 @@ export default function Sidebar() {
   const roleCompletedCount = roleTopics.filter((t) => completedTopics.includes(t.id)).length;
   const percentage = totalCount > 0 ? Math.round((roleCompletedCount / totalCount) * 100) : 0;
 
+  // Category statistics breakdown
+  const categoryStats = categories.map((cat) => {
+    const catTopics = roleTopics.filter((t) => t.category === cat);
+    const catCompleted = catTopics.filter((t) => completedTopics.includes(t.id)).length;
+    return {
+      name: cat,
+      completed: catCompleted,
+      total: catTopics.length,
+      percentage: catTopics.length > 0 ? Math.round((catCompleted / catTopics.length) * 100) : 0,
+    };
+  });
+
   return (
     <>
       {/* Mobile Backdrop */}
@@ -108,20 +126,24 @@ export default function Sidebar() {
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-border flex flex-col gap-3 bg-card">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <motion.div
-                whileHover={{ rotate: 5, scale: 1.05 }}
-                className="p-2.5 rounded-xl bg-secondary border border-border text-foreground"
-              >
-                <BookOpen className="w-5 h-5" />
-              </motion.div>
-              <div>
-                <h1 className="font-semibold text-lg tracking-wide text-foreground flex items-center gap-1.5 uppercase">
-                  DevDocs
-                </h1>
-                <p className="text-xs text-muted-foreground font-normal">Shadcn Study Guide</p>
+            <Link href="/">
+              <div className="flex items-center gap-3">
+                <motion.div
+                  whileHover={{ rotate: 5, scale: 1.05 }}
+                  className="p-2.5 rounded-xl bg-secondary border border-border text-foreground"
+                >
+                  <BookOpen className="w-5 h-5" />
+                </motion.div>
+                <div>
+
+                  <h1 className="font-semibold text-lg tracking-wide text-foreground flex items-center gap-1.5 uppercase">
+                    Better DevDocs
+                  </h1>
+
+                  <p className="text-xs text-muted-foreground font-normal">Shadcn Study Guide</p>
+                </div>
               </div>
-            </div>
+            </Link>
 
             <Button
               variant="ghost"
@@ -137,14 +159,26 @@ export default function Sidebar() {
           {/* Role Switcher */}
           <RoleSwitcher />
 
-          {/* Progress Widget */}
-          <div className="p-3.5 rounded-2xl bg-secondary/50 border border-border flex flex-col gap-2.5 font-normal">
+          {/* Overall Progress Widget */}
+          <div
+            onClick={() => {
+              triggerHaptic("light");
+              router.push("/progress");
+              setSidebarOpen(false);
+            }}
+            className={`p-3.5 rounded-2xl bg-secondary/50 border flex flex-col gap-2.5 font-normal cursor-pointer transition-all hover:bg-secondary/80 hover:border-foreground/40 active:scale-[0.99] ${isProgressPage ? "border-foreground/60 bg-secondary/80 shadow-sm" : "border-border"
+              }`}
+            role="button"
+            tabIndex={0}
+            title="Click to view Progress Roadmap"
+          >
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-foreground font-medium flex items-center gap-1.5">
                 <Trophy className="w-4 h-4 text-foreground" /> Progress
               </span>
-              <span className="font-medium text-foreground text-sm">
+              <span className="font-medium text-foreground text-sm flex items-center gap-1">
                 {roleCompletedCount}/{totalCount} ({percentage}%)
+                <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
               </span>
             </div>
             <Progress value={percentage} className="h-2" />
@@ -267,10 +301,13 @@ export default function Sidebar() {
                               triggerHaptic("light");
                               setActiveTopicId(topic.id);
                               setSidebarOpen(false);
+                              if (pathname !== "/") {
+                                router.push("/");
+                              }
                             }}
-                            className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm sm:text-base cursor-pointer transition-all ${isActive
-                                ? "bg-secondary text-foreground font-medium border border-border/80 shadow-sm"
-                                : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground font-normal"
+                            className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm sm:text-base cursor-pointer transition-all ${isActive && !isProgressPage
+                              ? "bg-secondary text-foreground font-medium border border-border/80 shadow-sm"
+                              : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground font-normal"
                               }`}
                           >
                             <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -322,7 +359,7 @@ export default function Sidebar() {
             <span>Github</span>
           </a>
         </div>
-      </aside>
+      </aside >
     </>
   );
 }

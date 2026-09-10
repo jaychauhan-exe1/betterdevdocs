@@ -10,7 +10,7 @@ const geistSans = Geist({
 });
 
 export const metadata: Metadata = {
-  title: "DevDocs - Developer Documentation & Study Guide",
+  title: "Better DevDocs - Developer Documentation & Study Guide",
   description: "Minimal monochrome study guide for software developers",
 };
 

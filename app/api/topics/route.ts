@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { TOPICS, Topic } from "@/data/topics";
 
-export const revalidate = 3600; // Cache for 1 hour
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 function getSupabaseClient() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -47,8 +48,7 @@ export async function GET() {
           { topics },
           {
             headers: {
-              "Cache-Control":
-                "public, s-maxage=3600, stale-while-revalidate=86400",
+              "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
             },
           }
         );
@@ -63,7 +63,7 @@ export async function GET() {
     { topics: TOPICS },
     {
       headers: {
-        "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=86400",
+        "Cache-Control": "no-store, no-cache, must-revalidate, max-age=0",
       },
     }
   );
