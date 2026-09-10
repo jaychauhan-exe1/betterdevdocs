@@ -105,6 +105,535 @@
     ]
   },
   {
+    "id": "js-objects",
+    "title": "Objects",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Key-value property storage, object methods, property descriptors, Object.freeze vs Object.seal.",
+    "explanation": {
+      "overview": "Objects are collection of key-value pairs where keys are strings/symbols and values can be any data type. JS objects support property access, iteration, dynamic keys, and property attribute descriptors.",
+      "sections": [
+        {
+          "heading": "Object Operations & Utility Methods",
+          "content": "`Object.keys()`, `Object.values()`, and `Object.entries()` allow iterating properties. `Object.assign()` and spread `{...obj}` perform shallow cloning.",
+          "bulletPoints": [
+            "`Object.keys(obj)`: Returns array of own enumerable string keys.",
+            "`Object.entries(obj)`: Returns array of `[key, value]` pairs.",
+            "Shallow Copy: Nested objects retain shared references."
+          ]
+        },
+        {
+          "heading": "Immutability: Freeze vs Seal",
+          "content": "`Object.freeze()` prevents property addition, deletion, and value modification. `Object.seal()` prevents property addition and deletion but allows updating existing values.",
+          "bulletPoints": [
+            "`Object.freeze()`: Fully immutable shallow lock.",
+            "`Object.seal()`: Prevents structure changes, allows value updates.",
+            "`Object.defineProperty()`: Configures writable, enumerable, and configurable attributes."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Objects use key-value string/symbol mappings.",
+      "`Object.freeze` prevents edits; `Object.seal` allows updating existing keys.",
+      "Spread and Object.assign produce shallow copies."
+    ],
+    "codeExamples": [
+      {
+        "title": "Object Freeze vs Seal",
+        "description": "Demonstrating behavior of Object.freeze and Object.seal.",
+        "code": "const frozen = Object.freeze({ count: 1 });\n// frozen.count = 2; // Silent fail in sloppy mode, TypeError in strict mode\n\nconst sealed = Object.seal({ count: 1 });\nsealed.count = 5; // Works!\n// delete sealed.count; // Fails!"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-objects-mcq-1",
+        "question": "What does `Object.freeze(obj)` prevent on an object?",
+        "options": [
+          "Adding new properties only",
+          "Deleting properties only",
+          "Adding, deleting, and modifying existing properties",
+          "Modifying nested child objects"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`Object.freeze()` locks shallow object properties against addition, deletion, or re-assignment."
+      },
+      {
+        "id": "js-objects-mcq-2",
+        "question": "What is the difference between `Object.seal()` and `Object.freeze()`?",
+        "options": [
+          "Seal allows modifying existing property values; Freeze does not",
+          "Freeze allows adding new properties",
+          "Seal makes nested objects immutable",
+          "No difference"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`Object.seal()` allows reassigning existing properties, but blocks adding or deleting keys."
+      },
+      {
+        "id": "js-objects-mcq-3",
+        "question": "What data types can be used as Object property keys in JS?",
+        "options": [
+          "Strings only",
+          "Strings and Symbols",
+          "Numbers, Strings, Objects",
+          "Booleans only"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Object property keys in JS can only be Strings or Symbols (numbers are converted to strings)."
+      },
+      {
+        "id": "js-objects-mcq-4",
+        "question": "What kind of copy is created by `{ ...originalObj }`?",
+        "options": [
+          "Deep copy",
+          "Shallow copy",
+          "Prototype copy",
+          "Immutable copy"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Spread operator creates a shallow copy; nested object references are shared."
+      },
+      {
+        "id": "js-objects-mcq-5",
+        "question": "Which method converts an object into an array of key-value pairs `[[key, val], ...]`?",
+        "options": [
+          "Object.keys()",
+          "Object.values()",
+          "Object.entries()",
+          "Object.pairs()"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`Object.entries()` returns array of `[key, value]` arrays."
+      }
+    ]
+  },
+  {
+    "id": "js-arrays",
+    "title": "Arrays",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Ordered list collections, array mutations, indexing, slice/splice, and ES6+ array methods.",
+    "explanation": {
+      "overview": "Arrays in JavaScript are zero-indexed, dynamically-sized list objects. Understanding mutating methods (push, pop, splice) vs non-mutating methods (slice, concat, toSpliced) is essential for state management.",
+      "sections": [
+        {
+          "heading": "Mutating vs Non-Mutating Methods",
+          "content": "Mutating methods modify original array in place. Non-mutating methods return a fresh array, which is crucial for React state updates.",
+          "bulletPoints": [
+            "Mutating: `push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`.",
+            "Non-mutating: `slice`, `concat`, `map`, `filter`, `flat`, `toSorted`, `toSpliced`."
+          ]
+        },
+        {
+          "heading": "Searching & Iteration Utilities",
+          "content": "Array lookup methods simplify element retrieval and condition testing across elements.",
+          "bulletPoints": [
+            "`indexOf()` / `includes()`: Value equality search.",
+            "`find()` / `findIndex()`: Predicate condition callback search.",
+            "`some()` / `every()`: Boolean validation across array elements."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Distinguish mutating vs non-mutating array operations.",
+      "Use `includes`/`find` for searching arrays efficiently.",
+      "React state updates require non-mutating array copies."
+    ],
+    "codeExamples": [
+      {
+        "title": "Slice vs Splice Demonstration",
+        "description": "Non-mutating slice vs mutating splice array operations.",
+        "code": "const list = [10, 20, 30, 40, 50];\n// slice(start, end) - non-mutating\nconst sub = list.slice(1, 3); // [20, 30], original untouched\n\n// splice(start, deleteCount, ...items) - mutating\nconst removed = list.splice(1, 2); // returns [20, 30], list is now [10, 40, 50]"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-arrays-mcq-1",
+        "question": "Which method mutates original array in place?",
+        "options": [
+          "slice()",
+          "concat()",
+          "splice()",
+          "map()"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`splice()` modifies original array in place by deleting/inserting items."
+      },
+      {
+        "id": "js-arrays-mcq-2",
+        "question": "What does `array.find(fn)` return if no element matches predicate function?",
+        "options": [
+          "null",
+          "-1",
+          "undefined",
+          "Empty array []"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`find()` returns first matching element, or `undefined` if no match is found."
+      },
+      {
+        "id": "js-arrays-mcq-3",
+        "question": "Which array method returns true if AT LEAST ONE element matches condition?",
+        "options": [
+          "every()",
+          "some()",
+          "filter()",
+          "includes()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`some()` returns true as soon as one element satisfies predicate function."
+      },
+      {
+        "id": "js-arrays-mcq-4",
+        "question": "What is logged by `[1, 2, 3].concat([4, 5])`?",
+        "options": [
+          "Modifies original array",
+          "Returns new combined array [1, 2, 3, 4, 5]",
+          "Nested array [[1,2,3],[4,5]]",
+          "Length number 5"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`concat()` joins arrays into a new shallow-copied array without mutating inputs."
+      },
+      {
+        "id": "js-arrays-mcq-5",
+        "question": "What is default sorting behavior of `[10, 2, 5].sort()` without comparator callback?",
+        "options": [
+          "[2, 5, 10]",
+          "[10, 2, 5]",
+          "[10, 5, 2]",
+          "[10, 2, 5] lexicographical string sorting ('10', '2', '5') -> [10, 2, 5]"
+        ],
+        "correctAnswer": 3,
+        "explanation": "Default `sort()` converts elements to strings, sorting alphabetically (`'10'` comes before `'2'`)."
+      }
+    ]
+  },
+  {
+    "id": "js-destructuring",
+    "title": "Destructuring",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Unpacking values from arrays and properties from objects into distinct variables with defaults and renaming.",
+    "explanation": {
+      "overview": "Destructuring assignment syntax enables unpacking values from arrays or properties from objects into distinct variables concisely.",
+      "sections": [
+        {
+          "heading": "Object Destructuring",
+          "content": "Extracts properties by matching key names. Supports default values, variable renaming, and nested extraction.",
+          "bulletPoints": [
+            "Renaming: `{ oldKey: newVarName }`.",
+            "Default Values: `{ key = 'defaultVal' }` triggered only when property is `undefined`.",
+            "Nested Extraction: `{ user: { name } }`."
+          ]
+        },
+        {
+          "heading": "Array Destructuring",
+          "content": "Extracts elements by positional index. Supports skipping items and rest patterns.",
+          "bulletPoints": [
+            "Positional Matching: `const [first, second] = arr`.",
+            "Skipping Items: `const [a, , c] = arr`.",
+            "Swapping Variables: `[a, b] = [b, a]`."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Object destructuring matches keys; array destructuring matches position.",
+      "Default values trigger only when extracted value is `undefined` (not `null`).",
+      "Easily swap variables using `[a, b] = [b, a]`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Object & Array Destructuring",
+        "description": "Renaming, defaults, nested extraction, and array swapping.",
+        "code": "const config = { port: 8080, host: undefined };\nconst { port: serverPort, host = 'localhost', ssl = false } = config;\nconsole.log(serverPort, host, ssl); // 8080, 'localhost', false\n\nlet x = 1, y = 2;\n[x, y] = [y, x]; // Swap variables\nconsole.log(x, y); // 2, 1"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-destructuring-mcq-1",
+        "question": "What is value of `b` in `const { a, b = 10 } = { a: 5, b: null }`?",
+        "options": [
+          "10",
+          "null",
+          "undefined",
+          "TypeError"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Default values trigger ONLY when value is `undefined`. Since `b` is `null`, `null` is preserved."
+      },
+      {
+        "id": "js-destructuring-mcq-2",
+        "question": "How do you rename property `name` to `userName` during object destructuring?",
+        "options": [
+          "const { name as userName } = obj",
+          "const { name: userName } = obj",
+          "const { userName = name } = obj",
+          "const { name -> userName } = obj"
+        ],
+        "correctAnswer": 1,
+        "explanation": "The colon syntax `{ property: newVariableName }` renames destructured variable."
+      },
+      {
+        "id": "js-destructuring-mcq-3",
+        "question": "What is logged by `const [, y] = [10, 20, 30]`?",
+        "options": [
+          "10",
+          "20",
+          "30",
+          "[20, 30]"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Leading empty comma skips index 0, assigning index 1 (`20`) to variable `y`."
+      },
+      {
+        "id": "js-destructuring-mcq-4",
+        "question": "What occurs when attempting to destructure `null` `const { x } = null`?",
+        "options": [
+          "x is undefined",
+          "x is null",
+          "Throws TypeError",
+          "Returns empty object"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Destructuring `null` or `undefined` throws TypeError because they cannot be converted to objects."
+      },
+      {
+        "id": "js-destructuring-mcq-5",
+        "question": "How do you capture remaining array elements into variable `rest` during array destructuring?",
+        "options": [
+          "const [first, ...rest] = arr",
+          "const [first, rest*] = arr",
+          "const [first, ...rest, last] = arr",
+          "const [first, rest] = arr"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Rest element `...rest` captures all remaining uncollected array elements and must be placed last."
+      }
+    ]
+  },
+  {
+    "id": "js-spread-rest",
+    "title": "Spread/rest",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Spread operator `...` for expanding iterables/objects vs Rest operator `...` for gathering parameters.",
+    "explanation": {
+      "overview": "The `...` syntax serves dual purposes in JS: **Spread** expands elements of iterable/object into elements, while **Rest** collects multiple elements into single array parameter.",
+      "sections": [
+        {
+          "heading": "Spread Operator (Expansion)",
+          "content": "Used in function calls, array literals, and object literals to shallow copy or merge data structures.",
+          "bulletPoints": [
+            "Array Merge: `[...arr1, ...arr2]`.",
+            "Object Shallow Merge: `{ ...defaults, ...userOptions }`.",
+            "Function Call Arguments: `Math.max(...numArray)`."
+          ]
+        },
+        {
+          "heading": "Rest Operator (Collection)",
+          "content": "Used in function parameter signatures and destructuring assignments to collect residual items into array.",
+          "bulletPoints": [
+            "Function Rest Parameter: `function fn(first, ...others)`.",
+            "Destructuring Rest: `const { id, ...data } = userObj`.",
+            "Rule: Rest parameter must be last item in signature."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Spread expands iterables; Rest gathers elements into array.",
+      "Spread creates shallow copies of objects/arrays.",
+      "Rest parameters replace legacy `arguments` object in ES6 functions."
+    ],
+    "codeExamples": [
+      {
+        "title": "Spread vs Rest Operators",
+        "description": "Rest parameter in function vs Spread operator merging objects.",
+        "code": "// Rest parameter gathers args into array\nfunction calculateSum(multiplier, ...numbers) {\n  return numbers.reduce((sum, n) => sum + n, 0) * multiplier;\n}\nconsole.log(calculateSum(2, 1, 2, 3)); // (1+2+3)*2 = 12\n\n// Spread operator merges objects\nconst base = { theme: 'dark', size: 'md' };\nconst custom = { size: 'lg' };\nconst config = { ...base, ...custom }; // { theme: 'dark', size: 'lg' }"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-spread-rest-mcq-1",
+        "question": "What is the restriction on rest parameters in function definitions?",
+        "options": [
+          "Can only collect up to 5 arguments",
+          "Must be the final parameter in parameter list",
+          "Must be named rest",
+          "Cannot be used in arrow functions"
+        ],
+        "correctAnswer": 1,
+        "explanation": "A rest parameter `...args` must always be the last parameter in function signature."
+      },
+      {
+        "id": "js-spread-rest-mcq-2",
+        "question": "What is logged by `const a = [1, 2]; const b = [...a, 3]; console.log(b)`?",
+        "options": [
+          "[[1, 2], 3]",
+          "[1, 2, 3]",
+          "[3, 1, 2]",
+          "Error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Spread `...a` unpacks elements `1, 2` directly into outer array, giving `[1, 2, 3]`."
+      },
+      {
+        "id": "js-spread-rest-mcq-3",
+        "question": "What type of object does rest parameter `...args` produce inside a function?",
+        "options": [
+          "Array instance with full array methods",
+          "Array-like `arguments` object",
+          "Set",
+          "Tuple"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Rest parameters produce genuine JavaScript `Array` instances with map/filter/reduce access."
+      },
+      {
+        "id": "js-spread-rest-mcq-4",
+        "question": "What happens when keys collide in object spread `{ ...{ a: 1 }, ...{ a: 2 } }`?",
+        "options": [
+          "Throws error",
+          "a is 1",
+          "a is 2 (later keys overwrite earlier keys)",
+          "a becomes array [1, 2]"
+        ],
+        "correctAnswer": 2,
+        "explanation": "When spreading objects with duplicate keys, later spread properties overwrite earlier ones."
+      },
+      {
+        "id": "js-spread-rest-mcq-5",
+        "question": "How do you pass array elements as separate arguments to `Math.max()`?",
+        "options": [
+          "Math.max(arr)",
+          "Math.max(...arr)",
+          "Math.max(arr.values())",
+          "Math.max(arr[])"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Math.max(...arr)` spreads array elements as individual numerical positional arguments."
+      }
+    ]
+  },
+  {
+    "id": "js-map-filter-reduce",
+    "title": "map/filter/reduce",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Functional array transformations: map (1-to-1 transform), filter (subset selection), reduce (accumulator aggregation).",
+    "explanation": {
+      "overview": "`map`, `filter`, and `reduce` form core foundation of functional array processing in JS, creating new output without mutating source arrays.",
+      "sections": [
+        {
+          "heading": "map & filter",
+          "content": "`map()` transforms every element 1-to-1, returning array of same length. `filter()` returns subset containing elements that return truthy for predicate function.",
+          "bulletPoints": [
+            "`map(fn)`: Same length, transformed elements.",
+            "`filter(fn)`: Equal or smaller length, matching elements.",
+            "Chaining: `arr.filter(...).map(...)` combines transformations."
+          ]
+        },
+        {
+          "heading": "reduce Mechanics",
+          "content": "`reduce((acc, curr) => ..., initialValue)` iterates array passing single accumulator value along steps to condense array into single value (number, object, array).",
+          "bulletPoints": [
+            "Always pass `initialValue` to avoid error on empty arrays.",
+            "Can replace both map and filter in single pass.",
+            "Ideal for grouping data, summing totals, and pipe operations."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`map` transforms 1-to-1, `filter` subsets, `reduce` aggregates.",
+      "All three methods return new results without mutating original array.",
+      "Always provide initial accumulator value to `reduce`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Map, Filter, Reduce Pipeline",
+        "description": "Filtering even numbers, doubling them, and calculating total sum.",
+        "code": "const numbers = [1, 2, 3, 4, 5, 6];\nconst sumDoubledEvens = numbers\n  .filter(n => n % 2 === 0)\n  .map(n => n * 2)\n  .reduce((acc, val) => acc + val, 0);\n\nconsole.log(sumDoubledEvens); // 2 + 4 + 6 = 12 -> *2 -> 4+8+12 = 24"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-map-filter-reduce-mcq-1",
+        "question": "What is output length of `[1, 2, 3].map(x => x > 1)`?",
+        "options": [
+          "2",
+          "3 ([false, true, true])",
+          "1",
+          "0"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`map()` always returns array of identical length to original input array."
+      },
+      {
+        "id": "js-map-filter-reduce-mcq-2",
+        "question": "What happens if `reduce()` is called on an empty array without initialValue?",
+        "options": [
+          "Returns undefined",
+          "Returns 0",
+          "Throws TypeError",
+          "Returns empty array"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Calling `reduce()` on an empty array without supplying initial value throws TypeError."
+      },
+      {
+        "id": "js-map-filter-reduce-mcq-3",
+        "question": "Which method would you use to group an array of user objects by role into a map object?",
+        "options": [
+          "map()",
+          "filter()",
+          "reduce()",
+          "forEach()"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`reduce()` aggregates elements into complex accumulated shapes like grouping objects."
+      },
+      {
+        "id": "js-map-filter-reduce-mcq-4",
+        "question": "What does `[1, 2, 3, 4].filter(x => false)` return?",
+        "options": [
+          "undefined",
+          "null",
+          "Empty array []",
+          "[false, false, false, false]"
+        ],
+        "correctAnswer": 2,
+        "explanation": "If predicate returns false for all elements, `filter()` returns a new empty array."
+      },
+      {
+        "id": "js-map-filter-reduce-mcq-5",
+        "question": "What is logged by `[10, 20].reduce((acc, curr) => acc + curr)` with no initial value specified?",
+        "options": [
+          "30",
+          "undefined",
+          "1020",
+          "TypeError"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Without initial value on non-empty array, first element (`10`) becomes initial accumulator."
+      }
+    ]
+  },
+  {
     "id": "js-hoisting",
     "title": "Hoisting",
     "category": "JAVASCRIPT",
@@ -736,535 +1265,6 @@
     ]
   },
   {
-    "id": "js-objects",
-    "title": "Objects",
-    "category": "JAVASCRIPT",
-    "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Key-value property storage, object methods, property descriptors, Object.freeze vs Object.seal.",
-    "explanation": {
-      "overview": "Objects are collection of key-value pairs where keys are strings/symbols and values can be any data type. JS objects support property access, iteration, dynamic keys, and property attribute descriptors.",
-      "sections": [
-        {
-          "heading": "Object Operations & Utility Methods",
-          "content": "`Object.keys()`, `Object.values()`, and `Object.entries()` allow iterating properties. `Object.assign()` and spread `{...obj}` perform shallow cloning.",
-          "bulletPoints": [
-            "`Object.keys(obj)`: Returns array of own enumerable string keys.",
-            "`Object.entries(obj)`: Returns array of `[key, value]` pairs.",
-            "Shallow Copy: Nested objects retain shared references."
-          ]
-        },
-        {
-          "heading": "Immutability: Freeze vs Seal",
-          "content": "`Object.freeze()` prevents property addition, deletion, and value modification. `Object.seal()` prevents property addition and deletion but allows updating existing values.",
-          "bulletPoints": [
-            "`Object.freeze()`: Fully immutable shallow lock.",
-            "`Object.seal()`: Prevents structure changes, allows value updates.",
-            "`Object.defineProperty()`: Configures writable, enumerable, and configurable attributes."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Objects use key-value string/symbol mappings.",
-      "`Object.freeze` prevents edits; `Object.seal` allows updating existing keys.",
-      "Spread and Object.assign produce shallow copies."
-    ],
-    "codeExamples": [
-      {
-        "title": "Object Freeze vs Seal",
-        "description": "Demonstrating behavior of Object.freeze and Object.seal.",
-        "code": "const frozen = Object.freeze({ count: 1 });\n// frozen.count = 2; // Silent fail in sloppy mode, TypeError in strict mode\n\nconst sealed = Object.seal({ count: 1 });\nsealed.count = 5; // Works!\n// delete sealed.count; // Fails!"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "js-objects-mcq-1",
-        "question": "What does `Object.freeze(obj)` prevent on an object?",
-        "options": [
-          "Adding new properties only",
-          "Deleting properties only",
-          "Adding, deleting, and modifying existing properties",
-          "Modifying nested child objects"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`Object.freeze()` locks shallow object properties against addition, deletion, or re-assignment."
-      },
-      {
-        "id": "js-objects-mcq-2",
-        "question": "What is the difference between `Object.seal()` and `Object.freeze()`?",
-        "options": [
-          "Seal allows modifying existing property values; Freeze does not",
-          "Freeze allows adding new properties",
-          "Seal makes nested objects immutable",
-          "No difference"
-        ],
-        "correctAnswer": 0,
-        "explanation": "`Object.seal()` allows reassigning existing properties, but blocks adding or deleting keys."
-      },
-      {
-        "id": "js-objects-mcq-3",
-        "question": "What data types can be used as Object property keys in JS?",
-        "options": [
-          "Strings only",
-          "Strings and Symbols",
-          "Numbers, Strings, Objects",
-          "Booleans only"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Object property keys in JS can only be Strings or Symbols (numbers are converted to strings)."
-      },
-      {
-        "id": "js-objects-mcq-4",
-        "question": "What kind of copy is created by `{ ...originalObj }`?",
-        "options": [
-          "Deep copy",
-          "Shallow copy",
-          "Prototype copy",
-          "Immutable copy"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Spread operator creates a shallow copy; nested object references are shared."
-      },
-      {
-        "id": "js-objects-mcq-5",
-        "question": "Which method converts an object into an array of key-value pairs `[[key, val], ...]`?",
-        "options": [
-          "Object.keys()",
-          "Object.values()",
-          "Object.entries()",
-          "Object.pairs()"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`Object.entries()` returns array of `[key, value]` arrays."
-      }
-    ]
-  },
-  {
-    "id": "js-arrays",
-    "title": "Arrays",
-    "category": "JAVASCRIPT",
-    "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Ordered list collections, array mutations, indexing, slice/splice, and ES6+ array methods.",
-    "explanation": {
-      "overview": "Arrays in JavaScript are zero-indexed, dynamically-sized list objects. Understanding mutating methods (push, pop, splice) vs non-mutating methods (slice, concat, toSpliced) is essential for state management.",
-      "sections": [
-        {
-          "heading": "Mutating vs Non-Mutating Methods",
-          "content": "Mutating methods modify original array in place. Non-mutating methods return a fresh array, which is crucial for React state updates.",
-          "bulletPoints": [
-            "Mutating: `push`, `pop`, `shift`, `unshift`, `splice`, `sort`, `reverse`.",
-            "Non-mutating: `slice`, `concat`, `map`, `filter`, `flat`, `toSorted`, `toSpliced`."
-          ]
-        },
-        {
-          "heading": "Searching & Iteration Utilities",
-          "content": "Array lookup methods simplify element retrieval and condition testing across elements.",
-          "bulletPoints": [
-            "`indexOf()` / `includes()`: Value equality search.",
-            "`find()` / `findIndex()`: Predicate condition callback search.",
-            "`some()` / `every()`: Boolean validation across array elements."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Distinguish mutating vs non-mutating array operations.",
-      "Use `includes`/`find` for searching arrays efficiently.",
-      "React state updates require non-mutating array copies."
-    ],
-    "codeExamples": [
-      {
-        "title": "Slice vs Splice Demonstration",
-        "description": "Non-mutating slice vs mutating splice array operations.",
-        "code": "const list = [10, 20, 30, 40, 50];\n// slice(start, end) - non-mutating\nconst sub = list.slice(1, 3); // [20, 30], original untouched\n\n// splice(start, deleteCount, ...items) - mutating\nconst removed = list.splice(1, 2); // returns [20, 30], list is now [10, 40, 50]"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "js-arrays-mcq-1",
-        "question": "Which method mutates original array in place?",
-        "options": [
-          "slice()",
-          "concat()",
-          "splice()",
-          "map()"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`splice()` modifies original array in place by deleting/inserting items."
-      },
-      {
-        "id": "js-arrays-mcq-2",
-        "question": "What does `array.find(fn)` return if no element matches predicate function?",
-        "options": [
-          "null",
-          "-1",
-          "undefined",
-          "Empty array []"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`find()` returns first matching element, or `undefined` if no match is found."
-      },
-      {
-        "id": "js-arrays-mcq-3",
-        "question": "Which array method returns true if AT LEAST ONE element matches condition?",
-        "options": [
-          "every()",
-          "some()",
-          "filter()",
-          "includes()"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`some()` returns true as soon as one element satisfies predicate function."
-      },
-      {
-        "id": "js-arrays-mcq-4",
-        "question": "What is logged by `[1, 2, 3].concat([4, 5])`?",
-        "options": [
-          "Modifies original array",
-          "Returns new combined array [1, 2, 3, 4, 5]",
-          "Nested array [[1,2,3],[4,5]]",
-          "Length number 5"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`concat()` joins arrays into a new shallow-copied array without mutating inputs."
-      },
-      {
-        "id": "js-arrays-mcq-5",
-        "question": "What is default sorting behavior of `[10, 2, 5].sort()` without comparator callback?",
-        "options": [
-          "[2, 5, 10]",
-          "[10, 2, 5]",
-          "[10, 5, 2]",
-          "[10, 2, 5] lexicographical string sorting ('10', '2', '5') -> [10, 2, 5]"
-        ],
-        "correctAnswer": 3,
-        "explanation": "Default `sort()` converts elements to strings, sorting alphabetically (`'10'` comes before `'2'`)."
-      }
-    ]
-  },
-  {
-    "id": "js-map-filter-reduce",
-    "title": "map/filter/reduce",
-    "category": "JAVASCRIPT",
-    "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Functional array transformations: map (1-to-1 transform), filter (subset selection), reduce (accumulator aggregation).",
-    "explanation": {
-      "overview": "`map`, `filter`, and `reduce` form core foundation of functional array processing in JS, creating new output without mutating source arrays.",
-      "sections": [
-        {
-          "heading": "map & filter",
-          "content": "`map()` transforms every element 1-to-1, returning array of same length. `filter()` returns subset containing elements that return truthy for predicate function.",
-          "bulletPoints": [
-            "`map(fn)`: Same length, transformed elements.",
-            "`filter(fn)`: Equal or smaller length, matching elements.",
-            "Chaining: `arr.filter(...).map(...)` combines transformations."
-          ]
-        },
-        {
-          "heading": "reduce Mechanics",
-          "content": "`reduce((acc, curr) => ..., initialValue)` iterates array passing single accumulator value along steps to condense array into single value (number, object, array).",
-          "bulletPoints": [
-            "Always pass `initialValue` to avoid error on empty arrays.",
-            "Can replace both map and filter in single pass.",
-            "Ideal for grouping data, summing totals, and pipe operations."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "`map` transforms 1-to-1, `filter` subsets, `reduce` aggregates.",
-      "All three methods return new results without mutating original array.",
-      "Always provide initial accumulator value to `reduce`."
-    ],
-    "codeExamples": [
-      {
-        "title": "Map, Filter, Reduce Pipeline",
-        "description": "Filtering even numbers, doubling them, and calculating total sum.",
-        "code": "const numbers = [1, 2, 3, 4, 5, 6];\nconst sumDoubledEvens = numbers\n  .filter(n => n % 2 === 0)\n  .map(n => n * 2)\n  .reduce((acc, val) => acc + val, 0);\n\nconsole.log(sumDoubledEvens); // 2 + 4 + 6 = 12 -> *2 -> 4+8+12 = 24"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "js-map-filter-reduce-mcq-1",
-        "question": "What is output length of `[1, 2, 3].map(x => x > 1)`?",
-        "options": [
-          "2",
-          "3 ([false, true, true])",
-          "1",
-          "0"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`map()` always returns array of identical length to original input array."
-      },
-      {
-        "id": "js-map-filter-reduce-mcq-2",
-        "question": "What happens if `reduce()` is called on an empty array without initialValue?",
-        "options": [
-          "Returns undefined",
-          "Returns 0",
-          "Throws TypeError",
-          "Returns empty array"
-        ],
-        "correctAnswer": 2,
-        "explanation": "Calling `reduce()` on an empty array without supplying initial value throws TypeError."
-      },
-      {
-        "id": "js-map-filter-reduce-mcq-3",
-        "question": "Which method would you use to group an array of user objects by role into a map object?",
-        "options": [
-          "map()",
-          "filter()",
-          "reduce()",
-          "forEach()"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`reduce()` aggregates elements into complex accumulated shapes like grouping objects."
-      },
-      {
-        "id": "js-map-filter-reduce-mcq-4",
-        "question": "What does `[1, 2, 3, 4].filter(x => false)` return?",
-        "options": [
-          "undefined",
-          "null",
-          "Empty array []",
-          "[false, false, false, false]"
-        ],
-        "correctAnswer": 2,
-        "explanation": "If predicate returns false for all elements, `filter()` returns a new empty array."
-      },
-      {
-        "id": "js-map-filter-reduce-mcq-5",
-        "question": "What is logged by `[10, 20].reduce((acc, curr) => acc + curr)` with no initial value specified?",
-        "options": [
-          "30",
-          "undefined",
-          "1020",
-          "TypeError"
-        ],
-        "correctAnswer": 0,
-        "explanation": "Without initial value on non-empty array, first element (`10`) becomes initial accumulator."
-      }
-    ]
-  },
-  {
-    "id": "js-destructuring",
-    "title": "Destructuring",
-    "category": "JAVASCRIPT",
-    "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Unpacking values from arrays and properties from objects into distinct variables with defaults and renaming.",
-    "explanation": {
-      "overview": "Destructuring assignment syntax enables unpacking values from arrays or properties from objects into distinct variables concisely.",
-      "sections": [
-        {
-          "heading": "Object Destructuring",
-          "content": "Extracts properties by matching key names. Supports default values, variable renaming, and nested extraction.",
-          "bulletPoints": [
-            "Renaming: `{ oldKey: newVarName }`.",
-            "Default Values: `{ key = 'defaultVal' }` triggered only when property is `undefined`.",
-            "Nested Extraction: `{ user: { name } }`."
-          ]
-        },
-        {
-          "heading": "Array Destructuring",
-          "content": "Extracts elements by positional index. Supports skipping items and rest patterns.",
-          "bulletPoints": [
-            "Positional Matching: `const [first, second] = arr`.",
-            "Skipping Items: `const [a, , c] = arr`.",
-            "Swapping Variables: `[a, b] = [b, a]`."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Object destructuring matches keys; array destructuring matches position.",
-      "Default values trigger only when extracted value is `undefined` (not `null`).",
-      "Easily swap variables using `[a, b] = [b, a]`."
-    ],
-    "codeExamples": [
-      {
-        "title": "Object & Array Destructuring",
-        "description": "Renaming, defaults, nested extraction, and array swapping.",
-        "code": "const config = { port: 8080, host: undefined };\nconst { port: serverPort, host = 'localhost', ssl = false } = config;\nconsole.log(serverPort, host, ssl); // 8080, 'localhost', false\n\nlet x = 1, y = 2;\n[x, y] = [y, x]; // Swap variables\nconsole.log(x, y); // 2, 1"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "js-destructuring-mcq-1",
-        "question": "What is value of `b` in `const { a, b = 10 } = { a: 5, b: null }`?",
-        "options": [
-          "10",
-          "null",
-          "undefined",
-          "TypeError"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Default values trigger ONLY when value is `undefined`. Since `b` is `null`, `null` is preserved."
-      },
-      {
-        "id": "js-destructuring-mcq-2",
-        "question": "How do you rename property `name` to `userName` during object destructuring?",
-        "options": [
-          "const { name as userName } = obj",
-          "const { name: userName } = obj",
-          "const { userName = name } = obj",
-          "const { name -> userName } = obj"
-        ],
-        "correctAnswer": 1,
-        "explanation": "The colon syntax `{ property: newVariableName }` renames destructured variable."
-      },
-      {
-        "id": "js-destructuring-mcq-3",
-        "question": "What is logged by `const [, y] = [10, 20, 30]`?",
-        "options": [
-          "10",
-          "20",
-          "30",
-          "[20, 30]"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Leading empty comma skips index 0, assigning index 1 (`20`) to variable `y`."
-      },
-      {
-        "id": "js-destructuring-mcq-4",
-        "question": "What occurs when attempting to destructure `null` `const { x } = null`?",
-        "options": [
-          "x is undefined",
-          "x is null",
-          "Throws TypeError",
-          "Returns empty object"
-        ],
-        "correctAnswer": 2,
-        "explanation": "Destructuring `null` or `undefined` throws TypeError because they cannot be converted to objects."
-      },
-      {
-        "id": "js-destructuring-mcq-5",
-        "question": "How do you capture remaining array elements into variable `rest` during array destructuring?",
-        "options": [
-          "const [first, ...rest] = arr",
-          "const [first, rest*] = arr",
-          "const [first, ...rest, last] = arr",
-          "const [first, rest] = arr"
-        ],
-        "correctAnswer": 0,
-        "explanation": "Rest element `...rest` captures all remaining uncollected array elements and must be placed last."
-      }
-    ]
-  },
-  {
-    "id": "js-spread-rest",
-    "title": "Spread/rest",
-    "category": "JAVASCRIPT",
-    "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Spread operator `...` for expanding iterables/objects vs Rest operator `...` for gathering parameters.",
-    "explanation": {
-      "overview": "The `...` syntax serves dual purposes in JS: **Spread** expands elements of iterable/object into elements, while **Rest** collects multiple elements into single array parameter.",
-      "sections": [
-        {
-          "heading": "Spread Operator (Expansion)",
-          "content": "Used in function calls, array literals, and object literals to shallow copy or merge data structures.",
-          "bulletPoints": [
-            "Array Merge: `[...arr1, ...arr2]`.",
-            "Object Shallow Merge: `{ ...defaults, ...userOptions }`.",
-            "Function Call Arguments: `Math.max(...numArray)`."
-          ]
-        },
-        {
-          "heading": "Rest Operator (Collection)",
-          "content": "Used in function parameter signatures and destructuring assignments to collect residual items into array.",
-          "bulletPoints": [
-            "Function Rest Parameter: `function fn(first, ...others)`.",
-            "Destructuring Rest: `const { id, ...data } = userObj`.",
-            "Rule: Rest parameter must be last item in signature."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Spread expands iterables; Rest gathers elements into array.",
-      "Spread creates shallow copies of objects/arrays.",
-      "Rest parameters replace legacy `arguments` object in ES6 functions."
-    ],
-    "codeExamples": [
-      {
-        "title": "Spread vs Rest Operators",
-        "description": "Rest parameter in function vs Spread operator merging objects.",
-        "code": "// Rest parameter gathers args into array\nfunction calculateSum(multiplier, ...numbers) {\n  return numbers.reduce((sum, n) => sum + n, 0) * multiplier;\n}\nconsole.log(calculateSum(2, 1, 2, 3)); // (1+2+3)*2 = 12\n\n// Spread operator merges objects\nconst base = { theme: 'dark', size: 'md' };\nconst custom = { size: 'lg' };\nconst config = { ...base, ...custom }; // { theme: 'dark', size: 'lg' }"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "js-spread-rest-mcq-1",
-        "question": "What is the restriction on rest parameters in function definitions?",
-        "options": [
-          "Can only collect up to 5 arguments",
-          "Must be the final parameter in parameter list",
-          "Must be named rest",
-          "Cannot be used in arrow functions"
-        ],
-        "correctAnswer": 1,
-        "explanation": "A rest parameter `...args` must always be the last parameter in function signature."
-      },
-      {
-        "id": "js-spread-rest-mcq-2",
-        "question": "What is logged by `const a = [1, 2]; const b = [...a, 3]; console.log(b)`?",
-        "options": [
-          "[[1, 2], 3]",
-          "[1, 2, 3]",
-          "[3, 1, 2]",
-          "Error"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Spread `...a` unpacks elements `1, 2` directly into outer array, giving `[1, 2, 3]`."
-      },
-      {
-        "id": "js-spread-rest-mcq-3",
-        "question": "What type of object does rest parameter `...args` produce inside a function?",
-        "options": [
-          "Array instance with full array methods",
-          "Array-like `arguments` object",
-          "Set",
-          "Tuple"
-        ],
-        "correctAnswer": 0,
-        "explanation": "Rest parameters produce genuine JavaScript `Array` instances with map/filter/reduce access."
-      },
-      {
-        "id": "js-spread-rest-mcq-4",
-        "question": "What happens when keys collide in object spread `{ ...{ a: 1 }, ...{ a: 2 } }`?",
-        "options": [
-          "Throws error",
-          "a is 1",
-          "a is 2 (later keys overwrite earlier keys)",
-          "a becomes array [1, 2]"
-        ],
-        "correctAnswer": 2,
-        "explanation": "When spreading objects with duplicate keys, later spread properties overwrite earlier ones."
-      },
-      {
-        "id": "js-spread-rest-mcq-5",
-        "question": "How do you pass array elements as separate arguments to `Math.max()`?",
-        "options": [
-          "Math.max(arr)",
-          "Math.max(...arr)",
-          "Math.max(arr.values())",
-          "Math.max(arr[])"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`Math.max(...arr)` spreads array elements as individual numerical positional arguments."
-      }
-    ]
-  },
-  {
     "id": "js-modules",
     "title": "Modules",
     "category": "JAVASCRIPT",
@@ -1367,6 +1367,112 @@
         ],
         "correctAnswer": 1,
         "explanation": "A module can have multiple named exports, but at most ONE `export default`."
+      }
+    ]
+  },
+  {
+    "id": "js-error-handling",
+    "title": "Error handling",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "try/catch/finally blocks, Custom Error classes, unhandled promise rejections, window.onerror.",
+    "explanation": {
+      "overview": "Robust error handling prevents unhandled exceptions from crashing applications. JS provides `try...catch...finally` statements and custom Error classes.",
+      "sections": [
+        {
+          "heading": "try...catch...finally Mechanics",
+          "content": "`try` wraps code that may throw exceptions. `catch(err)` catches threw errors. `finally` executes unconditionally for cleanup.",
+          "bulletPoints": [
+            "`throw`: Raises built-in `Error` instance or custom error.",
+            "`finally`: Executes even if `return` statement exists inside `try` or `catch`.",
+            "Catch Binding: ES2019 allows optional catch binding `catch {}`."
+          ]
+        },
+        {
+          "heading": "Async Errors & Global Handlers",
+          "content": "Synchronous `try/catch` cannot catch async errors thrown inside callbacks or promises unless `await` is used. Use global listeners for uncaught errors.",
+          "bulletPoints": [
+            "Browser: `window.addEventListener('unhandledrejection')` and `window.onerror`.",
+            "Node.js: `process.on('uncaughtException')` and `process.on('unhandledRejection')`.",
+            "Custom Errors: Extend built-in `Error` class (`class AppError extends Error`)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use `try...catch` for synchronous code and `await` calls.",
+      "Extend `Error` class to create domain-specific custom exceptions.",
+      "Register global unhandled rejection handlers to log uncaught async errors."
+    ],
+    "codeExamples": [
+      {
+        "title": "Custom Error Class & Handling",
+        "description": "Extending Error class with statusCode and custom try/catch.",
+        "code": "class ValidationError extends Error {\n  constructor(message) {\n    super(message);\n    this.name = 'ValidationError';\n    this.statusCode = 400;\n  }\n}\n\ntry {\n  throw new ValidationError('Invalid email format');\n} catch (err) {\n  if (err instanceof ValidationError) {\n    console.log(`[${err.statusCode}] ${err.name}: ${err.message}`);\n  } else {\n    throw err;\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-error-handling-mcq-1",
+        "question": "What happens if code inside `try` block returns value `return 10`, but `finally` block contains `return 20`?",
+        "options": [
+          "Returns 10",
+          "Returns 20",
+          "Throws SyntaxError",
+          "Returns undefined"
+        ],
+        "correctAnswer": 1,
+        "explanation": "A `return` statement inside `finally` block overrides any previous `return` statements from `try` or `catch` blocks."
+      },
+      {
+        "id": "js-error-handling-mcq-2",
+        "question": "Can standard synchronous `try { setTimeout(() => { throw new Error('boom'); }, 100); } catch(e) {}` catch the error?",
+        "options": [
+          "Yes",
+          "No, because callback executes asynchronously after try block exits",
+          "Only in strict mode",
+          "Only in Node.js"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Synchronous `try/catch` exits immediately; async callback executes later on event loop, escaping catch block."
+      },
+      {
+        "id": "js-error-handling-mcq-3",
+        "question": "How do you create a custom error class in modern ES6 JavaScript?",
+        "options": [
+          "class MyError extends Error {}",
+          "function MyError() extends Exception",
+          "createErrorClass('MyError')",
+          "Object.create(Error)"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Custom errors extend native built-in `Error` class and invoke `super(message)` inside constructor."
+      },
+      {
+        "id": "js-error-handling-mcq-4",
+        "question": "Which window event fires when a Promise rejects without any `.catch()` handler attached?",
+        "options": [
+          "onerror",
+          "unhandledrejection",
+          "onpromiseerror",
+          "uncaughtexception"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browsers dispatch `unhandledrejection` event when a promise is rejected without rejection handler."
+      },
+      {
+        "id": "js-error-handling-mcq-5",
+        "question": "What is ES2019 optional catch binding feature?",
+        "options": [
+          "Skipping try block",
+          "Omitting error parameter in `catch {}` when error variable is unused",
+          "Catching multiple error types in one line",
+          "Ignoring errors automatically"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Optional catch binding allows writing `catch {}` without specifying unused `catch (err)` parameter."
       }
     ]
   },
@@ -1891,112 +1997,6 @@
         ],
         "correctAnswer": 1,
         "explanation": "Browser UI rendering occurs AFTER microtask queue is fully emptied, prior to running next macrotask."
-      }
-    ]
-  },
-  {
-    "id": "js-error-handling",
-    "title": "Error handling",
-    "category": "JAVASCRIPT",
-    "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "try/catch/finally blocks, Custom Error classes, unhandled promise rejections, window.onerror.",
-    "explanation": {
-      "overview": "Robust error handling prevents unhandled exceptions from crashing applications. JS provides `try...catch...finally` statements and custom Error classes.",
-      "sections": [
-        {
-          "heading": "try...catch...finally Mechanics",
-          "content": "`try` wraps code that may throw exceptions. `catch(err)` catches threw errors. `finally` executes unconditionally for cleanup.",
-          "bulletPoints": [
-            "`throw`: Raises built-in `Error` instance or custom error.",
-            "`finally`: Executes even if `return` statement exists inside `try` or `catch`.",
-            "Catch Binding: ES2019 allows optional catch binding `catch {}`."
-          ]
-        },
-        {
-          "heading": "Async Errors & Global Handlers",
-          "content": "Synchronous `try/catch` cannot catch async errors thrown inside callbacks or promises unless `await` is used. Use global listeners for uncaught errors.",
-          "bulletPoints": [
-            "Browser: `window.addEventListener('unhandledrejection')` and `window.onerror`.",
-            "Node.js: `process.on('uncaughtException')` and `process.on('unhandledRejection')`.",
-            "Custom Errors: Extend built-in `Error` class (`class AppError extends Error`)."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Use `try...catch` for synchronous code and `await` calls.",
-      "Extend `Error` class to create domain-specific custom exceptions.",
-      "Register global unhandled rejection handlers to log uncaught async errors."
-    ],
-    "codeExamples": [
-      {
-        "title": "Custom Error Class & Handling",
-        "description": "Extending Error class with statusCode and custom try/catch.",
-        "code": "class ValidationError extends Error {\n  constructor(message) {\n    super(message);\n    this.name = 'ValidationError';\n    this.statusCode = 400;\n  }\n}\n\ntry {\n  throw new ValidationError('Invalid email format');\n} catch (err) {\n  if (err instanceof ValidationError) {\n    console.log(`[${err.statusCode}] ${err.name}: ${err.message}`);\n  } else {\n    throw err;\n  }\n}"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "js-error-handling-mcq-1",
-        "question": "What happens if code inside `try` block returns value `return 10`, but `finally` block contains `return 20`?",
-        "options": [
-          "Returns 10",
-          "Returns 20",
-          "Throws SyntaxError",
-          "Returns undefined"
-        ],
-        "correctAnswer": 1,
-        "explanation": "A `return` statement inside `finally` block overrides any previous `return` statements from `try` or `catch` blocks."
-      },
-      {
-        "id": "js-error-handling-mcq-2",
-        "question": "Can standard synchronous `try { setTimeout(() => { throw new Error('boom'); }, 100); } catch(e) {}` catch the error?",
-        "options": [
-          "Yes",
-          "No, because callback executes asynchronously after try block exits",
-          "Only in strict mode",
-          "Only in Node.js"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Synchronous `try/catch` exits immediately; async callback executes later on event loop, escaping catch block."
-      },
-      {
-        "id": "js-error-handling-mcq-3",
-        "question": "How do you create a custom error class in modern ES6 JavaScript?",
-        "options": [
-          "class MyError extends Error {}",
-          "function MyError() extends Exception",
-          "createErrorClass('MyError')",
-          "Object.create(Error)"
-        ],
-        "correctAnswer": 0,
-        "explanation": "Custom errors extend native built-in `Error` class and invoke `super(message)` inside constructor."
-      },
-      {
-        "id": "js-error-handling-mcq-4",
-        "question": "Which window event fires when a Promise rejects without any `.catch()` handler attached?",
-        "options": [
-          "onerror",
-          "unhandledrejection",
-          "onpromiseerror",
-          "uncaughtexception"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Browsers dispatch `unhandledrejection` event when a promise is rejected without rejection handler."
-      },
-      {
-        "id": "js-error-handling-mcq-5",
-        "question": "What is ES2019 optional catch binding feature?",
-        "options": [
-          "Skipping try block",
-          "Omitting error parameter in `catch {}` when error variable is unused",
-          "Catching multiple error types in one line",
-          "Ignoring errors automatically"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Optional catch binding allows writing `catch {}` without specifying unused `catch (err)` parameter."
       }
     ]
   },

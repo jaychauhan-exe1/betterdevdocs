@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useStudyStore } from "@/store/useStudyStore";
 
+import { RoleSelectionModal } from "@/components/RoleSelectionModal";
+
 export function SyncProgressProvider({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn, userId } = useAuth();
   const setAuthenticated = useStudyStore((state) => state.setAuthenticated);
@@ -15,7 +17,7 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
     if (isSignedIn && userId) {
       setAuthenticated(true);
 
-      // Fetch progress from API endpoint
+      // Fetch progress & role from API endpoint
       fetch("/api/progress")
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch progress");
@@ -23,7 +25,7 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
         })
         .then((data) => {
           if (Array.isArray(data?.completedTopics)) {
-            hydrateFromServer(data.completedTopics, data.activeTopicId);
+            hydrateFromServer(data.completedTopics, data.activeTopicId, data.selectedRole);
           }
         })
         .catch((err) => {
@@ -34,5 +36,10 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
     }
   }, [isLoaded, isSignedIn, userId, setAuthenticated, hydrateFromServer]);
 
-  return <>{children}</>;
+  return (
+    <>
+      <RoleSelectionModal />
+      {children}
+    </>
+  );
 }

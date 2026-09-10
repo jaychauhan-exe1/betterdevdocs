@@ -526,111 +526,6 @@
     ]
   },
   {
-    "id": "sec-jwt-security",
-    "title": "JWT security",
-    "category": "SECURITY",
-    "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "JWT security vulnerabilities: 'none' algorithm attack, weak secret keys, token storage (cookie vs localStorage), and token revocation.",
-    "explanation": {
-      "overview": "JWT tokens must be configured securely to prevent signature forgery, token theft, and replay attacks.",
-      "sections": [
-        {
-          "heading": "Critical JWT Vulnerabilities",
-          "content": "- **Algorithm 'none' Attack**: Attacker modifies header `{\"alg\": \"none\"}` and strips signature. Flawed libraries accept un-signed forged admin claims!\n- **Weak Secret Keys**: Low-entropy secret keys (`secret123`) cracked in seconds using hashcat.\n- **Algorithm Confusion**: Tricking server into verifying RS256 token using public key as HS256 secret key.",
-          "bulletPoints": [
-            "Ban 'none' Alg: Reject tokens specifying `\"alg\": \"none\"`.",
-            "High Entropy Secrets: Use 256-bit random secret keys.",
-            "Explicit Verification: Explicitly specify expected algorithm `jwt.verify(token, key, { algorithms: ['RS256'] })`."
-          ]
-        },
-        {
-          "heading": "Token Storage: Cookies vs LocalStorage",
-          "content": "Storing JWTs in `localStorage` exposes tokens to XSS theft. Storing JWTs in `HttpOnly`, `Secure`, `SameSite` cookies protects tokens against XSS.",
-          "bulletPoints": [
-            "localStorage: Vulnerable to XSS token theft via `localStorage.getItem()`.",
-            "HttpOnly Cookie: Immune to XSS script access."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Never allow `\"alg\": \"none\"` in JWT verification options.",
-      "Store JWT access tokens in `HttpOnly` cookies to protect against XSS.",
-      "Use high-entropy 256-bit secret keys."
-    ],
-    "codeExamples": [
-      {
-        "title": "Secure JWT Verification in Node.js",
-        "description": "Explicitly restricting algorithms and verifying token signature.",
-        "code": "import jwt from 'jsonwebtoken';\n\nexport function verifyAccessToken(token: string) {\n  return jwt.verify(token, process.env.JWT_SECRET!,\n    // Explicitly restrict allowed algorithms to prevent alg confusion/none attacks!\n    { algorithms: ['HS256'] }\n  );\n}"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "sec-jwt-security-mcq-1",
-        "question": "What is the infamous 'alg: none' JWT vulnerability attack?",
-        "options": [
-          "Attacker deletes token",
-          "Attacker modifies JWT header to specify `\"alg\": \"none\"` and strips signature, tricking vulnerable libraries into accepting forged admin payloads",
-          "Attacker encrypts payload",
-          "Attacker changes URL"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Flawed JWT libraries accepted `\"alg\": \"none\"` tokens without checking signatures."
-      },
-      {
-        "id": "sec-jwt-security-mcq-2",
-        "question": "Why is storing JWT access tokens in browser `localStorage` security risky?",
-        "options": [
-          "localStorage expires in 1h",
-          "Any XSS vulnerability on page allows malicious JavaScript scripts to read token via `localStorage.getItem()`",
-          "localStorage is slow",
-          "localStorage requires HTTPS"
-        ],
-        "correctAnswer": 1,
-        "explanation": "XSS scripts can inspect and steal `localStorage` contents directly."
-      },
-      {
-        "id": "sec-jwt-security-mcq-3",
-        "question": "Where is safest client-side location to store a JWT access token?",
-        "options": [
-          "Global JS variable",
-          "localStorage",
-          "An `HttpOnly`, `Secure`, `SameSite` Cookie",
-          "URL query string"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`HttpOnly` cookies block JS script access, neutralizing XSS token theft."
-      },
-      {
-        "id": "sec-jwt-security-mcq-4",
-        "question": "What is 'Algorithm Confusion Attack' on JWTs?",
-        "options": [
-          "Using wrong password",
-          "Tricking server into verifying an RS256 asymmetric token using RS256 public key as HS256 symmetric secret key",
-          "Using MD5",
-          "Token expiration"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Algorithm confusion tricks server into verifying asymmetric tokens as symmetric tokens using public keys."
-      },
-      {
-        "id": "sec-jwt-security-mcq-5",
-        "question": "How should short-lived JWT access tokens (15m) be paired with long-lived Refresh Tokens for high security?",
-        "options": [
-          "Store refresh token in localStorage",
-          "Store short-lived access token in RAM/Cookie and store Refresh Token in HttpOnly cookie with database/Redis revocation tracking",
-          "Use no access token",
-          "Never expire access token"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Short-lived access tokens limit window of stolen tokens; refresh tokens allow revocable session renewals."
-      }
-    ]
-  },
-  {
     "id": "sec-cookies",
     "title": "Cookies",
     "category": "SECURITY",
@@ -836,6 +731,111 @@
         ],
         "correctAnswer": 1,
         "explanation": "Principle of Least Privilege restricts permissions to absolute minimum required scope."
+      }
+    ]
+  },
+  {
+    "id": "sec-jwt-security",
+    "title": "JWT security",
+    "category": "SECURITY",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "JWT security vulnerabilities: 'none' algorithm attack, weak secret keys, token storage (cookie vs localStorage), and token revocation.",
+    "explanation": {
+      "overview": "JWT tokens must be configured securely to prevent signature forgery, token theft, and replay attacks.",
+      "sections": [
+        {
+          "heading": "Critical JWT Vulnerabilities",
+          "content": "- **Algorithm 'none' Attack**: Attacker modifies header `{\"alg\": \"none\"}` and strips signature. Flawed libraries accept un-signed forged admin claims!\n- **Weak Secret Keys**: Low-entropy secret keys (`secret123`) cracked in seconds using hashcat.\n- **Algorithm Confusion**: Tricking server into verifying RS256 token using public key as HS256 secret key.",
+          "bulletPoints": [
+            "Ban 'none' Alg: Reject tokens specifying `\"alg\": \"none\"`.",
+            "High Entropy Secrets: Use 256-bit random secret keys.",
+            "Explicit Verification: Explicitly specify expected algorithm `jwt.verify(token, key, { algorithms: ['RS256'] })`."
+          ]
+        },
+        {
+          "heading": "Token Storage: Cookies vs LocalStorage",
+          "content": "Storing JWTs in `localStorage` exposes tokens to XSS theft. Storing JWTs in `HttpOnly`, `Secure`, `SameSite` cookies protects tokens against XSS.",
+          "bulletPoints": [
+            "localStorage: Vulnerable to XSS token theft via `localStorage.getItem()`.",
+            "HttpOnly Cookie: Immune to XSS script access."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Never allow `\"alg\": \"none\"` in JWT verification options.",
+      "Store JWT access tokens in `HttpOnly` cookies to protect against XSS.",
+      "Use high-entropy 256-bit secret keys."
+    ],
+    "codeExamples": [
+      {
+        "title": "Secure JWT Verification in Node.js",
+        "description": "Explicitly restricting algorithms and verifying token signature.",
+        "code": "import jwt from 'jsonwebtoken';\n\nexport function verifyAccessToken(token: string) {\n  return jwt.verify(token, process.env.JWT_SECRET!,\n    // Explicitly restrict allowed algorithms to prevent alg confusion/none attacks!\n    { algorithms: ['HS256'] }\n  );\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-jwt-security-mcq-1",
+        "question": "What is the infamous 'alg: none' JWT vulnerability attack?",
+        "options": [
+          "Attacker deletes token",
+          "Attacker modifies JWT header to specify `\"alg\": \"none\"` and strips signature, tricking vulnerable libraries into accepting forged admin payloads",
+          "Attacker encrypts payload",
+          "Attacker changes URL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Flawed JWT libraries accepted `\"alg\": \"none\"` tokens without checking signatures."
+      },
+      {
+        "id": "sec-jwt-security-mcq-2",
+        "question": "Why is storing JWT access tokens in browser `localStorage` security risky?",
+        "options": [
+          "localStorage expires in 1h",
+          "Any XSS vulnerability on page allows malicious JavaScript scripts to read token via `localStorage.getItem()`",
+          "localStorage is slow",
+          "localStorage requires HTTPS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "XSS scripts can inspect and steal `localStorage` contents directly."
+      },
+      {
+        "id": "sec-jwt-security-mcq-3",
+        "question": "Where is safest client-side location to store a JWT access token?",
+        "options": [
+          "Global JS variable",
+          "localStorage",
+          "An `HttpOnly`, `Secure`, `SameSite` Cookie",
+          "URL query string"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`HttpOnly` cookies block JS script access, neutralizing XSS token theft."
+      },
+      {
+        "id": "sec-jwt-security-mcq-4",
+        "question": "What is 'Algorithm Confusion Attack' on JWTs?",
+        "options": [
+          "Using wrong password",
+          "Tricking server into verifying an RS256 asymmetric token using RS256 public key as HS256 symmetric secret key",
+          "Using MD5",
+          "Token expiration"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Algorithm confusion tricks server into verifying asymmetric tokens as symmetric tokens using public keys."
+      },
+      {
+        "id": "sec-jwt-security-mcq-5",
+        "question": "How should short-lived JWT access tokens (15m) be paired with long-lived Refresh Tokens for high security?",
+        "options": [
+          "Store refresh token in localStorage",
+          "Store short-lived access token in RAM/Cookie and store Refresh Token in HttpOnly cookie with database/Redis revocation tracking",
+          "Use no access token",
+          "Never expire access token"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Short-lived access tokens limit window of stolen tokens; refresh tokens allow revocable session renewals."
       }
     ]
   },

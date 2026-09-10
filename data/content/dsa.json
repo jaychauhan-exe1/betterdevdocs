@@ -1567,6 +1567,111 @@
     ]
   },
   {
+    "id": "dsa-sorting",
+    "title": "Sorting",
+    "category": "DATA STRUCTURES & ALGORITHMS",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Comparison sorting algorithms: QuickSort, Merge Sort, HeapSort, Bubble/Selection/Insertion sort, stability, and space/time tradeoffs.",
+    "explanation": {
+      "overview": "Sorting rearranges elements of an array in a specific order (ascending or descending).",
+      "sections": [
+        {
+          "heading": "Common Sorting Algorithms Comparison",
+          "content": "- **Merge Sort**: Divide and Conquer. Guaranteed $O(N \\log N)$ time, $O(N)$ space. **Stable**.\n- **QuickSort**: Divide and Conquer (Pivot partitioning). Average $O(N \\log N)$ time, $O(1)$ space. Worst-case $O(N^2)$ if pivot choice is bad. **Unstable**.\n- **HeapSort**: Uses Max-Heap. $O(N \\log N)$ time, $O(1)$ space. **Unstable**.\n- **Bubble / Insertion / Selection Sort**: Simple $O(N^2)$ quadratic algorithms.",
+          "bulletPoints": [
+            "Merge Sort: Stable $O(N \\log N)$ time, $O(N)$ space.",
+            "QuickSort: Average $O(N \\log N)$ time, $O(1)$ space.",
+            "Stability: Preserves relative order of equal elements."
+          ]
+        },
+        {
+          "heading": "Stable vs Unstable Sorting",
+          "content": "A sorting algorithm is **Stable** if it maintains relative original order of items with identical key values.",
+          "bulletPoints": [
+            "Stable Sorts: Merge Sort, Insertion Sort, Timsort.",
+            "Unstable Sorts: QuickSort, HeapSort, Selection Sort."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Merge Sort guarantees $O(N \\log N)$ time and stability ($O(N)$ space).",
+      "QuickSort provides average $O(N \\log N)$ time with $O(1)$ in-place space.",
+      "Stable sorting preserves relative original order of equal elements."
+    ],
+    "codeExamples": [
+      {
+        "title": "Merge Sort Implementation",
+        "description": "Recursive Divide and Conquer Merge Sort algorithm.",
+        "code": "export function mergeSort(arr: number[]): number[] {\n  if (arr.length <= 1) return arr;\n  const mid = Math.floor(arr.length / 2);\n  const left = mergeSort(arr.slice(0, mid));\n  const right = mergeSort(arr.slice(mid));\n  return merge(left, right);\n}\n\nfunction merge(left: number[], right: number[]): number[] {\n  const result: number[] = [];\n  let i = 0, j = 0;\n  while (i < left.length && j < right.length) {\n    if (left[i] <= right[j]) result.push(left[i++]);\n    else result.push(right[j++]);\n  }\n  return result.concat(left.slice(i)).concat(right.slice(j));\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "dsa-sorting-mcq-1",
+        "question": "What is WORST-CASE time complexity of QuickSort if pivot choice is consistently worst element?",
+        "options": [
+          "O(N)",
+          "O(N log N)",
+          "O(N^2)",
+          "O(1)"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Bad pivot selection (e.g. sorted array with first element pivot) degrades QuickSort to $O(N^2)$ quadratic time."
+      },
+      {
+        "id": "dsa-sorting-mcq-2",
+        "question": "Which sorting algorithm guarantees $O(N \\log N)$ worst-case time complexity AND is Stable?",
+        "options": [
+          "QuickSort",
+          "Merge Sort",
+          "HeapSort",
+          "Bubble Sort"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Merge Sort guarantees $O(N \\log N)$ time in worst case and is a Stable sorting algorithm."
+      },
+      {
+        "id": "dsa-sorting-mcq-3",
+        "question": "What does it mean for a sorting algorithm to be 'Stable'?",
+        "options": [
+          "Runs in O(1) space",
+          "Preserves relative original order of elements with equal key values",
+          "Never crashes",
+          "Uses no recursion"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Stable sorting maintains relative input sequence order for elements with equal values."
+      },
+      {
+        "id": "dsa-sorting-mcq-4",
+        "question": "What hybrid sorting algorithm is used by JavaScript `Array.prototype.sort()` and Python `sort()`?",
+        "options": [
+          "Bubble Sort",
+          "Timsort (Hybrid Merge Sort + Insertion Sort)",
+          "QuickSort",
+          "HeapSort"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Timsort is hybrid stable sorting algorithm used in V8 JS and Python."
+      },
+      {
+        "id": "dsa-sorting-mcq-5",
+        "question": "What is lower bound theoretical time complexity limit for any comparison-based sorting algorithm?",
+        "options": [
+          "O(N)",
+          "O(\\Omega(N \\log N))",
+          "O(log N)",
+          "O(1)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Comparison-based sorting has a mathematical lower bound of $\\Omega(N \\log N)$ operations."
+      }
+    ]
+  },
+  {
     "id": "dsa-heap",
     "title": "Heap",
     "category": "DATA STRUCTURES & ALGORITHMS",
@@ -1774,111 +1879,6 @@
         ],
         "correctAnswer": 1,
         "explanation": "Adjacency Lists save massive RAM on sparse graphs by storing only actual existing edges."
-      }
-    ]
-  },
-  {
-    "id": "dsa-sorting",
-    "title": "Sorting",
-    "category": "DATA STRUCTURES & ALGORITHMS",
-    "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Comparison sorting algorithms: QuickSort, Merge Sort, HeapSort, Bubble/Selection/Insertion sort, stability, and space/time tradeoffs.",
-    "explanation": {
-      "overview": "Sorting rearranges elements of an array in a specific order (ascending or descending).",
-      "sections": [
-        {
-          "heading": "Common Sorting Algorithms Comparison",
-          "content": "- **Merge Sort**: Divide and Conquer. Guaranteed $O(N \\log N)$ time, $O(N)$ space. **Stable**.\n- **QuickSort**: Divide and Conquer (Pivot partitioning). Average $O(N \\log N)$ time, $O(1)$ space. Worst-case $O(N^2)$ if pivot choice is bad. **Unstable**.\n- **HeapSort**: Uses Max-Heap. $O(N \\log N)$ time, $O(1)$ space. **Unstable**.\n- **Bubble / Insertion / Selection Sort**: Simple $O(N^2)$ quadratic algorithms.",
-          "bulletPoints": [
-            "Merge Sort: Stable $O(N \\log N)$ time, $O(N)$ space.",
-            "QuickSort: Average $O(N \\log N)$ time, $O(1)$ space.",
-            "Stability: Preserves relative order of equal elements."
-          ]
-        },
-        {
-          "heading": "Stable vs Unstable Sorting",
-          "content": "A sorting algorithm is **Stable** if it maintains relative original order of items with identical key values.",
-          "bulletPoints": [
-            "Stable Sorts: Merge Sort, Insertion Sort, Timsort.",
-            "Unstable Sorts: QuickSort, HeapSort, Selection Sort."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Merge Sort guarantees $O(N \\log N)$ time and stability ($O(N)$ space).",
-      "QuickSort provides average $O(N \\log N)$ time with $O(1)$ in-place space.",
-      "Stable sorting preserves relative original order of equal elements."
-    ],
-    "codeExamples": [
-      {
-        "title": "Merge Sort Implementation",
-        "description": "Recursive Divide and Conquer Merge Sort algorithm.",
-        "code": "export function mergeSort(arr: number[]): number[] {\n  if (arr.length <= 1) return arr;\n  const mid = Math.floor(arr.length / 2);\n  const left = mergeSort(arr.slice(0, mid));\n  const right = mergeSort(arr.slice(mid));\n  return merge(left, right);\n}\n\nfunction merge(left: number[], right: number[]): number[] {\n  const result: number[] = [];\n  let i = 0, j = 0;\n  while (i < left.length && j < right.length) {\n    if (left[i] <= right[j]) result.push(left[i++]);\n    else result.push(right[j++]);\n  }\n  return result.concat(left.slice(i)).concat(right.slice(j));\n}"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "dsa-sorting-mcq-1",
-        "question": "What is WORST-CASE time complexity of QuickSort if pivot choice is consistently worst element?",
-        "options": [
-          "O(N)",
-          "O(N log N)",
-          "O(N^2)",
-          "O(1)"
-        ],
-        "correctAnswer": 2,
-        "explanation": "Bad pivot selection (e.g. sorted array with first element pivot) degrades QuickSort to $O(N^2)$ quadratic time."
-      },
-      {
-        "id": "dsa-sorting-mcq-2",
-        "question": "Which sorting algorithm guarantees $O(N \\log N)$ worst-case time complexity AND is Stable?",
-        "options": [
-          "QuickSort",
-          "Merge Sort",
-          "HeapSort",
-          "Bubble Sort"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Merge Sort guarantees $O(N \\log N)$ time in worst case and is a Stable sorting algorithm."
-      },
-      {
-        "id": "dsa-sorting-mcq-3",
-        "question": "What does it mean for a sorting algorithm to be 'Stable'?",
-        "options": [
-          "Runs in O(1) space",
-          "Preserves relative original order of elements with equal key values",
-          "Never crashes",
-          "Uses no recursion"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Stable sorting maintains relative input sequence order for elements with equal values."
-      },
-      {
-        "id": "dsa-sorting-mcq-4",
-        "question": "What hybrid sorting algorithm is used by JavaScript `Array.prototype.sort()` and Python `sort()`?",
-        "options": [
-          "Bubble Sort",
-          "Timsort (Hybrid Merge Sort + Insertion Sort)",
-          "QuickSort",
-          "HeapSort"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Timsort is hybrid stable sorting algorithm used in V8 JS and Python."
-      },
-      {
-        "id": "dsa-sorting-mcq-5",
-        "question": "What is lower bound theoretical time complexity limit for any comparison-based sorting algorithm?",
-        "options": [
-          "O(N)",
-          "O(\\Omega(N \\log N))",
-          "O(log N)",
-          "O(1)"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Comparison-based sorting has a mathematical lower bound of $\\Omega(N \\log N)$ operations."
       }
     ]
   }

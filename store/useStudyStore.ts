@@ -1,14 +1,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { TOPICS, Topic } from "@/data/topics";
+import { ROLES } from "@/data/roles";
 
-export type FilterState = "all" | "important" | "uncompleted" | "completed";
+export type FilterState = "all" | "uncompleted" | "completed";
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
 interface StudyState {
   topics: Topic[];
   activeTopicId: string;
   completedTopics: string[];
+  selectedRole: string | null;
   isSidebarOpen: boolean;
   searchQuery: string;
   filterState: FilterState;
@@ -21,6 +23,7 @@ interface StudyState {
   // Actions
   setTopics: (topics: Topic[]) => void;
   fetchTopics: () => Promise<void>;
+  setSelectedRole: (roleId: string) => void;
   setActiveTopicId: (id: string) => void;
   toggleTopicComplete: (id: string) => void;
   resetProgress: () => void;
@@ -30,21 +33,22 @@ interface StudyState {
   setFilterState: (filter: FilterState) => void;
   toggleCategoryCollapsed: (category: string) => void;
   setAuthenticated: (isAuth: boolean) => void;
-  syncToServer: (completedTopicsOverride?: string[], activeTopicOverride?: string) => Promise<void>;
-  hydrateFromServer: (completedTopics: string[], activeTopicId?: string | null) => void;
+  syncToServer: (completedTopicsOverride?: string[], activeTopicOverride?: string, roleOverride?: string | null) => Promise<void>;
+  hydrateFromServer: (completedTopics: string[], activeTopicId?: string | null, selectedRole?: string | null) => void;
 
   // Helpers
   getActiveTopic: () => Topic;
+  getRoleFilteredTopics: () => Topic[];
   isTopicCompleted: (id: string) => boolean;
 }
 
 // Helper to push progress updates to API route
-async function postProgressToServer(completedTopics: string[], activeTopicId?: string) {
+async function postProgressToServer(completedTopics: string[], activeTopicId?: string, selectedRole?: string | null) {
   try {
     const res = await fetch("/api/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completedTopics, activeTopicId }),
+      body: JSON.stringify({ completedTopics, activeTopicId, selectedRole }),
     });
     return res.ok;
   } catch {
@@ -58,6 +62,7 @@ export const useStudyStore = create<StudyState>()(
       topics: TOPICS,
       activeTopicId: TOPICS[0]?.id || "js-variables",
       completedTopics: [],
+      selectedRole: null,
       isSidebarOpen: false,
       searchQuery: "",
       filterState: "all",
@@ -83,6 +88,19 @@ export const useStudyStore = create<StudyState>()(
         }
       },
 
+      setSelectedRole: (roleId: string) => {
+        set({ selectedRole: roleId });
+        const { getRoleFilteredTopics, activeTopicId, setActiveTopicId, isAuthenticated, completedTopics, syncToServer } = get();
+        const roleTopics = getRoleFilteredTopics();
+        const isCurrentInRole = roleTopics.some((t) => t.id === activeTopicId);
+
+        if (!isCurrentInRole && roleTopics.length > 0) {
+          setActiveTopicId(roleTopics[0].id);
+        } else if (isAuthenticated) {
+          syncToServer(completedTopics, activeTopicId, roleId);
+        }
+      },
+
       setAuthenticated: (isAuth: boolean) => set({ isAuthenticated: isAuth }),
 
       setActiveTopicId: (id: string) => {
@@ -104,9 +122,9 @@ export const useStudyStore = create<StudyState>()(
         });
 
         // Trigger background sync if authenticated
-        const { isAuthenticated, completedTopics, syncToServer } = get();
+        const { isAuthenticated, completedTopics, selectedRole, syncToServer } = get();
         if (isAuthenticated) {
-          syncToServer(completedTopics, id);
+          syncToServer(completedTopics, id, selectedRole);
         }
       },
 
@@ -121,46 +139,49 @@ export const useStudyStore = create<StudyState>()(
         });
 
         // Trigger background sync if authenticated
-        const { isAuthenticated, activeTopicId, syncToServer } = get();
+        const { isAuthenticated, activeTopicId, selectedRole, syncToServer } = get();
         if (isAuthenticated) {
-          syncToServer(updatedCompleted, activeTopicId);
+          syncToServer(updatedCompleted, activeTopicId, selectedRole);
         }
       },
 
       resetProgress: () => {
         set({ completedTopics: [] });
-        const { isAuthenticated, activeTopicId, syncToServer } = get();
+        const { isAuthenticated, activeTopicId, selectedRole, syncToServer } = get();
         if (isAuthenticated) {
-          syncToServer([], activeTopicId);
+          syncToServer([], activeTopicId, selectedRole);
         }
       },
 
-      syncToServer: async (completedTopicsOverride?: string[], activeTopicOverride?: string) => {
+      syncToServer: async (completedTopicsOverride?: string[], activeTopicOverride?: string, roleOverride?: string | null) => {
         const completed = completedTopicsOverride ?? get().completedTopics;
         const active = activeTopicOverride ?? get().activeTopicId;
+        const role = roleOverride !== undefined ? roleOverride : get().selectedRole;
 
         set({ syncStatus: "syncing" });
-        const ok = await postProgressToServer(completed, active);
+        const ok = await postProgressToServer(completed, active, role);
         set({ syncStatus: ok ? "synced" : "error" });
       },
 
-      hydrateFromServer: (serverCompleted: string[], serverActiveTopic?: string | null) => {
+      hydrateFromServer: (serverCompleted: string[], serverActiveTopic?: string | null, serverRole?: string | null) => {
         set((state) => {
           // Merge server completed topics with local completed topics (union)
           const mergedSet = new Set([...state.completedTopics, ...serverCompleted]);
           const mergedCompleted = Array.from(mergedSet);
           const nextActiveTopic = serverActiveTopic || state.activeTopicId;
+          const nextRole = serverRole || state.selectedRole;
 
           return {
             completedTopics: mergedCompleted,
             activeTopicId: nextActiveTopic,
+            selectedRole: nextRole,
             syncStatus: "synced",
           };
         });
 
         // Push merged state back to server to keep database perfectly in sync
-        const { completedTopics, activeTopicId } = get();
-        postProgressToServer(completedTopics, activeTopicId);
+        const { completedTopics, activeTopicId, selectedRole } = get();
+        postProgressToServer(completedTopics, activeTopicId, selectedRole);
       },
 
       toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
@@ -188,9 +209,20 @@ export const useStudyStore = create<StudyState>()(
           };
         }),
 
+      getRoleFilteredTopics: () => {
+        const { topics, selectedRole } = get();
+        if (!selectedRole || selectedRole === "all") return topics;
+        const roleDef = ROLES.find((r) => r.id === selectedRole);
+        if (!roleDef) return topics;
+        return topics.filter((t) => roleDef.categories.includes(t.category));
+      },
+
       getActiveTopic: () => {
         const { activeTopicId, topics } = get();
-        return topics.find((t) => t.id === activeTopicId) || topics[0] || TOPICS[0];
+        const roleTopics = get().getRoleFilteredTopics();
+        const foundInRole = roleTopics.find((t) => t.id === activeTopicId);
+        if (foundInRole) return foundInRole;
+        return roleTopics[0] || topics.find((t) => t.id === activeTopicId) || topics[0] || TOPICS[0];
       },
 
       isTopicCompleted: (id: string) => {
@@ -202,6 +234,7 @@ export const useStudyStore = create<StudyState>()(
       partialize: (state) => ({
         completedTopics: state.completedTopics,
         activeTopicId: state.activeTopicId,
+        selectedRole: state.selectedRole,
         collapsedCategories: state.collapsedCategories,
       }),
     }

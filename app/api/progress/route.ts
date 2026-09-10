@@ -26,6 +26,7 @@ export async function GET() {
 
     let completedTopics: string[] = [];
     let activeTopicId: string | null = null;
+    let selectedRole: string | null = null;
     let fetchedFromSupabase = false;
 
     // 1. Try fetching from Supabase
@@ -33,7 +34,7 @@ export async function GET() {
     if (supabase) {
       const { data, error } = await supabase
         .from("user_progress")
-        .select("completed_topics, active_topic_id")
+        .select("completed_topics, active_topic_id, selected_role")
         .eq("user_id", userId)
         .maybeSingle();
 
@@ -42,6 +43,7 @@ export async function GET() {
           ? data.completed_topics
           : [];
         activeTopicId = data.active_topic_id || null;
+        selectedRole = data.selected_role || null;
         fetchedFromSupabase = true;
       }
     }
@@ -55,6 +57,7 @@ export async function GET() {
       const meta = user.unsafeMetadata as {
         completedTopics?: string[];
         activeTopicId?: string;
+        selectedRole?: string;
       };
 
       if (Array.isArray(meta?.completedTopics)) {
@@ -63,9 +66,12 @@ export async function GET() {
       if (meta?.activeTopicId) {
         activeTopicId = meta.activeTopicId;
       }
+      if (meta?.selectedRole) {
+        selectedRole = meta.selectedRole;
+      }
     }
 
-    return NextResponse.json({ completedTopics, activeTopicId });
+    return NextResponse.json({ completedTopics, activeTopicId, selectedRole });
   } catch (err: any) {
     console.error("GET /api/progress error:", err);
     return NextResponse.json(
@@ -87,6 +93,7 @@ export async function POST(req: Request) {
       ? body.completedTopics
       : [];
     const activeTopicId: string | undefined = body?.activeTopicId;
+    const selectedRole: string | undefined = body?.selectedRole;
 
     // 1. Try Upserting into Supabase
     const supabase = getSupabaseAdmin();
@@ -96,6 +103,7 @@ export async function POST(req: Request) {
           user_id: userId,
           completed_topics: completedTopics,
           active_topic_id: activeTopicId || null,
+          selected_role: selectedRole || "all",
           updated_at: new Date().toISOString(),
         },
         { onConflict: "user_id" }
@@ -111,13 +119,19 @@ export async function POST(req: Request) {
         unsafeMetadata: {
           completedTopics,
           activeTopicId,
+          selectedRole,
         },
       });
     } catch (clerkErr) {
       console.warn("Failed to sync progress to Clerk metadata:", clerkErr);
     }
 
-    return NextResponse.json({ success: true, completedTopics, activeTopicId });
+    return NextResponse.json({
+      success: true,
+      completedTopics,
+      activeTopicId,
+      selectedRole,
+    });
   } catch (err: any) {
     console.error("POST /api/progress error:", err);
     return NextResponse.json(

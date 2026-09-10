@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { TOPICS, CategoryType } from "@/data/topics";
 import { useStudyStore } from "@/store/useStudyStore";
 import { Button } from "@/components/ui/button";
@@ -9,8 +10,6 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import {
   Search,
-  CheckSquare,
-  Square,
   ChevronDown,
   ChevronRight,
   Code2,
@@ -25,10 +24,11 @@ import {
   Layers,
   Cpu,
   Binary,
-  Star,
 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
-
+import { RoleSwitcher } from "@/components/RoleSwitcher";
+import { AnimatedCheckmark } from "@/components/AnimatedCheckmark";
+import { triggerHaptic } from "@/lib/haptics";
 
 const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
   JAVASCRIPT: <Code2 className="w-4 h-4 text-muted-foreground" />,
@@ -44,7 +44,6 @@ const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
 
 export default function Sidebar() {
   const {
-    topics,
     activeTopicId,
     setActiveTopicId,
     completedTopics,
@@ -57,15 +56,18 @@ export default function Sidebar() {
     setFilterState,
     collapsedCategories,
     toggleCategoryCollapsed,
+    getRoleFilteredTopics,
   } = useStudyStore();
 
-  const categories = Array.from(new Set(topics.map((t) => t.category))) as CategoryType[];
+  const roleTopics = getRoleFilteredTopics();
+  const categories = Array.from(new Set(roleTopics.map((t) => t.category))) as CategoryType[];
 
   const toggleCategory = (category: string) => {
+    triggerHaptic("light");
     toggleCategoryCollapsed(category);
   };
 
-  const filteredTopics = topics.filter((topic) => {
+  const filteredTopics = roleTopics.filter((topic) => {
     const matchesSearch =
       topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       topic.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -73,26 +75,30 @@ export default function Sidebar() {
 
     const isCompleted = completedTopics.includes(topic.id);
 
-    if (filterState === "important" && !topic.isImportant) return false;
     if (filterState === "completed" && !isCompleted) return false;
     if (filterState === "uncompleted" && isCompleted) return false;
 
     return matchesSearch;
   });
 
-  const totalCount = topics.length;
-  const completedCount = completedTopics.length;
-  const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+  const totalCount = roleTopics.length;
+  const roleCompletedCount = roleTopics.filter((t) => completedTopics.includes(t.id)).length;
+  const percentage = totalCount > 0 ? Math.round((roleCompletedCount / totalCount) * 100) : 0;
 
   return (
     <>
       {/* Mobile Backdrop */}
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden transition-opacity"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Sidebar Container */}
       <aside
@@ -100,12 +106,15 @@ export default function Sidebar() {
           }`}
       >
         {/* Header */}
-        <div className="p-4 sm:p-5 border-b border-border flex flex-col gap-3.5 bg-card">
+        <div className="p-4 sm:p-5 border-b border-border flex flex-col gap-3 bg-card">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2.5 rounded-xl bg-secondary border border-border text-foreground">
+              <motion.div
+                whileHover={{ rotate: 5, scale: 1.05 }}
+                className="p-2.5 rounded-xl bg-secondary border border-border text-foreground"
+              >
                 <BookOpen className="w-5 h-5" />
-              </div>
+              </motion.div>
               <div>
                 <h1 className="font-semibold text-lg tracking-wide text-foreground flex items-center gap-1.5 uppercase">
                   DevDocs
@@ -125,14 +134,17 @@ export default function Sidebar() {
             </Button>
           </div>
 
+          {/* Role Switcher */}
+          <RoleSwitcher />
+
           {/* Progress Widget */}
-          <div className="mt-1 p-3.5 rounded-2xl bg-secondary/50 border border-border flex flex-col gap-2.5 font-normal">
+          <div className="p-3.5 rounded-2xl bg-secondary/50 border border-border flex flex-col gap-2.5 font-normal">
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <span className="text-foreground font-medium flex items-center gap-1.5">
                 <Trophy className="w-4 h-4 text-foreground" /> Progress
               </span>
               <span className="font-medium text-foreground text-sm">
-                {completedCount}/{totalCount} ({percentage}%)
+                {roleCompletedCount}/{totalCount} ({percentage}%)
               </span>
             </div>
             <Progress value={percentage} className="h-2" />
@@ -159,30 +171,26 @@ export default function Sidebar() {
           </div>
 
           {/* Filter Pills */}
-          <div className="grid grid-cols-4 gap-1.5 pt-1 text-center font-normal">
+          <div className="grid grid-cols-3 gap-1.5 pt-1 text-center font-normal">
             <Button
               variant={filterState === "all" ? "default" : "outline"}
               size="sm"
-              onClick={() => setFilterState("all")}
+              onClick={() => {
+                triggerHaptic("light");
+                setFilterState("all");
+              }}
               className="w-full text-xs font-medium"
             >
               All
             </Button>
 
             <Button
-              variant={filterState === "important" ? "default" : "outline"}
-              size="sm"
-              onClick={() => setFilterState("important")}
-              className="w-full text-xs font-medium flex items-center justify-center gap-1"
-            >
-              <Star className="w-3 h-3 fill-current" />
-              <span>Must Learn</span>
-            </Button>
-
-            <Button
               variant={filterState === "uncompleted" ? "default" : "outline"}
               size="sm"
-              onClick={() => setFilterState("uncompleted")}
+              onClick={() => {
+                triggerHaptic("light");
+                setFilterState("uncompleted");
+              }}
               className="w-full text-xs font-medium"
             >
               To Learn
@@ -191,7 +199,10 @@ export default function Sidebar() {
             <Button
               variant={filterState === "completed" ? "default" : "outline"}
               size="sm"
-              onClick={() => setFilterState("completed")}
+              onClick={() => {
+                triggerHaptic("light");
+                setFilterState("completed");
+              }}
               className="w-full text-xs font-medium"
             >
               Mastered
@@ -205,7 +216,7 @@ export default function Sidebar() {
             const categoryTopics = filteredTopics.filter((t) => t.category === category);
             if (categoryTopics.length === 0) return null;
 
-            const activeCategory = topics.find((t) => t.id === activeTopicId)?.category;
+            const activeCategory = roleTopics.find((t) => t.id === activeTopicId)?.category;
             const isCollapsed =
               collapsedCategories[category] !== undefined
                 ? collapsedCategories[category]
@@ -228,72 +239,65 @@ export default function Sidebar() {
                     <span>
                       {catCompleted}/{categoryTopics.length}
                     </span>
-                    {isCollapsed ? (
+                    <motion.div animate={{ rotate: isCollapsed ? 0 : 90 }} transition={{ duration: 0.2 }}>
                       <ChevronRight className="w-4 h-4" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4" />
-                    )}
+                    </motion.div>
                   </div>
                 </button>
 
                 {/* Category Topics List */}
-                {!isCollapsed && (
-                  <div className="space-y-1 pl-1">
-                    {categoryTopics.map((topic) => {
-                      const isCompleted = completedTopics.includes(topic.id);
-                      const isActive = topic.id === activeTopicId;
+                <AnimatePresence initial={false}>
+                  {!isCollapsed && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-1 pl-1 overflow-hidden"
+                    >
+                      {categoryTopics.map((topic) => {
+                        const isCompleted = completedTopics.includes(topic.id);
+                        const isActive = topic.id === activeTopicId;
 
-                      return (
-                        <div
-                          key={topic.id}
-                          onClick={() => {
-                            setActiveTopicId(topic.id);
-                            setSidebarOpen(false);
-                          }}
-                          className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm sm:text-base cursor-pointer transition-all ${isActive
-                            ? "bg-secondary text-foreground font-medium"
-                            : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground font-normal"
-                            }`}
-                        >
-                          <div className="flex items-center gap-3 min-w-0 pr-2">
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleTopicComplete(topic.id);
-                              }}
-                              className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0"
-                            >
-                              {isCompleted ? (
-                                <CheckSquare className="w-4.5 h-4.5 text-foreground" />
-                              ) : (
-                                <Square className="w-4.5 h-4.5 text-muted-foreground group-hover:text-foreground" />
-                              )}
-                            </button>
+                        return (
+                          <motion.div
+                            key={topic.id}
+                            whileTap={{ scale: 0.98 }}
+                            onClick={() => {
+                              triggerHaptic("light");
+                              setActiveTopicId(topic.id);
+                              setSidebarOpen(false);
+                            }}
+                            className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm sm:text-base cursor-pointer transition-all ${isActive
+                                ? "bg-secondary text-foreground font-medium border border-border/80 shadow-sm"
+                                : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground font-normal"
+                              }`}
+                          >
+                            <div className="flex items-center gap-3 min-w-0 pr-2">
+                              <AnimatedCheckmark
+                                checked={isCompleted}
+                                onToggle={() => toggleTopicComplete(topic.id)}
+                              />
 
-                            <div className="flex items-center gap-1.5 truncate">
-                              <span
-                                className={`truncate ${isCompleted ? "line-through text-muted-foreground" : ""
-                                  }`}
-                              >
-                                {topic.title}
-                              </span>
-
-                              {topic.isImportant && (
-                                <span title="Must Learn Topic" className="flex items-center">
-                                  <Star className="w-4 h-4 text-foreground fill-current flex-shrink-0" />
+                              <div className="flex items-center gap-1.5 truncate">
+                                <span
+                                  className={`truncate ${isCompleted ? "line-through text-muted-foreground" : ""
+                                    }`}
+                                >
+                                  {topic.title}
                                 </span>
-                              )}
+                              </div>
                             </div>
-                          </div>
 
-                          <Badge variant="outline" className="px-1.5 py-0 text-[10px] font-normal">
-                            {topic.difficulty[0]}
-                          </Badge>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                            <Badge variant="outline" className="px-1.5 py-0 text-[10px] font-normal">
+                              {topic.difficulty[0]}
+                            </Badge>
+                          </motion.div>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}
@@ -308,9 +312,15 @@ export default function Sidebar() {
         {/* Footer */}
         <div className="p-3.5 border-t border-border bg-card text-xs text-muted-foreground flex items-center justify-between font-normal">
           <span>Contribute on</span>
-          <a href="https://github.com/jaychauhan-exe1/devdocs" target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-foreground transition-colors flex gap-2 items-center">
+          <a
+            href="https://github.com/jaychauhan-exe1/devdocs"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-muted-foreground hover:text-foreground transition-colors flex gap-2 items-center"
+          >
             <FaGithub />
-            <span>Github</span></a>
+            <span>Github</span>
+          </a>
         </div>
       </aside>
     </>

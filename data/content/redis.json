@@ -105,6 +105,111 @@
     ]
   },
   {
+    "id": "redis-ttl",
+    "title": "TTL",
+    "category": "REDIS",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Time To Live, TTL command, PTTL, EXPIRE, EXPIREAT, persistent vs volatile keys.",
+    "explanation": {
+      "overview": "TTL (Time To Live) is the expiration lifespan associated with a Redis key, after which Redis automatically deletes the key.",
+      "sections": [
+        {
+          "heading": "Checking and Setting TTL",
+          "content": "- `EXPIRE key seconds`: Sets TTL in seconds.\n- `PEXPIRE key ms`: Sets TTL in milliseconds.\n- `EXPIREAT key timestamp`: Sets expiration to Unix timestamp.\n- `TTL key`: Returns remaining TTL in seconds (-1 if no TTL set, -2 if key does not exist).\n- `PTTL key`: Returns remaining TTL in milliseconds.",
+          "bulletPoints": [
+            "TTL Return -1: Key exists but has no expiration (persistent key).",
+            "TTL Return -2: Key does not exist.",
+            "PERSIST key: Removes TTL, making key persistent."
+          ]
+        },
+        {
+          "heading": "TTL Mutability Rules",
+          "content": "Updating a key with `SET key val` WITHOUT specifying `EX` clears existing TTL, making key persistent again!",
+          "bulletPoints": [
+            "Overwriting Key: `SET key val` strips existing TTL.",
+            "KEEPTTL Option: `SET key val KEEPTTL` retains existing TTL during update."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`TTL` returns seconds remaining (-1 = no TTL, -2 = key missing).",
+      "`EXPIRE key sec` sets key expiration.",
+      "Updating a key with `SET` strips TTL unless `KEEPTTL` flag is passed."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis TTL Commands",
+        "description": "Setting TTL, querying remaining time, and persisting key.",
+        "code": "# Set string key with 60s TTL\nSET cache:user:1 \"data\" EX 60\n\n# Query remaining TTL in seconds\nTTL cache:user:1 # Returns e.g. 58\n\n# Query remaining TTL in milliseconds\nPTTL cache:user:1 # Returns e.g. 58240\n\n# Remove TTL to make key persistent forever\nPERSIST cache:user:1\nTTL cache:user:1 # Returns -1"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "redis-ttl-mcq-1",
+        "question": "What does `TTL key` command return for a key that exists but has NO expiration set?",
+        "options": [
+          "0",
+          "-1",
+          "-2",
+          "null"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`TTL` returns `-1` if key exists with no expiration (persistent key)."
+      },
+      {
+        "id": "redis-ttl-mcq-2",
+        "question": "What does `TTL key` command return for a key that does NOT exist?",
+        "options": [
+          "0",
+          "-1",
+          "-2",
+          "null"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`TTL` returns `-2` if key does not exist."
+      },
+      {
+        "id": "redis-ttl-mcq-3",
+        "question": "What happens to existing TTL of key `myKey` when you execute `SET myKey \"newValue\"` without specifying `EX` or `KEEPTTL`?",
+        "options": [
+          "TTL remains unchanged",
+          "Existing TTL is cleared, making key persistent indefinitely",
+          "Throws error",
+          "Key is deleted"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SET` overwrites key and removes existing TTL unless `KEEPTTL` option is passed."
+      },
+      {
+        "id": "redis-ttl-mcq-4",
+        "question": "Which command removes expiration from a key, making it persistent forever?",
+        "options": [
+          "PERSIST key",
+          "UNEXPIRE key",
+          "CLEAR-TTL key",
+          "REMOVE-EXPIRE key"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`PERSIST key` removes existing TTL from key."
+      },
+      {
+        "id": "redis-ttl-mcq-5",
+        "question": "Which command queries remaining key TTL in milliseconds precision?",
+        "options": [
+          "TTL",
+          "PTTL",
+          "MSTTL",
+          "EXPIREMS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`PTTL key` returns remaining lifespan in milliseconds."
+      }
+    ]
+  },
+  {
     "id": "redis-hashes",
     "title": "Hashes",
     "category": "REDIS",
@@ -520,111 +625,6 @@
         ],
         "correctAnswer": 1,
         "explanation": "Inserting into SkipList data structure runs in $O(\\log N)$ time."
-      }
-    ]
-  },
-  {
-    "id": "redis-ttl",
-    "title": "TTL",
-    "category": "REDIS",
-    "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Time To Live, TTL command, PTTL, EXPIRE, EXPIREAT, persistent vs volatile keys.",
-    "explanation": {
-      "overview": "TTL (Time To Live) is the expiration lifespan associated with a Redis key, after which Redis automatically deletes the key.",
-      "sections": [
-        {
-          "heading": "Checking and Setting TTL",
-          "content": "- `EXPIRE key seconds`: Sets TTL in seconds.\n- `PEXPIRE key ms`: Sets TTL in milliseconds.\n- `EXPIREAT key timestamp`: Sets expiration to Unix timestamp.\n- `TTL key`: Returns remaining TTL in seconds (-1 if no TTL set, -2 if key does not exist).\n- `PTTL key`: Returns remaining TTL in milliseconds.",
-          "bulletPoints": [
-            "TTL Return -1: Key exists but has no expiration (persistent key).",
-            "TTL Return -2: Key does not exist.",
-            "PERSIST key: Removes TTL, making key persistent."
-          ]
-        },
-        {
-          "heading": "TTL Mutability Rules",
-          "content": "Updating a key with `SET key val` WITHOUT specifying `EX` clears existing TTL, making key persistent again!",
-          "bulletPoints": [
-            "Overwriting Key: `SET key val` strips existing TTL.",
-            "KEEPTTL Option: `SET key val KEEPTTL` retains existing TTL during update."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "`TTL` returns seconds remaining (-1 = no TTL, -2 = key missing).",
-      "`EXPIRE key sec` sets key expiration.",
-      "Updating a key with `SET` strips TTL unless `KEEPTTL` flag is passed."
-    ],
-    "codeExamples": [
-      {
-        "title": "Redis TTL Commands",
-        "description": "Setting TTL, querying remaining time, and persisting key.",
-        "code": "# Set string key with 60s TTL\nSET cache:user:1 \"data\" EX 60\n\n# Query remaining TTL in seconds\nTTL cache:user:1 # Returns e.g. 58\n\n# Query remaining TTL in milliseconds\nPTTL cache:user:1 # Returns e.g. 58240\n\n# Remove TTL to make key persistent forever\nPERSIST cache:user:1\nTTL cache:user:1 # Returns -1"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "redis-ttl-mcq-1",
-        "question": "What does `TTL key` command return for a key that exists but has NO expiration set?",
-        "options": [
-          "0",
-          "-1",
-          "-2",
-          "null"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`TTL` returns `-1` if key exists with no expiration (persistent key)."
-      },
-      {
-        "id": "redis-ttl-mcq-2",
-        "question": "What does `TTL key` command return for a key that does NOT exist?",
-        "options": [
-          "0",
-          "-1",
-          "-2",
-          "null"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`TTL` returns `-2` if key does not exist."
-      },
-      {
-        "id": "redis-ttl-mcq-3",
-        "question": "What happens to existing TTL of key `myKey` when you execute `SET myKey \"newValue\"` without specifying `EX` or `KEEPTTL`?",
-        "options": [
-          "TTL remains unchanged",
-          "Existing TTL is cleared, making key persistent indefinitely",
-          "Throws error",
-          "Key is deleted"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`SET` overwrites key and removes existing TTL unless `KEEPTTL` option is passed."
-      },
-      {
-        "id": "redis-ttl-mcq-4",
-        "question": "Which command removes expiration from a key, making it persistent forever?",
-        "options": [
-          "PERSIST key",
-          "UNEXPIRE key",
-          "CLEAR-TTL key",
-          "REMOVE-EXPIRE key"
-        ],
-        "correctAnswer": 0,
-        "explanation": "`PERSIST key` removes existing TTL from key."
-      },
-      {
-        "id": "redis-ttl-mcq-5",
-        "question": "Which command queries remaining key TTL in milliseconds precision?",
-        "options": [
-          "TTL",
-          "PTTL",
-          "MSTTL",
-          "EXPIREMS"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`PTTL key` returns remaining lifespan in milliseconds."
       }
     ]
   },

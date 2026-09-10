@@ -1,5 +1,319 @@
 [
   {
+    "id": "sys-caching",
+    "title": "Caching",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Multi-tier caching architecture, Client cache, CDN, Reverse Proxy, Application cache, DB cache, and invalidation strategies.",
+    "explanation": {
+      "overview": "Caching stores copies of data in high-speed storage layers (RAM / Edge CDNs) to serve future requests faster and reduce database query load.",
+      "sections": [
+        {
+          "heading": "Multi-Tier Caching Layers",
+          "content": "1. **Browser/Client Cache**: Caches static assets & HTTP responses (`Cache-Control`).\n2. **CDN Cache**: Edge nodes cache static files & dynamic API responses globally.\n3. **Reverse Proxy / Gateway Cache**: NGINX / Varnish cache hot API endpoints.\n4. **Application Cache**: Redis / Memcached in-memory key-value cache.\n5. **Database Buffer Pool**: InnoDB Buffer Pool caches index & data pages in RAM.",
+          "bulletPoints": [
+            "Browser: Local device RAM/Disk cache.",
+            "CDN: Edge servers close to users.",
+            "App Cache: In-memory Redis/Memcached cluster."
+          ]
+        },
+        {
+          "heading": "Cache Invalidation Strategies",
+          "content": "- **Purge on Write**: Delete/update cache key immediately when database record is updated.\n- **TTL Expiration**: Expire cache items after set lifespan (e.g. 5 minutes).\n- **Cache Tagging**: Invalidate group of related cache keys simultaneously.",
+          "bulletPoints": [
+            "Hard Problem: 'There are only two hard things in Computer Science: cache invalidation and naming things.'",
+            "Write-Through vs Cache-Aside."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Implement multi-tier caching (Browser, CDN, Redis, DB Buffer Pool).",
+      "Use Redis/Memcached for application-level caching.",
+      "Combine TTL expiration with active purging on database updates."
+    ],
+    "codeExamples": [
+      {
+        "title": "Multi-Tier Cache Flow Diagram",
+        "description": "Request flow through CDN, API Gateway, Redis, and Database.",
+        "code": "[ Client Browser ]\n       |\n(1. Check CDN Cache)\n       |\n[ API Gateway / NGINX ]\n       |\n(2. Check Redis App Cache)\n       |\n[ Application Service ]\n       |\n(3. Query DB Buffer Pool -> Disk Storage)"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-caching-mcq-1",
+        "question": "Which caching tier serves static asset requests with lowest network latency for global users?",
+        "options": [
+          "Database Buffer Pool",
+          "Content Delivery Network (CDN) edge nodes",
+          "Redis backend cache",
+          "Browser LocalStorage"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CDNs cache content at edge locations geographically close to users, minimizing network latency."
+      },
+      {
+        "id": "sys-caching-mcq-2",
+        "question": "What is primary challenge associated with caching dynamic database queries?",
+        "options": [
+          "High disk cost",
+          "Cache invalidation: ensuring cached data remains synchronized when underlying database records update",
+          "Slow memory speed",
+          "CORS policy"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Cache invalidation (keeping cached data in sync with DB updates) is a complex engineering challenge."
+      },
+      {
+        "id": "sys-caching-mcq-3",
+        "question": "What is function of InnoDB Buffer Pool in MySQL?",
+        "options": [
+          "Caches client cookies",
+          "Allocates dedicated RAM to cache database table data and index pages, avoiding disk I/O reads",
+          "Compresses HTML",
+          "Manages connections"
+        ],
+        "correctAnswer": 1,
+        "explanation": "InnoDB Buffer Pool caches frequently accessed data and index pages in server RAM."
+      },
+      {
+        "id": "sys-caching-mcq-4",
+        "question": "What is Cache Invalidation strategy 'Purge on Write'?",
+        "options": [
+          "Clear cache every 24 hours",
+          "Explicitly deleting or updating corresponding Redis cache key immediately when a database record is modified",
+          "Write only to cache",
+          "Delete database"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Purge on Write invalidates or updates matching cache keys as soon as source data updates."
+      },
+      {
+        "id": "sys-caching-mcq-5",
+        "question": "Which in-memory key-value store supports advanced data structures (Hashes, Sorted Sets, Streams) unlike Memcached?",
+        "options": [
+          "Redis",
+          "Varnish",
+          "NGINX",
+          "SQLite"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Redis supports complex data structures (Strings, Hashes, Lists, Sets, ZSETs, Streams)."
+      }
+    ]
+  },
+  {
+    "id": "sys-load-balancing",
+    "title": "Load balancing",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Layer 4 vs Layer 7 load balancing, algorithms (Round Robin, Least Connections, IP Hash), health checks, and NGINX/HAProxy.",
+    "explanation": {
+      "overview": "A Load Balancer distributes incoming network traffic across multiple backend servers to ensure high availability, fault tolerance, and responsiveness.",
+      "sections": [
+        {
+          "heading": "Layer 4 vs Layer 7 Load Balancing",
+          "content": "- **Layer 4 (Transport)**: Routes packets based on IP address and TCP/UDP port numbers without inspecting application payload (Ultra-fast, HAProxy, AWS NLB).\n- **Layer 7 (Application)**: Inspects HTTP headers, cookies, and URL paths (`/api` vs `/static`) to route traffic dynamically (NGINX, AWS ALB).",
+          "bulletPoints": [
+            "L4 Load Balancing: Fast TCP packet routing based on IP:Port.",
+            "L7 Load Balancing: Content-aware HTTP routing (headers, cookies, URL paths)."
+          ]
+        },
+        {
+          "heading": "Load Balancing Algorithms",
+          "content": "- **Round Robin**: Routes requests sequentially to server list.\n- **Weighted Round Robin**: Distributes traffic based on server hardware capacity.\n- **Least Connections**: Routes to server with fewest active connections.\n- **IP Hash**: Maps client IP to specific server node (Sticky sessions).",
+          "bulletPoints": [
+            "Round Robin: Equal sequential distribution.",
+            "Least Connections: Ideal for requests with variable processing times.",
+            "Health Checks: Automatically removes unhealthy nodes from pool."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Layer 4 balances TCP packets; Layer 7 balances content-aware HTTP requests.",
+      "Algorithms: Round Robin, Least Connections, IP Hash.",
+      "Health checks automatically remove failing backend server nodes."
+    ],
+    "codeExamples": [
+      {
+        "title": "NGINX Layer 7 Load Balancer Config",
+        "description": "Configuring NGINX upstream server pool with Least Connections algorithm.",
+        "code": "http {\n  # Upstream pool of application backend servers\n  upstream app_cluster {\n    least_conn; # Route to server with fewest active connections!\n    server 10.0.0.1:4000 max_fails=3 fail_timeout=10s;\n    server 10.0.0.2:4000 max_fails=3 fail_timeout=10s;\n    server 10.0.0.3:4000 backup; # Fallback server\n  }\n\n  server {\n    listen 80;\n    location / {\n      proxy_pass http://app_cluster;\n      proxy_set_header Host $host;\n    }\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-load-balancing-mcq-1",
+        "question": "What is primary operational difference between Layer 4 and Layer 7 Load Balancing?",
+        "options": [
+          "L4 uses SSL, L7 does not",
+          "L4 routes packets based on IP/Port without inspecting payload; L7 inspects HTTP headers, cookies, and URL paths for content routing",
+          "L4 is slower than L7",
+          "L7 works only on Windows"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Layer 4 routes at transport layer (IP/Port); Layer 7 inspects HTTP payload for content routing."
+      },
+      {
+        "id": "sys-load-balancing-mcq-2",
+        "question": "Which load balancing algorithm is best for backend servers processing long-running requests with variable execution durations?",
+        "options": [
+          "Round Robin",
+          "Least Connections",
+          "Random",
+          "First Come First Served"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Least Connections sends incoming requests to server handling fewest active connections."
+      },
+      {
+        "id": "sys-load-balancing-mcq-3",
+        "question": "How does a load balancer detect and handle a backend server node crash?",
+        "options": [
+          "Client reports crash",
+          "Periodic Health Checks detect failed responses, automatically removing unhealthy server node from active routing pool",
+          "Reboots load balancer",
+          "Deletes DNS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Health checks probe backend nodes, routing traffic away from failing servers."
+      },
+      {
+        "id": "sys-load-balancing-mcq-4",
+        "question": "Which algorithm maps a client IP address to the same backend server instance consistently?",
+        "options": [
+          "Round Robin",
+          "Weighted Round Robin",
+          "IP Hash",
+          "Random"
+        ],
+        "correctAnswer": 2,
+        "explanation": "IP Hash computes hash of client IP to route requests to same server (sticky sessions)."
+      },
+      {
+        "id": "sys-load-balancing-mcq-5",
+        "question": "Which open-source software is widely used as a high-performance Layer 7 reverse proxy and load balancer?",
+        "options": [
+          "NGINX (or HAProxy)",
+          "Redis",
+          "MongoDB",
+          "RabbitMQ"
+        ],
+        "correctAnswer": 0,
+        "explanation": "NGINX and HAProxy are leading open-source load balancing reverse proxies."
+      }
+    ]
+  },
+  {
+    "id": "sys-horizontal-scaling",
+    "title": "Horizontal scaling",
+    "category": "SYSTEM DESIGN",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Vertical scaling (Scale Up) vs Horizontal scaling (Scale Out), stateless application servers, and auto-scaling groups.",
+    "explanation": {
+      "overview": "Scaling expands system capacity. **Vertical Scaling (Scale Up)** adds hardware resources (CPU, RAM) to single server; **Horizontal Scaling (Scale Out)** adds more server instances to system cluster.",
+      "sections": [
+        {
+          "heading": "Vertical vs Horizontal Scaling Comparison",
+          "content": "- **Vertical Scaling (Scale Up)**: Upgrading server hardware (e.g. 8 cores to 64 cores, 16GB RAM to 256GB RAM). Has hard hardware limits, high single point of failure (SPOF) risk, and requires downtime to upgrade.\n- **Horizontal Scaling (Scale Out)**: Adding multiple commodity server instances behind a Load Balancer. Infinite capacity ceiling, fault tolerant, zero-downtime rolling upgrades.",
+          "bulletPoints": [
+            "Scale Up: Upgrade single machine hardware. Hard capacity ceiling, expensive.",
+            "Scale Out: Add more machines to cluster. Infinite scaling, fault-tolerant."
+          ]
+        },
+        {
+          "heading": "Stateless Application Rule",
+          "content": "To enable seamless horizontal scaling, web application servers MUST be **Stateless**. Move session data to Redis and persistent files to Cloud Object Storage.",
+          "bulletPoints": [
+            "Statelessness: Any web server node can process any request.",
+            "Auto-Scaling Groups: Automatically add/remove server instances based on CPU utilization metrics."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Horizontal scaling (Scale Out) adds more server instances for infinite capacity.",
+      "Application web servers must be stateless to enable scale-out.",
+      "Use Auto-Scaling Groups to dynamically adjust instance count based on traffic load."
+    ],
+    "codeExamples": [
+      {
+        "title": "Horizontal Auto-Scaling Architecture",
+        "description": "Load balancer distributing traffic across stateless server instances.",
+        "code": "                  [ Internet Traffic Spike ]\n                              |\n                     [ Load Balancer ]\n                              |\n      +-----------------------+-----------------------+\n      |                       |                       |\n[ Server Instance 1 ]   [ Server Instance 2 ]   [ Server Instance 3 ]\n(Stateless Node)        (Stateless Node)        (Auto-Scaled Node)\n      |                       |                       |\n      +-----------------------+-----------------------+\n                              |\n               [ Central Shared State: Redis / DB ]"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sys-horizontal-scaling-mcq-1",
+        "question": "What is fundamental difference between Vertical Scaling (Scale Up) and Horizontal Scaling (Scale Out)?",
+        "options": [
+          "Vertical adds databases; Horizontal adds CSS",
+          "Vertical adds hardware resources (CPU/RAM) to a single machine; Horizontal adds more server instances to a cluster",
+          "Horizontal is limited to 4 nodes",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Vertical scaling upgrades hardware on single server; Horizontal scaling adds more server instances."
+      },
+      {
+        "id": "sys-horizontal-scaling-mcq-2",
+        "question": "What architectural requirement must web application servers meet to allow seamless Horizontal Scaling?",
+        "options": [
+          "Must run Windows",
+          "Must be STATELESS so any server instance can handle any incoming user request",
+          "Must use single-threaded code",
+          "Must use C++"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Stateless web servers do not retain local session memory, allowing any node to handle requests."
+      },
+      {
+        "id": "sys-horizontal-scaling-mcq-3",
+        "question": "What is major limitation of Vertical Scaling (Scale Up)?",
+        "options": [
+          "Cannot run Linux",
+          "Hard hardware physical limit ceiling and single point of failure (SPOF) risk",
+          "Slow network speed",
+          "Requires NoSQL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Single machines have physical RAM/CPU limits and risk downtime if hardware fails."
+      },
+      {
+        "id": "sys-horizontal-scaling-mcq-4",
+        "question": "What AWS feature automatically provisions or terminates server instances based on CPU threshold metrics?",
+        "options": [
+          "Auto Scaling Groups",
+          "S3 Bucket",
+          "Route 53",
+          "CloudFront"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Auto Scaling Groups adjust instance capacity dynamically based on metrics."
+      },
+      {
+        "id": "sys-horizontal-scaling-mcq-5",
+        "question": "Where should user uploaded images be saved in a horizontally scaled web architecture?",
+        "options": [
+          "On local server hard drive",
+          "Centralized Object Storage (AWS S3) accessible by all server instances",
+          "Inside application git repo",
+          "In browser cookie"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Storing files on local server disk breaks statelessness; centralized Object Storage is required."
+      }
+    ]
+  },
+  {
     "id": "sys-file-upload",
     "title": "File upload",
     "category": "SYSTEM DESIGN",
@@ -205,215 +519,6 @@
         ],
         "correctAnswer": 1,
         "explanation": "Serverless functions (Lambda) scale worker instances automatically to handle upload bursts."
-      }
-    ]
-  },
-  {
-    "id": "sys-rate-limiter",
-    "title": "Rate limiter",
-    "category": "SYSTEM DESIGN",
-    "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Designing distributed rate limiters, API Gateway layer placement, Redis cluster counters, and fallback strategies.",
-    "explanation": {
-      "overview": "A Rate Limiter restricts number of request calls a user or IP can make to an API within a given window, preventing DDoS attacks, brute-force attempts, and resource starvation.",
-      "sections": [
-        {
-          "heading": "Placement: API Gateway vs Application Layer",
-          "content": "- **API Gateway Placement**: Rate limiter sits at edge (Kong, AWS API Gateway, NGINX) blocking malicious requests before they hit backend microservices.\n- **Application Placement**: Rate limiter embedded inside middleware for granular per-user business logic rules.",
-          "bulletPoints": [
-            "API Gateway: Edge protection, protects internal backend infrastructure.",
-            "Application Layer: Fine-grained per-tenant or per-route rate limits."
-          ]
-        },
-        {
-          "heading": "Distributed Rate Limiter Architecture",
-          "content": "Uses centralized Redis cluster holding atomic counters or sliding window logs (`INCR`, `ZSET`, or Lua scripts). In case of Redis cluster failure, rate limiter should **fail-open** to ensure application availability.",
-          "bulletPoints": [
-            "Redis Central Store: Shared counter synchronized across multiple app instances.",
-            "Fail-Open Strategy: Allow traffic if rate limiter cache fails, ensuring high availability."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Place rate limiters at API Gateway edge for infrastructure protection.",
-      "Use centralized Redis cluster for atomic request counters across nodes.",
-      "Adopt a 'fail-open' strategy on rate limiter infrastructure failure."
-    ],
-    "codeExamples": [
-      {
-        "title": "Distributed Rate Limiter Architecture",
-        "description": "API Gateway rate limiting flow with Redis cluster.",
-        "code": "Client Request -> [ API Gateway / NGINX ]\n                        |\n             (Check Redis Atomic Counter)\n                        |\n         +--------------+--------------+\n         |                             |\n[ Allowed (Count <= Limit) ]   [ Rejected (Count > Limit) ]\n         |                             |\nForward to Microservice        Return HTTP 429 + Retry-After"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "sys-rate-limiter-mcq-1",
-        "question": "Where should a system-wide rate limiter be placed to protect internal backend microservices from DDoS attacks?",
-        "options": [
-          "Inside database triggers",
-          "At the API Gateway / NGINX reverse proxy edge layer",
-          "Inside client browser",
-          "In DNS server"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Placing rate limiter at API Gateway edge blocks malicious traffic before reaching internal microservices."
-      },
-      {
-        "id": "sys-rate-limiter-mcq-2",
-        "question": "What is 'Fail-Open' strategy in rate limiter system design?",
-        "options": [
-          "Block all traffic on error",
-          "If rate limiter cache (Redis) fails, allow API requests through to ensure application remains available",
-          "Restart database",
-          "Log out users"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Fail-open prioritizes system availability over strict rate enforcement if rate limiter fails."
-      },
-      {
-        "id": "sys-rate-limiter-mcq-3",
-        "question": "Why are local in-memory counters inside web servers unsuitable for a multi-instance microservice cluster behind a Load Balancer?",
-        "options": [
-          "In-memory is slow",
-          "Load balancer routes requests across different server nodes, allowing a client to bypass rate limits by hitting different nodes",
-          "Local memory is read-only",
-          "In-memory uses SSL"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Local memory counters are isolated per node; clients can bypass limits by hitting different cluster nodes."
-      },
-      {
-        "id": "sys-rate-limiter-mcq-4",
-        "question": "Which Redis implementation provides atomic, race-condition-free rate limiting execution?",
-        "options": [
-          "MULTI without EXEC",
-          "Redis Lua script",
-          "GET and SET in JS",
-          "Keys command"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Redis Lua scripts execute atomically, eliminating race conditions across concurrent API nodes."
-      },
-      {
-        "id": "sys-rate-limiter-mcq-5",
-        "question": "What header should rate-limited 429 HTTP responses include to inform clients when to retry?",
-        "options": [
-          "Retry-After",
-          "X-Wait",
-          "Cache-Control",
-          "Access-Control-Allow-Origin"
-        ],
-        "correctAnswer": 0,
-        "explanation": "`Retry-After` header specifies seconds to wait before making subsequent requests."
-      }
-    ]
-  },
-  {
-    "id": "sys-caching",
-    "title": "Caching",
-    "category": "SYSTEM DESIGN",
-    "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Multi-tier caching architecture, Client cache, CDN, Reverse Proxy, Application cache, DB cache, and invalidation strategies.",
-    "explanation": {
-      "overview": "Caching stores copies of data in high-speed storage layers (RAM / Edge CDNs) to serve future requests faster and reduce database query load.",
-      "sections": [
-        {
-          "heading": "Multi-Tier Caching Layers",
-          "content": "1. **Browser/Client Cache**: Caches static assets & HTTP responses (`Cache-Control`).\n2. **CDN Cache**: Edge nodes cache static files & dynamic API responses globally.\n3. **Reverse Proxy / Gateway Cache**: NGINX / Varnish cache hot API endpoints.\n4. **Application Cache**: Redis / Memcached in-memory key-value cache.\n5. **Database Buffer Pool**: InnoDB Buffer Pool caches index & data pages in RAM.",
-          "bulletPoints": [
-            "Browser: Local device RAM/Disk cache.",
-            "CDN: Edge servers close to users.",
-            "App Cache: In-memory Redis/Memcached cluster."
-          ]
-        },
-        {
-          "heading": "Cache Invalidation Strategies",
-          "content": "- **Purge on Write**: Delete/update cache key immediately when database record is updated.\n- **TTL Expiration**: Expire cache items after set lifespan (e.g. 5 minutes).\n- **Cache Tagging**: Invalidate group of related cache keys simultaneously.",
-          "bulletPoints": [
-            "Hard Problem: 'There are only two hard things in Computer Science: cache invalidation and naming things.'",
-            "Write-Through vs Cache-Aside."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Implement multi-tier caching (Browser, CDN, Redis, DB Buffer Pool).",
-      "Use Redis/Memcached for application-level caching.",
-      "Combine TTL expiration with active purging on database updates."
-    ],
-    "codeExamples": [
-      {
-        "title": "Multi-Tier Cache Flow Diagram",
-        "description": "Request flow through CDN, API Gateway, Redis, and Database.",
-        "code": "[ Client Browser ]\n       |\n(1. Check CDN Cache)\n       |\n[ API Gateway / NGINX ]\n       |\n(2. Check Redis App Cache)\n       |\n[ Application Service ]\n       |\n(3. Query DB Buffer Pool -> Disk Storage)"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "sys-caching-mcq-1",
-        "question": "Which caching tier serves static asset requests with lowest network latency for global users?",
-        "options": [
-          "Database Buffer Pool",
-          "Content Delivery Network (CDN) edge nodes",
-          "Redis backend cache",
-          "Browser LocalStorage"
-        ],
-        "correctAnswer": 1,
-        "explanation": "CDNs cache content at edge locations geographically close to users, minimizing network latency."
-      },
-      {
-        "id": "sys-caching-mcq-2",
-        "question": "What is primary challenge associated with caching dynamic database queries?",
-        "options": [
-          "High disk cost",
-          "Cache invalidation: ensuring cached data remains synchronized when underlying database records update",
-          "Slow memory speed",
-          "CORS policy"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Cache invalidation (keeping cached data in sync with DB updates) is a complex engineering challenge."
-      },
-      {
-        "id": "sys-caching-mcq-3",
-        "question": "What is function of InnoDB Buffer Pool in MySQL?",
-        "options": [
-          "Caches client cookies",
-          "Allocates dedicated RAM to cache database table data and index pages, avoiding disk I/O reads",
-          "Compresses HTML",
-          "Manages connections"
-        ],
-        "correctAnswer": 1,
-        "explanation": "InnoDB Buffer Pool caches frequently accessed data and index pages in server RAM."
-      },
-      {
-        "id": "sys-caching-mcq-4",
-        "question": "What is Cache Invalidation strategy 'Purge on Write'?",
-        "options": [
-          "Clear cache every 24 hours",
-          "Explicitly deleting or updating corresponding Redis cache key immediately when a database record is modified",
-          "Write only to cache",
-          "Delete database"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Purge on Write invalidates or updates matching cache keys as soon as source data updates."
-      },
-      {
-        "id": "sys-caching-mcq-5",
-        "question": "Which in-memory key-value store supports advanced data structures (Hashes, Sorted Sets, Streams) unlike Memcached?",
-        "options": [
-          "Redis",
-          "Varnish",
-          "NGINX",
-          "SQLite"
-        ],
-        "correctAnswer": 0,
-        "explanation": "Redis supports complex data structures (Strings, Hashes, Lists, Sets, ZSETs, Streams)."
       }
     ]
   },
@@ -732,211 +837,106 @@
     ]
   },
   {
-    "id": "sys-load-balancing",
-    "title": "Load balancing",
+    "id": "sys-rate-limiter",
+    "title": "Rate limiter",
     "category": "SYSTEM DESIGN",
     "difficulty": "Intermediate",
     "estimatedTime": "5 min read",
     "isImportant": true,
-    "summary": "Layer 4 vs Layer 7 load balancing, algorithms (Round Robin, Least Connections, IP Hash), health checks, and NGINX/HAProxy.",
+    "summary": "Designing distributed rate limiters, API Gateway layer placement, Redis cluster counters, and fallback strategies.",
     "explanation": {
-      "overview": "A Load Balancer distributes incoming network traffic across multiple backend servers to ensure high availability, fault tolerance, and responsiveness.",
+      "overview": "A Rate Limiter restricts number of request calls a user or IP can make to an API within a given window, preventing DDoS attacks, brute-force attempts, and resource starvation.",
       "sections": [
         {
-          "heading": "Layer 4 vs Layer 7 Load Balancing",
-          "content": "- **Layer 4 (Transport)**: Routes packets based on IP address and TCP/UDP port numbers without inspecting application payload (Ultra-fast, HAProxy, AWS NLB).\n- **Layer 7 (Application)**: Inspects HTTP headers, cookies, and URL paths (`/api` vs `/static`) to route traffic dynamically (NGINX, AWS ALB).",
+          "heading": "Placement: API Gateway vs Application Layer",
+          "content": "- **API Gateway Placement**: Rate limiter sits at edge (Kong, AWS API Gateway, NGINX) blocking malicious requests before they hit backend microservices.\n- **Application Placement**: Rate limiter embedded inside middleware for granular per-user business logic rules.",
           "bulletPoints": [
-            "L4 Load Balancing: Fast TCP packet routing based on IP:Port.",
-            "L7 Load Balancing: Content-aware HTTP routing (headers, cookies, URL paths)."
+            "API Gateway: Edge protection, protects internal backend infrastructure.",
+            "Application Layer: Fine-grained per-tenant or per-route rate limits."
           ]
         },
         {
-          "heading": "Load Balancing Algorithms",
-          "content": "- **Round Robin**: Routes requests sequentially to server list.\n- **Weighted Round Robin**: Distributes traffic based on server hardware capacity.\n- **Least Connections**: Routes to server with fewest active connections.\n- **IP Hash**: Maps client IP to specific server node (Sticky sessions).",
+          "heading": "Distributed Rate Limiter Architecture",
+          "content": "Uses centralized Redis cluster holding atomic counters or sliding window logs (`INCR`, `ZSET`, or Lua scripts). In case of Redis cluster failure, rate limiter should **fail-open** to ensure application availability.",
           "bulletPoints": [
-            "Round Robin: Equal sequential distribution.",
-            "Least Connections: Ideal for requests with variable processing times.",
-            "Health Checks: Automatically removes unhealthy nodes from pool."
+            "Redis Central Store: Shared counter synchronized across multiple app instances.",
+            "Fail-Open Strategy: Allow traffic if rate limiter cache fails, ensuring high availability."
           ]
         }
       ]
     },
     "keyTakeaways": [
-      "Layer 4 balances TCP packets; Layer 7 balances content-aware HTTP requests.",
-      "Algorithms: Round Robin, Least Connections, IP Hash.",
-      "Health checks automatically remove failing backend server nodes."
+      "Place rate limiters at API Gateway edge for infrastructure protection.",
+      "Use centralized Redis cluster for atomic request counters across nodes.",
+      "Adopt a 'fail-open' strategy on rate limiter infrastructure failure."
     ],
     "codeExamples": [
       {
-        "title": "NGINX Layer 7 Load Balancer Config",
-        "description": "Configuring NGINX upstream server pool with Least Connections algorithm.",
-        "code": "http {\n  # Upstream pool of application backend servers\n  upstream app_cluster {\n    least_conn; # Route to server with fewest active connections!\n    server 10.0.0.1:4000 max_fails=3 fail_timeout=10s;\n    server 10.0.0.2:4000 max_fails=3 fail_timeout=10s;\n    server 10.0.0.3:4000 backup; # Fallback server\n  }\n\n  server {\n    listen 80;\n    location / {\n      proxy_pass http://app_cluster;\n      proxy_set_header Host $host;\n    }\n  }\n}"
+        "title": "Distributed Rate Limiter Architecture",
+        "description": "API Gateway rate limiting flow with Redis cluster.",
+        "code": "Client Request -> [ API Gateway / NGINX ]\n                        |\n             (Check Redis Atomic Counter)\n                        |\n         +--------------+--------------+\n         |                             |\n[ Allowed (Count <= Limit) ]   [ Rejected (Count > Limit) ]\n         |                             |\nForward to Microservice        Return HTTP 429 + Retry-After"
       }
     ],
     "mcqs": [
       {
-        "id": "sys-load-balancing-mcq-1",
-        "question": "What is primary operational difference between Layer 4 and Layer 7 Load Balancing?",
+        "id": "sys-rate-limiter-mcq-1",
+        "question": "Where should a system-wide rate limiter be placed to protect internal backend microservices from DDoS attacks?",
         "options": [
-          "L4 uses SSL, L7 does not",
-          "L4 routes packets based on IP/Port without inspecting payload; L7 inspects HTTP headers, cookies, and URL paths for content routing",
-          "L4 is slower than L7",
-          "L7 works only on Windows"
+          "Inside database triggers",
+          "At the API Gateway / NGINX reverse proxy edge layer",
+          "Inside client browser",
+          "In DNS server"
         ],
         "correctAnswer": 1,
-        "explanation": "Layer 4 routes at transport layer (IP/Port); Layer 7 inspects HTTP payload for content routing."
+        "explanation": "Placing rate limiter at API Gateway edge blocks malicious traffic before reaching internal microservices."
       },
       {
-        "id": "sys-load-balancing-mcq-2",
-        "question": "Which load balancing algorithm is best for backend servers processing long-running requests with variable execution durations?",
+        "id": "sys-rate-limiter-mcq-2",
+        "question": "What is 'Fail-Open' strategy in rate limiter system design?",
         "options": [
-          "Round Robin",
-          "Least Connections",
-          "Random",
-          "First Come First Served"
+          "Block all traffic on error",
+          "If rate limiter cache (Redis) fails, allow API requests through to ensure application remains available",
+          "Restart database",
+          "Log out users"
         ],
         "correctAnswer": 1,
-        "explanation": "Least Connections sends incoming requests to server handling fewest active connections."
+        "explanation": "Fail-open prioritizes system availability over strict rate enforcement if rate limiter fails."
       },
       {
-        "id": "sys-load-balancing-mcq-3",
-        "question": "How does a load balancer detect and handle a backend server node crash?",
+        "id": "sys-rate-limiter-mcq-3",
+        "question": "Why are local in-memory counters inside web servers unsuitable for a multi-instance microservice cluster behind a Load Balancer?",
         "options": [
-          "Client reports crash",
-          "Periodic Health Checks detect failed responses, automatically removing unhealthy server node from active routing pool",
-          "Reboots load balancer",
-          "Deletes DNS"
+          "In-memory is slow",
+          "Load balancer routes requests across different server nodes, allowing a client to bypass rate limits by hitting different nodes",
+          "Local memory is read-only",
+          "In-memory uses SSL"
         ],
         "correctAnswer": 1,
-        "explanation": "Health checks probe backend nodes, routing traffic away from failing servers."
+        "explanation": "Local memory counters are isolated per node; clients can bypass limits by hitting different cluster nodes."
       },
       {
-        "id": "sys-load-balancing-mcq-4",
-        "question": "Which algorithm maps a client IP address to the same backend server instance consistently?",
+        "id": "sys-rate-limiter-mcq-4",
+        "question": "Which Redis implementation provides atomic, race-condition-free rate limiting execution?",
         "options": [
-          "Round Robin",
-          "Weighted Round Robin",
-          "IP Hash",
-          "Random"
+          "MULTI without EXEC",
+          "Redis Lua script",
+          "GET and SET in JS",
+          "Keys command"
         ],
-        "correctAnswer": 2,
-        "explanation": "IP Hash computes hash of client IP to route requests to same server (sticky sessions)."
+        "correctAnswer": 1,
+        "explanation": "Redis Lua scripts execute atomically, eliminating race conditions across concurrent API nodes."
       },
       {
-        "id": "sys-load-balancing-mcq-5",
-        "question": "Which open-source software is widely used as a high-performance Layer 7 reverse proxy and load balancer?",
+        "id": "sys-rate-limiter-mcq-5",
+        "question": "What header should rate-limited 429 HTTP responses include to inform clients when to retry?",
         "options": [
-          "NGINX (or HAProxy)",
-          "Redis",
-          "MongoDB",
-          "RabbitMQ"
+          "Retry-After",
+          "X-Wait",
+          "Cache-Control",
+          "Access-Control-Allow-Origin"
         ],
         "correctAnswer": 0,
-        "explanation": "NGINX and HAProxy are leading open-source load balancing reverse proxies."
-      }
-    ]
-  },
-  {
-    "id": "sys-horizontal-scaling",
-    "title": "Horizontal scaling",
-    "category": "SYSTEM DESIGN",
-    "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Vertical scaling (Scale Up) vs Horizontal scaling (Scale Out), stateless application servers, and auto-scaling groups.",
-    "explanation": {
-      "overview": "Scaling expands system capacity. **Vertical Scaling (Scale Up)** adds hardware resources (CPU, RAM) to single server; **Horizontal Scaling (Scale Out)** adds more server instances to system cluster.",
-      "sections": [
-        {
-          "heading": "Vertical vs Horizontal Scaling Comparison",
-          "content": "- **Vertical Scaling (Scale Up)**: Upgrading server hardware (e.g. 8 cores to 64 cores, 16GB RAM to 256GB RAM). Has hard hardware limits, high single point of failure (SPOF) risk, and requires downtime to upgrade.\n- **Horizontal Scaling (Scale Out)**: Adding multiple commodity server instances behind a Load Balancer. Infinite capacity ceiling, fault tolerant, zero-downtime rolling upgrades.",
-          "bulletPoints": [
-            "Scale Up: Upgrade single machine hardware. Hard capacity ceiling, expensive.",
-            "Scale Out: Add more machines to cluster. Infinite scaling, fault-tolerant."
-          ]
-        },
-        {
-          "heading": "Stateless Application Rule",
-          "content": "To enable seamless horizontal scaling, web application servers MUST be **Stateless**. Move session data to Redis and persistent files to Cloud Object Storage.",
-          "bulletPoints": [
-            "Statelessness: Any web server node can process any request.",
-            "Auto-Scaling Groups: Automatically add/remove server instances based on CPU utilization metrics."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Horizontal scaling (Scale Out) adds more server instances for infinite capacity.",
-      "Application web servers must be stateless to enable scale-out.",
-      "Use Auto-Scaling Groups to dynamically adjust instance count based on traffic load."
-    ],
-    "codeExamples": [
-      {
-        "title": "Horizontal Auto-Scaling Architecture",
-        "description": "Load balancer distributing traffic across stateless server instances.",
-        "code": "                  [ Internet Traffic Spike ]\n                              |\n                     [ Load Balancer ]\n                              |\n      +-----------------------+-----------------------+\n      |                       |                       |\n[ Server Instance 1 ]   [ Server Instance 2 ]   [ Server Instance 3 ]\n(Stateless Node)        (Stateless Node)        (Auto-Scaled Node)\n      |                       |                       |\n      +-----------------------+-----------------------+\n                              |\n               [ Central Shared State: Redis / DB ]"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "sys-horizontal-scaling-mcq-1",
-        "question": "What is fundamental difference between Vertical Scaling (Scale Up) and Horizontal Scaling (Scale Out)?",
-        "options": [
-          "Vertical adds databases; Horizontal adds CSS",
-          "Vertical adds hardware resources (CPU/RAM) to a single machine; Horizontal adds more server instances to a cluster",
-          "Horizontal is limited to 4 nodes",
-          "No difference"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Vertical scaling upgrades hardware on single server; Horizontal scaling adds more server instances."
-      },
-      {
-        "id": "sys-horizontal-scaling-mcq-2",
-        "question": "What architectural requirement must web application servers meet to allow seamless Horizontal Scaling?",
-        "options": [
-          "Must run Windows",
-          "Must be STATELESS so any server instance can handle any incoming user request",
-          "Must use single-threaded code",
-          "Must use C++"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Stateless web servers do not retain local session memory, allowing any node to handle requests."
-      },
-      {
-        "id": "sys-horizontal-scaling-mcq-3",
-        "question": "What is major limitation of Vertical Scaling (Scale Up)?",
-        "options": [
-          "Cannot run Linux",
-          "Hard hardware physical limit ceiling and single point of failure (SPOF) risk",
-          "Slow network speed",
-          "Requires NoSQL"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Single machines have physical RAM/CPU limits and risk downtime if hardware fails."
-      },
-      {
-        "id": "sys-horizontal-scaling-mcq-4",
-        "question": "What AWS feature automatically provisions or terminates server instances based on CPU threshold metrics?",
-        "options": [
-          "Auto Scaling Groups",
-          "S3 Bucket",
-          "Route 53",
-          "CloudFront"
-        ],
-        "correctAnswer": 0,
-        "explanation": "Auto Scaling Groups adjust instance capacity dynamically based on metrics."
-      },
-      {
-        "id": "sys-horizontal-scaling-mcq-5",
-        "question": "Where should user uploaded images be saved in a horizontally scaled web architecture?",
-        "options": [
-          "On local server hard drive",
-          "Centralized Object Storage (AWS S3) accessible by all server instances",
-          "Inside application git repo",
-          "In browser cookie"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Storing files on local server disk breaks statelessness; centralized Object Storage is required."
+        "explanation": "`Retry-After` header specifies seconds to wait before making subsequent requests."
       }
     ]
   },

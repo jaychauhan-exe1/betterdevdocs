@@ -1,12 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { TOPICS } from "@/data/topics";
 import { useStudyStore } from "@/store/useStudyStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Menu, RotateCcw, CheckCircle2 } from "lucide-react";
+import { Menu, CheckCircle2 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
+import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
 
 function formatStarCount(count: number): string {
   if (count >= 1000000) {
@@ -18,18 +18,17 @@ function formatStarCount(count: number): string {
   return count.toString();
 }
 
-import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
-
 export default function Header() {
   const activeTopic = useStudyStore((state) => state.getActiveTopic());
-  const completedCount = useStudyStore((state) => state.completedTopics.length);
   const toggleSidebar = useStudyStore((state) => state.toggleSidebar);
-  const resetProgress = useStudyStore((state) => state.resetProgress);
+  const getRoleFilteredTopics = useStudyStore((state) => state.getRoleFilteredTopics);
+  const completedTopics = useStudyStore((state) => state.completedTopics);
+
+  const roleTopics = getRoleFilteredTopics();
+  const totalCount = roleTopics.length;
+  const completedCount = roleTopics.filter((t) => completedTopics.includes(t.id)).length;
 
   const [starCount, setStarCount] = useState<string | null>(null);
-
-  const topics = useStudyStore((state) => state.topics);
-  const totalCount = topics.length;
 
   useEffect(() => {
     fetch("/api/github-stars")
@@ -56,12 +55,6 @@ export default function Header() {
           });
       });
   }, []);
-
-  const handleReset = () => {
-    if (window.confirm("Are you sure you want to reset all topic completion progress?")) {
-      resetProgress();
-    }
-  };
 
   return (
     <header className="sticky top-0 z-30 h-14 bg-background/90 backdrop-blur-md border-b border-border px-4 lg:px-8 flex items-center justify-between font-normal">
@@ -109,18 +102,6 @@ export default function Header() {
             Mastered <strong className="text-foreground font-semibold">{completedCount}</strong> of {totalCount}
           </span>
         </div>
-
-        {/* Reset Progress Button */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleReset}
-          className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground font-normal"
-          title="Reset topic completion progress"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          <span className="hidden sm:inline">Reset</span>
-        </Button>
 
         {/* Auth Controls */}
         <div className="flex items-center gap-2 pl-2 border-l border-border">

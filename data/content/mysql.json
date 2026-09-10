@@ -1,5 +1,109 @@
 [
   {
+    "id": "mysql-keys",
+    "title": "Keys",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Primary Keys, Foreign Keys, Candidate Keys, Composite Keys, Unique Keys, and Referential Integrity (CASCADE).",
+    "explanation": {
+      "overview": "Keys enforce entity uniqueness and relational referential integrity across database tables.",
+      "sections": [
+        {
+          "heading": "Primary Key vs Unique Key",
+          "content": "- **Primary Key (PK)**: Uniquely identifies each row in table. MUST be unique and NOT NULL. Only ONE Primary Key allowed per table.\n- **Unique Key**: Enforces unique values across column(s), but ALLOWS `NULL` values. Multiple Unique keys allowed per table.",
+          "bulletPoints": [
+            "Primary Key: Exactly 1 per table, NOT NULL, clustered index in InnoDB.",
+            "Unique Key: Multiple allowed per table, permits NULL values."
+          ]
+        },
+        {
+          "heading": "Foreign Keys & Referential Actions",
+          "content": "Foreign Keys (FK) link columns to Primary Key of another table. `ON DELETE` referential actions dictate behavior when referenced parent row is deleted:\n- `CASCADE`: Automatically deletes child rows.\n- `SET NULL`: Sets child FK column to `NULL`.\n- `RESTRICT` / `NO ACTION`: Rejects parent row deletion if child rows exist.",
+          "bulletPoints": [
+            "CASCADE: Automatically deletes child rows.",
+            "RESTRICT: Prevents parent deletion if children exist."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Primary Key must be UNIQUE and NOT NULL (1 per table).",
+      "Unique Keys enforce uniqueness but permit NULL values.",
+      "`ON DELETE CASCADE` automatically purges child rows."
+    ],
+    "codeExamples": [
+      {
+        "title": "Primary & Foreign Key Table Definition",
+        "description": "Creating tables with PK, Unique key, and Foreign Key CASCADE.",
+        "code": "CREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  email VARCHAR(255) NOT NULL UNIQUE,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n) ENGINE=InnoDB;\n\nCREATE TABLE orders (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  user_id INT NOT NULL,\n  total_amount DECIMAL(10,2) NOT NULL,\n  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE\n) ENGINE=InnoDB;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-keys-mcq-1",
+        "question": "What is key difference between Primary Key and Unique Key constraints in MySQL?",
+        "options": [
+          "Unique Key is faster",
+          "A table can have only ONE Primary Key (which cannot contain NULLs); a table can have MULTIPLE Unique Keys (which allow NULLs)",
+          "Primary Key uses text",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Tables have max 1 Primary Key (no NULLs allowed); multiple Unique keys are allowed (permits NULLs)."
+      },
+      {
+        "id": "mysql-keys-mcq-2",
+        "question": "What happens when parent row in `users` table is deleted if child `orders` table FK specifies `ON DELETE CASCADE`?",
+        "options": [
+          "Throws error",
+          "MySQL automatically deletes all matching child order rows belonging to deleted user",
+          "Sets user_id to 0",
+          "Does nothing"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ON DELETE CASCADE` automatically deletes dependent child table rows."
+      },
+      {
+        "id": "mysql-keys-mcq-3",
+        "question": "What is a 'Composite Key'?",
+        "options": [
+          "A key using JSON",
+          "A primary key or unique index composed of 2 or more combined columns",
+          "An encrypted key",
+          "A foreign key"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Composite Keys combine two or more columns to form a unique key identifier."
+      },
+      {
+        "id": "mysql-keys-mcq-4",
+        "question": "What referential action prevents parent row deletion if matching child rows exist?",
+        "options": [
+          "CASCADE",
+          "SET NULL",
+          "RESTRICT (or NO ACTION)",
+          "SET DEFAULT"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`RESTRICT` rejects parent row deletion if child table references exist."
+      },
+      {
+        "id": "mysql-keys-mcq-5",
+        "question": "Which storage engine in MySQL enforces Foreign Key constraints natively?",
+        "options": [
+          "MyISAM",
+          "InnoDB",
+          "MEMORY",
+          "CSV"
+        ],
+        "correctAnswer": 1,
+        "explanation": "InnoDB is default storage engine that enforces Foreign Key constraints."
+      }
+    ]
+  },
+  {
     "id": "mysql-select",
     "title": "SELECT",
     "category": "MYSQL",
@@ -210,6 +314,214 @@
     ]
   },
   {
+    "id": "mysql-order-by",
+    "title": "ORDER BY",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Sorting query results, ASC vs DESC, multi-column sorting, NULL sorting placement, and Filesort.",
+    "explanation": {
+      "overview": "The `ORDER BY` clause sorts query output rows in ascending (`ASC`) or descending (`DESC`) order based on one or more columns.",
+      "sections": [
+        {
+          "heading": "ASC / DESC & Multi-Column Sorting",
+          "content": "`ORDER BY created_at DESC, name ASC` sorts primary rows by newest `created_at` date, breaking ties by alphabetical `name`.",
+          "bulletPoints": [
+            "Default Order: `ASC` (ascending: A to Z, 1 to 9).",
+            "Multi-Column: Sorts sequentially by primary, secondary, and tertiary columns."
+          ]
+        },
+        {
+          "heading": "NULL Sorting Behavior & Filesort",
+          "content": "In MySQL `ASC` sorting, `NULL` values appear first (lowest value). If MySQL cannot use an index for sorting, `EXPLAIN` shows `Using filesort`.",
+          "bulletPoints": [
+            "NULLs in ASC: Placed at start of output set.",
+            "Filesort Warning: Indicates MySQL performed extra memory/disk sort pass because no suitable index was available."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`ORDER BY` defaults to ascending (`ASC`) order.",
+      "In MySQL `ASC` queries, `NULL` values sort first.",
+      "`Using filesort` in EXPLAIN indicates sorting without an index."
+    ],
+    "codeExamples": [
+      {
+        "title": "Multi-Column ORDER BY",
+        "description": "Sorting by multiple columns and directions.",
+        "code": "SELECT id, category, price, title\nFROM products\nWHERE is_available = 1\nORDER BY category ASC, price DESC, title ASC\nLIMIT 20;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-order-by-mcq-1",
+        "question": "What is default sort direction if `ASC` or `DESC` is omitted in `ORDER BY price`?",
+        "options": [
+          "DESC",
+          "ASC (ascending: lowest to highest)",
+          "Random",
+          "Index order"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ORDER BY` defaults to ascending (`ASC`) order."
+      },
+      {
+        "id": "mysql-order-by-mcq-2",
+        "question": "Where do `NULL` values appear by default in a MySQL `ORDER BY age ASC` query?",
+        "options": [
+          "At very end of result set",
+          "At very beginning of result set (treated as lowest value)",
+          "Omitted from result set",
+          "Random"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In MySQL ascending sorts, `NULL` values are treated as minimum value and placed first."
+      },
+      {
+        "id": "mysql-order-by-mcq-3",
+        "question": "What does `Using filesort` in `EXPLAIN` query plan indicate?",
+        "options": [
+          "Query is fast",
+          "MySQL had to perform extra in-memory or disk sorting pass because no index matched sort order",
+          "Query read files",
+          "Index was used"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Using filesort` means MySQL performed an extra sort operation because index order did not match `ORDER BY`."
+      },
+      {
+        "id": "mysql-order-by-mcq-4",
+        "question": "What does `ORDER BY status ASC, created_at DESC` execute?",
+        "options": [
+          "Sorts status DESC first",
+          "Sorts primarily by status ASC; when status values match, breaks tie using created_at DESC",
+          "Sorts created_at first",
+          "Syntax error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Multi-column sort orders primarily by first column, using secondary column to break ties."
+      },
+      {
+        "id": "mysql-order-by-mcq-5",
+        "question": "Can you sort query results by a column alias defined in `SELECT` `SELECT price * 0.9 AS disc FROM items ORDER BY disc ASC;`?",
+        "options": [
+          "No",
+          "Yes, because ORDER BY executes after SELECT in SQL processing pipeline",
+          "Only in Postgres",
+          "Only with indexes"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ORDER BY` executes after `SELECT` phase, permitting reference to column aliases."
+      }
+    ]
+  },
+  {
+    "id": "mysql-aggregations",
+    "title": "Aggregations",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Aggregate functions: COUNT(*), COUNT(col), SUM, AVG, MIN, MAX, and handling NULLs in aggregations.",
+    "explanation": {
+      "overview": "Aggregate functions perform calculations on a set of column values, returning a single summary value.",
+      "sections": [
+        {
+          "heading": "Core Aggregate Functions",
+          "content": "- `COUNT(*)`: Counts total matching rows (including NULL rows).\n- `COUNT(col)`: Counts non-NULL values in specified column.\n- `SUM(col)`: Calculates total sum of numeric values.\n- `AVG(col)`: Calculates arithmetic mean of non-NULL values.\n- `MIN(col)` / `MAX(col)`: Finds minimum / maximum value.",
+          "bulletPoints": [
+            "COUNT(*) vs COUNT(col): COUNT(*) counts all rows; COUNT(col) ignores NULLs.",
+            "SUM & AVG: Automatically ignore NULL values.",
+            "DISTINCT in Aggregates: `COUNT(DISTINCT user_id)` counts unique users."
+          ]
+        },
+        {
+          "heading": "NULL Handling in Aggregations",
+          "content": "Aggregate functions (except `COUNT(*)`) ignore `NULL` values. If all rows in set are `NULL`, `SUM()` and `AVG()` return `NULL`.",
+          "bulletPoints": [
+            "COALESCE Utility: `COALESCE(SUM(amount), 0)` converts NULL sum result to 0."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`COUNT(*)` counts all rows; `COUNT(col)` ignores NULL values.",
+      "Aggregate functions (SUM, AVG) ignore NULL values.",
+      "Use `COALESCE(SUM(col), 0)` to default NULL sum results to zero."
+    ],
+    "codeExamples": [
+      {
+        "title": "Aggregate Functions & COALESCE",
+        "description": "Calculating order totals and using COALESCE for NULL handling.",
+        "code": "SELECT \n  COUNT(*) AS total_orders,\n  COUNT(discount_code) AS orders_with_discount, -- Ignores NULLs\n  COUNT(DISTINCT user_id) AS unique_buyers,\n  COALESCE(SUM(total_amount), 0) AS total_revenue,\n  AVG(total_amount) AS average_order_value\nFROM orders;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-aggregations-mcq-1",
+        "question": "What is difference between `COUNT(*)` and `COUNT(email)` when table has 10 rows and 2 rows have `email = NULL`?",
+        "options": [
+          "Both return 10",
+          "COUNT(*) returns 10; COUNT(email) returns 8 (ignores NULLs)",
+          "COUNT(email) throws error",
+          "Both return 8"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`COUNT(*)` counts total rows; `COUNT(column)` ignores `NULL` column values."
+      },
+      {
+        "id": "mysql-aggregations-mcq-2",
+        "question": "What does `SUM(amount)` return if ALL matching rows contain `amount = NULL`?",
+        "options": [
+          "0",
+          "NULL",
+          "Throws error",
+          "-1"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Summing a set containing only `NULL` values returns `NULL`."
+      },
+      {
+        "id": "mysql-aggregations-mcq-3",
+        "question": "Which function wraps `SUM(amount)` to guarantee returning `0` instead of `NULL` when table is empty?",
+        "options": [
+          "IFNULL(SUM(amount), 0) or COALESCE(SUM(amount), 0)",
+          "ZERO(SUM(amount))",
+          "EMPTY(SUM(amount))",
+          "DEFAULT(SUM(amount))"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`COALESCE(SUM(amount), 0)` or `IFNULL(...)` converts `NULL` outputs to default `0`."
+      },
+      {
+        "id": "mysql-aggregations-mcq-4",
+        "question": "How do you count total number of UNIQUE buyers in orders table?",
+        "options": [
+          "COUNT(user_id)",
+          "COUNT(DISTINCT user_id)",
+          "DISTINCT COUNT(user_id)",
+          "SUM(UNIQUE user_id)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`COUNT(DISTINCT user_id)` counts unique non-null values."
+      },
+      {
+        "id": "mysql-aggregations-mcq-5",
+        "question": "Does `AVG(rating)` divide total sum by total rows or total NON-NULL rows?",
+        "options": [
+          "Total rows",
+          "Total NON-NULL rows (ignores NULL rows in both numerator and denominator)",
+          "Fixed 100",
+          "Includes nulls as 0"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`AVG()` ignores `NULL` values completely from both sum numerator and row count denominator."
+      }
+    ]
+  },
+  {
     "id": "mysql-group-by",
     "title": "GROUP BY",
     "category": "MYSQL",
@@ -413,110 +725,6 @@
         ],
         "correctAnswer": 1,
         "explanation": "Execution sequence: `FROM` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY` -> `LIMIT`."
-      }
-    ]
-  },
-  {
-    "id": "mysql-order-by",
-    "title": "ORDER BY",
-    "category": "MYSQL",
-    "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Sorting query results, ASC vs DESC, multi-column sorting, NULL sorting placement, and Filesort.",
-    "explanation": {
-      "overview": "The `ORDER BY` clause sorts query output rows in ascending (`ASC`) or descending (`DESC`) order based on one or more columns.",
-      "sections": [
-        {
-          "heading": "ASC / DESC & Multi-Column Sorting",
-          "content": "`ORDER BY created_at DESC, name ASC` sorts primary rows by newest `created_at` date, breaking ties by alphabetical `name`.",
-          "bulletPoints": [
-            "Default Order: `ASC` (ascending: A to Z, 1 to 9).",
-            "Multi-Column: Sorts sequentially by primary, secondary, and tertiary columns."
-          ]
-        },
-        {
-          "heading": "NULL Sorting Behavior & Filesort",
-          "content": "In MySQL `ASC` sorting, `NULL` values appear first (lowest value). If MySQL cannot use an index for sorting, `EXPLAIN` shows `Using filesort`.",
-          "bulletPoints": [
-            "NULLs in ASC: Placed at start of output set.",
-            "Filesort Warning: Indicates MySQL performed extra memory/disk sort pass because no suitable index was available."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "`ORDER BY` defaults to ascending (`ASC`) order.",
-      "In MySQL `ASC` queries, `NULL` values sort first.",
-      "`Using filesort` in EXPLAIN indicates sorting without an index."
-    ],
-    "codeExamples": [
-      {
-        "title": "Multi-Column ORDER BY",
-        "description": "Sorting by multiple columns and directions.",
-        "code": "SELECT id, category, price, title\nFROM products\nWHERE is_available = 1\nORDER BY category ASC, price DESC, title ASC\nLIMIT 20;"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "mysql-order-by-mcq-1",
-        "question": "What is default sort direction if `ASC` or `DESC` is omitted in `ORDER BY price`?",
-        "options": [
-          "DESC",
-          "ASC (ascending: lowest to highest)",
-          "Random",
-          "Index order"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`ORDER BY` defaults to ascending (`ASC`) order."
-      },
-      {
-        "id": "mysql-order-by-mcq-2",
-        "question": "Where do `NULL` values appear by default in a MySQL `ORDER BY age ASC` query?",
-        "options": [
-          "At very end of result set",
-          "At very beginning of result set (treated as lowest value)",
-          "Omitted from result set",
-          "Random"
-        ],
-        "correctAnswer": 1,
-        "explanation": "In MySQL ascending sorts, `NULL` values are treated as minimum value and placed first."
-      },
-      {
-        "id": "mysql-order-by-mcq-3",
-        "question": "What does `Using filesort` in `EXPLAIN` query plan indicate?",
-        "options": [
-          "Query is fast",
-          "MySQL had to perform extra in-memory or disk sorting pass because no index matched sort order",
-          "Query read files",
-          "Index was used"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`Using filesort` means MySQL performed an extra sort operation because index order did not match `ORDER BY`."
-      },
-      {
-        "id": "mysql-order-by-mcq-4",
-        "question": "What does `ORDER BY status ASC, created_at DESC` execute?",
-        "options": [
-          "Sorts status DESC first",
-          "Sorts primarily by status ASC; when status values match, breaks tie using created_at DESC",
-          "Sorts created_at first",
-          "Syntax error"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Multi-column sort orders primarily by first column, using secondary column to break ties."
-      },
-      {
-        "id": "mysql-order-by-mcq-5",
-        "question": "Can you sort query results by a column alias defined in `SELECT` `SELECT price * 0.9 AS disc FROM items ORDER BY disc ASC;`?",
-        "options": [
-          "No",
-          "Yes, because ORDER BY executes after SELECT in SQL processing pipeline",
-          "Only in Postgres",
-          "Only with indexes"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`ORDER BY` executes after `SELECT` phase, permitting reference to column aliases."
       }
     ]
   },
@@ -836,314 +1044,107 @@
     ]
   },
   {
-    "id": "mysql-aggregations",
-    "title": "Aggregations",
+    "id": "mysql-normalization",
+    "title": "Normalization",
     "category": "MYSQL",
-    "difficulty": "Beginner",
+    "difficulty": "Intermediate",
     "estimatedTime": "5 min read",
     "isImportant": true,
-    "summary": "Aggregate functions: COUNT(*), COUNT(col), SUM, AVG, MIN, MAX, and handling NULLs in aggregations.",
+    "summary": "Database normalization forms: 1NF (atomic values), 2NF (no partial dependencies), 3NF (no transitive dependencies), BCNF, and denormalization trade-offs.",
     "explanation": {
-      "overview": "Aggregate functions perform calculations on a set of column values, returning a single summary value.",
+      "overview": "Normalization is database design process of organizing columns and tables to reduce data redundancy and eliminate update/delete anomalies.",
       "sections": [
         {
-          "heading": "Core Aggregate Functions",
-          "content": "- `COUNT(*)`: Counts total matching rows (including NULL rows).\n- `COUNT(col)`: Counts non-NULL values in specified column.\n- `SUM(col)`: Calculates total sum of numeric values.\n- `AVG(col)`: Calculates arithmetic mean of non-NULL values.\n- `MIN(col)` / `MAX(col)`: Finds minimum / maximum value.",
+          "heading": "1NF, 2NF, 3NF Normal Forms",
+          "content": "- **1NF (First Normal Form)**: Each cell contains atomic single values (no arrays/comma-separated strings in cells); unique row keys.\n- **2NF (Second Normal Form)**: Must be 1NF AND all non-key columns must fully depend on entire primary key (eliminates partial key dependencies).\n- **3NF (Third Normal Form)**: Must be 2NF AND non-key columns must not depend on other non-key columns (eliminates transitive dependencies: *non-key -> non-key*).",
           "bulletPoints": [
-            "COUNT(*) vs COUNT(col): COUNT(*) counts all rows; COUNT(col) ignores NULLs.",
-            "SUM & AVG: Automatically ignore NULL values.",
-            "DISTINCT in Aggregates: `COUNT(DISTINCT user_id)` counts unique users."
+            "1NF: Atomic column values.",
+            "2NF: No partial PK dependencies.",
+            "3NF: No transitive non-key dependencies."
           ]
         },
         {
-          "heading": "NULL Handling in Aggregations",
-          "content": "Aggregate functions (except `COUNT(*)`) ignore `NULL` values. If all rows in set are `NULL`, `SUM()` and `AVG()` return `NULL`.",
+          "heading": "Denormalization Tradeoffs",
+          "content": "Denormalization intentionally introduces redundant data to optimize read performance and eliminate complex joins in high-scale systems.",
           "bulletPoints": [
-            "COALESCE Utility: `COALESCE(SUM(amount), 0)` converts NULL sum result to 0."
+            "Normalization: Minimizes storage & update anomalies; increases join count.",
+            "Denormalization: Faster reads; requires managing multi-table update sync."
           ]
         }
       ]
     },
     "keyTakeaways": [
-      "`COUNT(*)` counts all rows; `COUNT(col)` ignores NULL values.",
-      "Aggregate functions (SUM, AVG) ignore NULL values.",
-      "Use `COALESCE(SUM(col), 0)` to default NULL sum results to zero."
+      "1NF requires atomic column values.",
+      "2NF eliminates partial dependencies; 3NF eliminates transitive dependencies.",
+      "Denormalize selectively for high-read performance."
     ],
     "codeExamples": [
       {
-        "title": "Aggregate Functions & COALESCE",
-        "description": "Calculating order totals and using COALESCE for NULL handling.",
-        "code": "SELECT \n  COUNT(*) AS total_orders,\n  COUNT(discount_code) AS orders_with_discount, -- Ignores NULLs\n  COUNT(DISTINCT user_id) AS unique_buyers,\n  COALESCE(SUM(total_amount), 0) AS total_revenue,\n  AVG(total_amount) AS average_order_value\nFROM orders;"
+        "title": "3NF Normalized Schema Example",
+        "description": "Splitting customer address to satisfy 3NF.",
+        "code": "-- VIOLATES 3NF (Transitive dependency: zip_code -> city, state):\n-- CREATE TABLE users (id INT, zip_code VARCHAR(10), city VARCHAR(50), state VARCHAR(50));\n\n-- SATISFIES 3NF (Separated into zip_codes reference table):\nCREATE TABLE zip_codes (\n  zip_code VARCHAR(10) PRIMARY KEY,\n  city VARCHAR(50) NOT NULL,\n  state VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100) NOT NULL,\n  zip_code VARCHAR(10),\n  FOREIGN KEY (zip_code) REFERENCES zip_codes(zip_code)\n);"
       }
     ],
     "mcqs": [
       {
-        "id": "mysql-aggregations-mcq-1",
-        "question": "What is difference between `COUNT(*)` and `COUNT(email)` when table has 10 rows and 2 rows have `email = NULL`?",
+        "id": "mysql-normalization-mcq-1",
+        "question": "What requirement must a table satisfy to comply with 1NF (First Normal Form)?",
         "options": [
-          "Both return 10",
-          "COUNT(*) returns 10; COUNT(email) returns 8 (ignores NULLs)",
-          "COUNT(email) throws error",
-          "Both return 8"
+          "Have foreign keys",
+          "Every cell column value must be atomic (no multi-value comma lists) and rows must be unique",
+          "No joins allowed",
+          "Must use BCNF"
         ],
         "correctAnswer": 1,
-        "explanation": "`COUNT(*)` counts total rows; `COUNT(column)` ignores `NULL` column values."
+        "explanation": "1NF mandates atomic single values in every table cell."
       },
       {
-        "id": "mysql-aggregations-mcq-2",
-        "question": "What does `SUM(amount)` return if ALL matching rows contain `amount = NULL`?",
+        "id": "mysql-normalization-mcq-2",
+        "question": "What type of dependency does 3NF (Third Normal Form) eliminate?",
         "options": [
-          "0",
-          "NULL",
-          "Throws error",
-          "-1"
+          "Partial primary key dependencies",
+          "Transitive dependencies (where a non-key column depends on another non-key column)",
+          "Foreign key dependencies",
+          "Atomic dependencies"
         ],
         "correctAnswer": 1,
-        "explanation": "Summing a set containing only `NULL` values returns `NULL`."
+        "explanation": "3NF requires that non-key columns depend ONLY on the primary key, eliminating transitive dependencies."
       },
       {
-        "id": "mysql-aggregations-mcq-3",
-        "question": "Which function wraps `SUM(amount)` to guarantee returning `0` instead of `NULL` when table is empty?",
+        "id": "mysql-normalization-mcq-3",
+        "question": "What type of dependency does 2NF (Second Normal Form) eliminate?",
         "options": [
-          "IFNULL(SUM(amount), 0) or COALESCE(SUM(amount), 0)",
-          "ZERO(SUM(amount))",
-          "EMPTY(SUM(amount))",
-          "DEFAULT(SUM(amount))"
-        ],
-        "correctAnswer": 0,
-        "explanation": "`COALESCE(SUM(amount), 0)` or `IFNULL(...)` converts `NULL` outputs to default `0`."
-      },
-      {
-        "id": "mysql-aggregations-mcq-4",
-        "question": "How do you count total number of UNIQUE buyers in orders table?",
-        "options": [
-          "COUNT(user_id)",
-          "COUNT(DISTINCT user_id)",
-          "DISTINCT COUNT(user_id)",
-          "SUM(UNIQUE user_id)"
+          "Transitive dependencies",
+          "Partial dependencies (where a non-key column depends on only part of a composite primary key)",
+          "Atomic cell values",
+          "No dependencies"
         ],
         "correctAnswer": 1,
-        "explanation": "`COUNT(DISTINCT user_id)` counts unique non-null values."
+        "explanation": "2NF requires non-key attributes to depend on the whole composite primary key."
       },
       {
-        "id": "mysql-aggregations-mcq-5",
-        "question": "Does `AVG(rating)` divide total sum by total rows or total NON-NULL rows?",
+        "id": "mysql-normalization-mcq-4",
+        "question": "Why do high-scale read-heavy systems selectively Denormalize database tables?",
         "options": [
-          "Total rows",
-          "Total NON-NULL rows (ignores NULL rows in both numerator and denominator)",
-          "Fixed 100",
-          "Includes nulls as 0"
+          "To pass 3NF",
+          "To reduce costly multi-table JOIN operations and improve read query latency",
+          "To save disk space",
+          "To prevent SQL injection"
         ],
         "correctAnswer": 1,
-        "explanation": "`AVG()` ignores `NULL` values completely from both sum numerator and row count denominator."
-      }
-    ]
-  },
-  {
-    "id": "mysql-window-functions",
-    "title": "Window functions",
-    "category": "MYSQL",
-    "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "OVER clause, PARTITION BY, ORDER BY frame, ROW_NUMBER(), RANK(), DENSE_RANK(), LAG(), LEAD().",
-    "explanation": {
-      "overview": "Window Functions perform calculations across a set of table rows related to current row WITHOUT collapsing rows into single summary output rows.",
-      "sections": [
-        {
-          "heading": "OVER & PARTITION BY Syntax",
-          "content": "Syntax: `FUNCTION() OVER (PARTITION BY category ORDER BY price DESC)`. `PARTITION BY` divides rows into window partitions; `ORDER BY` defines row calculation sequence within partition.",
-          "bulletPoints": [
-            "Non-Collapsing: Unlike `GROUP BY`, every individual row remains in output set.",
-            "PARTITION BY: Creates independent window partitions."
-          ]
-        },
-        {
-          "heading": "Ranking & Offset Functions",
-          "content": "- `ROW_NUMBER()`: Sequential row index (1, 2, 3, 4).\n- `RANK()`: Rank with gaps for ties (1, 2, 2, 4).\n- `DENSE_RANK()`: Rank without gaps for ties (1, 2, 2, 3).\n- `LAG(col, offset)`: Accesses column value from previous row.\n- `LEAD(col, offset)`: Accesses column value from next row.",
-          "bulletPoints": [
-            "DENSE_RANK: 1, 2, 2, 3 (no gaps).",
-            "LAG / LEAD: Inter-row comparison (calculating month-over-month growth)."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Window functions calculate values across row sets without collapsing rows.",
-      "ROW_NUMBER (sequential), RANK (gaps for ties), DENSE_RANK (no gaps).",
-      "Use `LAG`/`LEAD` to compare current row values against prior/subsequent rows."
-    ],
-    "codeExamples": [
+        "explanation": "Denormalization duplicates data to avoid expensive multi-table joins on read queries."
+      },
       {
-        "title": "ROW_NUMBER & LAG Window Functions",
-        "description": "Ranking products per category and comparing sales against previous month.",
-        "code": "SELECT \n  category,\n  name,\n  price,\n  ROW_NUMBER() OVER(PARTITION BY category ORDER BY price DESC) AS rank_in_category\nFROM products;\n\n-- Calculate Month-over-Month sales difference with LAG:\nSELECT \n  month,\n  revenue,\n  LAG(revenue, 1) OVER(ORDER BY month) AS prev_month_revenue,\n  revenue - LAG(revenue, 1) OVER(ORDER BY month) AS mom_growth\nFROM monthly_sales;"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "mysql-window-functions-mcq-1",
-        "question": "What is key difference between `GROUP BY` and Window Functions (`OVER()`)?",
+        "id": "mysql-normalization-mcq-5",
+        "question": "What anomaly occurs when updating a customer's address in an un-normalized table requires updating 500 duplicate order rows?",
         "options": [
-          "GROUP BY is faster",
-          "GROUP BY collapses multiple rows into single summary row; Window Functions perform calculations while retaining all individual rows in result set",
-          "Window functions cannot use SUM",
-          "No difference"
+          "Insert Anomaly",
+          "Update Anomaly",
+          "Delete Anomaly",
+          "Select Anomaly"
         ],
         "correctAnswer": 1,
-        "explanation": "Window functions perform calculations across partitions without collapsing individual table rows."
-      },
-      {
-        "id": "mysql-window-functions-mcq-2",
-        "question": "What ranking sequence does `DENSE_RANK()` produce for tied scores `[100, 90, 90, 80]`?",
-        "options": [
-          "1, 2, 3, 4",
-          "1, 2, 2, 4 (gaps)",
-          "1, 2, 2, 3 (no rank gaps)",
-          "1, 1, 1, 1"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`DENSE_RANK()` assigns identical ranks to ties without skipping subsequent ranks (1, 2, 2, 3)."
-      },
-      {
-        "id": "mysql-window-functions-mcq-3",
-        "question": "Which window function fetches column value from PREVIOUS row relative to current row in partition?",
-        "options": [
-          "LEAD()",
-          "LAG()",
-          "PREV()",
-          "FIRST_VALUE()"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`LAG(column, offset)` accesses column data from preceding rows."
-      },
-      {
-        "id": "mysql-window-functions-mcq-4",
-        "question": "Which MySQL version introduced native support for Window Functions?",
-        "options": [
-          "MySQL 5.6",
-          "MySQL 5.7",
-          "MySQL 8.0",
-          "MySQL 4.0"
-        ],
-        "correctAnswer": 2,
-        "explanation": "Window functions were added natively in MySQL 8.0."
-      },
-      {
-        "id": "mysql-window-functions-mcq-5",
-        "question": "What clause inside `OVER()` partitions rows into distinct window calculation groups?",
-        "options": [
-          "GROUP BY",
-          "PARTITION BY",
-          "DIVIDE BY",
-          "SPLIT BY"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`PARTITION BY` divides dataset into separate calculation partitions."
-      }
-    ]
-  },
-  {
-    "id": "mysql-keys",
-    "title": "Keys",
-    "category": "MYSQL",
-    "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Primary Keys, Foreign Keys, Candidate Keys, Composite Keys, Unique Keys, and Referential Integrity (CASCADE).",
-    "explanation": {
-      "overview": "Keys enforce entity uniqueness and relational referential integrity across database tables.",
-      "sections": [
-        {
-          "heading": "Primary Key vs Unique Key",
-          "content": "- **Primary Key (PK)**: Uniquely identifies each row in table. MUST be unique and NOT NULL. Only ONE Primary Key allowed per table.\n- **Unique Key**: Enforces unique values across column(s), but ALLOWS `NULL` values. Multiple Unique keys allowed per table.",
-          "bulletPoints": [
-            "Primary Key: Exactly 1 per table, NOT NULL, clustered index in InnoDB.",
-            "Unique Key: Multiple allowed per table, permits NULL values."
-          ]
-        },
-        {
-          "heading": "Foreign Keys & Referential Actions",
-          "content": "Foreign Keys (FK) link columns to Primary Key of another table. `ON DELETE` referential actions dictate behavior when referenced parent row is deleted:\n- `CASCADE`: Automatically deletes child rows.\n- `SET NULL`: Sets child FK column to `NULL`.\n- `RESTRICT` / `NO ACTION`: Rejects parent row deletion if child rows exist.",
-          "bulletPoints": [
-            "CASCADE: Automatically deletes child rows.",
-            "RESTRICT: Prevents parent deletion if children exist."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Primary Key must be UNIQUE and NOT NULL (1 per table).",
-      "Unique Keys enforce uniqueness but permit NULL values.",
-      "`ON DELETE CASCADE` automatically purges child rows."
-    ],
-    "codeExamples": [
-      {
-        "title": "Primary & Foreign Key Table Definition",
-        "description": "Creating tables with PK, Unique key, and Foreign Key CASCADE.",
-        "code": "CREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  email VARCHAR(255) NOT NULL UNIQUE,\n  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP\n) ENGINE=InnoDB;\n\nCREATE TABLE orders (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  user_id INT NOT NULL,\n  total_amount DECIMAL(10,2) NOT NULL,\n  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE\n) ENGINE=InnoDB;"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "mysql-keys-mcq-1",
-        "question": "What is key difference between Primary Key and Unique Key constraints in MySQL?",
-        "options": [
-          "Unique Key is faster",
-          "A table can have only ONE Primary Key (which cannot contain NULLs); a table can have MULTIPLE Unique Keys (which allow NULLs)",
-          "Primary Key uses text",
-          "No difference"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Tables have max 1 Primary Key (no NULLs allowed); multiple Unique keys are allowed (permits NULLs)."
-      },
-      {
-        "id": "mysql-keys-mcq-2",
-        "question": "What happens when parent row in `users` table is deleted if child `orders` table FK specifies `ON DELETE CASCADE`?",
-        "options": [
-          "Throws error",
-          "MySQL automatically deletes all matching child order rows belonging to deleted user",
-          "Sets user_id to 0",
-          "Does nothing"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`ON DELETE CASCADE` automatically deletes dependent child table rows."
-      },
-      {
-        "id": "mysql-keys-mcq-3",
-        "question": "What is a 'Composite Key'?",
-        "options": [
-          "A key using JSON",
-          "A primary key or unique index composed of 2 or more combined columns",
-          "An encrypted key",
-          "A foreign key"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Composite Keys combine two or more columns to form a unique key identifier."
-      },
-      {
-        "id": "mysql-keys-mcq-4",
-        "question": "What referential action prevents parent row deletion if matching child rows exist?",
-        "options": [
-          "CASCADE",
-          "SET NULL",
-          "RESTRICT (or NO ACTION)",
-          "SET DEFAULT"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`RESTRICT` rejects parent row deletion if child table references exist."
-      },
-      {
-        "id": "mysql-keys-mcq-5",
-        "question": "Which storage engine in MySQL enforces Foreign Key constraints natively?",
-        "options": [
-          "MyISAM",
-          "InnoDB",
-          "MEMORY",
-          "CSV"
-        ],
-        "correctAnswer": 1,
-        "explanation": "InnoDB is default storage engine that enforces Foreign Key constraints."
+        "explanation": "Update Anomaly occurs when redundant data must be updated in multiple places."
       }
     ]
   },
@@ -1354,111 +1355,6 @@
         ],
         "correctAnswer": 1,
         "explanation": "Range conditions (like `LIKE 'X%'`) prevent using subsequent index columns (`c`) for B-Tree lookup."
-      }
-    ]
-  },
-  {
-    "id": "mysql-normalization",
-    "title": "Normalization",
-    "category": "MYSQL",
-    "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Database normalization forms: 1NF (atomic values), 2NF (no partial dependencies), 3NF (no transitive dependencies), BCNF, and denormalization trade-offs.",
-    "explanation": {
-      "overview": "Normalization is database design process of organizing columns and tables to reduce data redundancy and eliminate update/delete anomalies.",
-      "sections": [
-        {
-          "heading": "1NF, 2NF, 3NF Normal Forms",
-          "content": "- **1NF (First Normal Form)**: Each cell contains atomic single values (no arrays/comma-separated strings in cells); unique row keys.\n- **2NF (Second Normal Form)**: Must be 1NF AND all non-key columns must fully depend on entire primary key (eliminates partial key dependencies).\n- **3NF (Third Normal Form)**: Must be 2NF AND non-key columns must not depend on other non-key columns (eliminates transitive dependencies: *non-key -> non-key*).",
-          "bulletPoints": [
-            "1NF: Atomic column values.",
-            "2NF: No partial PK dependencies.",
-            "3NF: No transitive non-key dependencies."
-          ]
-        },
-        {
-          "heading": "Denormalization Tradeoffs",
-          "content": "Denormalization intentionally introduces redundant data to optimize read performance and eliminate complex joins in high-scale systems.",
-          "bulletPoints": [
-            "Normalization: Minimizes storage & update anomalies; increases join count.",
-            "Denormalization: Faster reads; requires managing multi-table update sync."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "1NF requires atomic column values.",
-      "2NF eliminates partial dependencies; 3NF eliminates transitive dependencies.",
-      "Denormalize selectively for high-read performance."
-    ],
-    "codeExamples": [
-      {
-        "title": "3NF Normalized Schema Example",
-        "description": "Splitting customer address to satisfy 3NF.",
-        "code": "-- VIOLATES 3NF (Transitive dependency: zip_code -> city, state):\n-- CREATE TABLE users (id INT, zip_code VARCHAR(10), city VARCHAR(50), state VARCHAR(50));\n\n-- SATISFIES 3NF (Separated into zip_codes reference table):\nCREATE TABLE zip_codes (\n  zip_code VARCHAR(10) PRIMARY KEY,\n  city VARCHAR(50) NOT NULL,\n  state VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100) NOT NULL,\n  zip_code VARCHAR(10),\n  FOREIGN KEY (zip_code) REFERENCES zip_codes(zip_code)\n);"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "mysql-normalization-mcq-1",
-        "question": "What requirement must a table satisfy to comply with 1NF (First Normal Form)?",
-        "options": [
-          "Have foreign keys",
-          "Every cell column value must be atomic (no multi-value comma lists) and rows must be unique",
-          "No joins allowed",
-          "Must use BCNF"
-        ],
-        "correctAnswer": 1,
-        "explanation": "1NF mandates atomic single values in every table cell."
-      },
-      {
-        "id": "mysql-normalization-mcq-2",
-        "question": "What type of dependency does 3NF (Third Normal Form) eliminate?",
-        "options": [
-          "Partial primary key dependencies",
-          "Transitive dependencies (where a non-key column depends on another non-key column)",
-          "Foreign key dependencies",
-          "Atomic dependencies"
-        ],
-        "correctAnswer": 1,
-        "explanation": "3NF requires that non-key columns depend ONLY on the primary key, eliminating transitive dependencies."
-      },
-      {
-        "id": "mysql-normalization-mcq-3",
-        "question": "What type of dependency does 2NF (Second Normal Form) eliminate?",
-        "options": [
-          "Transitive dependencies",
-          "Partial dependencies (where a non-key column depends on only part of a composite primary key)",
-          "Atomic cell values",
-          "No dependencies"
-        ],
-        "correctAnswer": 1,
-        "explanation": "2NF requires non-key attributes to depend on the whole composite primary key."
-      },
-      {
-        "id": "mysql-normalization-mcq-4",
-        "question": "Why do high-scale read-heavy systems selectively Denormalize database tables?",
-        "options": [
-          "To pass 3NF",
-          "To reduce costly multi-table JOIN operations and improve read query latency",
-          "To save disk space",
-          "To prevent SQL injection"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Denormalization duplicates data to avoid expensive multi-table joins on read queries."
-      },
-      {
-        "id": "mysql-normalization-mcq-5",
-        "question": "What anomaly occurs when updating a customer's address in an un-normalized table requires updating 500 duplicate order rows?",
-        "options": [
-          "Insert Anomaly",
-          "Update Anomaly",
-          "Delete Anomaly",
-          "Select Anomaly"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Update Anomaly occurs when redundant data must be updated in multiple places."
       }
     ]
   },
@@ -1780,6 +1676,110 @@
     ]
   },
   {
+    "id": "mysql-connection-pooling",
+    "title": "Connection pooling",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "Database connection overhead, connection poolers (HikariCP, mysql2 pool), min/max pool sizes, and idle connection timeouts.",
+    "explanation": {
+      "overview": "Connection Pooling maintains a reusable cache of active database connections to avoid expensive TCP handshake and authentication overhead per query.",
+      "sections": [
+        {
+          "heading": "Connection Creation Overhead Problem",
+          "content": "Creating a new MySQL connection requires TCP 3-way handshake, TLS exchange, and MySQL authentication (~50-100ms latency). Creating connection per HTTP request overwhelms DB thread limits.",
+          "bulletPoints": [
+            "Connection Overhead: High CPU/RAM cost per new connection.",
+            "Connection Pool: Reuses warm established connections instantly ($<1$ms)."
+          ]
+        },
+        {
+          "heading": "Pool Sizing Parameters",
+          "content": "- `connectionLimit` / `max`: Maximum active connections in pool.\n- `idleTimeout`: Time connection remains idle before closing.\n- Rule of Thumb: $PoolSize = (CPU\\_Cores \\times 2) + Effective\\_Spindle\\_Count$.",
+          "bulletPoints": [
+            "Pool Exhaustion: Requests wait in queue when all pool connections are busy.",
+            "Avoid Excessive Pool Sizes: 500 connections cause CPU thread context switching thrashing!"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Connection pooling reuses active DB connections to bypass TCP/auth overhead.",
+      "Set reasonable max pool sizes (e.g. 10-20 per app node).",
+      "Always release/return connections back to pool after query execution."
+    ],
+    "codeExamples": [
+      {
+        "title": "Node.js mysql2 Connection Pool",
+        "description": "Configuring reusable connection pool with mysql2 library.",
+        "code": "const mysql = require('mysql2/promise');\n\n// Create connection pool instance\nconst pool = mysql.createPool({\n  host: 'localhost',\n  user: 'db_user',\n  password: 'secret_password',\n  database: 'app_db',\n  waitForConnections: true,\n  connectionLimit: 10, // Max 10 active connections\n  queueLimit: 0\n});\n\nasync function getUsers() {\n  // Automatically acquires connection from pool and releases it when finished!\n  const [rows] = await pool.query('SELECT id, name FROM users WHERE is_active = 1');\n  return rows;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-connection-pooling-mcq-1",
+        "question": "What overhead does database Connection Pooling eliminate for web applications?",
+        "options": [
+          "SQL parsing",
+          "Repeated TCP handshake, TLS setup, and MySQL authentication overhead for every incoming HTTP request",
+          "Disk storage",
+          "CSS rendering"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Connection pooling reuses established connections, eliminating connection setup latency."
+      },
+      {
+        "id": "mysql-connection-pooling-mcq-2",
+        "question": "What happens when an incoming API request requests a connection when all connections in pool are busy and queue is full?",
+        "options": [
+          "Creates infinite connections",
+          "Request fails with connection pool exhaustion timeout error",
+          "Restarts MySQL",
+          "Deletes database"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Pool exhaustion causes connection acquisition calls to timeout or throw errors."
+      },
+      {
+        "id": "mysql-connection-pooling-mcq-3",
+        "question": "Why is setting connection pool size to 1,000 connections on a 4-core database server counterproductive?",
+        "options": [
+          "Memory is free",
+          "Causes severe CPU thread context-switching thrashing and RAM exhaustion, slowing query throughput",
+          "MySQL limits to 10",
+          "Disables indexes"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Excessive connections overwhelm CPU cores with context switching, degrading throughput."
+      },
+      {
+        "id": "mysql-connection-pooling-mcq-4",
+        "question": "What must application code do after manually acquiring a connection `conn = await pool.getConnection()`?",
+        "options": [
+          "Close MySQL process",
+          "Must invoke `conn.release()` to return connection back to pool for next request",
+          "Delete pool",
+          "Nothing"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Explicitly acquired pool connections must be released via `conn.release()` to avoid pool leaks."
+      },
+      {
+        "id": "mysql-connection-pooling-mcq-5",
+        "question": "Which MySQL system variable defines maximum allowed concurrent connections server-wide?",
+        "options": [
+          "max_connections",
+          "pool_size",
+          "connection_limit",
+          "max_threads"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`max_connections` limits total server-wide concurrent client connections."
+      }
+    ]
+  },
+  {
     "id": "mysql-explain",
     "title": "EXPLAIN",
     "category": "MYSQL",
@@ -1877,6 +1877,110 @@
         ],
         "correctAnswer": 1,
         "explanation": "`rows` displays estimated row count MySQL optimizer expects to scan."
+      }
+    ]
+  },
+  {
+    "id": "mysql-window-functions",
+    "title": "Window functions",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "estimatedTime": "5 min read",
+    "isImportant": true,
+    "summary": "OVER clause, PARTITION BY, ORDER BY frame, ROW_NUMBER(), RANK(), DENSE_RANK(), LAG(), LEAD().",
+    "explanation": {
+      "overview": "Window Functions perform calculations across a set of table rows related to current row WITHOUT collapsing rows into single summary output rows.",
+      "sections": [
+        {
+          "heading": "OVER & PARTITION BY Syntax",
+          "content": "Syntax: `FUNCTION() OVER (PARTITION BY category ORDER BY price DESC)`. `PARTITION BY` divides rows into window partitions; `ORDER BY` defines row calculation sequence within partition.",
+          "bulletPoints": [
+            "Non-Collapsing: Unlike `GROUP BY`, every individual row remains in output set.",
+            "PARTITION BY: Creates independent window partitions."
+          ]
+        },
+        {
+          "heading": "Ranking & Offset Functions",
+          "content": "- `ROW_NUMBER()`: Sequential row index (1, 2, 3, 4).\n- `RANK()`: Rank with gaps for ties (1, 2, 2, 4).\n- `DENSE_RANK()`: Rank without gaps for ties (1, 2, 2, 3).\n- `LAG(col, offset)`: Accesses column value from previous row.\n- `LEAD(col, offset)`: Accesses column value from next row.",
+          "bulletPoints": [
+            "DENSE_RANK: 1, 2, 2, 3 (no gaps).",
+            "LAG / LEAD: Inter-row comparison (calculating month-over-month growth)."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Window functions calculate values across row sets without collapsing rows.",
+      "ROW_NUMBER (sequential), RANK (gaps for ties), DENSE_RANK (no gaps).",
+      "Use `LAG`/`LEAD` to compare current row values against prior/subsequent rows."
+    ],
+    "codeExamples": [
+      {
+        "title": "ROW_NUMBER & LAG Window Functions",
+        "description": "Ranking products per category and comparing sales against previous month.",
+        "code": "SELECT \n  category,\n  name,\n  price,\n  ROW_NUMBER() OVER(PARTITION BY category ORDER BY price DESC) AS rank_in_category\nFROM products;\n\n-- Calculate Month-over-Month sales difference with LAG:\nSELECT \n  month,\n  revenue,\n  LAG(revenue, 1) OVER(ORDER BY month) AS prev_month_revenue,\n  revenue - LAG(revenue, 1) OVER(ORDER BY month) AS mom_growth\nFROM monthly_sales;"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-window-functions-mcq-1",
+        "question": "What is key difference between `GROUP BY` and Window Functions (`OVER()`)?",
+        "options": [
+          "GROUP BY is faster",
+          "GROUP BY collapses multiple rows into single summary row; Window Functions perform calculations while retaining all individual rows in result set",
+          "Window functions cannot use SUM",
+          "No difference"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Window functions perform calculations across partitions without collapsing individual table rows."
+      },
+      {
+        "id": "mysql-window-functions-mcq-2",
+        "question": "What ranking sequence does `DENSE_RANK()` produce for tied scores `[100, 90, 90, 80]`?",
+        "options": [
+          "1, 2, 3, 4",
+          "1, 2, 2, 4 (gaps)",
+          "1, 2, 2, 3 (no rank gaps)",
+          "1, 1, 1, 1"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`DENSE_RANK()` assigns identical ranks to ties without skipping subsequent ranks (1, 2, 2, 3)."
+      },
+      {
+        "id": "mysql-window-functions-mcq-3",
+        "question": "Which window function fetches column value from PREVIOUS row relative to current row in partition?",
+        "options": [
+          "LEAD()",
+          "LAG()",
+          "PREV()",
+          "FIRST_VALUE()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`LAG(column, offset)` accesses column data from preceding rows."
+      },
+      {
+        "id": "mysql-window-functions-mcq-4",
+        "question": "Which MySQL version introduced native support for Window Functions?",
+        "options": [
+          "MySQL 5.6",
+          "MySQL 5.7",
+          "MySQL 8.0",
+          "MySQL 4.0"
+        ],
+        "correctAnswer": 2,
+        "explanation": "Window functions were added natively in MySQL 8.0."
+      },
+      {
+        "id": "mysql-window-functions-mcq-5",
+        "question": "What clause inside `OVER()` partitions rows into distinct window calculation groups?",
+        "options": [
+          "GROUP BY",
+          "PARTITION BY",
+          "DIVIDE BY",
+          "SPLIT BY"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`PARTITION BY` divides dataset into separate calculation partitions."
       }
     ]
   },
@@ -1981,110 +2085,6 @@
         ],
         "correctAnswer": 1,
         "explanation": "Without an index, MySQL scans all 10 million rows to evaluate `status` count."
-      }
-    ]
-  },
-  {
-    "id": "mysql-connection-pooling",
-    "title": "Connection pooling",
-    "category": "MYSQL",
-    "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
-    "isImportant": true,
-    "summary": "Database connection overhead, connection poolers (HikariCP, mysql2 pool), min/max pool sizes, and idle connection timeouts.",
-    "explanation": {
-      "overview": "Connection Pooling maintains a reusable cache of active database connections to avoid expensive TCP handshake and authentication overhead per query.",
-      "sections": [
-        {
-          "heading": "Connection Creation Overhead Problem",
-          "content": "Creating a new MySQL connection requires TCP 3-way handshake, TLS exchange, and MySQL authentication (~50-100ms latency). Creating connection per HTTP request overwhelms DB thread limits.",
-          "bulletPoints": [
-            "Connection Overhead: High CPU/RAM cost per new connection.",
-            "Connection Pool: Reuses warm established connections instantly ($<1$ms)."
-          ]
-        },
-        {
-          "heading": "Pool Sizing Parameters",
-          "content": "- `connectionLimit` / `max`: Maximum active connections in pool.\n- `idleTimeout`: Time connection remains idle before closing.\n- Rule of Thumb: $PoolSize = (CPU\\_Cores \\times 2) + Effective\\_Spindle\\_Count$.",
-          "bulletPoints": [
-            "Pool Exhaustion: Requests wait in queue when all pool connections are busy.",
-            "Avoid Excessive Pool Sizes: 500 connections cause CPU thread context switching thrashing!"
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Connection pooling reuses active DB connections to bypass TCP/auth overhead.",
-      "Set reasonable max pool sizes (e.g. 10-20 per app node).",
-      "Always release/return connections back to pool after query execution."
-    ],
-    "codeExamples": [
-      {
-        "title": "Node.js mysql2 Connection Pool",
-        "description": "Configuring reusable connection pool with mysql2 library.",
-        "code": "const mysql = require('mysql2/promise');\n\n// Create connection pool instance\nconst pool = mysql.createPool({\n  host: 'localhost',\n  user: 'db_user',\n  password: 'secret_password',\n  database: 'app_db',\n  waitForConnections: true,\n  connectionLimit: 10, // Max 10 active connections\n  queueLimit: 0\n});\n\nasync function getUsers() {\n  // Automatically acquires connection from pool and releases it when finished!\n  const [rows] = await pool.query('SELECT id, name FROM users WHERE is_active = 1');\n  return rows;\n}"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "mysql-connection-pooling-mcq-1",
-        "question": "What overhead does database Connection Pooling eliminate for web applications?",
-        "options": [
-          "SQL parsing",
-          "Repeated TCP handshake, TLS setup, and MySQL authentication overhead for every incoming HTTP request",
-          "Disk storage",
-          "CSS rendering"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Connection pooling reuses established connections, eliminating connection setup latency."
-      },
-      {
-        "id": "mysql-connection-pooling-mcq-2",
-        "question": "What happens when an incoming API request requests a connection when all connections in pool are busy and queue is full?",
-        "options": [
-          "Creates infinite connections",
-          "Request fails with connection pool exhaustion timeout error",
-          "Restarts MySQL",
-          "Deletes database"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Pool exhaustion causes connection acquisition calls to timeout or throw errors."
-      },
-      {
-        "id": "mysql-connection-pooling-mcq-3",
-        "question": "Why is setting connection pool size to 1,000 connections on a 4-core database server counterproductive?",
-        "options": [
-          "Memory is free",
-          "Causes severe CPU thread context-switching thrashing and RAM exhaustion, slowing query throughput",
-          "MySQL limits to 10",
-          "Disables indexes"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Excessive connections overwhelm CPU cores with context switching, degrading throughput."
-      },
-      {
-        "id": "mysql-connection-pooling-mcq-4",
-        "question": "What must application code do after manually acquiring a connection `conn = await pool.getConnection()`?",
-        "options": [
-          "Close MySQL process",
-          "Must invoke `conn.release()` to return connection back to pool for next request",
-          "Delete pool",
-          "Nothing"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Explicitly acquired pool connections must be released via `conn.release()` to avoid pool leaks."
-      },
-      {
-        "id": "mysql-connection-pooling-mcq-5",
-        "question": "Which MySQL system variable defines maximum allowed concurrent connections server-wide?",
-        "options": [
-          "max_connections",
-          "pool_size",
-          "connection_limit",
-          "max_threads"
-        ],
-        "correctAnswer": 0,
-        "explanation": "`max_connections` limits total server-wide concurrent client connections."
       }
     ]
   },

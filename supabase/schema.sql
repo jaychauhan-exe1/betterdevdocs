@@ -1,8 +1,9 @@
--- Create user_progress table for storing topic completion progress per Clerk user
+-- Create user_progress table for storing topic completion progress and target role per Clerk user
 CREATE TABLE IF NOT EXISTS public.user_progress (
   user_id TEXT PRIMARY KEY,
   completed_topics JSONB NOT NULL DEFAULT '[]'::jsonb,
   active_topic_id TEXT,
+  selected_role TEXT DEFAULT 'all',
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

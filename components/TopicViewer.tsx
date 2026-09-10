@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { TOPICS, Topic } from "@/data/topics";
 import { useStudyStore } from "@/store/useStudyStore";
 import CodePlayground from "./CodePlayground";
@@ -10,8 +11,6 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
-  CheckSquare,
-  Square,
   BookOpen,
   Code,
   Sparkles,
@@ -26,10 +25,11 @@ import {
   XCircle,
   RotateCcw,
   Trophy,
-  Star,
   ArrowRight,
   ArrowLeft,
 } from "lucide-react";
+import { AnimatedCheckmark } from "@/components/AnimatedCheckmark";
+import { triggerHaptic } from "@/lib/haptics";
 
 interface TopicViewerProps {
   topic?: Topic;
@@ -102,6 +102,7 @@ export default function TopicViewer(props: TopicViewerProps) {
 
   const handleSelectOption = (qIdx: number, optionIdx: number) => {
     if (isQuizSubmitted) return;
+    triggerHaptic("medium");
     setUserAnswers((prev) => ({ ...prev, [qIdx]: optionIdx }));
   };
 
@@ -127,19 +128,19 @@ export default function TopicViewer(props: TopicViewerProps) {
   const isFirstQuestion = currentQuestionIndex === 0;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 pb-20 font-normal">
+    <motion.div
+      key={topic.id}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="max-w-5xl mx-auto space-y-8 pb-20 font-normal"
+    >
       {/* Top Banner Card */}
       <Card className="bg-card border-border shadow-xl relative overflow-hidden font-normal">
         <CardHeader className="p-6 sm:p-8 pb-6 font-normal">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10 font-normal">
             <div className="space-y-3 font-normal">
               <div className="flex items-center gap-2.5 flex-wrap font-normal">
-                {topic.isImportant && (
-                  <Badge variant="default" className="flex items-center gap-1.5 font-bold text-xs sm:text-sm py-1 px-3">
-                    <Star className="w-4 h-4 fill-current text-primary-foreground" />
-                    <span>MUST LEARN TOPIC</span>
-                  </Badge>
-                )}
                 <Badge variant="secondary" className="text-xs sm:text-sm py-1 px-3 uppercase tracking-wider font-normal">
                   {topic.category}
                 </Badge>
@@ -164,20 +165,14 @@ export default function TopicViewer(props: TopicViewerProps) {
             <Button
               variant={isCompleted ? "default" : "secondary"}
               size="lg"
-              onClick={() => onToggleComplete(topic.id)}
-              className="flex items-center gap-2.5 font-semibold text-sm sm:text-base flex-shrink-0"
+              onClick={() => {
+                triggerHaptic(isCompleted ? "light" : "success");
+                onToggleComplete(topic.id);
+              }}
+              className="flex items-center gap-2.5 font-semibold text-sm sm:text-base flex-shrink-0 transition-transform active:scale-95 shadow-sm"
             >
-              {isCompleted ? (
-                <>
-                  <CheckSquare className="w-5 h-5 text-primary-foreground" />
-                  <span>Topic Mastered</span>
-                </>
-              ) : (
-                <>
-                  <Square className="w-5 h-5" />
-                  <span>Mark as Mastered</span>
-                </>
-              )}
+              <AnimatedCheckmark checked={isCompleted} size={20} />
+              <span>Topic Mastered</span>
             </Button>
           </div>
         </CardHeader>
@@ -383,9 +378,11 @@ export default function TopicViewer(props: TopicViewerProps) {
                             const optionLetters = ["A", "B", "C", "D"];
 
                             return (
-                              <button
+                              <motion.button
                                 key={optIdx}
                                 type="button"
+                                whileHover={{ x: 2 }}
+                                whileTap={{ scale: 0.98 }}
                                 onClick={() => handleSelectOption(currentQuestionIndex, optIdx)}
                                 className={`p-4 rounded-xl text-left border transition-all text-sm sm:text-base font-normal flex items-center justify-between gap-4 ${
                                   isSelected
@@ -399,7 +396,7 @@ export default function TopicViewer(props: TopicViewerProps) {
                                   </span>
                                   <span>{renderFormattedText(opt)}</span>
                                 </div>
-                              </button>
+                              </motion.button>
                             );
                           })}
                         </div>
@@ -605,6 +602,6 @@ export default function TopicViewer(props: TopicViewerProps) {
           <div />
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
