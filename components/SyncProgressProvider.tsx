@@ -25,7 +25,14 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
         })
         .then((data) => {
           if (Array.isArray(data?.completedTopics)) {
-            hydrateFromServer(data.completedTopics, data.activeTopicId, data.selectedRole, data.mcqAnswers);
+            hydrateFromServer(
+              data.completedTopics,
+              data.activeTopicId,
+              data.selectedRole,
+              data.mcqAnswers,
+              undefined,
+              data.topicNotes
+            );
           }
         })
         .catch((err) => {

@@ -14,6 +14,7 @@ interface StudyState {
   completedTopics: string[];
   mcqAnswers: Record<string, Record<number, number>>;
   submittedQuizzes: Record<string, boolean>;
+  topicNotes: Record<string, string>;
   selectedRole: string | null;
   isSidebarOpen: boolean;
   searchQuery: string;
@@ -32,6 +33,7 @@ interface StudyState {
   toggleTopicComplete: (id: string) => void;
   setTopicMcqAnswers: (topicId: string, answers: Record<number, number>) => void;
   setQuizSubmitted: (topicId: string, isSubmitted: boolean) => void;
+  setTopicNote: (topicId: string, note: string) => void;
   resetProgress: () => void;
   toggleSidebar: () => void;
   setSidebarOpen: (isOpen: boolean) => void;
@@ -44,14 +46,15 @@ interface StudyState {
     activeTopicOverride?: string,
     roleOverride?: string | null,
     mcqAnswersOverride?: Record<string, Record<number, number>>,
-    submittedQuizzesOverride?: Record<string, boolean>
+    topicNotesOverride?: Record<string, string>
   ) => Promise<void>;
   hydrateFromServer: (
     completedTopics: string[],
     activeTopicId?: string | null,
     selectedRole?: string | null,
     mcqAnswers?: Record<string, Record<number, number>>,
-    submittedQuizzes?: Record<string, boolean>
+    submittedQuizzes?: Record<string, boolean>,
+    topicNotes?: Record<string, string>
   ) => void;
 
   // Helpers
@@ -66,13 +69,14 @@ async function postProgressToServer(
   completedTopics: string[],
   activeTopicId?: string,
   selectedRole?: string | null,
-  mcqAnswers?: Record<string, Record<number, number>>
+  mcqAnswers?: Record<string, Record<number, number>>,
+  topicNotes?: Record<string, string>
 ) {
   try {
     const res = await fetch("/api/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completedTopics, activeTopicId, selectedRole, mcqAnswers }),
+      body: JSON.stringify({ completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes }),
     });
     return res.ok;
   } catch {
@@ -88,6 +92,7 @@ export const useStudyStore = create<StudyState>()(
       completedTopics: [],
       mcqAnswers: {},
       submittedQuizzes: {},
+      topicNotes: {},
       selectedRole: null,
       isSidebarOpen: false,
       searchQuery: "",
@@ -204,17 +209,33 @@ export const useStudyStore = create<StudyState>()(
           };
         });
 
+        const { isAuthenticated, completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, syncToServer } = get();
+        if (isAuthenticated) {
+          syncToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes);
+        }
+      },
+
+      setTopicNote: (topicId: string, note: string) => {
+        let updatedNotes: Record<string, string> = {};
+        set((state) => {
+          updatedNotes = {
+            ...state.topicNotes,
+            [topicId]: note,
+          };
+          return { topicNotes: updatedNotes };
+        });
+
         const { isAuthenticated, completedTopics, activeTopicId, selectedRole, mcqAnswers, syncToServer } = get();
         if (isAuthenticated) {
-          syncToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers);
+          syncToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers, updatedNotes);
         }
       },
 
       resetProgress: () => {
-        set({ completedTopics: [], mcqAnswers: {}, submittedQuizzes: {} });
+        set({ completedTopics: [], mcqAnswers: {}, submittedQuizzes: {}, topicNotes: {} });
         const { isAuthenticated, activeTopicId, selectedRole, syncToServer } = get();
         if (isAuthenticated) {
-          syncToServer([], activeTopicId, selectedRole, {});
+          syncToServer([], activeTopicId, selectedRole, {}, {});
         }
       },
 
@@ -222,15 +243,17 @@ export const useStudyStore = create<StudyState>()(
         completedTopicsOverride?: string[],
         activeTopicOverride?: string,
         roleOverride?: string | null,
-        mcqAnswersOverride?: Record<string, Record<number, number>>
+        mcqAnswersOverride?: Record<string, Record<number, number>>,
+        topicNotesOverride?: Record<string, string>
       ) => {
         const completed = completedTopicsOverride ?? get().completedTopics;
         const active = activeTopicOverride ?? get().activeTopicId;
         const role = roleOverride !== undefined ? roleOverride : get().selectedRole;
         const answers = mcqAnswersOverride ?? get().mcqAnswers;
+        const notes = topicNotesOverride ?? get().topicNotes;
 
         set({ syncStatus: "syncing" });
-        const ok = await postProgressToServer(completed, active, role, answers);
+        const ok = await postProgressToServer(completed, active, role, answers, notes);
         set({ syncStatus: ok ? "synced" : "error" });
       },
 
@@ -238,7 +261,9 @@ export const useStudyStore = create<StudyState>()(
         serverCompleted: string[],
         serverActiveTopic?: string | null,
         serverRole?: string | null,
-        serverMcqAnswers?: Record<string, Record<number, number>>
+        serverMcqAnswers?: Record<string, Record<number, number>>,
+        serverSubmittedQuizzes?: Record<string, boolean>,
+        serverTopicNotes?: Record<string, string>
       ) => {
         set((state) => {
           const mergedSet = new Set([...state.completedTopics, ...serverCompleted]);
@@ -249,18 +274,23 @@ export const useStudyStore = create<StudyState>()(
             ...state.mcqAnswers,
             ...(serverMcqAnswers || {}),
           };
+          const nextTopicNotes = {
+            ...state.topicNotes,
+            ...(serverTopicNotes || {}),
+          };
 
           return {
             completedTopics: mergedCompleted,
             activeTopicId: nextActiveTopic,
             selectedRole: nextRole,
             mcqAnswers: nextMcqAnswers,
+            topicNotes: nextTopicNotes,
             syncStatus: "synced",
           };
         });
 
-        const { completedTopics, activeTopicId, selectedRole, mcqAnswers } = get();
-        postProgressToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers);
+        const { completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes } = get();
+        postProgressToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes);
       },
 
       toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
@@ -321,6 +351,7 @@ export const useStudyStore = create<StudyState>()(
         selectedRole: state.selectedRole,
         mcqAnswers: state.mcqAnswers,
         submittedQuizzes: state.submittedQuizzes,
+        topicNotes: state.topicNotes,
         collapsedCategories: state.collapsedCategories,
       }),
     }

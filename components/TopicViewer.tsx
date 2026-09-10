@@ -27,6 +27,8 @@ import {
   Trophy,
   ArrowRight,
   ArrowLeft,
+  StickyNote,
+  Trash2,
 } from "lucide-react";
 import { AnimatedCheckmark } from "@/components/AnimatedCheckmark";
 import { triggerHaptic } from "@/lib/haptics";
@@ -74,6 +76,8 @@ export default function TopicViewer(props: TopicViewerProps) {
   const setQuizSubmittedStore = useStudyStore((state) => state.setQuizSubmitted);
   const toggleTopicComplete = useStudyStore((state) => state.toggleTopicComplete);
   const setActiveTopicId = useStudyStore((state) => state.setActiveTopicId);
+  const topicNotes = useStudyStore((state) => state.topicNotes);
+  const setTopicNote = useStudyStore((state) => state.setTopicNote);
 
   const topic = props.topic || storeActiveTopic;
   const allTopics = props.allTopics || TOPICS;
@@ -88,10 +92,53 @@ export default function TopicViewer(props: TopicViewerProps) {
   const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
 
+  // Personal Topic Notes State
+  const [noteText, setNoteText] = useState("");
+  const [isSaved, setIsSaved] = useState(true);
+  const [copiedNote, setCopiedNote] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
+
   useEffect(() => {
     setUserAnswers(storeMcqAnswers || {});
     setCurrentQuestionIndex(0);
   }, [topic.id]);
+
+  useEffect(() => {
+    setNoteText(topicNotes[topic.id] || "");
+    setIsSaved(true);
+    setCopiedNote(false);
+    setConfirmClear(false);
+  }, [topic.id, topicNotes]);
+
+  const handleNoteChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value;
+    setNoteText(value);
+    setIsSaved(false);
+    setTopicNote(topic.id, value);
+    setTimeout(() => setIsSaved(true), 400);
+  };
+
+  const handleCopyNote = () => {
+    if (!noteText.trim()) return;
+    triggerHaptic("light");
+    navigator.clipboard.writeText(noteText);
+    setCopiedNote(true);
+    setTimeout(() => setCopiedNote(false), 2000);
+  };
+
+  const handleClearNote = () => {
+    if (!confirmClear) {
+      triggerHaptic("medium");
+      setConfirmClear(true);
+      setTimeout(() => setConfirmClear(false), 4000);
+      return;
+    }
+    triggerHaptic("medium");
+    setNoteText("");
+    setTopicNote(topic.id, "");
+    setIsSaved(true);
+    setConfirmClear(false);
+  };
 
   const currentIndex = allTopics.findIndex((t) => t.id === topic.id);
   const prevTopic = currentIndex > 0 ? allTopics[currentIndex - 1] : null;
@@ -216,6 +263,12 @@ export default function TopicViewer(props: TopicViewerProps) {
               <TabsTrigger value="mcq" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
                 <HelpCircle className="w-4 h-4" />
                 MCQ Quiz Test ({mcqs.length})
+              </TabsTrigger>
+
+              <TabsTrigger value="notes" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
+                <StickyNote className="w-4 h-4" />
+                <span>Make Notes</span>
+                {noteText.trim() && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
               </TabsTrigger>
             </TabsList>
 
@@ -574,6 +627,81 @@ export default function TopicViewer(props: TopicViewerProps) {
                   </div>
                 </div>
               )}
+            </TabsContent>
+
+            {/* Make Notes Tab */}
+            <TabsContent value="notes" className="space-y-6 mt-6 font-normal focus:outline-none focus-visible:outline-none">
+              <Card className="bg-card border-border shadow-xl overflow-hidden font-normal">
+                <CardHeader className="p-5 sm:p-6 border-b border-border bg-secondary/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2.5 rounded-xl bg-secondary border border-border text-foreground">
+                      <StickyNote className="w-5 h-5 text-foreground" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg font-bold text-foreground flex items-center gap-2">
+                        <span>Personal Notes</span>
+                        <Badge variant="outline" className="text-[10px] font-mono font-normal">
+                          {noteText.trim() ? `${noteText.trim().split(/\s+/).length} words` : "Empty"}
+                        </Badge>
+                      </CardTitle>
+                      <p className="text-xs text-muted-foreground pt-1 font-normal">
+                        Jot down takeaways, interview questions, or code snippets for <strong className="text-foreground font-semibold">{topic.title}</strong>. Your notes are automatically saved.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {noteText.trim() && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={handleCopyNote}
+                          className="text-xs flex items-center gap-1.5 px-3 py-1"
+                          title="Copy notes to clipboard"
+                        >
+                          {copiedNote ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-foreground" />
+                              <span>Copied</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy</span>
+                            </>
+                          )}
+                        </Button>
+
+                        <Button
+                          variant={confirmClear ? "destructive" : "ghost"}
+                          size="sm"
+                          onClick={handleClearNote}
+                          className={`text-xs flex items-center gap-1.5 px-2.5 py-1 transition-all ${
+                            confirmClear
+                              ? "bg-rose-950/80 text-rose-300 border border-rose-500/60 font-semibold shadow-sm animate-pulse"
+                              : "text-muted-foreground hover:text-rose-400"
+                          }`}
+                          title={confirmClear ? "Click again to permanently delete notes" : "Clear notes for this topic"}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>{confirmClear ? "Click again to confirm delete" : "Clear"}</span>
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </CardHeader>
+
+                <CardContent className="p-5 sm:p-6">
+                  <textarea
+                    value={noteText}
+                    onChange={handleNoteChange}
+                    placeholder={`Type your personal study notes, reminders, or code snippets for ${topic.title} here...`}
+                    rows={12}
+                    className="w-full bg-background border border-border rounded-xl p-4 text-sm sm:text-base text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-foreground/50 resize-y leading-relaxed font-mono custom-scrollbar transition-all min-h-[240px]"
+                  />
+                </CardContent>
+              </Card>
             </TabsContent>
           </Tabs>
         </CardContent>

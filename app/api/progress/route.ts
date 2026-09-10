@@ -28,6 +28,7 @@ export async function GET() {
     let activeTopicId: string | null = null;
     let selectedRole: string | null = null;
     let mcqAnswers: Record<string, Record<number, number>> = {};
+    let topicNotes: Record<string, string> = {};
     let fetchedFromSupabase = false;
 
     // 1. Try fetching from Supabase
@@ -35,7 +36,7 @@ export async function GET() {
     if (supabase) {
       const { data, error } = await supabase
         .from("user_progress")
-        .select("completed_topics, active_topic_id, selected_role, mcq_answers")
+        .select("completed_topics, active_topic_id, selected_role, mcq_answers, topic_notes")
         .eq("user_id", userId)
         .maybeSingle();
 
@@ -46,6 +47,7 @@ export async function GET() {
         activeTopicId = data.active_topic_id || null;
         selectedRole = data.selected_role || null;
         mcqAnswers = data.mcq_answers && typeof data.mcq_answers === "object" ? data.mcq_answers : {};
+        topicNotes = data.topic_notes && typeof data.topic_notes === "object" ? data.topic_notes : {};
         fetchedFromSupabase = true;
       }
     }
@@ -61,6 +63,7 @@ export async function GET() {
         activeTopicId?: string;
         selectedRole?: string;
         mcqAnswers?: Record<string, Record<number, number>>;
+        topicNotes?: Record<string, string>;
       };
 
       if (Array.isArray(meta?.completedTopics)) {
@@ -75,9 +78,12 @@ export async function GET() {
       if (meta?.mcqAnswers && typeof meta.mcqAnswers === "object") {
         mcqAnswers = meta.mcqAnswers;
       }
+      if (meta?.topicNotes && typeof meta.topicNotes === "object") {
+        topicNotes = meta.topicNotes;
+      }
     }
 
-    return NextResponse.json({ completedTopics, activeTopicId, selectedRole, mcqAnswers });
+    return NextResponse.json({ completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes });
   } catch (err: any) {
     console.error("GET /api/progress error:", err);
     return NextResponse.json(
@@ -102,6 +108,8 @@ export async function POST(req: Request) {
     const selectedRole: string | undefined = body?.selectedRole;
     const mcqAnswers: Record<string, Record<number, number>> =
       body?.mcqAnswers && typeof body.mcqAnswers === "object" ? body.mcqAnswers : {};
+    const topicNotes: Record<string, string> =
+      body?.topicNotes && typeof body.topicNotes === "object" ? body.topicNotes : {};
 
     // 1. Try Upserting into Supabase
     const supabase = getSupabaseAdmin();
@@ -113,6 +121,7 @@ export async function POST(req: Request) {
           active_topic_id: activeTopicId || null,
           selected_role: selectedRole || "all",
           mcq_answers: mcqAnswers,
+          topic_notes: topicNotes,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "user_id" }
@@ -130,6 +139,7 @@ export async function POST(req: Request) {
           activeTopicId,
           selectedRole,
           mcqAnswers,
+          topicNotes,
         },
       });
     } catch (clerkErr) {
@@ -142,6 +152,7 @@ export async function POST(req: Request) {
       activeTopicId,
       selectedRole,
       mcqAnswers,
+      topicNotes,
     });
   } catch (err: any) {
     console.error("POST /api/progress error:", err);
