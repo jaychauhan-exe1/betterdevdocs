@@ -18,6 +18,8 @@ function formatStarCount(count: number): string {
   return count.toString();
 }
 
+import { SignInButton, SignUpButton, Show, UserButton } from "@clerk/nextjs";
+
 export default function Header() {
   const activeTopic = useStudyStore((state) => state.getActiveTopic());
   const completedCount = useStudyStore((state) => state.completedTopics.length);
@@ -29,18 +31,28 @@ export default function Header() {
   const totalCount = TOPICS.length;
 
   useEffect(() => {
-    fetch("https://api.github.com/repos/jaychauhan-exe1/devdocs")
+    fetch("/api/github-stars")
       .then((res) => {
-        if (!res.ok) throw new Error("API response not ok");
+        if (!res.ok) throw new Error("Internal route error");
         return res.json();
       })
       .then((data) => {
-        if (typeof data?.stargazers_count === "number") {
-          setStarCount(formatStarCount(data.stargazers_count));
+        if (typeof data?.stars === "number") {
+          setStarCount(formatStarCount(data.stars));
         }
       })
-      .catch((err) => {
-        console.warn("Failed to fetch live GitHub stars, using fallback", err);
+      .catch(() => {
+        // Fallback directly to ungh.cc API if local route fails
+        fetch("https://ungh.cc/repos/jaychauhan-exe1/devdocs")
+          .then((res) => res.json())
+          .then((data) => {
+            if (typeof data?.repo?.stars === "number") {
+              setStarCount(formatStarCount(data.repo.stars));
+            }
+          })
+          .catch((err) => {
+            console.warn("Failed to fetch live GitHub stars", err);
+          });
       });
   }, []);
 
@@ -108,6 +120,42 @@ export default function Header() {
           <RotateCcw className="w-3.5 h-3.5" />
           <span className="hidden sm:inline">Reset</span>
         </Button>
+
+        {/* Auth Controls */}
+        <div className="flex items-center gap-2 pl-2 border-l border-border">
+          <Show when="signed-out">
+            <SignInButton mode="modal">
+              <Button variant="ghost" size="sm" className="text-xs font-normal">
+                Sign In
+              </Button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+              <Button variant="default" size="sm" className="text-xs bg-foreground text-background hover:bg-foreground/90 font-medium">
+                Sign Up
+              </Button>
+            </SignUpButton>
+          </Show>
+          <Show when="signed-in">
+            <UserButton
+              userProfileProps={{
+                appearance: {
+                  variables: {
+                    colorBackground: "#080808",
+                  },
+                  elements: {
+                    navbarFooter: "hidden",
+                    devModeBadge: "hidden",
+                    profileSectionItemValue: "text-white font-semibold text-sm",
+                    profileSectionValue: "text-white font-semibold text-sm",
+                    profileSectionPrimaryButton: "text-white font-semibold text-xs underline",
+                    profileSectionItemLabel: "text-zinc-400 text-xs uppercase font-medium",
+                    profileSectionLabel: "text-zinc-400 text-xs uppercase font-medium",
+                  },
+                },
+              }}
+            />
+          </Show>
+        </div>
       </div>
     </header>
   );

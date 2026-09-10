@@ -77,6 +77,7 @@ body {
     opacity: 0;
     transform: translateY(4px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -85,4 +86,238 @@ body {
 
 .animate-fadeIn {
   animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* ==========================================================================
+   Clerk Clean Theme & High Contrast Overrides
+   ========================================================================== */
+
+/* Force solid text colors on all Clerk headings, titles, labels, inputs, and paragraphs */
+html body .cl-rootBox,
+html body .cl-modalBackdrop,
+html body .cl-userProfile-root,
+html body .cl-userButtonPopoverCard,
+html body .cl-card {
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif !important;
+  color: #ffffff !important;
+
+}
+
+.cl-card {
+  background-color: #0d0e0e;
+}
+
+.cl-modalCloseButton {
+  color: #f5f5f5;
+}
+
+/* Headings & Main Text -> Pure White */
+html body .cl-headerTitle,
+html body .cl-formHeaderTitle,
+html body .cl-profileSectionTitle,
+html body .cl-profileSectionTitleText,
+html body .cl-profileSectionItemValue,
+html body .cl-profileSectionValue,
+html body .cl-userPreviewMainIdentifier,
+html body .cl-activeDeviceTitle,
+html body .cl-socialButtonsBlockButtonText,
+html body .cl-userButtonPopoverActionButtonText {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+  font-weight: 600 !important;
+}
+
+/* Subtitles, Hint Text, Descriptions, Emails, Username Values -> High Contrast Light Gray */
+html body .cl-headerSubtitle,
+html body .cl-formHeaderSubtitle,
+html body .cl-dividerText,
+html body .cl-formFieldHintText,
+html body .cl-formFieldDescription,
+html body .cl-profileSectionSubtitle,
+html body .cl-userPreviewSecondaryIdentifier,
+html body .cl-activeDeviceSubtitle,
+html body .cl-activeDeviceTime,
+html body .cl-activeDeviceAddress,
+html body .cl-formattedDate,
+html body .cl-navbarHeaderTitle,
+html body .cl-navbarHeaderSubtitle {
+  color: #d4d4d8 !important;
+  -webkit-text-fill-color: #d4d4d8 !important;
+  opacity: 1 !important;
+}
+
+/* Inputs Placeholder Color */
+.cl-formFieldInput::placeholder {
+  color: hsl(240 5% 65%) !important;
+  opacity: 1 !important;
+}
+
+.cl-formFieldInput {
+  background-color: #18181b;
+  color: hsl(240 5% 65%) !important;
+
+}
+
+/* UserProfile Modal Specific Fixes */
+.cl-userProfile-root .cl-profileSectionItemValue,
+.cl-userProfile-root .cl-profileSectionItemValue *,
+.cl-userProfile-root .cl-profileSectionValue,
+.cl-userProfile-root .cl-profileSectionValue *,
+.cl-userProfile-root .cl-profileSectionContent * {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.cl-userProfile-root .cl-navbarHeaderTitle,
+.cl-userProfile-root .cl-navbarHeaderSubtitle,
+.cl-userProfile-root .cl-profileSectionTitleText {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.cl-userProfile-root .cl-profileSectionItemLabel,
+.cl-userProfile-root .cl-profileSectionLabel {
+  color: #a1a1aa !important;
+  -webkit-text-fill-color: #a1a1aa !important;
+}
+
+.cl-userProfile-root .cl-navbarFooter,
+.cl-userProfile-root .cl-devModeBadge,
+.cl-userProfile-root [class*="navbarFooter"],
+.cl-userProfile-root [class*="devMode"] {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Field Labels (EMAIL ADDRESS OR USERNAME, USERNAME, PASSWORD) */
+html body .cl-formFieldLabel,
+html body .cl-profileSectionLabel,
+html body .cl-profileSectionItemLabel {
+  color: #e4e4e7 !important;
+  -webkit-text-fill-color: #e4e4e7 !important;
+  font-weight: 600 !important;
+  opacity: 1 !important;
+}
+
+/* Account Modal Left Sidebar Links ("Profile", "Security") */
+html body .cl-navbarButton {
+  color: #d4d4d8 !important;
+  -webkit-text-fill-color: #d4d4d8 !important;
+  border: none !important;
+}
+
+html body .cl-navbarButton[data-active="true"],
+html body .cl-navbarButton:hover {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background-color: #18181b !important;
+}
+
+/* UserButton Popover Actions ("Manage account", "Sign out") */
+html body .cl-userButtonPopoverActionButton,
+html body .cl-userButtonPopoverActionButtonText,
+html body .cl-userButtonPopoverCustomItemButton {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+html body .cl-userButtonPopoverActionButtonIcon,
+html body .cl-userButtonPopoverCustomItemButtonIcon {
+  color: #a1a1aa !important;
+}
+
+html body .cl-userButtonPopoverActionButton:hover {
+  background-color: #18181b !important;
+}
+
+/* "Last used" Badge */
+html body .cl-providerBadge,
+html body .cl-providerBadgeText {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  background-color: #27272a !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  border-radius: 9999px !important;
+  padding: 2px 8px !important;
+  border: 1px solid #3f3f46 !important;
+}
+
+/* Hide Footer Watermarks & Dev Mode Banners */
+html body .cl-footer,
+html body .cl-footerAction,
+html body .cl-devModeBadge,
+html body .cl-userButtonPopoverFooter,
+html body .cl-navbarFooter,
+html body .cl-userProfile-navbarFooter,
+html body .cl-footerPages {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+
+.cl-navbar h1[data-localization-key="userProfile.navbar.title"],
+.cl-navbar p[data-localization-key="userProfile.navbar.description"] {
+  color: #ffffff !important;
+}
+
+/* Solid Primary White Buttons (Save, Continue, Submit) */
+.cl-formButtonPrimary,
+.cl-formButtonPrimary *,
+button[type="submit"].cl-button,
+button[type="submit"].cl-button *,
+button.cl-button[data-variant="solid"],
+button.cl-button[data-variant="solid"] * {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Secondary / Ghost / Link Buttons (Upload, Remove, Cancel, Edit links) */
+.cl-formButtonReset,
+.cl-formButtonReset *,
+.cl-profileSectionPrimaryButton:not([data-variant="solid"]),
+.cl-profileSectionPrimaryButton:not([data-variant="solid"]) *,
+.cl-profileSectionSecondaryButton,
+.cl-profileSectionSecondaryButton *,
+.cl-avatarImageActionsUploadBtn,
+.cl-avatarImageActionsRemoveBtn {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.cl-footerItem {
+  display: none;
+}
+
+/* 
+.cl-button svg {
+  display: none;
+} */
+
+.cl-socialButtonsBlockButton {
+  background-color: #27272a;
+}
+
+.cl-socialButtonsBlockButton:hover {
+  background-color: #18181b;
+}
+
+.cl-lastAuthenticationStrategyBadge {
+  background-color: #18181b;
+  color: #e4e4e7;
 }
