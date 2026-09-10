@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TOPICS, Topic } from "@/data/topics";
 import { useStudyStore } from "@/store/useStudyStore";
@@ -29,6 +29,11 @@ import {
   ArrowLeft,
   StickyNote,
   Trash2,
+  Volume2,
+  Play,
+  Pause,
+  Loader2,
+  X,
 } from "lucide-react";
 import { AnimatedCheckmark } from "@/components/AnimatedCheckmark";
 import { triggerHaptic } from "@/lib/haptics";
@@ -67,6 +72,90 @@ function renderFormattedText(text: string) {
   });
 }
 
+function cleanTextForSpeech(text: string): string {
+  if (!text) return "";
+  return text.replace(/\*\*/g, "").replace(/`/g, "").trim();
+}
+
+function renderSpeechFormattedText(
+  text: string,
+  isNarrationActive: boolean,
+  activeWordIndex: number | null,
+  blockWordStart?: number
+) {
+  if (!text) return null;
+
+  const parts = text.split(/(\*\*.*?\*\*|`.*?`)/g);
+  let currentWordIndex = 0;
+
+  return (
+    <span>
+      {parts.map((part, idx) => {
+        const isBold = part.startsWith("**") && part.endsWith("**");
+        const isCode = part.startsWith("`") && part.endsWith("`");
+        const rawContent = isBold ? part.slice(2, -2) : isCode ? part.slice(1, -1) : part;
+
+        const tokens = rawContent.split(/([\w'-]+)/g);
+
+        const renderedTokens = tokens.map((tok, tokIdx) => {
+          if (/[\w'-]+/.test(tok)) {
+            const isThisWordActive =
+              isNarrationActive &&
+              activeWordIndex !== null &&
+              blockWordStart !== undefined &&
+              currentWordIndex === activeWordIndex - blockWordStart;
+
+            currentWordIndex++;
+
+            if (isThisWordActive) {
+              return (
+                <span
+                  key={tokIdx}
+                  ref={(node) => {
+                    if (node) {
+                      node.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center",
+                        inline: "nearest",
+                      });
+                    }
+                  }}
+                  className="inline-block bg-transparent text-foreground border border-foreground font-semibold rounded px-1.5 py-0.5 transition-all duration-75 shadow-xs"
+                >
+                  {tok}
+                </span>
+              );
+            }
+            return tok;
+          }
+          return tok;
+        });
+
+        if (isBold) {
+          return (
+            <strong key={idx} className="font-bold text-foreground underline decoration-zinc-600 underline-offset-4">
+              {renderedTokens}
+            </strong>
+          );
+        }
+
+        if (isCode) {
+          return (
+            <code
+              key={idx}
+              className="px-1.5 py-0.5 mx-0.5 rounded bg-secondary border border-border text-foreground text-[0.9em] font-normal"
+            >
+              {renderedTokens}
+            </code>
+          );
+        }
+
+        return <span key={idx}>{renderedTokens}</span>;
+      })}
+    </span>
+  );
+}
+
 export default function TopicViewer(props: TopicViewerProps) {
   const storeActiveTopic = useStudyStore((state) => state.getActiveTopic());
   const storeIsCompleted = useStudyStore((state) => state.isTopicCompleted(storeActiveTopic.id));
@@ -85,6 +174,7 @@ export default function TopicViewer(props: TopicViewerProps) {
   const isQuizSubmitted = !!storeSubmittedQuizzes[topic.id];
   const onToggleComplete = props.onToggleComplete || toggleTopicComplete;
   const onSelectTopic = props.onSelectTopic || setActiveTopicId;
+
   const [activeTab, setActiveTab] = useState<string>("explanation");
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
 
@@ -98,10 +188,293 @@ export default function TopicViewer(props: TopicViewerProps) {
   const [copiedNote, setCopiedNote] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
 
+  // Code Sandbox State
+  const [sandboxCode, setSandboxCode] = useState<string>(topic.codeExamples?.[0]?.code || "");
+
   useEffect(() => {
     setUserAnswers(storeMcqAnswers || {});
     setCurrentQuestionIndex(0);
+    setSandboxCode(topic.codeExamples?.[0]?.code || "// Write JavaScript code here\nconsole.log('Hello DevDocs');");
   }, [topic.id]);
+
+
+
+  // Microsoft Edge Neural TTS State
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [activeWordIndex, setActiveWordIndex] = useState<number | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const animFrameRef = useRef<number | null>(null);
+
+  const stopCurrentAudio = () => {
+    if (animFrameRef.current !== null) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    if (audioRef.current) {
+      try {
+        audioRef.current.onpause = null;
+        audioRef.current.onplay = null;
+        audioRef.current.onended = null;
+        audioRef.current.onerror = null;
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      } catch (e) {
+        // ignore
+      }
+      audioRef.current = null;
+    }
+  };
+
+  // Stop speech when topic ID or active tab changes, or component unmounts
+  useEffect(() => {
+    stopCurrentAudio();
+    setIsLoadingAudio(false);
+    setIsSpeaking(false);
+    setIsPaused(false);
+    setActiveWordIndex(null);
+  }, [topic.id, activeTab]);
+
+  useEffect(() => {
+    return () => {
+      stopCurrentAudio();
+    };
+  }, []);
+
+  // Compute speech text payload with word-index tracking & DOM word sequence extraction
+  const fullSpeechPayload = useMemo(() => {
+    let totalWords = 0;
+    const domWords: string[] = [];
+
+    const extractAndCountWords = (txt: string) => {
+      const clean = cleanTextForSpeech(txt);
+      const matches = clean.match(/[\w'-]+/g) || [];
+      matches.forEach((w) => {
+        domWords.push(w.toLowerCase().replace(/[^a-z0-9]/g, ""));
+      });
+      return matches.length;
+    };
+
+    const overviewTextWordStart = 0;
+    totalWords += extractAndCountWords(topic.explanation.overview);
+
+    const sectionStartIndexes: {
+      [key: number]: { headingStart: number; contentStart: number; bulletStarts: number[] };
+    } = {};
+
+    topic.explanation.sections.forEach((sec, idx) => {
+      const headingStart = totalWords;
+      totalWords += extractAndCountWords(sec.heading);
+
+      const contentStart = totalWords;
+      totalWords += extractAndCountWords(sec.content);
+
+      const bulletStarts: number[] = [];
+      if (sec.bulletPoints) {
+        sec.bulletPoints.forEach((bp) => {
+          bulletStarts.push(totalWords);
+          totalWords += extractAndCountWords(bp);
+        });
+      }
+
+      sectionStartIndexes[idx] = { headingStart, contentStart, bulletStarts };
+    });
+
+    const rawOverview = cleanTextForSpeech(topic.explanation.overview);
+    let fullText = `${rawOverview}. `;
+    topic.explanation.sections.forEach((sec) => {
+      fullText += `${cleanTextForSpeech(sec.heading)}. `;
+      fullText += `${cleanTextForSpeech(sec.content)}. `;
+      if (sec.bulletPoints) {
+        sec.bulletPoints.forEach((bp) => {
+          fullText += `${cleanTextForSpeech(bp)}. `;
+        });
+      }
+    });
+
+    return { fullText, overviewTextWordStart, sectionStartIndexes, domWords };
+  }, [topic]);
+
+  const handleStartSpeech = async () => {
+    if (typeof window === "undefined") return;
+    triggerHaptic("medium");
+
+    stopCurrentAudio();
+    setIsLoadingAudio(true);
+    setIsSpeaking(false);
+    setIsPaused(false);
+    setActiveWordIndex(null);
+
+    try {
+      const res = await fetch("/api/tts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text: fullSpeechPayload.fullText,
+          voice: "en-US-GuyNeural",
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch MS Edge TTS audio");
+      }
+
+      const data = await res.json();
+      const { audioBase64, wordBoundaries } = data;
+
+      // Align TTS word boundaries to DOM words sequence to prevent index drift
+      const domWords = fullSpeechPayload.domWords;
+      let domIdx = 0;
+      const alignedBoundaries = (wordBoundaries || []).map(
+        (item: { word: string; startMs: number; durationMs: number }) => {
+          const rawTtsWord = (item.word || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+
+          if (!rawTtsWord) {
+            return { ...item, domIndex: Math.min(domIdx, Math.max(0, domWords.length - 1)) };
+          }
+
+          let matchedDomIdx = -1;
+          for (let offset = 0; offset <= 4; offset++) {
+            if (domIdx + offset < domWords.length) {
+              const domW = domWords[domIdx + offset];
+              if (domW && (domW === rawTtsWord || domW.includes(rawTtsWord) || rawTtsWord.includes(domW))) {
+                matchedDomIdx = domIdx + offset;
+                break;
+              }
+            }
+          }
+
+          if (matchedDomIdx !== -1) {
+            domIdx = matchedDomIdx + 1;
+            return { ...item, domIndex: matchedDomIdx };
+          } else {
+            return { ...item, domIndex: Math.min(domIdx, Math.max(0, domWords.length - 1)) };
+          }
+        }
+      );
+
+      const audio = new Audio(audioBase64);
+      audioRef.current = audio;
+
+      const updateHighlight = () => {
+        if (audioRef.current && !audioRef.current.paused && !audioRef.current.ended) {
+          const currentMs = audioRef.current.currentTime * 1000;
+          if (alignedBoundaries && alignedBoundaries.length > 0) {
+            let activeIdx = -1;
+            for (let i = 0; i < alignedBoundaries.length; i++) {
+              if (currentMs >= alignedBoundaries[i].startMs - 20) {
+                activeIdx = alignedBoundaries[i].domIndex;
+              } else {
+                break;
+              }
+            }
+            if (activeIdx >= 0) {
+              setActiveWordIndex(activeIdx);
+            }
+          }
+          animFrameRef.current = requestAnimationFrame(updateHighlight);
+        }
+      };
+
+      audio.onplay = () => {
+        setIsLoadingAudio(false);
+        setIsSpeaking(true);
+        setIsPaused(false);
+        if (animFrameRef.current !== null) {
+          cancelAnimationFrame(animFrameRef.current);
+        }
+        animFrameRef.current = requestAnimationFrame(updateHighlight);
+      };
+
+      audio.onpause = () => {
+        setIsSpeaking(false);
+        setIsPaused(true);
+        if (animFrameRef.current !== null) {
+          cancelAnimationFrame(animFrameRef.current);
+          animFrameRef.current = null;
+        }
+      };
+
+      audio.onended = () => {
+        setIsSpeaking(false);
+        setIsPaused(false);
+        setActiveWordIndex(null);
+        if (animFrameRef.current !== null) {
+          cancelAnimationFrame(animFrameRef.current);
+          animFrameRef.current = null;
+        }
+        audioRef.current = null;
+      };
+
+      audio.onerror = () => {
+        setIsLoadingAudio(false);
+        setIsSpeaking(false);
+        setIsPaused(false);
+        setActiveWordIndex(null);
+        if (animFrameRef.current !== null) {
+          cancelAnimationFrame(animFrameRef.current);
+          animFrameRef.current = null;
+        }
+        audioRef.current = null;
+      };
+
+      await audio.play();
+      setIsLoadingAudio(false);
+      setIsSpeaking(true);
+      setIsPaused(false);
+    } catch (err) {
+      console.error("MS Edge TTS Error:", err);
+      setIsLoadingAudio(false);
+      setIsSpeaking(false);
+      setIsPaused(false);
+      setActiveWordIndex(null);
+    }
+  };
+
+  const handlePauseSpeech = () => {
+    triggerHaptic("light");
+    if (audioRef.current) {
+      audioRef.current.pause();
+    }
+    setIsSpeaking(false);
+    setIsPaused(true);
+  };
+
+  const handleResumeSpeech = () => {
+    triggerHaptic("light");
+    if (audioRef.current) {
+      audioRef.current.play();
+      setIsSpeaking(true);
+      setIsPaused(false);
+    }
+  };
+
+  const handleResetSpeech = () => {
+    triggerHaptic("medium");
+    if (audioRef.current) {
+      try {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(() => {});
+        setIsSpeaking(true);
+        setIsPaused(false);
+        setActiveWordIndex(0);
+        return;
+      } catch (e) {
+        // ignore and fallback
+      }
+    }
+    handleStartSpeech();
+  };
+
+  const handleStopSpeech = () => {
+    triggerHaptic("medium");
+    stopCurrentAudio();
+    setIsLoadingAudio(false);
+    setIsSpeaking(false);
+    setIsPaused(false);
+    setActiveWordIndex(null);
+  };
 
   useEffect(() => {
     setNoteText(topicNotes[topic.id] || "");
@@ -200,7 +573,7 @@ export default function TopicViewer(props: TopicViewerProps) {
       className="max-w-5xl mx-auto space-y-8 pb-20 font-normal"
     >
       {/* Top Banner Card */}
-      <Card className="bg-card border-border shadow-xl relative overflow-hidden font-normal">
+      <Card className="bg-card border-border shadow-xl relative font-normal">
         <CardHeader className="p-6 sm:p-8 pb-6 font-normal">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10 font-normal">
             <div className="space-y-3 font-normal">
@@ -243,74 +616,216 @@ export default function TopicViewer(props: TopicViewerProps) {
 
         {/* Tabs Container */}
         <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-0 font-normal">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full sm:w-auto font-normal">
-              <TabsTrigger value="explanation" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
-                <BookOpen className="w-4 h-4" />
-                Concept Overview
-              </TabsTrigger>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="relative w-full">
+            {/* Audio Control Widget (Inline with TabsList at top-0, ONLY sticks to top-16 when TTS is playing/paused/loading) */}
+            {activeTab === "explanation" && (
+              <div
+                className={
+                  (isSpeaking || isPaused || isLoadingAudio)
+                    ? "absolute top-0 right-0 bottom-0 pointer-events-none z-30"
+                    : "absolute top-0 right-0 h-[52px] pointer-events-none z-30"
+                }
+              >
+                <div
+                  className={
+                    (isSpeaking || isPaused || isLoadingAudio)
+                      ? "sticky top-16 pointer-events-auto h-[52px] flex items-center justify-end"
+                      : "relative pointer-events-auto h-[52px] flex items-center justify-end"
+                  }
+                >
+                  <div className="flex items-center gap-2 p-1.5 rounded-full bg-card/95 backdrop-blur-xl border border-border/90 shadow-2xl flex-shrink-0 transition-all duration-300">
+                    {isLoadingAudio ? (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        disabled
+                        className="w-9 h-9 rounded-full border border-border bg-secondary/60 text-foreground flex items-center justify-center opacity-80"
+                        title="Generating Microsoft Edge Neural speech..."
+                      >
+                        <Loader2 className="w-4 h-4 animate-spin text-foreground" />
+                      </Button>
+                    ) : !isSpeaking && !isPaused ? (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={handleStartSpeech}
+                        className="w-9 h-9 rounded-full border border-border bg-secondary/80 hover:bg-secondary text-foreground transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm flex items-center justify-center"
+                        title="Listen to topic narration (Microsoft Edge Neural)"
+                        aria-label="Listen to topic narration"
+                      >
+                        <Play className="w-4 h-4 text-foreground fill-foreground ml-0.5" />
+                      </Button>
+                    ) : isSpeaking ? (
+                      <div className="flex items-center gap-2">
+                        {/* Close on left */}
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={handleStopSpeech}
+                          className="w-9 h-9 rounded-full border border-border bg-secondary/40 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
+                          title="Exit narration"
+                          aria-label="Exit narration"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                        {/* Reset in middle */}
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={handleResetSpeech}
+                          className="w-9 h-9 rounded-full border border-border bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary/90 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
+                          title="Restart narration from beginning"
+                          aria-label="Restart narration"
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                        </Button>
+                        {/* Pause on right */}
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={handlePauseSpeech}
+                          className="w-9 h-9 rounded-full border border-border bg-secondary text-foreground hover:bg-secondary/80 transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm flex items-center justify-center"
+                          title="Pause narration"
+                          aria-label="Pause narration"
+                        >
+                          <Pause className="w-4 h-4 text-foreground fill-foreground" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        {/* Close on left */}
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={handleStopSpeech}
+                          className="w-9 h-9 rounded-full border border-border bg-secondary/40 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
+                          title="Exit narration"
+                          aria-label="Exit narration"
+                        >
+                          <X className="w-4 h-4" />
+                        </Button>
+                        {/* Reset in middle */}
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={handleResetSpeech}
+                          className="w-9 h-9 rounded-full border border-border bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary/90 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
+                          title="Restart narration from beginning"
+                          aria-label="Restart narration"
+                        >
+                          <RotateCcw className="w-4 h-4" />
+                        </Button>
+                        {/* Play on right */}
+                        <Button
+                          variant="default"
+                          size="icon"
+                          onClick={handleResumeSpeech}
+                          className="w-9 h-9 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm flex items-center justify-center"
+                          title="Resume narration"
+                          aria-label="Resume narration"
+                        >
+                          <Play className="w-4 h-4 fill-background text-background ml-0.5" />
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
 
-              <TabsTrigger value="examples" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
-                <Code className="w-4 h-4" />
-                Code Examples ({topic.codeExamples.length})
-              </TabsTrigger>
+            {/* Header row: Tabs on left */}
+            <div className="flex items-center justify-between gap-4 w-full mb-6 pr-20 sm:pr-28">
+              <TabsList className="w-full sm:w-auto font-normal overflow-x-auto">
+                <TabsTrigger value="explanation" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
+                  <BookOpen className="w-4 h-4" />
+                  Concept Overview
+                </TabsTrigger>
 
-              <TabsTrigger value="sandbox" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
-                <Sparkles className="w-4 h-4" />
-                Live Sandbox
-              </TabsTrigger>
+                <TabsTrigger value="code" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
+                  <Code className="w-4 h-4" />
+                  Code ({topic.codeExamples.length})
+                </TabsTrigger>
 
-              <TabsTrigger value="mcq" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
-                <HelpCircle className="w-4 h-4" />
-                MCQ Quiz Test ({mcqs.length})
-              </TabsTrigger>
+                <TabsTrigger value="mcq" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
+                  <HelpCircle className="w-4 h-4" />
+                  MCQ Quiz Test ({mcqs.length})
+                </TabsTrigger>
 
-              <TabsTrigger value="notes" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
-                <StickyNote className="w-4 h-4" />
-                <span>Make Notes</span>
-                {noteText.trim() && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
-              </TabsTrigger>
-            </TabsList>
+                <TabsTrigger value="notes" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
+                  <StickyNote className="w-4 h-4" />
+                  <span>Make Notes</span>
+                  {noteText.trim() && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
             {/* Explanation Content */}
-            <TabsContent value="explanation" className="space-y-6 mt-6 font-normal focus:outline-none focus-visible:outline-none">
+            <TabsContent value="explanation" className="space-y-6 mt-0 font-normal focus:outline-none focus-visible:outline-none relative">
               <div className="space-y-6">
+
                 <Card className="bg-card border-border font-normal">
                   <CardHeader className="p-6 sm:p-8 pb-3">
                     <CardTitle className="text-lg sm:text-xl font-semibold text-foreground flex items-center gap-2.5 uppercase tracking-wide">
                       <Lightbulb className="w-5 h-5 text-foreground" />
-                      Core Concept Overview
+                      <span>Core Concept Overview</span>
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-0 text-base sm:text-lg text-muted-foreground leading-relaxed font-normal">
-                    {renderFormattedText(topic.explanation.overview)}
+                    {renderSpeechFormattedText(
+                      topic.explanation.overview,
+                      isSpeaking || isPaused,
+                      activeWordIndex,
+                      fullSpeechPayload.overviewTextWordStart
+                    )}
                   </CardContent>
                 </Card>
 
-                {topic.explanation.sections.map((section, idx) => (
-                  <Card key={idx} className="bg-card border-border font-normal">
-                    <CardHeader className="p-6 sm:p-8 pb-3">
-                      <CardTitle className="text-base sm:text-xl font-semibold text-foreground uppercase tracking-wider">
-                        {section.heading}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-0 space-y-4 font-normal">
-                      <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-normal">
-                        {renderFormattedText(section.content)}
-                      </p>
-                      {section.bulletPoints && (
-                        <ul className="space-y-3 pt-2 font-normal">
-                          {section.bulletPoints.map((bp, bpIdx) => (
-                            <li key={bpIdx} className="flex items-start gap-3 text-base text-muted-foreground leading-relaxed font-normal">
-                              <span className="w-2 h-2 rounded-full bg-foreground mt-2 flex-shrink-0" />
-                              <span>{renderFormattedText(bp)}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
+                {topic.explanation.sections.map((section, idx) => {
+                  const secOffsets = fullSpeechPayload.sectionStartIndexes[idx];
+                  const isNarrationActive = isSpeaking || isPaused;
+
+                  return (
+                    <Card key={idx} className="bg-card border-border font-normal">
+                      <CardHeader className="p-6 sm:p-8 pb-3">
+                        <CardTitle className="text-base sm:text-xl font-semibold text-foreground uppercase tracking-wider">
+                          {renderSpeechFormattedText(
+                            section.heading,
+                            isNarrationActive,
+                            activeWordIndex,
+                            secOffsets?.headingStart
+                          )}
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-0 space-y-4 font-normal">
+                        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-normal">
+                          {renderSpeechFormattedText(
+                            section.content,
+                            isNarrationActive,
+                            activeWordIndex,
+                            secOffsets?.contentStart
+                          )}
+                        </p>
+                        {section.bulletPoints && (
+                          <ul className="space-y-3 pt-2 font-normal">
+                            {section.bulletPoints.map((bp, bpIdx) => (
+                              <li key={bpIdx} className="flex items-start gap-3 text-base text-muted-foreground leading-relaxed font-normal">
+                                <span className={`w-2 h-2 rounded-full mt-2 flex-shrink-0 ${isNarrationActive ? "bg-white" : "bg-foreground"}`} />
+                                <span>
+                                  {renderSpeechFormattedText(
+                                    bp,
+                                    isNarrationActive,
+                                    activeWordIndex,
+                                    secOffsets?.bulletStarts[bpIdx]
+                                  )}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
 
               {/* Key Takeaways Card */}
@@ -337,47 +852,75 @@ export default function TopicViewer(props: TopicViewerProps) {
               </Card>
             </TabsContent>
 
-            {/* Code Examples Tab */}
-            <TabsContent value="examples" className="space-y-6 mt-6 font-normal focus:outline-none focus-visible:outline-none">
-              {topic.codeExamples.map((example, idx) => (
-                <Card key={idx} className="bg-card border-border overflow-hidden font-normal">
-                  <div className="px-6 py-4 bg-secondary/40 border-b border-border flex items-center justify-between gap-4 font-normal">
-                    <div>
-                      <h3 className="font-semibold text-base sm:text-lg text-foreground">{example.title}</h3>
-                      <p className="text-sm text-muted-foreground font-normal">{example.description}</p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleCopyCode(example.code, idx)}
-                      className="flex items-center gap-2 text-xs sm:text-sm font-medium flex-shrink-0 focus:outline-none focus-visible:outline-none"
-                    >
-                      {copiedIndex === idx ? (
-                        <>
-                          <Check className="w-4 h-4 text-foreground" />
-                          <span>Copied</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-4 h-4" />
-                          <span>Copy Code</span>
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <div className="p-6 bg-background overflow-x-auto text-sm sm:text-base text-foreground leading-relaxed whitespace-pre custom-scrollbar font-normal">
-                    {example.code}
-                  </div>
-                </Card>
-              ))}
-            </TabsContent>
+            {/* Unified Code Tab: Interactive Sandbox + Code Examples */}
+            <TabsContent value="code" className="space-y-8 mt-6 font-normal focus:outline-none focus-visible:outline-none">
+              {/* Interactive Live Sandbox */}
+              <div id="sandbox-section">
+                <CodePlayground
+                  key={sandboxCode}
+                  initialCode={sandboxCode || topic.codeExamples[0]?.code || "// Write JavaScript code here\nconsole.log('Hello DevDocs');"}
+                  title={`Interactive Sandbox: ${topic.title}`}
+                />
+              </div>
 
-            {/* Live Sandbox Tab */}
-            <TabsContent value="sandbox" className="mt-6 font-normal focus:outline-none focus-visible:outline-none">
-              <CodePlayground
-                initialCode={topic.codeExamples[0]?.code || "// Write JavaScript code here\nconsole.log('Hello DevDocs');"}
-                title={`Sandbox: ${topic.title}`}
-              />
+              {/* Code Examples & Reference */}
+              {topic.codeExamples.length > 0 && (
+                <div className="space-y-6 pt-2">
+                  <div className="flex items-center gap-2 border-b border-border pb-3">
+                    <Code className="w-5 h-5 text-foreground" />
+                    <h3 className="text-xl font-bold text-foreground tracking-tight">Code Examples & References</h3>
+                  </div>
+
+                  <div className="space-y-6">
+                    {topic.codeExamples.map((example, idx) => (
+                      <Card key={idx} className="bg-card border-border overflow-hidden font-normal">
+                        <div className="px-6 py-4 bg-secondary/40 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-normal">
+                          <div>
+                            <h4 className="font-semibold text-base sm:text-lg text-foreground">{example.title}</h4>
+                            <p className="text-sm text-muted-foreground font-normal">{example.description}</p>
+                          </div>
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => {
+                                triggerHaptic("light");
+                                setSandboxCode(example.code);
+                                document.getElementById("sandbox-section")?.scrollIntoView({ behavior: "smooth" });
+                              }}
+                              className="flex items-center gap-1.5 text-xs sm:text-sm font-medium focus:outline-none focus-visible:outline-none"
+                            >
+                              <Sparkles className="w-3.5 h-3.5" />
+                              <span>Run in Sandbox</span>
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleCopyCode(example.code, idx)}
+                              className="flex items-center gap-1.5 text-xs sm:text-sm font-medium focus:outline-none focus-visible:outline-none"
+                            >
+                              {copiedIndex === idx ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-foreground" />
+                                  <span>Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3.5 h-3.5" />
+                                  <span>Copy Code</span>
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="p-6 bg-background overflow-x-auto text-sm sm:text-base text-foreground leading-relaxed whitespace-pre custom-scrollbar font-normal">
+                          {example.code}
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
             </TabsContent>
 
             {/* Interactive 1-at-a-Time MCQ Quiz Test Tab */}

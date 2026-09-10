@@ -107,7 +107,7 @@ export default function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-30 h-14 bg-background/90 backdrop-blur-md border-b border-border px-4 lg:px-8 flex items-center justify-between font-normal">
+    <header className="sticky top-0 z-40 h-14 bg-background/90 backdrop-blur-md border-b border-border px-4 lg:px-8 flex items-center justify-between font-normal">
       <div className="flex items-center gap-3 font-normal">
         <Button
           variant="ghost"
