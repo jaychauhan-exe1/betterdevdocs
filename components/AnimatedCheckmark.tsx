@@ -12,14 +12,14 @@ interface AnimatedCheckmarkProps {
 }
 
 const CELEBRATION_COLORS = [
-  "#10B981", // Emerald
-  "#3B82F6", // Blue
-  "#8B5CF6", // Purple
-  "#F59E0B", // Amber Gold
-  "#EC4899", // Pink
-  "#06B6D4", // Cyan
-  "#6366F1", // Indigo
-  "#10B981", // Emerald
+  "var(--confetti-emerald)",
+  "var(--confetti-blue)",
+  "var(--confetti-purple)",
+  "var(--confetti-amber)",
+  "var(--confetti-pink)",
+  "var(--confetti-cyan)",
+  "var(--confetti-indigo)",
+  "var(--confetti-emerald)",
 ];
 
 export function AnimatedCheckmark({

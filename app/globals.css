@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  /* Core Design Tokens */
   --background: 0 0% 0%;
   --foreground: 0 0% 100%;
   --card: 0 0% 3%;
@@ -21,6 +22,29 @@
   --input: 240 3.7% 16%;
   --ring: 0 0% 100%;
   --radius: 1rem;
+
+  /* Global Explicit Color Custom Variables */
+  --clerk-bg-dark: #050505;
+  --clerk-bg-header: #080808;
+  --clerk-bg-card: #0d0e0e;
+  --clerk-bg-input: #18181b;
+  --clerk-bg-badge: #27272a;
+  --clerk-border: #3f3f46;
+  --clerk-text-white: #ffffff;
+  --clerk-text-light: #f5f5f5;
+  --clerk-text-medium: #e4e4e7;
+  --clerk-text-muted: #d4d4d8;
+  --clerk-text-dim: #a1a1aa;
+  --clerk-accent-blue: #294ceb;
+
+  /* Celebration Confetti Colors */
+  --confetti-emerald: #10b981;
+  --confetti-blue: #3b82f6;
+  --confetti-purple: #8b5cf6;
+  --confetti-amber: #f59e0b;
+  --confetti-pink: #ec4899;
+  --confetti-cyan: #06b6d4;
+  --confetti-indigo: #6366f1;
 }
 
 @theme inline {
@@ -45,6 +69,21 @@
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));
+
+  /* Custom Color Mappings */
+  --color-clerk-dark: var(--clerk-bg-dark);
+  --color-clerk-header: var(--clerk-bg-header);
+  --color-clerk-card: var(--clerk-bg-card);
+  --color-clerk-input: var(--clerk-bg-input);
+  --color-clerk-badge: var(--clerk-bg-badge);
+  --color-clerk-border: var(--clerk-border);
+  --color-confetti-emerald: var(--confetti-emerald);
+  --color-confetti-blue: var(--confetti-blue);
+  --color-confetti-purple: var(--confetti-purple);
+  --color-confetti-amber: var(--confetti-amber);
+  --color-confetti-pink: var(--confetti-pink);
+  --color-confetti-cyan: var(--confetti-cyan);
+  --color-confetti-indigo: var(--confetti-indigo);
 }
 
 body {
@@ -89,7 +128,7 @@ body {
 }
 
 /* ==========================================================================
-   Clerk Clean Theme & High Contrast Overrides
+   Clerk Clean Theme & High Contrast Overrides (Variable Driven)
    ========================================================================== */
 
 /* Force solid text colors on all Clerk headings, titles, labels, inputs, and paragraphs */
@@ -99,16 +138,15 @@ html body .cl-userProfile-root,
 html body .cl-userButtonPopoverCard,
 html body .cl-card {
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif !important;
-  color: #ffffff !important;
-
+  color: var(--clerk-text-white) !important;
 }
 
 .cl-card {
-  background-color: #0d0e0e;
+  background-color: var(--clerk-bg-card);
 }
 
 .cl-modalCloseButton {
-  color: #f5f5f5;
+  color: var(--clerk-text-light);
 }
 
 /* Headings & Main Text -> Pure White */
@@ -122,8 +160,8 @@ html body .cl-userPreviewMainIdentifier,
 html body .cl-activeDeviceTitle,
 html body .cl-socialButtonsBlockButtonText,
 html body .cl-userButtonPopoverActionButtonText {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--clerk-text-white) !important;
+  -webkit-text-fill-color: var(--clerk-text-white) !important;
   opacity: 1 !important;
   font-weight: 600 !important;
 }
@@ -142,21 +180,20 @@ html body .cl-activeDeviceAddress,
 html body .cl-formattedDate,
 html body .cl-navbarHeaderTitle,
 html body .cl-navbarHeaderSubtitle {
-  color: #d4d4d8 !important;
-  -webkit-text-fill-color: #d4d4d8 !important;
+  color: var(--clerk-text-muted) !important;
+  -webkit-text-fill-color: var(--clerk-text-muted) !important;
   opacity: 1 !important;
 }
 
 /* Inputs Placeholder Color */
 .cl-formFieldInput::placeholder {
-  color: hsl(240 5% 65%) !important;
+  color: hsl(var(--muted-foreground)) !important;
   opacity: 1 !important;
 }
 
 .cl-formFieldInput {
-  background-color: #18181b;
-  color: hsl(240 5% 65%) !important;
-
+  background-color: var(--clerk-bg-input);
+  color: hsl(var(--muted-foreground)) !important;
 }
 
 /* UserProfile Modal Specific Fixes */
@@ -165,22 +202,22 @@ html body .cl-navbarHeaderSubtitle {
 .cl-userProfile-root .cl-profileSectionValue,
 .cl-userProfile-root .cl-profileSectionValue *,
 .cl-userProfile-root .cl-profileSectionContent * {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--clerk-text-white) !important;
+  -webkit-text-fill-color: var(--clerk-text-white) !important;
   opacity: 1 !important;
 }
 
 .cl-userProfile-root .cl-navbarHeaderTitle,
 .cl-userProfile-root .cl-navbarHeaderSubtitle,
 .cl-userProfile-root .cl-profileSectionTitleText {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--clerk-text-white) !important;
+  -webkit-text-fill-color: var(--clerk-text-white) !important;
 }
 
 .cl-userProfile-root .cl-profileSectionItemLabel,
 .cl-userProfile-root .cl-profileSectionLabel {
-  color: #a1a1aa !important;
-  -webkit-text-fill-color: #a1a1aa !important;
+  color: var(--clerk-text-dim) !important;
+  -webkit-text-fill-color: var(--clerk-text-dim) !important;
 }
 
 .cl-userProfile-root .cl-navbarFooter,
@@ -195,46 +232,46 @@ html body .cl-navbarHeaderSubtitle {
   margin: 0 !important;
 }
 
-/* Field Labels (EMAIL ADDRESS OR USERNAME, USERNAME, PASSWORD) */
+/* Field Labels */
 html body .cl-formFieldLabel,
 html body .cl-profileSectionLabel,
 html body .cl-profileSectionItemLabel {
-  color: #e4e4e7 !important;
-  -webkit-text-fill-color: #e4e4e7 !important;
+  color: var(--clerk-text-medium) !important;
+  -webkit-text-fill-color: var(--clerk-text-medium) !important;
   font-weight: 600 !important;
   opacity: 1 !important;
 }
 
 /* Account Modal Left Sidebar Links ("Profile", "Security") */
 html body .cl-navbarButton {
-  color: #d4d4d8 !important;
-  -webkit-text-fill-color: #d4d4d8 !important;
+  color: var(--clerk-text-muted) !important;
+  -webkit-text-fill-color: var(--clerk-text-muted) !important;
   border: none !important;
 }
 
 html body .cl-navbarButton[data-active="true"],
 html body .cl-navbarButton:hover {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
-  background-color: #18181b !important;
+  color: var(--clerk-text-white) !important;
+  -webkit-text-fill-color: var(--clerk-text-white) !important;
+  background-color: var(--clerk-bg-input) !important;
 }
 
 /* UserButton Popover Actions ("Manage account", "Sign out") */
 html body .cl-userButtonPopoverActionButton,
 html body .cl-userButtonPopoverActionButtonText,
 html body .cl-userButtonPopoverCustomItemButton {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--clerk-text-white) !important;
+  -webkit-text-fill-color: var(--clerk-text-white) !important;
   opacity: 1 !important;
 }
 
 html body .cl-userButtonPopoverActionButtonIcon,
 html body .cl-userButtonPopoverCustomItemButtonIcon {
-  color: #a1a1aa !important;
+  color: var(--clerk-text-dim) !important;
 }
 
 html body .cl-userButtonPopoverActionButton:hover {
-  background-color: #18181b !important;
+  background-color: var(--clerk-bg-input) !important;
 }
 
 /* "Last used" Badge */
@@ -243,26 +280,26 @@ html body .cl-providerBadgeText {
   display: inline-flex !important;
   visibility: visible !important;
   opacity: 1 !important;
-  background-color: #27272a !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  background-color: var(--clerk-bg-badge) !important;
+  color: var(--clerk-text-white) !important;
+  -webkit-text-fill-color: var(--clerk-text-white) !important;
   font-size: 11px !important;
   font-weight: 600 !important;
   border-radius: 9999px !important;
   padding: 2px 8px !important;
-  border: 1px solid #3f3f46 !important;
+  border: 1px solid var(--clerk-border) !important;
 }
 
 .cl-lastAuthenticationStrategyBadge {
-  background-color: rgb(41, 76, 235);
-  color: #e4e4e7;
+  background-color: var(--clerk-accent-blue);
+  color: var(--clerk-text-medium);
 }
 
 /* ==========================================================================
-   Clerk OTP Verification Code Modal Styling (Premium Minimalist Theme)
+   Clerk OTP Verification Code Modal Styling (Variable Driven)
    ========================================================================== */
 
-/* Outer OTP Container -> Full Width Centered */
+/* Outer OTP Container */
 html body .cl-otpCodeField,
 html body .cl-otpCodeFieldInputContainer,
 html body [data-input-otp-container="true"] {
@@ -292,7 +329,7 @@ html body [data-input-otp-container="true"]>div:first-child {
   padding: 0.5rem 0 !important;
 }
 
-/* Individual Digit Slots (Each of the 6 boxes) */
+/* Individual Digit Slots */
 html body .cl-otpCodeFieldInputs>div,
 html body [data-input-otp-container="true"]>div:first-child>div {
   width: 2.75rem !important;
@@ -302,11 +339,11 @@ html body [data-input-otp-container="true"]>div:first-child>div {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background-color: #18181b !important;
-  border: 1px solid #3f3f46 !important;
+  background-color: var(--clerk-bg-input) !important;
+  border: 1px solid var(--clerk-border) !important;
   border-radius: 0.75rem !important;
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--clerk-text-white) !important;
+  -webkit-text-fill-color: var(--clerk-text-white) !important;
   font-size: 1.35rem !important;
   font-weight: 700 !important;
   text-align: center !important;
@@ -319,13 +356,13 @@ html body .cl-otpCodeFieldInputs>div[data-status="focused"],
 html body .cl-otpCodeFieldInputs>div:focus,
 html body [data-input-otp-container="true"]>div:first-child>div[data-status="focused"],
 html body [data-input-otp-container="true"]>div:first-child>div:focus {
-  border-color: #ffffff !important;
-  background-color: #27272a !important;
+  border-color: var(--clerk-text-white) !important;
+  background-color: var(--clerk-bg-badge) !important;
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3) !important;
   transform: translateY(-1px) !important;
 }
 
-/* Overlay Input (Invisible & Transparent) */
+/* Overlay Input */
 html body input[data-input-otp="true"],
 html body .cl-otpCodeFieldInputContainer input {
   position: absolute !important;
@@ -340,13 +377,13 @@ html body .cl-otpCodeFieldInputContainer input {
   pointer-events: auto !important;
 }
 
-/* Email Identity Preview Text & Pencil Edit Icon -> Pure White */
+/* Email Identity Preview Text & Pencil Edit Icon */
 html body .cl-identityPreview,
 html body .cl-identityPreviewText,
 html body .cl-identityPreviewTitle,
 html body [class*="identityPreviewText"] {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--clerk-text-white) !important;
+  -webkit-text-fill-color: var(--clerk-text-white) !important;
   font-size: 0.9rem !important;
   font-weight: 600 !important;
   opacity: 1 !important;
@@ -356,18 +393,18 @@ html body .cl-identityPreviewEditButton,
 html body .cl-identityPreviewEditButtonIcon,
 html body [class*="identityPreviewEditButton"] svg,
 html body [class*="identityPreviewEditButton"] path {
-  color: #ffffff !important;
-  fill: #ffffff !important;
-  stroke: #ffffff !important;
+  color: var(--clerk-text-white) !important;
+  fill: var(--clerk-text-white) !important;
+  stroke: var(--clerk-text-white) !important;
   opacity: 1 !important;
 }
 
-/* Resend Code Link -> Light Gray & Underlined */
+/* Resend Code Link */
 html body .cl-formResendCodeLink,
 html body .cl-formResendCodeLinkText,
 html body [class*="resendCodeLink"] {
-  color: #e4e4e7 !important;
-  -webkit-text-fill-color: #e4e4e7 !important;
+  color: var(--clerk-text-medium) !important;
+  -webkit-text-fill-color: var(--clerk-text-medium) !important;
   font-weight: 500 !important;
   text-decoration: underline !important;
   cursor: pointer !important;
@@ -376,8 +413,8 @@ html body [class*="resendCodeLink"] {
 
 html body .cl-formResendCodeLink:hover,
 html body .cl-formResendCodeLinkText:hover {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--clerk-text-white) !important;
+  -webkit-text-fill-color: var(--clerk-text-white) !important;
 }
 
 /* Hide Footer Watermarks & Dev Mode Banners */
@@ -396,25 +433,24 @@ html body .cl-footerPages {
   margin: 0 !important;
 }
 
-
 .cl-navbar h1[data-localization-key="userProfile.navbar.title"],
 .cl-navbar p[data-localization-key="userProfile.navbar.description"] {
-  color: #ffffff !important;
+  color: var(--clerk-text-white) !important;
 }
 
-/* Solid Primary White Buttons (Save, Continue, Submit) */
+/* Solid Primary White Buttons */
 .cl-formButtonPrimary,
 .cl-formButtonPrimary *,
 button[type="submit"].cl-button,
 button[type="submit"].cl-button *,
 button.cl-button[data-variant="solid"],
 button.cl-button[data-variant="solid"] * {
-  background-color: #ffffff !important;
-  color: #000000 !important;
-  -webkit-text-fill-color: #000000 !important;
+  background-color: var(--clerk-text-white) !important;
+  color: var(--primary-foreground) !important;
+  -webkit-text-fill-color: var(--primary-foreground) !important;
 }
 
-/* Secondary / Ghost / Link Buttons (Upload, Remove, Cancel, Edit links) */
+/* Secondary / Ghost / Link Buttons */
 .cl-formButtonReset,
 .cl-formButtonReset *,
 .cl-profileSectionPrimaryButton:not([data-variant="solid"]),
@@ -423,23 +459,53 @@ button.cl-button[data-variant="solid"] * {
 .cl-profileSectionSecondaryButton *,
 .cl-avatarImageActionsUploadBtn,
 .cl-avatarImageActionsRemoveBtn {
-  color: #ffffff !important;
-  -webkit-text-fill-color: #ffffff !important;
+  color: var(--clerk-text-white) !important;
+  -webkit-text-fill-color: var(--clerk-text-white) !important;
 }
 
 .cl-footerItem {
   display: none;
 }
 
-/* 
-.cl-button svg {
-  display: none;
-} */
-
 .cl-socialButtonsBlockButton {
-  background-color: #27272a;
+  background-color: var(--clerk-bg-badge);
 }
 
 .cl-socialButtonsBlockButton:hover {
-  background-color: #18181b;
+  background-color: var(--clerk-bg-input);
+}
+
+/* ==========================================================================
+   Animated Colorful Gradient Progress Bar (Traveling Left-to-Right Wave)
+   ========================================================================== */
+@keyframes animatedGradientTravel {
+  0% {
+    background-position: 200% 0%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+.animated-gradient-progress {
+  background: linear-gradient(
+    90deg,
+    var(--confetti-blue),
+    var(--confetti-purple),
+    var(--confetti-pink),
+    var(--confetti-amber),
+    var(--confetti-emerald),
+    var(--confetti-cyan),
+    var(--confetti-indigo),
+    var(--confetti-blue),
+    var(--confetti-purple),
+    var(--confetti-pink),
+    var(--confetti-amber),
+    var(--confetti-emerald),
+    var(--confetti-cyan),
+    var(--confetti-indigo),
+    var(--confetti-blue)
+  );
+  background-size: 200% 100%;
+  animation: animatedGradientTravel 3s linear infinite;
 }

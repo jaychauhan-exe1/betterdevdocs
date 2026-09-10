@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStudyStore } from "@/store/useStudyStore";
+import { ROLES } from "@/data/roles";
 import { useUser } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,7 +15,7 @@ import {
   CheckCircle2,
   Navigation,
   ArrowUpRight,
-  MapPin,
+  Route,
   BarChart2,
   Trophy,
   Flame,
@@ -52,12 +53,19 @@ export default function ProgressRoadmapView() {
     activeTopicId,
     setActiveTopicId,
     toggleTopicComplete,
-    getRoleFilteredTopics,
+    topics,
     selectedRole,
   } = useStudyStore();
 
-  const [viewTab, setViewTab] = useState<"map" | "progress">("map");
-  const roleTopics = getRoleFilteredTopics();
+  const [viewTab, setViewTab] = useState<"map" | "analytics">("map");
+
+  const roleTopics = useMemo(() => {
+    if (!selectedRole || selectedRole === "all") return topics;
+    const roleDef = ROLES.find((r) => r.id === selectedRole);
+    if (!roleDef) return topics;
+    return topics.filter((t) => roleDef.categories.includes(t.category));
+  }, [topics, selectedRole]);
+
   const currentTopicRef = useRef<HTMLDivElement>(null);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
 
@@ -156,7 +164,7 @@ export default function ProgressRoadmapView() {
   return (
     <div className="max-w-4xl mx-auto space-y-6 pb-28 font-normal">
       {/* ==============================================================
-          TAB 1: MAP VIEW (Candy Crush Style Winding Road)
+          TAB 1: ROADMAP VIEW (3D Candy Crush Style Winding Road)
           ============================================================== */}
       {viewTab === "map" && (
         <div className="space-y-6 font-normal">
@@ -182,47 +190,68 @@ export default function ProgressRoadmapView() {
             </Button>
           </div>
 
-          {/* Candy Crush Style Winding Road Canvas */}
+          {/* Candy Crush Style 3D Winding Road Canvas */}
           <Card className="bg-card border-border shadow-2xl p-4 sm:p-8 overflow-visible relative min-h-[600px] flex justify-center">
             {/* Background Grid Pattern */}
             <div
               className="absolute inset-0 opacity-[0.02] pointer-events-none rounded-xl overflow-hidden"
               style={{
-                backgroundImage: "radial-gradient(#ffffff 1px, transparent 1px)",
+                backgroundImage: "radial-gradient(hsl(var(--foreground)) 1px, transparent 1px)",
                 backgroundSize: "24px 24px",
               }}
             />
 
-            <div className="relative w-full max-w-[520px] px-4 sm:px-8" style={{ height: totalMapHeight }}>
-              {/* Winding Road SVG Path */}
+            <div className="relative w-full max-w-[400px] mx-auto" style={{ height: totalMapHeight }}>
+              {/* 3D Winding Road SVG Path (6-Layer 3D Depth Stack) */}
               <svg
                 className="absolute top-0 left-0 w-full h-full pointer-events-none"
                 viewBox={`0 0 400 ${totalMapHeight}`}
+                preserveAspectRatio="none"
                 fill="none"
               >
-                {/* Outer Glow Path Line */}
+                {/* Layer 1: Ambient Ground Soft Blur Shadow */}
                 <path
                   d={svgPathD}
-                  stroke="currentColor"
+                  stroke="rgba(0, 0, 0, 0.85)"
+                  strokeWidth="32"
+                  strokeLinecap="round"
+                  className="blur-[2px]"
+                />
+                {/* Layer 2: 3D Dark Base Embankment Foundation */}
+                <path
+                  d={svgPathD}
+                  stroke="#09090b"
+                  strokeWidth="24"
+                  strokeLinecap="round"
+                />
+                {/* Layer 3: 3D Outer Road Curb Rim */}
+                <path
+                  d={svgPathD}
+                  stroke="#27272a"
                   strokeWidth="18"
-                  className="text-border/40"
                   strokeLinecap="round"
                 />
-                {/* Main Path Track Line */}
+                {/* Layer 4: Main Asphalt Road Track Surface */}
                 <path
                   d={svgPathD}
-                  stroke="currentColor"
+                  stroke="#141417"
+                  strokeWidth="12"
+                  strokeLinecap="round"
+                />
+                {/* Layer 5: Top Specular Light Reflection Streak */}
+                <path
+                  d={svgPathD}
+                  stroke="rgba(255, 255, 255, 0.08)"
                   strokeWidth="10"
-                  className="text-border"
                   strokeLinecap="round"
                 />
-                {/* Inner Dashed Track Line */}
+                {/* Layer 6: Center Dashed Lane Marker Line */}
                 <path
                   d={svgPathD}
-                  stroke="currentColor"
-                  strokeWidth="3"
-                  className="text-muted-foreground/40"
-                  strokeDasharray="6 6"
+                  stroke="#71717a"
+                  strokeWidth="2.5"
+                  strokeOpacity="0.6"
+                  strokeDasharray="8 8"
                   strokeLinecap="round"
                 />
               </svg>
@@ -239,26 +268,26 @@ export default function ProgressRoadmapView() {
                     className="absolute -translate-x-1/2 -translate-y-1/2 group z-10"
                     style={{ left: `${(nodeX / 400) * 100}%`, top: `${node.y}px` }}
                   >
-                    {/* User Avatar Marker Pin on Left Side of Current Position */}
+                    {/* User Avatar Marker Pin on Left Side of Current Position (3D Floating Badge) */}
                     {node.isCurrentPosition && (
-                      <div className="absolute right-full mr-3.5 top-1/2 -translate-y-1/2 z-30 flex items-center pointer-events-none drop-shadow-2xl w-max max-w-none">
-                        {/* White Pill Container fitting full user name */}
-                        <div className="flex items-center gap-2 bg-foreground text-background pl-1.5 pr-4 py-1.5 rounded-full shadow-2xl border border-background whitespace-nowrap">
+                      <div className="absolute right-full mr-3.5 top-1/2 -translate-y-1/2 z-30 flex items-center drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] w-max max-w-none">
+                        {/* 3D White Pill Container with Profile Picture & "You" */}
+                        <div className="flex items-center gap-2 bg-foreground text-background pl-1.5 pr-4 py-1.5 rounded-full shadow-[0_6px_0_#18181b,0_10px_20px_rgba(0,0,0,0.8)] border-2 border-background whitespace-nowrap">
                           <div className="p-0.5 rounded-full bg-background/20 flex-shrink-0">
                             {user?.imageUrl ? (
                               <img
                                 src={user.imageUrl}
-                                alt={user.fullName || "User Avatar"}
-                                className="w-7 h-7 rounded-full object-cover"
+                                alt="User Avatar"
+                                className="w-7.5 h-7.5 rounded-full object-cover shadow-md"
                               />
                             ) : (
-                              <div className="w-7 h-7 rounded-full bg-background text-foreground font-bold flex items-center justify-center text-[10px]">
-                                {(user?.firstName?.[0] || user?.fullName?.[0] || "Y").toUpperCase()}
+                              <div className="w-7.5 h-7.5 rounded-full bg-background text-foreground font-bold flex items-center justify-center text-[10px]">
+                                Y
                               </div>
                             )}
                           </div>
                           <span className="text-xs font-extrabold tracking-tight text-background whitespace-nowrap pr-0.5">
-                            {user?.firstName || user?.fullName || user?.username || "You"}
+                            You
                           </span>
                         </div>
                         {/* White Arrow Tip attached cleanly after the pill */}
@@ -266,43 +295,88 @@ export default function ProgressRoadmapView() {
                       </div>
                     )}
 
-                    {/* 3D Checkpoint Circle Button (Fast Spring Physics Hover) */}
+                    {/* Glossy Metallic 3D Glass Orb Checkpoint Button */}
                     <motion.button
-                      whileHover={{ scale: 1.18 }}
-                      whileTap={{ scale: 0.90 }}
-                      transition={{ type: "spring", stiffness: 500, damping: 22 }}
+                      whileHover={{ scale: 1.15, y: -3 }}
+                      whileTap={{ scale: 0.92, y: 2 }}
+                      transition={{ duration: 0.1, ease: "easeOut" }}
                       onClick={() => {
                         triggerHaptic("medium");
                         setSelectedTopicId(node.topic.id);
                       }}
-                      className={`relative w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-lg ${
-                        node.isCompleted
-                          ? "bg-foreground text-background border-4 border-foreground font-bold shadow-lg ring-2 ring-foreground/20"
+                      className={`relative w-15 h-15 sm:w-17 sm:h-17 rounded-full p-[3px] cursor-pointer ${node.isCompleted
+                          ? "shadow-[0_10px_22px_rgba(16,185,129,0.45),0_4px_0_#059669]"
                           : node.isCurrentPosition
-                          ? "bg-card text-foreground border-4 border-foreground font-bold shadow-2xl ring-4 ring-foreground/30"
-                          : "bg-secondary/80 text-muted-foreground border-4 border-border/80 shadow-inner hover:border-foreground/60 hover:text-foreground"
-                      }`}
+                            ? "shadow-[0_10px_22px_rgba(255,255,255,0.5),0_4px_0_#d4d4d8]"
+                            : "shadow-[0_10px_22px_rgba(0,0,0,0.8),0_4px_0_rgba(0,0,0,0.6)]"
+                        }`}
                     >
-                      <div className="absolute inset-1 rounded-full border border-white/10 pointer-events-none" />
+                      {/* Outer Metallic / Vibrant Bevel Ring */}
+                      <div className={`w-full h-full rounded-full p-[2.5px] shadow-inner ${node.isCompleted
+                          ? "bg-gradient-to-b from-emerald-200 via-emerald-400 to-emerald-600"
+                          : node.isCurrentPosition
+                            ? "bg-gradient-to-b from-white via-zinc-100 to-zinc-300 ring-4 ring-white/50"
+                            : "bg-gradient-to-b from-zinc-300 via-zinc-600 to-zinc-950"
+                        }`}>
+                        {/* Inner Groove Border */}
+                        <div className={`w-full h-full rounded-full p-[2px] ${node.isCompleted
+                            ? "bg-emerald-950"
+                            : node.isCurrentPosition
+                              ? "bg-zinc-300"
+                              : "bg-zinc-950"
+                          }`}>
+                          {/* Inner Bevel Ring */}
+                          <div className={`w-full h-full rounded-full p-[2px] ${node.isCompleted
+                              ? "bg-gradient-to-b from-emerald-100 via-emerald-300 to-emerald-500"
+                              : node.isCurrentPosition
+                                ? "bg-gradient-to-b from-white via-zinc-50 to-zinc-200"
+                                : "bg-gradient-to-b from-zinc-400 via-zinc-700 to-zinc-200"
+                            }`}>
+                            {/* Main Glossy Sphere Canvas */}
+                            <div className={`relative w-full h-full rounded-full flex items-center justify-center overflow-hidden ${node.isCompleted
+                                ? "bg-[radial-gradient(circle_at_35%_25%,#a7f3d0_0%,#34d399_40%,#10b981_75%,#059669_100%)] text-white shadow-[inset_0_-4px_8px_rgba(4,120,87,0.3)]"
+                                : node.isCurrentPosition
+                                  ? "bg-[radial-gradient(circle_at_35%_25%,#ffffff_0%,#ffffff_60%,#fafafa_85%,#f4f4f5_100%)] text-zinc-950 shadow-[inset_0_-3px_6px_rgba(161,161,170,0.25)]"
+                                  : "bg-[radial-gradient(circle_at_40%_25%,#71717a_0%,#3f3f46_30%,#18181b_65%,#09090b_100%)] text-white shadow-[inset_0_-8px_12px_rgba(0,0,0,0.9)]"
+                              }`}>
+                              {/* Top-Left Glossy Glass Crescent Glare */}
+                              <div className="absolute top-[8%] left-[10%] w-[58%] h-[42%] rounded-[100%] bg-gradient-to-b from-white/90 via-white/30 to-transparent -rotate-[22deg] blur-[0.2px] pointer-events-none z-10" />
 
-                      {node.isCompleted ? (
-                        <CheckCircle2 className="w-6.5 h-6.5 text-background stroke-[2.5]" />
-                      ) : (
-                        <span className="font-bold font-mono text-sm sm:text-base">
-                          {node.idx + 1}
-                        </span>
-                      )}
+                              {/* Bottom Curved Glass Inner Light Rim */}
+                              <div className={`absolute bottom-[6%] inset-x-[15%] h-[20%] rounded-[100%] blur-[0.5px] pointer-events-none z-10 ${node.isCompleted
+                                  ? "bg-gradient-to-t from-emerald-200/60 to-transparent"
+                                  : node.isCurrentPosition
+                                    ? "bg-gradient-to-t from-white/80 to-transparent"
+                                    : "bg-gradient-to-t from-white/30 to-transparent"
+                                }`} />
+
+                              {/* Icon or Level Number */}
+                              {node.isCompleted ? (
+                                <CheckCircle2 className="w-7 h-7 text-white stroke-[2.5] drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)] relative z-20" />
+                              ) : (
+                                <span className={`font-black font-mono text-base sm:text-lg relative z-20 ${node.isCurrentPosition ? "text-zinc-950 drop-shadow-[0_1px_1px_rgba(255,255,255,0.8)]" : "text-white drop-shadow-[0_3px_6px_rgba(0,0,0,0.8)]"
+                                  }`}>
+                                  {node.idx + 1}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </motion.button>
 
-                    {/* Topic Title Badge consistently on Right Side */}
+                    {/* Interactive Topic Title Badge */}
                     <div
-                      className={`absolute left-full ml-3.5 top-1/2 -translate-y-1/2 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border shadow-md transition-all pointer-events-none z-20 ${
-                        node.isActive
-                          ? "bg-foreground text-background border-foreground font-bold shadow-lg"
+                      onClick={() => {
+                        triggerHaptic("medium");
+                        setSelectedTopicId(node.topic.id);
+                      }}
+                      className={`absolute left-full ml-3.5 top-1/2 -translate-y-1/2 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border shadow-[0_4px_0_#18181b,0_6px_12px_rgba(0,0,0,0.5)] cursor-pointer z-20 transition-colors ${node.isCompleted
+                          ? "bg-card text-emerald-400 border-emerald-500/50 hover:border-emerald-400 hover:bg-secondary font-medium"
                           : node.isCurrentPosition
-                          ? "bg-card text-foreground border-foreground font-bold ring-1 ring-foreground/20"
-                          : "bg-card/95 text-foreground border-border/80 backdrop-blur-md group-hover:border-foreground/50"
-                      }`}
+                            ? "bg-card text-foreground border-foreground font-bold ring-1 ring-foreground/20"
+                            : "bg-card/95 text-foreground border-border/80 hover:border-foreground/50 hover:bg-secondary"
+                        }`}
                     >
                       <span className="truncate max-w-[140px] sm:max-w-[180px] block">
                         {node.topic.title}
@@ -319,7 +393,7 @@ export default function ProgressRoadmapView() {
       {/* ==============================================================
           TAB 2: PROGRESS ANALYTICS DASHBOARD (Monochrome Data View)
           ============================================================== */}
-      {viewTab === "progress" && (
+      {viewTab === "analytics" && (
         <div className="space-y-6 font-normal">
           {/* Main Progress Overview Card */}
           <Card className="bg-card border-border shadow-xl p-6 sm:p-8 space-y-6">
@@ -443,7 +517,7 @@ export default function ProgressRoadmapView() {
                 <Card className="bg-card/95 backdrop-blur-xl border-border shadow-2xl p-6 space-y-4 font-normal relative">
                   <button
                     onClick={() => setSelectedTopicId(null)}
-                    className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-xs font-bold px-2 py-1 rounded-lg bg-secondary"
+                    className="absolute top-4 right-4 text-muted-foreground hover:text-foreground text-xs font-bold px-2.5 py-1 rounded-lg bg-secondary cursor-pointer hover:bg-secondary/80"
                   >
                     ✕ Close
                   </button>
@@ -470,7 +544,7 @@ export default function ProgressRoadmapView() {
                       variant={isCompleted ? "default" : "secondary"}
                       size="sm"
                       onClick={() => toggleTopicComplete(selectedTopic.id)}
-                      className="flex items-center gap-2 font-medium"
+                      className="flex items-center gap-2 font-medium cursor-pointer"
                     >
                       <AnimatedCheckmark checked={isCompleted} size={16} />
                       <span>{isCompleted ? "Completed" : "Mark Mastered"}</span>
@@ -483,7 +557,7 @@ export default function ProgressRoadmapView() {
                         setActiveTopicId(selectedTopic.id);
                         router.push("/");
                       }}
-                      className="flex items-center gap-2 font-semibold bg-foreground text-background hover:bg-foreground/90"
+                      className="flex items-center gap-2 font-semibold bg-foreground text-background hover:bg-foreground/90 cursor-pointer"
                     >
                       <span>Study Concept</span>
                       <ArrowUpRight className="w-4 h-4" />
@@ -507,29 +581,27 @@ export default function ProgressRoadmapView() {
                 triggerHaptic("light");
                 setViewTab("map");
               }}
-              className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-                viewTab === "map"
+              className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer ${viewTab === "map"
                   ? "bg-foreground text-background shadow-md"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
-              }`}
+                }`}
             >
-              <MapPin className="w-4 h-4" />
-              <span>MAP</span>
+              <Route className="w-4 h-4" />
+              <span>ROADMAP</span>
             </button>
 
             <button
               onClick={() => {
                 triggerHaptic("light");
-                setViewTab("progress");
+                setViewTab("analytics");
               }}
-              className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
-                viewTab === "progress"
+              className={`py-2.5 px-4 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer ${viewTab === "analytics"
                   ? "bg-foreground text-background shadow-md"
                   : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
-              }`}
+                }`}
             >
               <BarChart2 className="w-4 h-4" />
-              <span>PROGRESS</span>
+              <span>ANALYTICS</span>
             </button>
           </div>
         </div>

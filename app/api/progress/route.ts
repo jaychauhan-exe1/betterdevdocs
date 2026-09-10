@@ -27,6 +27,7 @@ export async function GET() {
     let completedTopics: string[] = [];
     let activeTopicId: string | null = null;
     let selectedRole: string | null = null;
+    let mcqAnswers: Record<string, Record<number, number>> = {};
     let fetchedFromSupabase = false;
 
     // 1. Try fetching from Supabase
@@ -34,7 +35,7 @@ export async function GET() {
     if (supabase) {
       const { data, error } = await supabase
         .from("user_progress")
-        .select("completed_topics, active_topic_id, selected_role")
+        .select("completed_topics, active_topic_id, selected_role, mcq_answers")
         .eq("user_id", userId)
         .maybeSingle();
 
@@ -44,6 +45,7 @@ export async function GET() {
           : [];
         activeTopicId = data.active_topic_id || null;
         selectedRole = data.selected_role || null;
+        mcqAnswers = data.mcq_answers && typeof data.mcq_answers === "object" ? data.mcq_answers : {};
         fetchedFromSupabase = true;
       }
     }
@@ -58,6 +60,7 @@ export async function GET() {
         completedTopics?: string[];
         activeTopicId?: string;
         selectedRole?: string;
+        mcqAnswers?: Record<string, Record<number, number>>;
       };
 
       if (Array.isArray(meta?.completedTopics)) {
@@ -69,9 +72,12 @@ export async function GET() {
       if (meta?.selectedRole) {
         selectedRole = meta.selectedRole;
       }
+      if (meta?.mcqAnswers && typeof meta.mcqAnswers === "object") {
+        mcqAnswers = meta.mcqAnswers;
+      }
     }
 
-    return NextResponse.json({ completedTopics, activeTopicId, selectedRole });
+    return NextResponse.json({ completedTopics, activeTopicId, selectedRole, mcqAnswers });
   } catch (err: any) {
     console.error("GET /api/progress error:", err);
     return NextResponse.json(
@@ -94,6 +100,8 @@ export async function POST(req: Request) {
       : [];
     const activeTopicId: string | undefined = body?.activeTopicId;
     const selectedRole: string | undefined = body?.selectedRole;
+    const mcqAnswers: Record<string, Record<number, number>> =
+      body?.mcqAnswers && typeof body.mcqAnswers === "object" ? body.mcqAnswers : {};
 
     // 1. Try Upserting into Supabase
     const supabase = getSupabaseAdmin();
@@ -104,6 +112,7 @@ export async function POST(req: Request) {
           completed_topics: completedTopics,
           active_topic_id: activeTopicId || null,
           selected_role: selectedRole || "all",
+          mcq_answers: mcqAnswers,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "user_id" }
@@ -120,6 +129,7 @@ export async function POST(req: Request) {
           completedTopics,
           activeTopicId,
           selectedRole,
+          mcqAnswers,
         },
       });
     } catch (clerkErr) {
@@ -131,6 +141,7 @@ export async function POST(req: Request) {
       completedTopics,
       activeTopicId,
       selectedRole,
+      mcqAnswers,
     });
   } catch (err: any) {
     console.error("POST /api/progress error:", err);

@@ -3,6 +3,8 @@ import { persist } from "zustand/middleware";
 import { TOPICS, Topic } from "@/data/topics";
 import { ROLES } from "@/data/roles";
 
+import { calculateUserPoints, PointsSummary } from "@/lib/points";
+
 export type FilterState = "all" | "uncompleted" | "completed";
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
@@ -10,6 +12,8 @@ interface StudyState {
   topics: Topic[];
   activeTopicId: string;
   completedTopics: string[];
+  mcqAnswers: Record<string, Record<number, number>>;
+  submittedQuizzes: Record<string, boolean>;
   selectedRole: string | null;
   isSidebarOpen: boolean;
   searchQuery: string;
@@ -26,6 +30,8 @@ interface StudyState {
   setSelectedRole: (roleId: string) => void;
   setActiveTopicId: (id: string) => void;
   toggleTopicComplete: (id: string) => void;
+  setTopicMcqAnswers: (topicId: string, answers: Record<number, number>) => void;
+  setQuizSubmitted: (topicId: string, isSubmitted: boolean) => void;
   resetProgress: () => void;
   toggleSidebar: () => void;
   setSidebarOpen: (isOpen: boolean) => void;
@@ -33,22 +39,40 @@ interface StudyState {
   setFilterState: (filter: FilterState) => void;
   toggleCategoryCollapsed: (category: string) => void;
   setAuthenticated: (isAuth: boolean) => void;
-  syncToServer: (completedTopicsOverride?: string[], activeTopicOverride?: string, roleOverride?: string | null) => Promise<void>;
-  hydrateFromServer: (completedTopics: string[], activeTopicId?: string | null, selectedRole?: string | null) => void;
+  syncToServer: (
+    completedTopicsOverride?: string[],
+    activeTopicOverride?: string,
+    roleOverride?: string | null,
+    mcqAnswersOverride?: Record<string, Record<number, number>>,
+    submittedQuizzesOverride?: Record<string, boolean>
+  ) => Promise<void>;
+  hydrateFromServer: (
+    completedTopics: string[],
+    activeTopicId?: string | null,
+    selectedRole?: string | null,
+    mcqAnswers?: Record<string, Record<number, number>>,
+    submittedQuizzes?: Record<string, boolean>
+  ) => void;
 
   // Helpers
   getActiveTopic: () => Topic;
   getRoleFilteredTopics: () => Topic[];
   isTopicCompleted: (id: string) => boolean;
+  getPointsSummary: () => PointsSummary;
 }
 
 // Helper to push progress updates to API route
-async function postProgressToServer(completedTopics: string[], activeTopicId?: string, selectedRole?: string | null) {
+async function postProgressToServer(
+  completedTopics: string[],
+  activeTopicId?: string,
+  selectedRole?: string | null,
+  mcqAnswers?: Record<string, Record<number, number>>
+) {
   try {
     const res = await fetch("/api/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completedTopics, activeTopicId, selectedRole }),
+      body: JSON.stringify({ completedTopics, activeTopicId, selectedRole, mcqAnswers }),
     });
     return res.ok;
   } catch {
@@ -62,6 +86,8 @@ export const useStudyStore = create<StudyState>()(
       topics: TOPICS,
       activeTopicId: TOPICS[0]?.id || "js-variables",
       completedTopics: [],
+      mcqAnswers: {},
+      submittedQuizzes: {},
       selectedRole: null,
       isSidebarOpen: false,
       searchQuery: "",
@@ -90,14 +116,14 @@ export const useStudyStore = create<StudyState>()(
 
       setSelectedRole: (roleId: string) => {
         set({ selectedRole: roleId });
-        const { getRoleFilteredTopics, activeTopicId, setActiveTopicId, isAuthenticated, completedTopics, syncToServer } = get();
+        const { getRoleFilteredTopics, activeTopicId, setActiveTopicId, isAuthenticated, completedTopics, mcqAnswers, syncToServer } = get();
         const roleTopics = getRoleFilteredTopics();
         const isCurrentInRole = roleTopics.some((t) => t.id === activeTopicId);
 
         if (!isCurrentInRole && roleTopics.length > 0) {
           setActiveTopicId(roleTopics[0].id);
         } else if (isAuthenticated) {
-          syncToServer(completedTopics, activeTopicId, roleId);
+          syncToServer(completedTopics, activeTopicId, roleId, mcqAnswers);
         }
       },
 
@@ -122,9 +148,9 @@ export const useStudyStore = create<StudyState>()(
         });
 
         // Trigger background sync if authenticated
-        const { isAuthenticated, completedTopics, selectedRole, syncToServer } = get();
+        const { isAuthenticated, completedTopics, selectedRole, mcqAnswers, syncToServer } = get();
         if (isAuthenticated) {
-          syncToServer(completedTopics, id, selectedRole);
+          syncToServer(completedTopics, id, selectedRole, mcqAnswers);
         }
       },
 
@@ -139,49 +165,102 @@ export const useStudyStore = create<StudyState>()(
         });
 
         // Trigger background sync if authenticated
-        const { isAuthenticated, activeTopicId, selectedRole, syncToServer } = get();
+        const { isAuthenticated, activeTopicId, selectedRole, mcqAnswers, syncToServer } = get();
         if (isAuthenticated) {
-          syncToServer(updatedCompleted, activeTopicId, selectedRole);
+          syncToServer(updatedCompleted, activeTopicId, selectedRole, mcqAnswers);
+        }
+      },
+
+      setTopicMcqAnswers: (topicId: string, answers: Record<number, number>) => {
+        let updatedMcqAnswers: Record<string, Record<number, number>> = {};
+        set((state) => {
+          updatedMcqAnswers = {
+            ...state.mcqAnswers,
+            [topicId]: answers,
+          };
+          return { mcqAnswers: updatedMcqAnswers };
+        });
+
+        const { isAuthenticated, completedTopics, activeTopicId, selectedRole, syncToServer } = get();
+        if (isAuthenticated) {
+          syncToServer(completedTopics, activeTopicId, selectedRole, updatedMcqAnswers);
+        }
+      },
+
+      setQuizSubmitted: (topicId: string, isSubmitted: boolean) => {
+        set((state) => {
+          const updatedSubmissions = {
+            ...state.submittedQuizzes,
+            [topicId]: isSubmitted,
+          };
+          // If retaking, clear answers for this topic
+          const updatedAnswers = isSubmitted
+            ? state.mcqAnswers
+            : { ...state.mcqAnswers, [topicId]: {} };
+
+          return {
+            submittedQuizzes: updatedSubmissions,
+            mcqAnswers: updatedAnswers,
+          };
+        });
+
+        const { isAuthenticated, completedTopics, activeTopicId, selectedRole, mcqAnswers, syncToServer } = get();
+        if (isAuthenticated) {
+          syncToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers);
         }
       },
 
       resetProgress: () => {
-        set({ completedTopics: [] });
+        set({ completedTopics: [], mcqAnswers: {}, submittedQuizzes: {} });
         const { isAuthenticated, activeTopicId, selectedRole, syncToServer } = get();
         if (isAuthenticated) {
-          syncToServer([], activeTopicId, selectedRole);
+          syncToServer([], activeTopicId, selectedRole, {});
         }
       },
 
-      syncToServer: async (completedTopicsOverride?: string[], activeTopicOverride?: string, roleOverride?: string | null) => {
+      syncToServer: async (
+        completedTopicsOverride?: string[],
+        activeTopicOverride?: string,
+        roleOverride?: string | null,
+        mcqAnswersOverride?: Record<string, Record<number, number>>
+      ) => {
         const completed = completedTopicsOverride ?? get().completedTopics;
         const active = activeTopicOverride ?? get().activeTopicId;
         const role = roleOverride !== undefined ? roleOverride : get().selectedRole;
+        const answers = mcqAnswersOverride ?? get().mcqAnswers;
 
         set({ syncStatus: "syncing" });
-        const ok = await postProgressToServer(completed, active, role);
+        const ok = await postProgressToServer(completed, active, role, answers);
         set({ syncStatus: ok ? "synced" : "error" });
       },
 
-      hydrateFromServer: (serverCompleted: string[], serverActiveTopic?: string | null, serverRole?: string | null) => {
+      hydrateFromServer: (
+        serverCompleted: string[],
+        serverActiveTopic?: string | null,
+        serverRole?: string | null,
+        serverMcqAnswers?: Record<string, Record<number, number>>
+      ) => {
         set((state) => {
-          // Merge server completed topics with local completed topics (union)
           const mergedSet = new Set([...state.completedTopics, ...serverCompleted]);
           const mergedCompleted = Array.from(mergedSet);
           const nextActiveTopic = serverActiveTopic || state.activeTopicId;
           const nextRole = serverRole || state.selectedRole;
+          const nextMcqAnswers = {
+            ...state.mcqAnswers,
+            ...(serverMcqAnswers || {}),
+          };
 
           return {
             completedTopics: mergedCompleted,
             activeTopicId: nextActiveTopic,
             selectedRole: nextRole,
+            mcqAnswers: nextMcqAnswers,
             syncStatus: "synced",
           };
         });
 
-        // Push merged state back to server to keep database perfectly in sync
-        const { completedTopics, activeTopicId, selectedRole } = get();
-        postProgressToServer(completedTopics, activeTopicId, selectedRole);
+        const { completedTopics, activeTopicId, selectedRole, mcqAnswers } = get();
+        postProgressToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers);
       },
 
       toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
@@ -228,6 +307,11 @@ export const useStudyStore = create<StudyState>()(
       isTopicCompleted: (id: string) => {
         return get().completedTopics.includes(id);
       },
+
+      getPointsSummary: () => {
+        const { topics, completedTopics, mcqAnswers } = get();
+        return calculateUserPoints(topics, completedTopics, mcqAnswers);
+      },
     }),
     {
       name: "devdocs_study_store_v1",
@@ -235,6 +319,8 @@ export const useStudyStore = create<StudyState>()(
         completedTopics: state.completedTopics,
         activeTopicId: state.activeTopicId,
         selectedRole: state.selectedRole,
+        mcqAnswers: state.mcqAnswers,
+        submittedQuizzes: state.submittedQuizzes,
         collapsedCategories: state.collapsedCategories,
       }),
     }

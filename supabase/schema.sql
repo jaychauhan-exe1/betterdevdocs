@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS public.user_progress (
   completed_topics JSONB NOT NULL DEFAULT '[]'::jsonb,
   active_topic_id TEXT,
   selected_role TEXT DEFAULT 'all',
+  mcq_answers JSONB NOT NULL DEFAULT '{}'::jsonb,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

@@ -68,12 +68,17 @@ function renderFormattedText(text: string) {
 export default function TopicViewer(props: TopicViewerProps) {
   const storeActiveTopic = useStudyStore((state) => state.getActiveTopic());
   const storeIsCompleted = useStudyStore((state) => state.isTopicCompleted(storeActiveTopic.id));
+  const storeMcqAnswers = useStudyStore((state) => state.mcqAnswers[storeActiveTopic.id]);
+  const storeSubmittedQuizzes = useStudyStore((state) => state.submittedQuizzes);
+  const setTopicMcqAnswers = useStudyStore((state) => state.setTopicMcqAnswers);
+  const setQuizSubmittedStore = useStudyStore((state) => state.setQuizSubmitted);
   const toggleTopicComplete = useStudyStore((state) => state.toggleTopicComplete);
   const setActiveTopicId = useStudyStore((state) => state.setActiveTopicId);
 
   const topic = props.topic || storeActiveTopic;
   const allTopics = props.allTopics || TOPICS;
   const isCompleted = props.isCompleted !== undefined ? props.isCompleted : storeIsCompleted;
+  const isQuizSubmitted = !!storeSubmittedQuizzes[topic.id];
   const onToggleComplete = props.onToggleComplete || toggleTopicComplete;
   const onSelectTopic = props.onSelectTopic || setActiveTopicId;
   const [activeTab, setActiveTab] = useState<string>("explanation");
@@ -81,12 +86,10 @@ export default function TopicViewer(props: TopicViewerProps) {
 
   // MCQ Quiz State
   const [userAnswers, setUserAnswers] = useState<Record<number, number>>({});
-  const [isQuizSubmitted, setIsQuizSubmitted] = useState<boolean>(false);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState<number>(0);
 
   useEffect(() => {
-    setUserAnswers({});
-    setIsQuizSubmitted(false);
+    setUserAnswers(storeMcqAnswers || {});
     setCurrentQuestionIndex(0);
   }, [topic.id]);
 
@@ -103,7 +106,21 @@ export default function TopicViewer(props: TopicViewerProps) {
   const handleSelectOption = (qIdx: number, optionIdx: number) => {
     if (isQuizSubmitted) return;
     triggerHaptic("medium");
-    setUserAnswers((prev) => ({ ...prev, [qIdx]: optionIdx }));
+    const updated = { ...userAnswers, [qIdx]: optionIdx };
+    setUserAnswers(updated);
+    setTopicMcqAnswers(topic.id, updated);
+  };
+
+  const handleSubmitQuiz = () => {
+    triggerHaptic("success");
+    setQuizSubmittedStore(topic.id, true);
+  };
+
+  const handleRetakeQuiz = () => {
+    triggerHaptic("light");
+    setUserAnswers({});
+    setCurrentQuestionIndex(0);
+    setQuizSubmittedStore(topic.id, false);
   };
 
   const calculateScore = () => {
@@ -431,10 +448,10 @@ export default function TopicViewer(props: TopicViewerProps) {
                       <Button
                         variant="default"
                         size="lg"
-                        onClick={() => setIsQuizSubmitted(true)}
-                        className="flex items-center gap-2 font-semibold px-8"
+                        onClick={handleSubmitQuiz}
+                        className="flex items-center gap-2 font-semibold px-8 bg-foreground text-background hover:bg-foreground/90"
                       >
-                        <Check className="w-4 h-4 text-primary-foreground" />
+                        <Check className="w-4 h-4 text-background" />
                         <span>Submit Quiz Test</span>
                       </Button>
                     )}
@@ -462,11 +479,7 @@ export default function TopicViewer(props: TopicViewerProps) {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => {
-                          setIsQuizSubmitted(false);
-                          setUserAnswers({});
-                          setCurrentQuestionIndex(0);
-                        }}
+                        onClick={handleRetakeQuiz}
                         className="flex items-center gap-2 font-medium"
                       >
                         <RotateCcw className="w-4 h-4" />

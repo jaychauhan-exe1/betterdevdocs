@@ -1,8 +1,9 @@
 "use client";
 import Link from "next/link";
-import React from "react";
+import React, { useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TOPICS, CategoryType } from "@/data/topics";
+import { ROLES } from "@/data/roles";
 import { useStudyStore } from "@/store/useStudyStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -48,24 +49,30 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
   const isProgressPage = pathname === "/progress";
+  const isLeaderboardPage = pathname === "/leaderboard";
 
-  const {
-    activeTopicId,
-    setActiveTopicId,
-    completedTopics,
-    toggleTopicComplete,
-    isSidebarOpen,
-    setSidebarOpen,
-    searchQuery,
-    setSearchQuery,
-    filterState,
-    setFilterState,
-    collapsedCategories,
-    toggleCategoryCollapsed,
-    getRoleFilteredTopics,
-  } = useStudyStore();
+  const topics = useStudyStore((state) => state.topics);
+  const selectedRole = useStudyStore((state) => state.selectedRole);
+  const activeTopicId = useStudyStore((state) => state.activeTopicId);
+  const setActiveTopicId = useStudyStore((state) => state.setActiveTopicId);
+  const completedTopics = useStudyStore((state) => state.completedTopics);
+  const toggleTopicComplete = useStudyStore((state) => state.toggleTopicComplete);
+  const isSidebarOpen = useStudyStore((state) => state.isSidebarOpen);
+  const setSidebarOpen = useStudyStore((state) => state.setSidebarOpen);
+  const searchQuery = useStudyStore((state) => state.searchQuery);
+  const setSearchQuery = useStudyStore((state) => state.setSearchQuery);
+  const filterState = useStudyStore((state) => state.filterState);
+  const setFilterState = useStudyStore((state) => state.setFilterState);
+  const collapsedCategories = useStudyStore((state) => state.collapsedCategories);
+  const toggleCategoryCollapsed = useStudyStore((state) => state.toggleCategoryCollapsed);
 
-  const roleTopics = getRoleFilteredTopics();
+  const roleTopics = useMemo(() => {
+    if (!selectedRole || selectedRole === "all") return topics;
+    const roleDef = ROLES.find((r) => r.id === selectedRole);
+    if (!roleDef) return topics;
+    return topics.filter((t) => roleDef.categories.includes(t.category));
+  }, [topics, selectedRole]);
+
   const categories = Array.from(new Set(roleTopics.map((t) => t.category))) as CategoryType[];
 
   const toggleCategory = (category: string) => {
@@ -140,7 +147,7 @@ export default function Sidebar() {
                     Better DevDocs
                   </h1>
 
-                  <p className="text-xs text-muted-foreground font-normal">Shadcn Study Guide</p>
+                  <p className="text-xs text-muted-foreground font-normal">Learn. Not Just Code.</p>
                 </div>
               </div>
             </Link>
@@ -182,6 +189,26 @@ export default function Sidebar() {
               </span>
             </div>
             <Progress value={percentage} className="h-2" />
+          </div>
+
+          {/* Global Leaderboard Widget */}
+          <div
+            onClick={() => {
+              triggerHaptic("light");
+              router.push("/leaderboard");
+              setSidebarOpen(false);
+            }}
+            className={`p-3 rounded-2xl bg-secondary/50 border flex items-center justify-between font-normal cursor-pointer transition-all hover:bg-secondary/80 hover:border-foreground/40 active:scale-[0.99] ${
+              isLeaderboardPage ? "border-foreground/60 bg-secondary/80 shadow-sm" : "border-border"
+            }`}
+            role="button"
+            tabIndex={0}
+            title="Click to view Global Leaderboard"
+          >
+            <span className="text-foreground font-medium text-xs sm:text-sm flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-foreground" /> Global Leaderboard
+            </span>
+            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
           </div>
 
           {/* Search Box */}
