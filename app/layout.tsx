@@ -14,6 +14,9 @@ export const metadata: Metadata = {
   description: "Minimal monochrome study guide for software developers",
 };
 
+import { SyncProgressProvider } from "@/components/SyncProgressProvider";
+import { TopicsProvider } from "@/components/TopicsProvider";
+
 export default function RootLayout({
   children,
 }: {
@@ -58,7 +61,9 @@ export default function RootLayout({
             },
           }}
         >
-          {children}
+          <TopicsProvider>
+            <SyncProgressProvider>{children}</SyncProgressProvider>
+          </TopicsProvider>
         </ClerkProvider>
       </body>
     </html>

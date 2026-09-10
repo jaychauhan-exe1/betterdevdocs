@@ -44,6 +44,7 @@ const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
 
 export default function Sidebar() {
   const {
+    topics,
     activeTopicId,
     setActiveTopicId,
     completedTopics,
@@ -58,13 +59,13 @@ export default function Sidebar() {
     toggleCategoryCollapsed,
   } = useStudyStore();
 
-  const categories = Array.from(new Set(TOPICS.map((t) => t.category))) as CategoryType[];
+  const categories = Array.from(new Set(topics.map((t) => t.category))) as CategoryType[];
 
   const toggleCategory = (category: string) => {
     toggleCategoryCollapsed(category);
   };
 
-  const filteredTopics = TOPICS.filter((topic) => {
+  const filteredTopics = topics.filter((topic) => {
     const matchesSearch =
       topic.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       topic.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -79,7 +80,7 @@ export default function Sidebar() {
     return matchesSearch;
   });
 
-  const totalCount = TOPICS.length;
+  const totalCount = topics.length;
   const completedCount = completedTopics.length;
   const percentage = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
 
@@ -204,7 +205,7 @@ export default function Sidebar() {
             const categoryTopics = filteredTopics.filter((t) => t.category === category);
             if (categoryTopics.length === 0) return null;
 
-            const activeCategory = TOPICS.find((t) => t.id === activeTopicId)?.category;
+            const activeCategory = topics.find((t) => t.id === activeTopicId)?.category;
             const isCollapsed =
               collapsedCategories[category] !== undefined
                 ? collapsedCategories[category]

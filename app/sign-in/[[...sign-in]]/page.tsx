@@ -21,13 +21,7 @@ export default function SignInPage() {
 
       {/* Main Content */}
       <div className="z-10 w-full max-w-md flex flex-col items-center gap-6">
-        <div className="flex flex-col items-center gap-2 text-center">
-          <div className="w-10 h-10 rounded-xl border border-border bg-card flex items-center justify-center text-foreground shadow-lg">
-            <BookOpen className="w-5 h-5" />
-          </div>
-          <h1 className="text-xl font-bold tracking-tight text-foreground">Welcome back to DevDocs</h1>
-          <p className="text-xs text-muted-foreground">Sign in to track your mastery & saved progress</p>
-        </div>
+
 
         <SignIn
           appearance={{

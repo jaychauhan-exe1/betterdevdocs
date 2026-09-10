@@ -28,7 +28,8 @@ export default function Header() {
 
   const [starCount, setStarCount] = useState<string | null>(null);
 
-  const totalCount = TOPICS.length;
+  const topics = useStudyStore((state) => state.topics);
+  const totalCount = topics.length;
 
   useEffect(() => {
     fetch("/api/github-stars")
