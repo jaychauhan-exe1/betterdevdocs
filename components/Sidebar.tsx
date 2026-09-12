@@ -50,12 +50,14 @@ export default function Sidebar() {
   const router = useRouter();
   const isProgressPage = pathname === "/progress";
   const isLeaderboardPage = pathname === "/leaderboard";
+  const isCodingPage = pathname === "/coding";
 
   const topics = useStudyStore((state) => state.topics);
   const selectedRole = useStudyStore((state) => state.selectedRole);
   const activeTopicId = useStudyStore((state) => state.activeTopicId);
   const setActiveTopicId = useStudyStore((state) => state.setActiveTopicId);
   const completedTopics = useStudyStore((state) => state.completedTopics);
+  const solvedChallenges = useStudyStore((state) => state.solvedChallenges);
   const toggleTopicComplete = useStudyStore((state) => state.toggleTopicComplete);
   const isSidebarOpen = useStudyStore((state) => state.isSidebarOpen);
   const setSidebarOpen = useStudyStore((state) => state.setSidebarOpen);
@@ -209,6 +211,31 @@ export default function Sidebar() {
               <Trophy className="w-4 h-4 text-foreground" /> Global Leaderboard
             </span>
             <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+          </div>
+
+          {/* Coding Arena Practice Widget */}
+          <div
+            onClick={() => {
+              triggerHaptic("light");
+              router.push("/coding");
+              setSidebarOpen(false);
+            }}
+            className={`p-3 rounded-2xl bg-secondary/50 border flex items-center justify-between font-normal cursor-pointer transition-all hover:bg-secondary/80 hover:border-foreground/40 active:scale-[0.99] ${
+              isCodingPage ? "border-foreground/60 bg-secondary/80 shadow-sm" : "border-border"
+            }`}
+            role="button"
+            tabIndex={0}
+            title="Click to view Coding Arena"
+          >
+            <span className="text-foreground font-medium text-xs sm:text-sm flex items-center gap-2">
+              <Code2 className="w-4 h-4 text-foreground" /> Coding Arena
+            </span>
+            <div className="flex items-center gap-1.5">
+              <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-semibold px-2 py-0.5">
+                {Object.keys(solvedChallenges || {}).length}/30 Solved
+              </Badge>
+              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+            </div>
           </div>
 
           {/* Search Box */}

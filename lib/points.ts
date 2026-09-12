@@ -1,4 +1,5 @@
 import { Topic } from "@/data/topics";
+import { CodingChallenge } from "@/data/coding-challenges";
 
 export interface TopicPointsBreakdown {
   topicId: string;
@@ -16,6 +17,17 @@ export interface TopicPointsBreakdown {
   totalTopicPoints: number;
 }
 
+export interface CodingPointsSummary {
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+  easyPoints: number;
+  mediumPoints: number;
+  hardPoints: number;
+  totalCodingPoints: number;
+  solvedCount: number;
+}
+
 export interface PointsSummary {
   totalPoints: number;
   completionPointsTotal: number;
@@ -27,11 +39,46 @@ export interface PointsSummary {
   completedTopicsCount: number;
   perfectTopicsCount: number;
   topicBreakdown: TopicPointsBreakdown[];
+  codingPoints?: CodingPointsSummary;
 }
 
 export function formatPoints(points: number): string {
   const rounded = Math.round(points * 10) / 10;
   return rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(1);
+}
+
+export function calculateCodingPoints(
+  solvedChallenges: Record<string, { solvedAt: number; code: string }>,
+  allChallenges: CodingChallenge[]
+): CodingPointsSummary {
+  let easySolved = 0;
+  let mediumSolved = 0;
+  let hardSolved = 0;
+
+  allChallenges.forEach((challenge) => {
+    if (solvedChallenges[challenge.id]) {
+      if (challenge.difficulty === "Easy") easySolved++;
+      else if (challenge.difficulty === "Medium") mediumSolved++;
+      else if (challenge.difficulty === "Hard") hardSolved++;
+    }
+  });
+
+  const easyPoints = easySolved * 2;
+  const mediumPoints = mediumSolved * 3;
+  const hardPoints = hardSolved * 4;
+  const totalCodingPoints = easyPoints + mediumPoints + hardPoints;
+  const solvedCount = easySolved + mediumSolved + hardSolved;
+
+  return {
+    easySolved,
+    mediumSolved,
+    hardSolved,
+    easyPoints,
+    mediumPoints,
+    hardPoints,
+    totalCodingPoints,
+    solvedCount,
+  };
 }
 
 export function calculateUserPoints(

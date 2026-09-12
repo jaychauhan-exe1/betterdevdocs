@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Play, RotateCcw, Terminal, CheckCircle2, AlertCircle, Copy, Check } from "lucide-react";
 
+import VSCodeEditor from "@/components/VSCodeEditor";
+
 interface CodePlaygroundProps {
   initialCode: string;
   title: string;
@@ -15,7 +17,6 @@ export default function CodePlayground({ initialCode, title }: CodePlaygroundPro
   const [output, setOutput] = useState<string[]>([]);
   const [isError, setIsError] = useState(false);
   const [executionTime, setExecutionTime] = useState<number | null>(null);
-  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     setCode(initialCode);
@@ -73,12 +74,6 @@ export default function CodePlayground({ initialCode, title }: CodePlaygroundPro
     }
   };
 
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(code);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
   return (
     <Card className="bg-card border-border overflow-hidden shadow-2xl font-normal">
       {/* Playground Header */}
@@ -87,62 +82,27 @@ export default function CodePlayground({ initialCode, title }: CodePlaygroundPro
           <Terminal className="w-5 h-5 text-foreground" />
           <span className="text-sm font-semibold text-foreground uppercase tracking-wider">{title}</span>
         </div>
-
-        <div className="flex items-center gap-3 font-normal">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setCode(initialCode);
-              setOutput([]);
-            }}
-            className="text-xs text-muted-foreground hover:text-foreground font-medium"
-            title="Reset Code"
-          >
-            <RotateCcw className="w-4 h-4 mr-1.5" />
-            <span className="hidden sm:inline">Reset</span>
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleCopyCode}
-            className="text-xs text-muted-foreground hover:text-foreground font-medium"
-          >
-            {copied ? <Check className="w-4 h-4 text-foreground mr-1.5" /> : <Copy className="w-4 h-4 mr-1.5" />}
-            <span className="hidden sm:inline">{copied ? "Copied" : "Copy"}</span>
-          </Button>
-
-          <Button
-            variant="default"
-            size="sm"
-            onClick={handleRunCode}
-            className="font-medium text-xs sm:text-sm shadow"
-          >
-            <Play className="w-4 h-4 fill-current mr-1.5" />
-            <span>Run Snippet</span>
-          </Button>
-        </div>
       </div>
 
       {/* Editor & Console Split */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-border font-normal">
-        {/* Code Input */}
-        <div className="p-5 bg-background text-sm sm:text-base font-normal">
-          <label className="block text-xs text-muted-foreground uppercase font-semibold tracking-widest mb-3">
-            JavaScript Source
-          </label>
-          <textarea
+      <div className="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-border font-normal">
+        {/* Code Input — VS Code Editor (7 cols) */}
+        <div className="lg:col-span-7 p-4 bg-background font-normal">
+          <VSCodeEditor
             value={code}
-            onChange={(e) => setCode(e.target.value)}
-            spellCheck={false}
-            rows={12}
-            className="w-full bg-secondary/30 p-4 rounded-2xl border border-input text-foreground leading-relaxed text-sm sm:text-base focus:outline-none focus:ring-1 focus:ring-ring resize-y font-normal"
+            onChange={setCode}
+            fileName="example.js"
+            onRun={handleRunCode}
+            onReset={() => {
+              setCode(initialCode);
+              setOutput([]);
+            }}
+            minHeight="320px"
           />
         </div>
 
-        {/* Console Output */}
-        <div className="p-5 bg-background text-sm flex flex-col justify-between font-normal">
+        {/* Console Output (5 cols) */}
+        <div className="lg:col-span-5 p-5 bg-background text-sm flex flex-col justify-between font-normal">
           <div>
             <div className="flex items-center justify-between mb-3 font-normal">
               <span className="text-xs text-muted-foreground uppercase font-semibold tracking-widest">

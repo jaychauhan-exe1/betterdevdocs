@@ -22,10 +22,12 @@ export default function PointsView() {
   const topics = useStudyStore((state) => state.topics);
   const completedTopics = useStudyStore((state) => state.completedTopics);
   const mcqAnswers = useStudyStore((state) => state.mcqAnswers);
+  const solvedChallenges = useStudyStore((state) => state.solvedChallenges);
+  const getPointsSummary = useStudyStore((state) => state.getPointsSummary);
 
   const pointsSummary = useMemo(() => {
-    return calculateUserPoints(topics, completedTopics, mcqAnswers);
-  }, [topics, completedTopics, mcqAnswers]);
+    return getPointsSummary();
+  }, [topics, completedTopics, mcqAnswers, solvedChallenges, getPointsSummary]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [filterType, setFilterType] = useState<"earned" | "perfect">("earned");
@@ -41,6 +43,7 @@ export default function PointsView() {
     deductionPointsTotal,
     correctMcqsTotal,
     topicBreakdown,
+    codingPoints,
   } = pointsSummary;
 
   const filteredTopics = topicBreakdown.filter((item) => {
@@ -64,7 +67,7 @@ export default function PointsView() {
               <span>Points Breakdown</span>
             </h1>
             <p className="text-muted-foreground text-sm sm:text-base max-w-xl leading-relaxed font-normal">
-              Earn points by mastering concepts (+2.0), answering MCQ quiz questions (+1.0), avoiding wrong choices (-0.5), and securing perfect 100% topic completions (+3.0).
+              Earn points by solving coding challenges (+2 Easy, +3 Medium, +4 Hard), mastering concepts (+2.0), answering MCQ quiz questions (+1.0), avoiding wrong choices (-0.5), and securing perfect 100% topic completions (+3.0).
             </p>
           </div>
 
@@ -92,7 +95,7 @@ export default function PointsView() {
           <span>Points Category Breakdown</span>
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm font-normal">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-sm font-normal">
           <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-1">
             <span className="text-xs text-muted-foreground block">Topic Completion Pts</span>
             <span className="text-xl font-bold text-foreground">+{completionPointsTotal} pts</span>
@@ -101,6 +104,12 @@ export default function PointsView() {
           <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-1">
             <span className="text-xs text-muted-foreground block">MCQ Correct Pts</span>
             <span className="text-xl font-bold text-foreground">+{correctMcqsTotal * 1} pts</span>
+          </div>
+
+          <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-1">
+            <span className="text-xs text-muted-foreground block">Coding Challenges Pts</span>
+            <span className="text-xl font-bold text-foreground">+{codingPoints?.totalCodingPoints || 0} pts</span>
+            <span className="text-[10px] text-muted-foreground block font-mono">2 Easy • 3 Med • 4 Hard</span>
           </div>
 
           <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-1">

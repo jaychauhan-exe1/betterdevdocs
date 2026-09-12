@@ -20,18 +20,19 @@ import {
 
 export default function LeaderboardView() {
   const { user } = useUser();
-  const { topics, completedTopics, mcqAnswers } = useStudyStore();
+  const { topics, completedTopics, mcqAnswers, solvedChallenges, getPointsSummary } = useStudyStore();
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   const pointsSummary = useMemo(() => {
-    return calculateUserPoints(topics, completedTopics, mcqAnswers);
-  }, [topics, completedTopics, mcqAnswers]);
+    return getPointsSummary();
+  }, [topics, completedTopics, mcqAnswers, solvedChallenges, getPointsSummary]);
 
   const currentUserPoints = useMemo(() => {
     return {
       topicPoints: pointsSummary.completionPointsTotal + pointsSummary.bonusPointsTotal,
       mcqPoints: pointsSummary.mcqPointsTotal,
+      codingPoints: pointsSummary.codingPoints?.totalCodingPoints || 0,
       totalPoints: pointsSummary.totalPoints,
     };
   }, [pointsSummary]);

@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 import { createClerkClient, auth } from "@clerk/nextjs/server";
 import { createClient } from "@supabase/supabase-js";
 import { TOPICS } from "@/data/topics";
-import { calculateUserPoints } from "@/lib/points";
+import { CODING_CHALLENGES } from "@/data/coding-challenges";
+import { calculateUserPoints, calculateCodingPoints } from "@/lib/points";
 import { LeaderboardUser } from "@/lib/leaderboard";
 
 function getSupabaseAdmin() {
@@ -38,11 +39,11 @@ export async function GET() {
 
     // 2. Fetch Supabase user_progress records
     const supabase = getSupabaseAdmin();
-    let supabaseProgressMap: Record<string, { completed_topics?: string[]; mcq_answers?: any }> = {};
+    let supabaseProgressMap: Record<string, { completed_topics?: string[]; mcq_answers?: any; solved_challenges?: any }> = {};
     if (supabase) {
       const { data, error } = await supabase
         .from("user_progress")
-        .select("user_id, completed_topics, mcq_answers");
+        .select("user_id, completed_topics, mcq_answers, solved_challenges");
       if (!error && Array.isArray(data)) {
         data.forEach((row) => {
           supabaseProgressMap[row.user_id] = row;
@@ -61,11 +62,18 @@ export async function GET() {
         (u.unsafeMetadata?.mcqAnswers && typeof u.unsafeMetadata.mcqAnswers === "object"
           ? u.unsafeMetadata.mcqAnswers
           : {});
+      const solvedChallenges: Record<string, { solvedAt: number; code: string }> =
+        spData?.solved_challenges ||
+        (u.unsafeMetadata?.solvedChallenges && typeof u.unsafeMetadata.solvedChallenges === "object"
+          ? (u.unsafeMetadata.solvedChallenges as any)
+          : {});
 
       const pointsSummary = calculateUserPoints(TOPICS, completedTopics, mcqAnswers);
+      const codingSummary = calculateCodingPoints(solvedChallenges, CODING_CHALLENGES);
+
       const topicPoints = pointsSummary.completionPointsTotal + pointsSummary.bonusPointsTotal;
       const mcqPoints = pointsSummary.mcqPointsTotal;
-      const totalPoints = pointsSummary.totalPoints;
+      const totalPoints = Math.round((pointsSummary.totalPoints + codingSummary.totalCodingPoints) * 10) / 10;
 
       const rawUsername =
         u.username ||

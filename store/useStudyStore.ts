@@ -2,8 +2,9 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { TOPICS, Topic } from "@/data/topics";
 import { ROLES } from "@/data/roles";
+import { CODING_CHALLENGES } from "@/data/coding-challenges";
 
-import { calculateUserPoints, PointsSummary } from "@/lib/points";
+import { calculateUserPoints, calculateCodingPoints, PointsSummary } from "@/lib/points";
 
 export type FilterState = "all" | "uncompleted" | "completed";
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
@@ -21,6 +22,10 @@ interface StudyState {
   filterState: FilterState;
   collapsedCategories: Record<string, boolean>;
 
+  // Coding Challenge State
+  solvedChallenges: Record<string, { solvedAt: number; code: string }>;
+  challengeAttempts: Record<string, string>;
+
   // Cloud Sync State
   syncStatus: SyncStatus;
   isAuthenticated: boolean;
@@ -34,6 +39,8 @@ interface StudyState {
   setTopicMcqAnswers: (topicId: string, answers: Record<number, number>) => void;
   setQuizSubmitted: (topicId: string, isSubmitted: boolean) => void;
   setTopicNote: (topicId: string, note: string) => void;
+  markChallengeSolved: (challengeId: string, code: string) => void;
+  saveChallengeAttempt: (challengeId: string, code: string) => void;
   resetProgress: () => void;
   toggleSidebar: () => void;
   setSidebarOpen: (isOpen: boolean) => void;
@@ -46,7 +53,8 @@ interface StudyState {
     activeTopicOverride?: string,
     roleOverride?: string | null,
     mcqAnswersOverride?: Record<string, Record<number, number>>,
-    topicNotesOverride?: Record<string, string>
+    topicNotesOverride?: Record<string, string>,
+    solvedChallengesOverride?: Record<string, { solvedAt: number; code: string }>
   ) => Promise<void>;
   hydrateFromServer: (
     completedTopics: string[],
@@ -54,13 +62,15 @@ interface StudyState {
     selectedRole?: string | null,
     mcqAnswers?: Record<string, Record<number, number>>,
     submittedQuizzes?: Record<string, boolean>,
-    topicNotes?: Record<string, string>
+    topicNotes?: Record<string, string>,
+    solvedChallenges?: Record<string, { solvedAt: number; code: string }>
   ) => void;
 
   // Helpers
   getActiveTopic: () => Topic;
   getRoleFilteredTopics: () => Topic[];
   isTopicCompleted: (id: string) => boolean;
+  isChallengeSolved: (challengeId: string) => boolean;
   getPointsSummary: () => PointsSummary;
 }
 
@@ -70,13 +80,14 @@ async function postProgressToServer(
   activeTopicId?: string,
   selectedRole?: string | null,
   mcqAnswers?: Record<string, Record<number, number>>,
-  topicNotes?: Record<string, string>
+  topicNotes?: Record<string, string>,
+  solvedChallenges?: Record<string, { solvedAt: number; code: string }>
 ) {
   try {
     const res = await fetch("/api/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes }),
+      body: JSON.stringify({ completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, solvedChallenges }),
     });
     return res.ok;
   } catch {
@@ -93,6 +104,8 @@ export const useStudyStore = create<StudyState>()(
       mcqAnswers: {},
       submittedQuizzes: {},
       topicNotes: {},
+      solvedChallenges: {},
+      challengeAttempts: {},
       selectedRole: null,
       isSidebarOpen: false,
       searchQuery: "",
@@ -231,11 +244,36 @@ export const useStudyStore = create<StudyState>()(
         }
       },
 
+      markChallengeSolved: (challengeId: string, code: string) => {
+        let updatedSolved: Record<string, { solvedAt: number; code: string }> = {};
+        set((state) => {
+          updatedSolved = {
+            ...state.solvedChallenges,
+            [challengeId]: { solvedAt: Date.now(), code },
+          };
+          return { solvedChallenges: updatedSolved };
+        });
+
+        const { isAuthenticated, completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, syncToServer } = get();
+        if (isAuthenticated) {
+          syncToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, updatedSolved);
+        }
+      },
+
+      saveChallengeAttempt: (challengeId: string, code: string) => {
+        set((state) => ({
+          challengeAttempts: {
+            ...state.challengeAttempts,
+            [challengeId]: code,
+          },
+        }));
+      },
+
       resetProgress: () => {
-        set({ completedTopics: [], mcqAnswers: {}, submittedQuizzes: {}, topicNotes: {} });
+        set({ completedTopics: [], mcqAnswers: {}, submittedQuizzes: {}, topicNotes: {}, solvedChallenges: {}, challengeAttempts: {} });
         const { isAuthenticated, activeTopicId, selectedRole, syncToServer } = get();
         if (isAuthenticated) {
-          syncToServer([], activeTopicId, selectedRole, {}, {});
+          syncToServer([], activeTopicId, selectedRole, {}, {}, {});
         }
       },
 
@@ -244,16 +282,18 @@ export const useStudyStore = create<StudyState>()(
         activeTopicOverride?: string,
         roleOverride?: string | null,
         mcqAnswersOverride?: Record<string, Record<number, number>>,
-        topicNotesOverride?: Record<string, string>
+        topicNotesOverride?: Record<string, string>,
+        solvedChallengesOverride?: Record<string, { solvedAt: number; code: string }>
       ) => {
         const completed = completedTopicsOverride ?? get().completedTopics;
         const active = activeTopicOverride ?? get().activeTopicId;
         const role = roleOverride !== undefined ? roleOverride : get().selectedRole;
         const answers = mcqAnswersOverride ?? get().mcqAnswers;
         const notes = topicNotesOverride ?? get().topicNotes;
+        const solved = solvedChallengesOverride ?? get().solvedChallenges;
 
         set({ syncStatus: "syncing" });
-        const ok = await postProgressToServer(completed, active, role, answers, notes);
+        const ok = await postProgressToServer(completed, active, role, answers, notes, solved);
         set({ syncStatus: ok ? "synced" : "error" });
       },
 
@@ -263,7 +303,8 @@ export const useStudyStore = create<StudyState>()(
         serverRole?: string | null,
         serverMcqAnswers?: Record<string, Record<number, number>>,
         serverSubmittedQuizzes?: Record<string, boolean>,
-        serverTopicNotes?: Record<string, string>
+        serverTopicNotes?: Record<string, string>,
+        serverSolvedChallenges?: Record<string, { solvedAt: number; code: string }>
       ) => {
         set((state) => {
           const mergedSet = new Set([...state.completedTopics, ...serverCompleted]);
@@ -278,6 +319,10 @@ export const useStudyStore = create<StudyState>()(
             ...state.topicNotes,
             ...(serverTopicNotes || {}),
           };
+          const nextSolvedChallenges = {
+            ...state.solvedChallenges,
+            ...(serverSolvedChallenges || {}),
+          };
 
           return {
             completedTopics: mergedCompleted,
@@ -285,12 +330,13 @@ export const useStudyStore = create<StudyState>()(
             selectedRole: nextRole,
             mcqAnswers: nextMcqAnswers,
             topicNotes: nextTopicNotes,
+            solvedChallenges: nextSolvedChallenges,
             syncStatus: "synced",
           };
         });
 
-        const { completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes } = get();
-        postProgressToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes);
+        const { completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, solvedChallenges } = get();
+        postProgressToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, solvedChallenges);
       },
 
       toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
@@ -338,9 +384,21 @@ export const useStudyStore = create<StudyState>()(
         return get().completedTopics.includes(id);
       },
 
+      isChallengeSolved: (challengeId: string) => {
+        return Boolean(get().solvedChallenges[challengeId]);
+      },
+
       getPointsSummary: () => {
-        const { topics, completedTopics, mcqAnswers } = get();
-        return calculateUserPoints(topics, completedTopics, mcqAnswers);
+        const { topics, completedTopics, mcqAnswers, solvedChallenges } = get();
+        const summary = calculateUserPoints(topics, completedTopics, mcqAnswers);
+        const coding = calculateCodingPoints(solvedChallenges, CODING_CHALLENGES);
+        const totalWithCoding = Math.round((summary.totalPoints + coding.totalCodingPoints) * 10) / 10;
+
+        return {
+          ...summary,
+          totalPoints: totalWithCoding,
+          codingPoints: coding,
+        };
       },
     }),
     {
@@ -352,6 +410,8 @@ export const useStudyStore = create<StudyState>()(
         mcqAnswers: state.mcqAnswers,
         submittedQuizzes: state.submittedQuizzes,
         topicNotes: state.topicNotes,
+        solvedChallenges: state.solvedChallenges,
+        challengeAttempts: state.challengeAttempts,
         collapsedCategories: state.collapsedCategories,
       }),
     }

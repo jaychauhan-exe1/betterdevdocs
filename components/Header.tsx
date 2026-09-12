@@ -31,6 +31,8 @@ export default function Header() {
   const mcqAnswers = useStudyStore((state) => state.mcqAnswers);
   const selectedRole = useStudyStore((state) => state.selectedRole);
   const toggleSidebar = useStudyStore((state) => state.toggleSidebar);
+  const solvedChallenges = useStudyStore((state) => state.solvedChallenges);
+  const getPointsSummary = useStudyStore((state) => state.getPointsSummary);
 
   const roleTopics = useMemo(() => {
     if (!selectedRole || selectedRole === "all") return topics;
@@ -46,13 +48,14 @@ export default function Header() {
   }, [topics, roleTopics, activeTopicId]);
 
   const pointsSummary = useMemo(() => {
-    return calculateUserPoints(topics, completedTopics, mcqAnswers);
-  }, [topics, completedTopics, mcqAnswers]);
+    return getPointsSummary();
+  }, [topics, completedTopics, mcqAnswers, solvedChallenges, getPointsSummary]);
 
   const currentUserPoints = useMemo(() => {
     return {
       topicPoints: pointsSummary.completionPointsTotal + pointsSummary.bonusPointsTotal,
       mcqPoints: pointsSummary.mcqPointsTotal,
+      codingPoints: pointsSummary.codingPoints?.totalCodingPoints || 0,
       totalPoints: pointsSummary.totalPoints,
     };
   }, [pointsSummary]);
@@ -154,6 +157,18 @@ export default function Header() {
               <span className="text-muted-foreground font-normal">/</span>
               <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
                 Global Rankings
+              </span>
+            </>
+          ) : pathname === "/coding" ? (
+            <>
+              <Link href="/">
+                <Badge variant="secondary" className="font-medium uppercase text-[10px] hover:bg-secondary/80 cursor-pointer transition-colors">
+                  CODING
+                </Badge>
+              </Link>
+              <span className="text-muted-foreground font-normal">/</span>
+              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+                Interview Arena
               </span>
             </>
           ) : pathname === "/sign-in" ? (

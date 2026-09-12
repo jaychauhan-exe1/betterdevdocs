@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useStudyStore } from "@/store/useStudyStore";
 import { ROLES } from "@/data/roles";
@@ -55,6 +56,8 @@ export default function ProgressRoadmapView() {
     toggleTopicComplete,
     topics,
     selectedRole,
+    solvedChallenges,
+    getPointsSummary,
   } = useStudyStore();
 
   const [viewTab, setViewTab] = useState<"map" | "analytics">("map");
@@ -462,6 +465,63 @@ export default function ProgressRoadmapView() {
               </div>
             </div>
           </Card>
+
+          {/* Coding Challenge Analytics Card — Monochrome */}
+          {(() => {
+            const codingSummary = getPointsSummary().codingPoints || {
+              totalCodingPoints: 0,
+              solvedCount: 0,
+              easySolved: 0,
+              mediumSolved: 0,
+              hardSolved: 0,
+            };
+
+            return (
+              <Card className="bg-card border-border p-6 shadow-sm space-y-4 font-normal">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className="p-2 rounded-xl bg-secondary border border-border text-foreground">
+                      <Code2 className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-base font-bold text-foreground">Interview Coding Practice</h3>
+                      <p className="text-xs text-muted-foreground">Real-world coding challenge achievements</p>
+                    </div>
+                  </div>
+
+                  <Link href="/coding">
+                    <Button variant="outline" size="sm" className="text-xs border-border text-foreground hover:bg-secondary">
+                      Open Coding Arena
+                    </Button>
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+                  <div className="p-3 bg-secondary/30 rounded-xl border border-border">
+                    <span className="text-xs text-muted-foreground block">Challenges Solved</span>
+                    <span className="text-lg font-bold text-foreground">{codingSummary.solvedCount} / 30</span>
+                  </div>
+
+                  <div className="p-3 bg-secondary/30 rounded-xl border border-border">
+                    <span className="text-xs text-muted-foreground block">Coding Points</span>
+                    <span className="text-lg font-bold text-foreground">+{codingSummary.totalCodingPoints} pts</span>
+                  </div>
+
+                  <div className="p-3 bg-secondary/30 rounded-xl border border-border">
+                    <span className="text-xs text-muted-foreground block">Easy / Medium</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      <span className="text-emerald-400">{codingSummary.easySolved} Easy</span> • <span className="text-amber-400">{codingSummary.mediumSolved} Med</span>
+                    </span>
+                  </div>
+
+                  <div className="p-3 bg-secondary/30 rounded-xl border border-border">
+                    <span className="text-xs text-muted-foreground block">Hard Solved</span>
+                    <span className="text-lg font-bold text-red-400">{codingSummary.hardSolved} Hard</span>
+                  </div>
+                </div>
+              </Card>
+            );
+          })()}
 
           {/* Category Progress Breakdown Grid */}
           <div className="space-y-3 font-normal">

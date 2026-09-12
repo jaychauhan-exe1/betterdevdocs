@@ -29,6 +29,7 @@ export async function GET() {
     let selectedRole: string | null = null;
     let mcqAnswers: Record<string, Record<number, number>> = {};
     let topicNotes: Record<string, string> = {};
+    let solvedChallenges: Record<string, { solvedAt: number; code: string }> = {};
     let fetchedFromSupabase = false;
 
     // 1. Try fetching from Supabase
@@ -36,7 +37,7 @@ export async function GET() {
     if (supabase) {
       const { data, error } = await supabase
         .from("user_progress")
-        .select("completed_topics, active_topic_id, selected_role, mcq_answers, topic_notes")
+        .select("completed_topics, active_topic_id, selected_role, mcq_answers, topic_notes, solved_challenges")
         .eq("user_id", userId)
         .maybeSingle();
 
@@ -48,6 +49,7 @@ export async function GET() {
         selectedRole = data.selected_role || null;
         mcqAnswers = data.mcq_answers && typeof data.mcq_answers === "object" ? data.mcq_answers : {};
         topicNotes = data.topic_notes && typeof data.topic_notes === "object" ? data.topic_notes : {};
+        solvedChallenges = data.solved_challenges && typeof data.solved_challenges === "object" ? data.solved_challenges : {};
         fetchedFromSupabase = true;
       }
     }
@@ -64,6 +66,7 @@ export async function GET() {
         selectedRole?: string;
         mcqAnswers?: Record<string, Record<number, number>>;
         topicNotes?: Record<string, string>;
+        solvedChallenges?: Record<string, { solvedAt: number; code: string }>;
       };
 
       if (Array.isArray(meta?.completedTopics)) {
@@ -81,9 +84,12 @@ export async function GET() {
       if (meta?.topicNotes && typeof meta.topicNotes === "object") {
         topicNotes = meta.topicNotes;
       }
+      if (meta?.solvedChallenges && typeof meta.solvedChallenges === "object") {
+        solvedChallenges = meta.solvedChallenges;
+      }
     }
 
-    return NextResponse.json({ completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes });
+    return NextResponse.json({ completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, solvedChallenges });
   } catch (err: any) {
     console.error("GET /api/progress error:", err);
     return NextResponse.json(
@@ -110,6 +116,8 @@ export async function POST(req: Request) {
       body?.mcqAnswers && typeof body.mcqAnswers === "object" ? body.mcqAnswers : {};
     const topicNotes: Record<string, string> =
       body?.topicNotes && typeof body.topicNotes === "object" ? body.topicNotes : {};
+    const solvedChallenges: Record<string, { solvedAt: number; code: string }> =
+      body?.solvedChallenges && typeof body.solvedChallenges === "object" ? body.solvedChallenges : {};
 
     // 1. Try Upserting into Supabase
     const supabase = getSupabaseAdmin();
@@ -122,6 +130,7 @@ export async function POST(req: Request) {
           selected_role: selectedRole || "all",
           mcq_answers: mcqAnswers,
           topic_notes: topicNotes,
+          solved_challenges: solvedChallenges,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "user_id" }
@@ -140,6 +149,7 @@ export async function POST(req: Request) {
           selectedRole,
           mcqAnswers,
           topicNotes,
+          solvedChallenges,
         },
       });
     } catch (clerkErr) {
@@ -153,6 +163,7 @@ export async function POST(req: Request) {
       selectedRole,
       mcqAnswers,
       topicNotes,
+      solvedChallenges,
     });
   } catch (err: any) {
     console.error("POST /api/progress error:", err);
