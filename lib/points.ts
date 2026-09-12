@@ -24,6 +24,9 @@ export interface CodingPointsSummary {
   easyPoints: number;
   mediumPoints: number;
   hardPoints: number;
+  earnedCodingPoints: number;
+  failedSubmissionsCount: number;
+  codingDeductions: number;
   totalCodingPoints: number;
   solvedCount: number;
 }
@@ -59,7 +62,8 @@ export function formatKPoints(points: number): string {
 
 export function calculateCodingPoints(
   solvedChallenges: Record<string, { solvedAt: number; code: string }>,
-  allChallenges: CodingChallenge[]
+  allChallenges: CodingChallenge[],
+  failedSubmissionsCount: number = 0
 ): CodingPointsSummary {
   let easySolved = 0;
   let mediumSolved = 0;
@@ -76,7 +80,9 @@ export function calculateCodingPoints(
   const easyPoints = easySolved * 2;
   const mediumPoints = mediumSolved * 3;
   const hardPoints = hardSolved * 4;
-  const totalCodingPoints = easyPoints + mediumPoints + hardPoints;
+  const earnedCodingPoints = easyPoints + mediumPoints + hardPoints;
+  const codingDeductions = Math.round(failedSubmissionsCount * 0.5 * 10) / 10;
+  const totalCodingPoints = Math.round((earnedCodingPoints - codingDeductions) * 10) / 10;
   const solvedCount = easySolved + mediumSolved + hardSolved;
 
   return {
@@ -86,6 +92,9 @@ export function calculateCodingPoints(
     easyPoints,
     mediumPoints,
     hardPoints,
+    earnedCodingPoints,
+    failedSubmissionsCount,
+    codingDeductions,
     totalCodingPoints,
     solvedCount,
   };

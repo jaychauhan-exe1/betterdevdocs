@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  # Production container
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: devdocs-app
+    ports:
+      - "3000:3000"
+    env_file:
+      - .env.local
+    restart: unless-stopped
+
+  # Local development container with live reload
+  dev:
+    image: node:20-alpine
+    container_name: devdocs-dev
+    working_dir: /app
+    ports:
+      - "3001:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    env_file:
+      - .env.local
+    environment:
+      - NODE_ENV=development
+    command: npm run dev

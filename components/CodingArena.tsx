@@ -28,7 +28,6 @@ import {
   ArrowLeft,
   Zap,
   Terminal,
-  Building2,
   Briefcase,
   Layers,
   BookOpen,
@@ -65,6 +64,7 @@ export default function CodingArena() {
     challengeAttempts,
     markChallengeSolved,
     saveChallengeAttempt,
+    recordFailedSubmit,
     selectedRole,
     setSelectedRole,
     getPointsSummary,
@@ -152,9 +152,8 @@ export default function CodingArena() {
       if (searchQuery.trim() !== "") {
         const q = searchQuery.toLowerCase();
         const matchesTitle = challenge.title.toLowerCase().includes(q);
-        const matchesCompany = challenge.companyTags.some((c) => c.toLowerCase().includes(q));
         const matchesCategory = challenge.category.toLowerCase().includes(q);
-        if (!matchesTitle && !matchesCompany && !matchesCategory) return false;
+        if (!matchesTitle && !matchesCategory) return false;
       }
 
       return true;
@@ -205,7 +204,7 @@ export default function CodingArena() {
         const wrappedCode = `${code}\n\nreturn (${tc.input});`;
         const runner = new Function("console", "setTimeout", "queueMicrotask", wrappedCode);
         const rawResult = runner(
-          { log: () => {}, warn: () => {}, error: () => {} },
+          { log: () => { }, warn: () => { }, error: () => { } },
           setTimeout,
           queueMicrotask
         );
@@ -298,7 +297,7 @@ export default function CodingArena() {
           const evalCode = `${code}\n\nreturn (${tc.input});`;
           const tcRunner = new Function("console", "setTimeout", "queueMicrotask", evalCode);
           const res = tcRunner(
-            { log: () => {}, warn: () => {}, error: () => {}, info: () => {} },
+            { log: () => { }, warn: () => { }, error: () => { }, info: () => { } },
             setTimeout,
             queueMicrotask
           );
@@ -361,6 +360,8 @@ export default function CodingArena() {
       markChallengeSolved(currentChallenge.id, code);
       setCelebrationPoints(currentChallenge.points);
       setShowCelebration(true);
+    } else if (!allPassed) {
+      recordFailedSubmit(currentChallenge.id);
     }
   };
 
@@ -526,11 +527,10 @@ export default function CodingArena() {
                   <button
                     key={role.id}
                     onClick={() => handleRoleSelect(role.id)}
-                    className={`px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-medium transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0 ${
-                      isActive
+                    className={`px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-medium transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0 ${isActive
                         ? "bg-white text-black border-white font-semibold shadow-md"
                         : "bg-secondary/40 text-muted-foreground border-border hover:bg-secondary hover:text-white"
-                    }`}
+                      }`}
                   >
                     {role.shortTitle}
                   </button>
@@ -545,7 +545,7 @@ export default function CodingArena() {
             <div className="relative w-full sm:w-72 md:w-80">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search by title, company, category..."
+                placeholder="Search by title, category..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9 bg-black/50 border-border/60 rounded-xl text-xs h-9"
@@ -556,7 +556,7 @@ export default function CodingArena() {
             <div className="sm:hidden grid grid-cols-2 gap-2 w-full">
               <Select value={selectedDifficulty} onValueChange={(val: any) => { if (val) setSelectedDifficulty(val); }}>
                 <SelectTrigger className="w-full h-10 px-3 rounded-xl bg-secondary border border-border text-foreground font-semibold text-xs shadow-sm flex items-center justify-between">
-                  <span className="truncate">Diff: {selectedDifficulty === "all" ? "All" : selectedDifficulty}</span>
+                  <span className="truncate">Difficulty: {selectedDifficulty === "all" ? "All" : selectedDifficulty}</span>
                 </SelectTrigger>
                 <SelectContent className="bg-card border border-border text-foreground rounded-xl shadow-xl z-50 p-1.5 space-y-1">
                   {["all", "Easy", "Medium", "Hard"].map((diff) => (
@@ -589,11 +589,10 @@ export default function CodingArena() {
                   <button
                     key={diff}
                     onClick={() => setSelectedDifficulty(diff)}
-                    className={`px-2 py-1 rounded-lg text-[11px] sm:text-xs transition-all border ${
-                      selectedDifficulty === diff
+                    className={`px-2 py-1 rounded-lg text-[11px] sm:text-xs transition-all border ${selectedDifficulty === diff
                         ? "bg-white text-black border-white font-semibold"
                         : "bg-secondary/30 text-muted-foreground border-border/40 hover:bg-secondary/60 hover:text-white"
-                    }`}
+                      }`}
                   >
                     {diff === "all" ? "All" : diff}
                   </button>
@@ -608,11 +607,10 @@ export default function CodingArena() {
                   <button
                     key={st}
                     onClick={() => setSelectedStatus(st)}
-                    className={`px-2 py-1 rounded-lg text-[11px] sm:text-xs transition-all capitalize border ${
-                      selectedStatus === st
+                    className={`px-2 py-1 rounded-lg text-[11px] sm:text-xs transition-all capitalize border ${selectedStatus === st
                         ? "bg-white text-black border-white font-semibold"
                         : "bg-secondary/30 text-muted-foreground border-border/40 hover:bg-secondary/60 hover:text-white"
-                    }`}
+                      }`}
                   >
                     {st}
                   </button>
@@ -647,13 +645,12 @@ export default function CodingArena() {
                           )}
                           <Badge
                             variant="outline"
-                            className={`text-[10px] px-2 py-0.5 border ${
-                              challenge.difficulty === "Easy"
+                            className={`text-[10px] px-2 py-0.5 border ${challenge.difficulty === "Easy"
                                 ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
                                 : challenge.difficulty === "Medium"
-                                ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                                : "bg-red-500/10 text-red-400 border-red-500/30"
-                            }`}
+                                  ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                                  : "bg-red-500/10 text-red-400 border-red-500/30"
+                              }`}
                           >
                             {challenge.difficulty}
                           </Badge>
@@ -674,11 +671,6 @@ export default function CodingArena() {
                         <span className="bg-secondary px-2 py-0.5 rounded text-[10px] text-foreground font-mono shrink-0">
                           {challenge.category}
                         </span>
-                        {challenge.companyTags.slice(0, 2).map((comp) => (
-                          <span key={comp} className="text-muted-foreground text-[10px] truncate">
-                            • {comp}
-                          </span>
-                        ))}
                       </div>
 
                       <span className="text-xs font-semibold text-white group-hover:translate-x-1 transition-transform flex items-center gap-1 shrink-0">
@@ -715,13 +707,12 @@ export default function CodingArena() {
               <div className="flex items-center gap-1.5 flex-wrap">
                 <Badge
                   variant="outline"
-                  className={`text-[10px] sm:text-xs px-2 py-0.5 border ${
-                    currentChallenge.difficulty === "Easy"
+                  className={`text-[10px] sm:text-xs px-2 py-0.5 border ${currentChallenge.difficulty === "Easy"
                       ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
                       : currentChallenge.difficulty === "Medium"
-                      ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
-                      : "bg-red-500/10 text-red-400 border-red-500/30"
-                  }`}
+                        ? "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                        : "bg-red-500/10 text-red-400 border-red-500/30"
+                    }`}
                 >
                   {currentChallenge.difficulty}
                 </Badge>
@@ -770,21 +761,6 @@ export default function CodingArena() {
                   <h2 className="text-lg sm:text-2xl font-bold text-white">
                     {currentChallenge.title}
                   </h2>
-
-                  {/* Company Tags */}
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1">
-                      <Building2 className="w-3 h-3" /> Asked at:
-                    </span>
-                    {currentChallenge.companyTags.map((comp) => (
-                      <span
-                        key={comp}
-                        className="text-[10px] sm:text-xs bg-secondary/60 text-foreground px-2 py-0.5 rounded-lg border border-border/60 font-medium"
-                      >
-                        {comp}
-                      </span>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Mobile Description / Hints / Solution Select Dropdown (< sm) */}
@@ -829,32 +805,29 @@ export default function CodingArena() {
                 <div className="hidden sm:flex items-center gap-2 border-b border-border/60 pb-2 overflow-x-auto custom-scrollbar">
                   <button
                     onClick={() => setActiveTab("problem")}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border shrink-0 ${
-                      activeTab === "problem"
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border shrink-0 ${activeTab === "problem"
                         ? "bg-white text-black border-white shadow"
                         : "text-muted-foreground border-transparent hover:text-white"
-                    }`}
+                      }`}
                   >
                     Problem Description
                   </button>
                   <button
                     onClick={() => setActiveTab("hints")}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0 ${
-                      activeTab === "hints"
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0 ${activeTab === "hints"
                         ? "bg-white text-black border-white shadow"
                         : "text-muted-foreground border-transparent hover:text-white"
-                    }`}
+                      }`}
                   >
                     <Lightbulb className="w-3.5 h-3.5" />
                     Hints ({currentChallenge.hints.length})
                   </button>
                   <button
                     onClick={() => setActiveTab("solution")}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0 ${
-                      activeTab === "solution"
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0 ${activeTab === "solution"
                         ? "bg-white text-black border-white shadow"
                         : "text-muted-foreground border-transparent hover:text-white"
-                    }`}
+                      }`}
                   >
                     <Eye className="w-3.5 h-3.5" />
                     Solution Code
@@ -899,11 +872,10 @@ export default function CodingArena() {
                         return (
                           <div
                             key={idx}
-                            className={`p-4 rounded-xl border transition-all ${
-                              isRevealed
+                            className={`p-4 rounded-xl border transition-all ${isRevealed
                                 ? "bg-secondary/40 border-border text-foreground"
                                 : "bg-secondary/20 border-border/40 text-muted-foreground text-center"
-                            }`}
+                              }`}
                           >
                             {isRevealed ? (
                               <div className="flex items-start gap-2 text-xs">
@@ -1010,15 +982,14 @@ export default function CodingArena() {
                       {consoleLogs.map((log, idx) => (
                         <div
                           key={idx}
-                          className={`leading-relaxed whitespace-pre-wrap ${
-                            log.type === "error"
+                          className={`leading-relaxed whitespace-pre-wrap ${log.type === "error"
                               ? "text-red-400 font-semibold"
                               : log.type === "warn"
-                              ? "text-amber-400"
-                              : log.type === "system"
-                              ? "text-emerald-400 font-medium"
-                              : "text-zinc-200"
-                          }`}
+                                ? "text-amber-400"
+                                : log.type === "system"
+                                  ? "text-emerald-400 font-medium"
+                                  : "text-zinc-200"
+                            }`}
                         >
                           {log.text}
                         </div>
@@ -1053,11 +1024,10 @@ export default function CodingArena() {
                       </div>
                       <Badge
                         variant="outline"
-                        className={`text-xs px-2.5 py-0.5 border ${
-                          testResults.every((t) => t.passed)
+                        className={`text-xs px-2.5 py-0.5 border ${testResults.every((t) => t.passed)
                             ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
                             : "bg-red-500/20 text-red-400 border-red-500/40"
-                        }`}
+                          }`}
                       >
                         {testResults.filter((t) => t.passed).length} / {testResults.length} Passed
                       </Badge>
@@ -1073,11 +1043,10 @@ export default function CodingArena() {
                       {testResults.map((res, idx) => (
                         <div
                           key={idx}
-                          className={`p-3.5 rounded-xl border font-mono text-xs transition-all ${
-                            res.passed
+                          className={`p-3.5 rounded-xl border font-mono text-xs transition-all ${res.passed
                               ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
                               : "bg-red-500/10 border-red-500/30 text-red-300"
-                          }`}
+                            }`}
                         >
                           <div className="flex items-center justify-between mb-1.5">
                             <div className="flex items-center gap-2 font-semibold">

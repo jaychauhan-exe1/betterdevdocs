@@ -4,7 +4,6 @@
     "title": "Strings",
     "category": "REDIS",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Basic key-value data type, 512MB limit, SET/GET, INCR/DECR atomic counters, and MSET/MGET.",
     "explanation": {
@@ -109,7 +108,6 @@
     "title": "TTL",
     "category": "REDIS",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Time To Live, TTL command, PTTL, EXPIRE, EXPIREAT, persistent vs volatile keys.",
     "explanation": {
@@ -214,7 +212,6 @@
     "title": "Hashes",
     "category": "REDIS",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Field-value object mapping, HSET, HGET, HGETALL, HINCRBY, memory efficiency of ziplists.",
     "explanation": {
@@ -319,7 +316,6 @@
     "title": "Lists",
     "category": "REDIS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Linked list sequence, LPUSH, RPUSH, LPOP, RPOP, blocking pop operations (BLPOP, BRPOP), message queues.",
     "explanation": {
@@ -423,7 +419,6 @@
     "title": "Sets",
     "category": "REDIS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Unordered collection of unique strings, SADD, SREM, SISMEMBER, SINTER, SUNION, SDIFF.",
     "explanation": {
@@ -528,7 +523,6 @@
     "title": "Sorted sets",
     "category": "REDIS",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "ZSET data structure, floating point scores, ZADD, ZRANGE, ZREVRANGE, ZRANK, SkipList implementation.",
     "explanation": {
@@ -633,7 +627,6 @@
     "title": "Expiration",
     "category": "REDIS",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Passive vs Active eviction algorithms, memory maxmemory-policy (LRU, LFU, Random).",
     "explanation": {
@@ -737,7 +730,6 @@
     "title": "Caching",
     "category": "REDIS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Caching strategies: Cache-Aside (Lazy loading), Write-Through, Write-Back, Cache Stampede, and Cache Penetration.",
     "explanation": {
@@ -841,7 +833,6 @@
     "title": "Sessions",
     "category": "REDIS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Distributed session storage, session persistence, TTL auto-invalidation, and multi-node scaling.",
     "explanation": {
@@ -946,7 +937,6 @@
     "title": "Rate limiting",
     "category": "REDIS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Protecting APIs from abuse, key naming strategies, HTTP 429 Too Many Requests, and header standards.",
     "explanation": {
@@ -1051,7 +1041,6 @@
     "title": "Fixed window",
     "category": "REDIS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Fixed Window counter algorithm, INCR + EXPIRE pattern, boundary burst vulnerability.",
     "explanation": {
@@ -1155,7 +1144,6 @@
     "title": "Sliding window",
     "category": "REDIS",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Sliding Window Log algorithm, Sorted Set ZADD + ZREMRANGEBYSCORE pattern, accurate smooth rate limiting.",
     "explanation": {
@@ -1260,7 +1248,6 @@
     "title": "Token bucket",
     "category": "REDIS",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Token Bucket algorithm, refill rate, capacity limit, handling bursty traffic, and Lua script implementation.",
     "explanation": {
@@ -1365,7 +1352,6 @@
     "title": "Atomic operations",
     "category": "REDIS",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Single-threaded command execution, MULTI/EXEC transactions, WATCH optimistic locking, and race condition prevention.",
     "explanation": {
@@ -1471,7 +1457,6 @@
     "title": "Lua basics",
     "category": "REDIS",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "EVAL command, EVALSHA script caching, atomic script execution, and Redis Lua environment rules.",
     "explanation": {

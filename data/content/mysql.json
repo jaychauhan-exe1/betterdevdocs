@@ -4,7 +4,6 @@
     "title": "Keys",
     "category": "MYSQL",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Primary Keys, Foreign Keys, Candidate Keys, Composite Keys, Unique Keys, and Referential Integrity (CASCADE).",
     "explanation": {
@@ -108,7 +107,6 @@
     "title": "SELECT",
     "category": "MYSQL",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Querying table columns, column aliases (AS), DISTINCT values, and expression calculations.",
     "explanation": {
@@ -213,7 +211,6 @@
     "title": "WHERE",
     "category": "MYSQL",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Filtering rows, comparison operators, AND/OR/NOT logic, IN, BETWEEN, LIKE pattern matching, and NULL handling.",
     "explanation": {
@@ -318,7 +315,6 @@
     "title": "ORDER BY",
     "category": "MYSQL",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Sorting query results, ASC vs DESC, multi-column sorting, NULL sorting placement, and Filesort.",
     "explanation": {
@@ -422,7 +418,6 @@
     "title": "Aggregations",
     "category": "MYSQL",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Aggregate functions: COUNT(*), COUNT(col), SUM, AVG, MIN, MAX, and handling NULLs in aggregations.",
     "explanation": {
@@ -526,7 +521,6 @@
     "title": "GROUP BY",
     "category": "MYSQL",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Grouping rows by column values, aggregating subsets, and ONLY_FULL_GROUP_BY SQL mode.",
     "explanation": {
@@ -630,7 +624,6 @@
     "title": "HAVING",
     "category": "MYSQL",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Filtering aggregated groups, HAVING vs WHERE, and performance implications of group filtering.",
     "explanation": {
@@ -733,7 +726,6 @@
     "title": "Joins",
     "category": "MYSQL",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "INNER JOIN, LEFT JOIN, RIGHT JOIN, FULL OUTER JOIN, CROSS JOIN, and join condition indexing.",
     "explanation": {
@@ -838,7 +830,6 @@
     "title": "Subqueries",
     "category": "MYSQL",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Scalar vs Multi-row subqueries, Correlated subqueries, EXISTS vs IN, performance considerations.",
     "explanation": {
@@ -943,7 +934,6 @@
     "title": "CTEs",
     "category": "MYSQL",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Common Table Expressions (WITH clause), readable subquery abstractions, and Recursive CTEs.",
     "explanation": {
@@ -1048,7 +1038,6 @@
     "title": "Normalization",
     "category": "MYSQL",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Database normalization forms: 1NF (atomic values), 2NF (no partial dependencies), 3NF (no transitive dependencies), BCNF, and denormalization trade-offs.",
     "explanation": {
@@ -1153,7 +1142,6 @@
     "title": "Indexes",
     "category": "MYSQL",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "B-Tree index structure, Clustered vs Secondary indexes, Covered indexes, and index trade-offs.",
     "explanation": {
@@ -1259,7 +1247,6 @@
     "title": "Composite indexes",
     "category": "MYSQL",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Multi-column indexes, Leftmost Prefix Rule, column order strategy, and range condition index stops.",
     "explanation": {
@@ -1363,7 +1350,6 @@
     "title": "Transactions",
     "category": "MYSQL",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Database transactions, START TRANSACTION, COMMIT, ROLLBACK, autocommit mode, and savepoints.",
     "explanation": {
@@ -1468,7 +1454,6 @@
     "title": "ACID",
     "category": "MYSQL",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "ACID properties: Atomicity (undo log), Consistency (constraints), Isolation (locks/MVCC), Durability (redo log/WAL).",
     "explanation": {
@@ -1575,7 +1560,6 @@
     "title": "Isolation",
     "category": "MYSQL",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Transaction isolation levels: READ UNCOMMITTED, READ COMMITTED, REPEATABLE READ, SERIALIZABLE, Dirty Reads, Non-repeatable Reads, Phantom Reads.",
     "explanation": {
@@ -1680,7 +1664,6 @@
     "title": "Connection pooling",
     "category": "MYSQL",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Database connection overhead, connection poolers (HikariCP, mysql2 pool), min/max pool sizes, and idle connection timeouts.",
     "explanation": {
@@ -1784,7 +1767,6 @@
     "title": "EXPLAIN",
     "category": "MYSQL",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Analyzing query execution plans, EXPLAIN FORMAT=JSON, type column (ALL, index, range, ref, eq_ref, const), key, rows, and Extra.",
     "explanation": {
@@ -1885,7 +1867,6 @@
     "title": "Window functions",
     "category": "MYSQL",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "OVER clause, PARTITION BY, ORDER BY frame, ROW_NUMBER(), RANK(), DENSE_RANK(), LAG(), LEAD().",
     "explanation": {
@@ -1989,7 +1970,6 @@
     "title": "Query optimization",
     "category": "MYSQL",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Optimizing slow queries, eliminating functions on indexed columns, Sargable queries, and slow query log.",
     "explanation": {
@@ -2093,7 +2073,6 @@
     "title": "N+1 problem",
     "category": "MYSQL",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "N+1 query problem in ORMs, loop database queries, JOIN batching, and DataLoader pattern.",
     "explanation": {

@@ -39,9 +39,11 @@ export default function PointsView() {
   const {
     totalPoints,
     completionPointsTotal,
+    mcqPointsTotal,
     bonusPointsTotal,
     deductionPointsTotal,
     correctMcqsTotal,
+    incorrectMcqsTotal,
     topicBreakdown,
     codingPoints,
   } = pointsSummary;
@@ -81,7 +83,7 @@ export default function PointsView() {
             </div>
             <span className="text-xs uppercase font-bold text-muted-foreground tracking-wider">Total Score</span>
             <span className="text-4xl sm:text-5xl font-extrabold text-foreground tracking-tight">
-              {formatPoints(totalPoints)}
+              {totalPoints > 0 ? `+${formatPoints(totalPoints)}` : totalPoints < 0 ? `-${formatPoints(Math.abs(totalPoints))}` : formatPoints(totalPoints)}
             </span>
             <span className="text-xs text-muted-foreground font-medium mt-1 uppercase tracking-widest text-[10px]">Points Earned</span>
           </motion.div>
@@ -95,31 +97,45 @@ export default function PointsView() {
           <span>Points Category Breakdown</span>
         </h2>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 text-sm font-normal">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm font-normal">
+          {/* Topic Completion Pts */}
           <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-1">
             <span className="text-xs text-muted-foreground block">Topic Completion Pts</span>
-            <span className="text-xl font-bold text-foreground">+{completionPointsTotal} pts</span>
+            <span className="text-xl font-bold text-foreground">
+              +{completionPointsTotal} pts
+            </span>
+            <span className="text-[10px] text-muted-foreground block font-mono">+2.0 pts per topic</span>
           </div>
 
+          {/* Combined MCQ Quiz Pts (Correct & Incorrect) */}
           <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-1">
-            <span className="text-xs text-muted-foreground block">MCQ Correct Pts</span>
-            <span className="text-xl font-bold text-foreground">+{correctMcqsTotal * 1} pts</span>
+            <span className="text-xs text-muted-foreground block">MCQ Quiz Pts</span>
+            <span className="text-xl font-bold text-foreground">
+              {mcqPointsTotal > 0 ? `+${formatPoints(mcqPointsTotal)}` : mcqPointsTotal < 0 ? `-${formatPoints(Math.abs(mcqPointsTotal))}` : "0"} pts
+            </span>
+            <span className="text-[10px] text-muted-foreground block font-mono">
+              {correctMcqsTotal} correct (+1.0) • {incorrectMcqsTotal} wrong (-0.5)
+            </span>
           </div>
 
+          {/* Combined Coding Challenges Pts (Solved & Failed Submit Deductions) */}
           <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-1">
             <span className="text-xs text-muted-foreground block">Coding Challenges Pts</span>
-            <span className="text-xl font-bold text-foreground">+{codingPoints?.totalCodingPoints || 0} pts</span>
-            <span className="text-[10px] text-muted-foreground block font-mono">2 Easy • 3 Med • 4 Hard</span>
+            <span className="text-xl font-bold text-foreground">
+              {(codingPoints?.totalCodingPoints || 0) > 0 ? `+${formatPoints(codingPoints?.totalCodingPoints || 0)}` : (codingPoints?.totalCodingPoints || 0) < 0 ? `-${formatPoints(Math.abs(codingPoints?.totalCodingPoints || 0))}` : "0"} pts
+            </span>
+            <span className="text-[10px] text-muted-foreground block font-mono">
+              {codingPoints?.solvedCount || 0} solved • {codingPoints?.failedSubmissionsCount || 0} wrong submit{(codingPoints?.failedSubmissionsCount || 0) === 1 ? "" : "s"} (-0.5)
+            </span>
           </div>
 
-          <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-1">
-            <span className="text-xs text-muted-foreground block">MCQ Deductions</span>
-            <span className="text-xl font-bold text-muted-foreground">-{formatPoints(deductionPointsTotal)} pts</span>
-          </div>
-
+          {/* Perfect Mastery Bonus */}
           <div className="p-4 rounded-2xl bg-secondary/40 border border-border space-y-1">
             <span className="text-xs text-muted-foreground block">Perfect Mastery Bonus</span>
-            <span className="text-xl font-bold text-foreground">+{bonusPointsTotal} pts</span>
+            <span className="text-xl font-bold text-foreground">
+              +{bonusPointsTotal} pts
+            </span>
+            <span className="text-[10px] text-muted-foreground block font-mono">+3.0 pts per perfect quiz</span>
           </div>
         </div>
       </Card>
@@ -195,7 +211,7 @@ export default function PointsView() {
                 <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                   <span>MCQs: <strong className="text-foreground font-semibold">{item.correctCount}</strong>/{item.totalMcqs} correct</span>
                   {item.incorrectCount > 0 && (
-                    <span className="text-muted-foreground font-medium">-{item.incorrectCount * 0.5} pts (wrong)</span>
+                    <span className="text-red-400 font-medium">-{item.incorrectCount * 0.5} pts (wrong)</span>
                   )}
                 </div>
               </div>
@@ -203,8 +219,8 @@ export default function PointsView() {
               <div className="flex items-center gap-4 justify-between sm:justify-end flex-shrink-0">
                 <div className="text-right">
                   <span className="text-xs text-muted-foreground block font-normal">Topic Score</span>
-                  <span className={`text-xl font-bold ${item.totalTopicPoints > 0 ? "text-foreground" : "text-muted-foreground"}`}>
-                    {item.totalTopicPoints > 0 ? `+${formatPoints(item.totalTopicPoints)}` : formatPoints(item.totalTopicPoints)} pts
+                  <span className={`text-xl font-bold ${item.totalTopicPoints !== 0 ? "text-foreground" : "text-muted-foreground"}`}>
+                    {item.totalTopicPoints > 0 ? `+${formatPoints(item.totalTopicPoints)}` : item.totalTopicPoints < 0 ? `-${formatPoints(Math.abs(item.totalTopicPoints))}` : formatPoints(item.totalTopicPoints)} pts
                   </span>
                 </div>
 

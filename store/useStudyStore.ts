@@ -25,6 +25,7 @@ interface StudyState {
   // Coding Challenge State
   solvedChallenges: Record<string, { solvedAt: number; code: string }>;
   challengeAttempts: Record<string, string>;
+  failedSubmissions: Record<string, number>;
 
   // Cloud Sync State
   syncStatus: SyncStatus;
@@ -41,6 +42,7 @@ interface StudyState {
   setTopicNote: (topicId: string, note: string) => void;
   markChallengeSolved: (challengeId: string, code: string) => void;
   saveChallengeAttempt: (challengeId: string, code: string) => void;
+  recordFailedSubmit: (challengeId: string) => void;
   resetProgress: () => void;
   toggleSidebar: () => void;
   setSidebarOpen: (isOpen: boolean) => void;
@@ -107,6 +109,7 @@ export const useStudyStore = create<StudyState>()(
       topicNotes: {},
       solvedChallenges: {},
       challengeAttempts: {},
+      failedSubmissions: {},
       selectedRole: null,
       isSidebarOpen: false,
       searchQuery: "",
@@ -270,8 +273,20 @@ export const useStudyStore = create<StudyState>()(
         }));
       },
 
+      recordFailedSubmit: (challengeId: string) => {
+        set((state) => {
+          const currentCount = state.failedSubmissions?.[challengeId] || 0;
+          return {
+            failedSubmissions: {
+              ...(state.failedSubmissions || {}),
+              [challengeId]: currentCount + 1,
+            },
+          };
+        });
+      },
+
       resetProgress: () => {
-        set({ completedTopics: [], mcqAnswers: {}, submittedQuizzes: {}, topicNotes: {}, solvedChallenges: {}, challengeAttempts: {} });
+        set({ completedTopics: [], mcqAnswers: {}, submittedQuizzes: {}, topicNotes: {}, solvedChallenges: {}, challengeAttempts: {}, failedSubmissions: {} });
         const { isAuthenticated, activeTopicId, selectedRole, syncToServer } = get();
         if (isAuthenticated) {
           syncToServer([], activeTopicId, selectedRole, {}, {}, {});
@@ -307,6 +322,7 @@ export const useStudyStore = create<StudyState>()(
           topicNotes: {},
           solvedChallenges: {},
           challengeAttempts: {},
+          failedSubmissions: {},
           syncStatus: "idle",
         });
       },
@@ -332,22 +348,28 @@ export const useStudyStore = create<StudyState>()(
         });
       },
 
-      toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),
+      toggleSidebar: () => {
+        set((state) => ({ isSidebarOpen: !state.isSidebarOpen }));
+      },
 
-      setSidebarOpen: (isOpen: boolean) => set({ isSidebarOpen: isOpen }),
+      setSidebarOpen: (isOpen: boolean) => {
+        set({ isSidebarOpen: isOpen });
+      },
 
-      setSearchQuery: (query: string) => set({ searchQuery: query }),
+      setSearchQuery: (query: string) => {
+        set({ searchQuery: query });
+      },
 
-      setFilterState: (filter: FilterState) => set({ filterState: filter }),
+      setFilterState: (filter: FilterState) => {
+        set({ filterState: filter });
+      },
 
-      toggleCategoryCollapsed: (category: string) =>
+      toggleCategoryCollapsed: (category: string) => {
         set((state) => {
-          const currentTopics = state.topics;
-          const activeCategory = currentTopics.find((t) => t.id === state.activeTopicId)?.category;
           const currentIsCollapsed =
             state.collapsedCategories[category] !== undefined
               ? state.collapsedCategories[category]
-              : category !== activeCategory;
+              : false;
 
           return {
             collapsedCategories: {
@@ -355,7 +377,8 @@ export const useStudyStore = create<StudyState>()(
               [category]: !currentIsCollapsed,
             },
           };
-        }),
+        });
+      },
 
       getRoleFilteredTopics: () => {
         const { topics, selectedRole } = get();
@@ -382,9 +405,10 @@ export const useStudyStore = create<StudyState>()(
       },
 
       getPointsSummary: () => {
-        const { topics, completedTopics, mcqAnswers, solvedChallenges } = get();
+        const { topics, completedTopics, mcqAnswers, solvedChallenges, failedSubmissions } = get();
         const summary = calculateUserPoints(topics, completedTopics, mcqAnswers);
-        const coding = calculateCodingPoints(solvedChallenges, CODING_CHALLENGES);
+        const totalFailedSubmissions = Object.values(failedSubmissions || {}).reduce((a, b) => a + b, 0);
+        const coding = calculateCodingPoints(solvedChallenges, CODING_CHALLENGES, totalFailedSubmissions);
         const totalWithCoding = Math.round((summary.totalPoints + coding.totalCodingPoints) * 10) / 10;
 
         return {
@@ -405,6 +429,7 @@ export const useStudyStore = create<StudyState>()(
         topicNotes: state.topicNotes,
         solvedChallenges: state.solvedChallenges,
         challengeAttempts: state.challengeAttempts,
+        failedSubmissions: state.failedSubmissions,
         collapsedCategories: state.collapsedCategories,
       }),
     }

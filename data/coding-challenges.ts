@@ -15,7 +15,6 @@ export interface CodingChallenge {
   difficulty: CodingDifficulty;
   category: CategoryType;
   roles: string[]; // e.g. ["frontend", "backend", "fullstack", "data-engineer", "data-analytics", "devops-architect"]
-  companyTags: string[];
   starterCode: string;
   testCases: TestCase[];
   solution: string;
@@ -34,7 +33,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Easy",
     category: "DSA",
     roles: ["frontend", "backend", "fullstack", "data-engineer", "data-analytics", "devops-architect"],
-    companyTags: ["Meta", "Amazon", "Google", "Microsoft"],
     starterCode: `function twoSum(nums, target) {
   // Write your code here
   
@@ -80,7 +78,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Easy",
     category: "JAVASCRIPT",
     roles: ["frontend", "fullstack"],
-    companyTags: ["Google", "BFE.dev", "Uber"],
     starterCode: `function myFilter(array, callback) {
   // Write your code here
   
@@ -124,7 +121,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Easy",
     category: "JAVASCRIPT",
     roles: ["frontend", "fullstack"],
-    companyTags: ["Amazon", "Bloomberg"],
     starterCode: `function countVowelsAndConsonants(str) {
   // Write your code here
   
@@ -170,7 +166,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Easy",
     category: "DSA",
     roles: ["frontend", "backend", "fullstack", "data-engineer", "data-analytics", "devops-architect"],
-    companyTags: ["Apple", "Microsoft"],
     starterCode: `function removeDuplicates(nums) {
   // Write your code here
   
@@ -211,7 +206,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Easy",
     category: "JAVASCRIPT",
     roles: ["frontend", "fullstack"],
-    companyTags: ["Uber", "Lyft"],
     starterCode: `function flatten(arr) {
   // Write your code here
   
@@ -252,7 +246,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Easy",
     category: "HTTP",
     roles: ["frontend", "backend", "fullstack", "devops-architect"],
-    companyTags: ["Stripe", "Twilio", "Vercel"],
     starterCode: `function parseQueryString(url) {
   // Write your code here
   
@@ -298,7 +291,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Easy",
     category: "MYSQL",
     roles: ["data-engineer", "data-analytics", "backend", "fullstack"],
-    companyTags: ["Snowflake", "Databricks", "Oracle"],
     starterCode: `function filterRows(rows, condition) {
   // Write your code here
   
@@ -334,7 +326,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Easy",
     category: "JAVASCRIPT",
     roles: ["frontend", "backend", "fullstack"],
-    companyTags: ["Meta", "ByteDance", "Atlassian"],
     starterCode: `class EventEmitter {
   constructor() {
     // Initialize state
@@ -406,7 +397,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Easy",
     category: "DSA",
     roles: ["frontend", "backend", "fullstack", "data-engineer", "data-analytics", "devops-architect"],
-    companyTags: ["Google", "Bloomberg"],
     starterCode: `function isAnagram(s1, s2) {
   // Write your code here
   
@@ -456,7 +446,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Easy",
     category: "JAVASCRIPT",
     roles: ["frontend", "fullstack"],
-    companyTags: ["Vercel", "Medium", "Dev.to"],
     starterCode: `function slugify(title) {
   // Write your code here
   
@@ -497,7 +486,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Medium",
     category: "JAVASCRIPT",
     roles: ["frontend", "fullstack"],
-    companyTags: ["GreatFrontEnd", "Google", "Meta", "BFE.dev"],
     starterCode: `function debounce(fn, delay) {
   // Write your code here
   
@@ -549,7 +537,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Medium",
     category: "JAVASCRIPT",
     roles: ["frontend", "fullstack"],
-    companyTags: ["Meta", "Uber", "BFE.dev"],
     starterCode: `function throttle(fn, interval) {
   // Write your code here
   
@@ -591,7 +578,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Medium",
     category: "JAVASCRIPT",
     roles: ["frontend", "backend", "fullstack"],
-    companyTags: ["ByteDance", "Google", "Airbnb"],
     starterCode: `function deepClone(value) {
   // Write your code here
   
@@ -644,7 +630,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Medium",
     category: "JAVASCRIPT",
     roles: ["frontend", "backend", "fullstack"],
-    companyTags: ["Netflix", "Amazon", "Meta"],
     starterCode: `function promiseAll(promises) {
   // Write your code here
   
@@ -713,7 +698,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Medium",
     category: "REDIS",
     roles: ["backend", "data-engineer", "fullstack", "devops-architect"],
-    companyTags: ["Google", "Uber", "Amazon", "Redis"],
     starterCode: `class LRUCache {
   constructor(capacity) {
     // Write your constructor here
@@ -781,7 +765,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Medium",
     category: "NODE",
     roles: ["backend", "fullstack", "devops-architect"],
-    companyTags: ["Stripe", "Koa", "Express", "Vercel"],
     starterCode: `class MiddlewareRunner {
   constructor() {
     this.middlewares = [];
@@ -849,7 +832,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Medium",
     category: "JAVASCRIPT",
     roles: ["frontend", "fullstack"],
-    companyTags: ["Airbnb", "Ramda", "Meta"],
     starterCode: `function curry(fn) {
   // Write your code here
   
@@ -892,7 +874,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Medium",
     category: "MYSQL",
     roles: ["data-engineer", "data-analytics", "backend", "fullstack"],
-    companyTags: ["Meta Data", "Databricks", "Snowflake"],
     starterCode: `function groupByAggregate(rows, groupKey, aggField, aggFunc) {
   // Write your code here
   
@@ -964,7 +945,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Medium",
     category: "REACT",
     roles: ["frontend", "fullstack"],
-    companyTags: ["ByteDance", "Meta", "RxJS"],
     starterCode: `class AdvancedEventEmitter {
   constructor() {
     this.listeners = {};
@@ -1062,7 +1042,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Medium",
     category: "REDIS",
     roles: ["backend", "fullstack", "devops-architect"],
-    companyTags: ["Cloudflare", "Fastly", "Vercel"],
     starterCode: `function memoizeWithTTL(fn, ttlMs) {
   // Write your code here
   
@@ -1118,7 +1097,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Hard",
     category: "JAVASCRIPT",
     roles: ["frontend", "backend", "fullstack"],
-    companyTags: ["Meta", "Google", "Uber", "BFE.dev"],
     starterCode: `class MyPromise {
   constructor(executor) {
     // Write constructor
@@ -1245,7 +1223,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Hard",
     category: "REACT",
     roles: ["frontend", "fullstack"],
-    companyTags: ["Meta", "Vercel", "Preact"],
     starterCode: `function diff(oldTree, newTree) {
   // Write your code here
   
@@ -1314,7 +1291,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Hard",
     category: "REACT",
     roles: ["frontend", "fullstack"],
-    companyTags: ["Meta", "ByteDance", "GreatFrontEnd"],
     starterCode: `function createMiniReact() {
   // Write your mini React implementation
   
@@ -1377,7 +1353,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Hard",
     category: "NODE",
     roles: ["backend", "fullstack", "devops-architect"],
-    companyTags: ["Uber", "Netflix", "Shopify"],
     starterCode: `class TaskQueue {
   constructor(concurrency) {
     // Write constructor
@@ -1456,7 +1431,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Hard",
     category: "SYSTEM DESIGN",
     roles: ["backend", "devops-architect", "fullstack"],
-    companyTags: ["Cloudflare", "Stripe", "AWS"],
     starterCode: `class TokenBucket {
   constructor(capacity, refillRatePerSec) {
     // Write constructor
@@ -1518,7 +1492,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Hard",
     category: "SYSTEM DESIGN",
     roles: ["backend", "devops-architect", "fullstack"],
-    companyTags: ["AWS", "Netflix", "Hystrix"],
     starterCode: `class CircuitBreaker {
   constructor(fn, failureThreshold = 2, resetTimeoutMs = 100) {
     // Write constructor
@@ -1607,7 +1580,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Hard",
     category: "SYSTEM DESIGN",
     roles: ["backend", "devops-architect", "fullstack"],
-    companyTags: ["Amazon", "Discord", "Cassandra"],
     starterCode: `class ConsistentHashRing {
   constructor(virtualNodes = 3) {
     // Write constructor
@@ -1700,7 +1672,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Hard",
     category: "MYSQL",
     roles: ["data-engineer", "data-analytics", "backend", "fullstack"],
-    companyTags: ["Snowflake", "Databricks", "Google BigQuery"],
     starterCode: `function joinTables(tableA, tableB, keyA, keyB, type = 'INNER') {
   // Write your code here
   
@@ -1766,7 +1737,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Hard",
     category: "JAVASCRIPT",
     roles: ["frontend", "backend", "fullstack"],
-    companyTags: ["Google", "Facebook", "Jest"],
     starterCode: `function deepEqual(a, b) {
   // Write your code here
   
@@ -1818,7 +1788,6 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     difficulty: "Hard",
     category: "DSA",
     roles: ["frontend", "backend", "fullstack", "data-engineer", "data-analytics", "devops-architect"],
-    companyTags: ["Google", "Twitter", "Amazon"],
     starterCode: `class TrieNode {
   constructor() {
     this.children = {};

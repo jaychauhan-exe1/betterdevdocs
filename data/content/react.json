@@ -4,7 +4,6 @@
     "title": "Components",
     "category": "REACT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Functional vs Class components, component lifecycle, composability, and UI modularity.",
     "explanation": {
@@ -108,7 +107,6 @@
     "title": "JSX",
     "category": "REACT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "JavaScript XML syntax extension, compilation to React.createElement, embedding expressions, and Fragments.",
     "explanation": {
@@ -214,7 +212,6 @@
     "title": "Props",
     "category": "REACT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Passing data downward, immutable read-only props, children prop, and default prop values.",
     "explanation": {
@@ -319,7 +316,6 @@
     "title": "State",
     "category": "REACT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Component memory, state vs props, asynchronous state updates, and immutable state updates.",
     "explanation": {
@@ -424,7 +420,6 @@
     "title": "useState",
     "category": "REACT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "State hook syntax, state initializers, lazy state initialization, and updater functions.",
     "explanation": {
@@ -529,7 +524,6 @@
     "title": "Forms",
     "category": "REACT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Form state handling, input event handlers, onSubmit validation, and form libraries.",
     "explanation": {
@@ -633,7 +627,6 @@
     "title": "useEffect",
     "category": "REACT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Side-effects, dependency array rules, cleanup functions, and lifecycle equivalence.",
     "explanation": {
@@ -738,7 +731,6 @@
     "title": "Rendering",
     "category": "REACT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Render phase vs Commit phase, virtual DOM tree comparison, triggering re-renders, and pure rendering.",
     "explanation": {
@@ -843,7 +835,6 @@
     "title": "Controlled/uncontrolled",
     "category": "REACT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Controlled inputs (state driven) vs Uncontrolled inputs (DOM ref driven, defaultValue).",
     "explanation": {
@@ -949,7 +940,6 @@
     "title": "useRef",
     "category": "REACT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Mutable reference container, DOM node access, persisting values across renders without re-rendering.",
     "explanation": {
@@ -1054,7 +1044,6 @@
     "title": "Context",
     "category": "REACT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Solving prop drilling, createContext, Provider/Consumer, useContext hook, and context re-render performance.",
     "explanation": {
@@ -1159,7 +1148,6 @@
     "title": "Custom hooks",
     "category": "REACT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Extracting reusable stateful logic, `use` prefix naming rule, composability of standard built-in hooks.",
     "explanation": {
@@ -1264,7 +1252,6 @@
     "title": "React.memo",
     "category": "REACT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Higher-Order Component memoization, shallow prop comparison, custom areEqual comparator function.",
     "explanation": {
@@ -1369,7 +1356,6 @@
     "title": "useMemo",
     "category": "REACT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Memoizing expensive calculations, referential equality optimization, dependency array cache invalidation.",
     "explanation": {
@@ -1473,7 +1459,6 @@
     "title": "useCallback",
     "category": "REACT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Callback function memoization, referential equality for function props, pairing with React.memo.",
     "explanation": {
@@ -1577,7 +1562,6 @@
     "title": "Lazy loading",
     "category": "REACT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "On-demand component dynamic imports, React.lazy, Suspense fallback boundaries.",
     "explanation": {
@@ -1681,7 +1665,6 @@
     "title": "SSR/CSR basics",
     "category": "REACT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Client-Side Rendering vs Server-Side Rendering, hydration, SEO implications, and Next.js basics.",
     "explanation": {
@@ -1787,7 +1770,6 @@
     "title": "Reconciliation",
     "category": "REACT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Diffing algorithm, Virtual DOM comparisons, O(n) heuristics, and list item `key` prop rules.",
     "explanation": {
@@ -1891,7 +1873,6 @@
     "title": "Performance",
     "category": "REACT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Profiling React apps, identifying waste renders, key prop rules, windowing/virtualization (react-window).",
     "explanation": {
@@ -1996,7 +1977,6 @@
     "title": "Code splitting",
     "category": "REACT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Reducing initial JavaScript bundle size, route-based splitting, dynamic import() statements.",
     "explanation": {
@@ -2100,7 +2080,6 @@
     "title": "Error boundaries",
     "category": "REACT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Catching JavaScript errors in child tree, componentDidCatch, getDerivedStateFromError, fallback UI.",
     "explanation": {

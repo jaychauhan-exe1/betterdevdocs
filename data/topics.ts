@@ -39,7 +39,6 @@ export interface Topic {
   title: string;
   category: CategoryType;
   difficulty: "Beginner" | "Intermediate" | "Advanced";
-  estimatedTime: string;
   isImportant?: boolean;
   summary: string;
   explanation: {

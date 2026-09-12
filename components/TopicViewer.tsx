@@ -17,7 +17,6 @@ import {
   Code,
   Sparkles,
   HelpCircle,
-  Clock,
   Check,
   Copy,
   ChevronLeft,
@@ -600,10 +599,6 @@ export default function TopicViewer(props: TopicViewerProps) {
                 <Badge variant="outline" className="text-xs sm:text-sm py-0.5 sm:py-1 px-2.5 sm:px-3 font-normal">
                   {topic.difficulty}
                 </Badge>
-                <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground font-normal">
-                  <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                  {topic.estimatedTime}
-                </span>
               </div>
 
               {/* Title */}

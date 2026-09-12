@@ -534,7 +534,9 @@ export default function ProgressRoadmapView() {
 
                   <div className="p-3 bg-secondary/30 rounded-xl border border-border">
                     <span className="text-xs text-muted-foreground block">Coding Points</span>
-                    <span className="text-lg font-bold text-foreground">+{formatKPoints(codingSummary.totalCodingPoints)} pts</span>
+                    <span className="text-lg font-bold text-foreground">
+                      {codingSummary.totalCodingPoints > 0 ? `+${formatKPoints(codingSummary.totalCodingPoints)}` : codingSummary.totalCodingPoints < 0 ? `-${formatKPoints(Math.abs(codingSummary.totalCodingPoints))}` : formatKPoints(codingSummary.totalCodingPoints)} pts
+                    </span>
                   </div>
 
                   <div className="p-3 bg-secondary/30 rounded-xl border border-border">
@@ -619,7 +621,6 @@ export default function ProgressRoadmapView() {
                     <Badge variant="outline" className="text-xs">
                       {selectedTopic.difficulty}
                     </Badge>
-                    <span className="text-xs text-muted-foreground">⏱️ {selectedTopic.estimatedTime}</span>
                   </div>
 
                   <div>

@@ -4,7 +4,6 @@
     "title": "Variables / scope",
     "category": "JAVASCRIPT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Scope rules (Global, Function, Block), var vs let vs const, and Temporal Dead Zone (TDZ).",
     "explanation": {
@@ -109,7 +108,6 @@
     "title": "Objects",
     "category": "JAVASCRIPT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Key-value property storage, object methods, property descriptors, Object.freeze vs Object.seal.",
     "explanation": {
@@ -215,7 +213,6 @@
     "title": "Arrays",
     "category": "JAVASCRIPT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Ordered list collections, array mutations, indexing, slice/splice, and ES6+ array methods.",
     "explanation": {
@@ -320,7 +317,6 @@
     "title": "Destructuring",
     "category": "JAVASCRIPT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Unpacking values from arrays and properties from objects into distinct variables with defaults and renaming.",
     "explanation": {
@@ -426,7 +422,6 @@
     "title": "Spread/rest",
     "category": "JAVASCRIPT",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Spread operator `...` for expanding iterables/objects vs Rest operator `...` for gathering parameters.",
     "explanation": {
@@ -532,7 +527,6 @@
     "title": "map/filter/reduce",
     "category": "JAVASCRIPT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Functional array transformations: map (1-to-1 transform), filter (subset selection), reduce (accumulator aggregation).",
     "explanation": {
@@ -638,7 +632,6 @@
     "title": "Hoisting",
     "category": "JAVASCRIPT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Hoisting mechanics of function declarations, var variables, and let/const TDZ behavior.",
     "explanation": {
@@ -743,7 +736,6 @@
     "title": "Closures",
     "category": "JAVASCRIPT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Lexical environment retention, private variables, and memory behavior in JS closures.",
     "explanation": {
@@ -848,7 +840,6 @@
     "title": "this",
     "category": "JAVASCRIPT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Dynamic binding of `this`: Implicit binding, explicit binding, new binding, and arrow function lexical this.",
     "explanation": {
@@ -953,7 +944,6 @@
     "title": "call/apply/bind",
     "category": "JAVASCRIPT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Explicitly setting function execution context: call (arg list), apply (arg array), bind (returns bound function).",
     "explanation": {
@@ -1059,7 +1049,6 @@
     "title": "Prototypes",
     "category": "JAVASCRIPT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Prototypal inheritance model, `prototype` vs `__proto__`, prototype chain lookup mechanism.",
     "explanation": {
@@ -1164,7 +1153,6 @@
     "title": "Classes",
     "category": "JAVASCRIPT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "ES6 class syntax syntactic sugar, constructors, extends inheritance, super(), and private fields.",
     "explanation": {
@@ -1269,7 +1257,6 @@
     "title": "Modules",
     "category": "JAVASCRIPT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "ES6 Modules (import/export), CommonJS (require/module.exports), tree-shaking, static analysis.",
     "explanation": {
@@ -1375,7 +1362,6 @@
     "title": "Error handling",
     "category": "JAVASCRIPT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "try/catch/finally blocks, Custom Error classes, unhandled promise rejections, window.onerror.",
     "explanation": {
@@ -1481,7 +1467,6 @@
     "title": "Promises",
     "category": "JAVASCRIPT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Asynchronous operations, Promise states (Pending, Fulfilled, Rejected), then/catch/finally chaining.",
     "explanation": {
@@ -1587,7 +1572,6 @@
     "title": "async/await",
     "category": "JAVASCRIPT",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Syntactic sugar over promises, sequential vs parallel async execution, try/catch error handling.",
     "explanation": {
@@ -1692,7 +1676,6 @@
     "title": "Promise.all/allSettled/race/any",
     "category": "JAVASCRIPT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Concurrency helpers: Promise.all (all resolve or fail-fast), allSettled (wait for all), race (first settled), any (first fulfilled).",
     "explanation": {
@@ -1796,7 +1779,6 @@
     "title": "Event loop",
     "category": "JAVASCRIPT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Single-threaded runtime, Call Stack, Task Queue (Macrotasks), Microtask Queue execution priority.",
     "explanation": {
@@ -1900,7 +1882,6 @@
     "title": "Microtasks/macrotasks",
     "category": "JAVASCRIPT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Task Queue differentiation: Microtasks (Promises, queueMicrotask, MutationObserver) vs Macrotasks (setTimeout, setInterval, I/O, setImmediate).",
     "explanation": {
@@ -2005,7 +1986,6 @@
     "title": "Memory",
     "category": "JAVASCRIPT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "JavaScript memory model: Call Stack (primitive values, frame pointers) vs Heap (reference objects).",
     "explanation": {
@@ -2110,7 +2090,6 @@
     "title": "Garbage collection",
     "category": "JAVASCRIPT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Automatic memory management, Mark-and-Sweep algorithm, reachability root nodes, WeakMap/WeakSet.",
     "explanation": {
@@ -2216,7 +2195,6 @@
     "title": "Memory leaks",
     "category": "JAVASCRIPT",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Common causes of JS memory leaks: accidental global variables, uncleared timers/listeners, closure retains, detached DOM nodes.",
     "explanation": {

@@ -4,7 +4,6 @@
     "title": "Big-O",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Time complexity vs Space complexity, asymptotic analysis, O(1), O(log N), O(N), O(N log N), O(N^2), O(2^N).",
     "explanation": {
@@ -109,7 +108,6 @@
     "title": "Arrays",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Contiguous memory layout, indexed access O(1), search O(N), insertion/deletion O(N), and dynamic arrays.",
     "explanation": {
@@ -214,7 +212,6 @@
     "title": "Strings",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "String immutability, character encoding (ASCII/Unicode), string manipulation, and string building optimization.",
     "explanation": {
@@ -319,7 +316,6 @@
     "title": "Hash maps",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Key-value pair lookups, hash function, collision resolution (Chaining vs Open Addressing), O(1) average lookup.",
     "explanation": {
@@ -423,7 +419,6 @@
     "title": "Sets",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Unique element collections, O(1) add/has/delete, deduplication, and set operations.",
     "explanation": {
@@ -527,7 +522,6 @@
     "title": "Two pointers",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Two Pointer pattern, Left/Right converging pointers, Fast/Slow pointers (Floyd Cycle Detection), and O(N) array processing.",
     "explanation": {
@@ -630,7 +624,6 @@
     "title": "Sliding window",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Sliding Window pattern, Fixed window size vs Variable window size, contiguous subarray/substring tracking in O(N).",
     "explanation": {
@@ -735,7 +728,6 @@
     "title": "Stack",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "LIFO structure, PUSH, POP, PEEK, Monotonic Stack pattern, and call stack execution.",
     "explanation": {
@@ -839,7 +831,6 @@
     "title": "Queue",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "FIFO structure, ENQUEUE, DEQUEUE, PEEK, Circular Queue, Deque (Double-Ended Queue), and BFS traversal.",
     "explanation": {
@@ -943,7 +934,6 @@
     "title": "Linked list",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Singly vs Doubly Linked Lists, pointer manipulation, node insertion/deletion O(1), and list reversal.",
     "explanation": {
@@ -1048,7 +1038,6 @@
     "title": "Binary search",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "O(log N) divide and conquer search, sorted search space, overflow-safe mid calculation, and search space reduction.",
     "explanation": {
@@ -1151,7 +1140,6 @@
     "title": "Recursion",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Base case vs Recursive step, Call Stack frame allocation, Stack Overflow, and Memoization.",
     "explanation": {
@@ -1255,7 +1243,6 @@
     "title": "Trees",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Binary Trees, Binary Search Trees (BST), AVL/Red-Black balanced trees, tree traversals (In-order, Pre-order, Post-order).",
     "explanation": {
@@ -1361,7 +1348,6 @@
     "title": "BFS",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Breadth-First Search, Queue-based level-order traversal, unweighted shortest path, O(V + E) complexity.",
     "explanation": {
@@ -1466,7 +1452,6 @@
     "title": "DFS",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Depth-First Search, Stack/Recursion implementation, connected components, cycle detection, and Backtracking.",
     "explanation": {
@@ -1571,7 +1556,6 @@
     "title": "Sorting",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Comparison sorting algorithms: QuickSort, Merge Sort, HeapSort, Bubble/Selection/Insertion sort, stability, and space/time tradeoffs.",
     "explanation": {
@@ -1676,7 +1660,6 @@
     "title": "Heap",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Binary Heap complete tree, Min-Heap vs Max-Heap, array representation, insertion/extract O(log N), Priority Queue.",
     "explanation": {
@@ -1782,7 +1765,6 @@
     "title": "Basic graphs",
     "category": "DATA STRUCTURES & ALGORITHMS",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Directed vs Undirected graphs, Adjacency List vs Adjacency Matrix, weighted edges, and graph representations.",
     "explanation": {

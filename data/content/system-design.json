@@ -4,7 +4,6 @@
     "title": "Caching",
     "category": "SYSTEM DESIGN",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Multi-tier caching architecture, Client cache, CDN, Reverse Proxy, Application cache, DB cache, and invalidation strategies.",
     "explanation": {
@@ -109,7 +108,6 @@
     "title": "Load balancing",
     "category": "SYSTEM DESIGN",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Layer 4 vs Layer 7 load balancing, algorithms (Round Robin, Least Connections, IP Hash), health checks, and NGINX/HAProxy.",
     "explanation": {
@@ -214,7 +212,6 @@
     "title": "Horizontal scaling",
     "category": "SYSTEM DESIGN",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Vertical scaling (Scale Up) vs Horizontal scaling (Scale Out), stateless application servers, and auto-scaling groups.",
     "explanation": {
@@ -318,7 +315,6 @@
     "title": "File upload",
     "category": "SYSTEM DESIGN",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Presigned URLs, direct S3/Cloud Storage upload, multipart chunking, CDN distribution, and metadata DB persistence.",
     "explanation": {
@@ -422,7 +418,6 @@
     "title": "Image processing",
     "category": "SYSTEM DESIGN",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Asynchronous image pipelines, worker pools, Sharp/FFmpeg processing, WebP/AVIF compression, and CDN caching.",
     "explanation": {
@@ -527,7 +522,6 @@
     "title": "Queue",
     "category": "SYSTEM DESIGN",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Message queues (RabbitMQ, SQS, Kafka), asynchronous decoupling, load leveling (smoothing spikes), and dead-letter queues.",
     "explanation": {
@@ -632,7 +626,6 @@
     "title": "Background jobs",
     "category": "SYSTEM DESIGN",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Asynchronous job processing, task schedulers (Cron, BullMQ, Celery), retry strategies (exponential backoff), and job monitoring.",
     "explanation": {
@@ -736,7 +729,6 @@
     "title": "WebSockets",
     "category": "SYSTEM DESIGN",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Full-duplex real-time communication, HTTP Upgrade handshake, Redis Pub/Sub horizontal scaling, and heartbeat ping/pong.",
     "explanation": {
@@ -841,7 +833,6 @@
     "title": "Rate limiter",
     "category": "SYSTEM DESIGN",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Designing distributed rate limiters, API Gateway layer placement, Redis cluster counters, and fallback strategies.",
     "explanation": {
@@ -945,7 +936,6 @@
     "title": "Database scaling",
     "category": "SYSTEM DESIGN",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Read Replicas, Primary-Replica replication, Database Sharding (Horizontal Partitioning), consistent hashing, and CQRS.",
     "explanation": {
@@ -1050,7 +1040,6 @@
     "title": "Redis architecture",
     "category": "SYSTEM DESIGN",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Redis persistence (RDB snapshots, AOF log), Redis Sentinel high availability, Redis Cluster sharding, and memory optimization.",
     "explanation": {

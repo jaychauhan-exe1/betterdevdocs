@@ -4,7 +4,6 @@
     "title": "Modules",
     "category": "NODE",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "CommonJS vs ES Modules, module loading resolution, require cache, and module.exports.",
     "explanation": {
@@ -110,7 +109,6 @@
     "title": "path",
     "category": "NODE",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Cross-platform path resolution: path.join, path.resolve, path.extname, and POSIX vs Windows differences.",
     "explanation": {
@@ -216,7 +214,6 @@
     "title": "Express",
     "category": "NODE",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Express framework fundamentals, routing (app.get, app.post), req/res objects, and application structure.",
     "explanation": {
@@ -321,7 +318,6 @@
     "title": "Middleware",
     "category": "NODE",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Express middleware pipeline, (req, res, next) signature, error-handling middleware, and execution chain.",
     "explanation": {
@@ -426,7 +422,6 @@
     "title": "REST APIs",
     "category": "NODE",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "RESTful API design, HTTP verb semantics, status code standards, resource routing, and JSON responses.",
     "explanation": {
@@ -530,7 +525,6 @@
     "title": "fs",
     "category": "NODE",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "File system operations: reading, writing, appending, streams, watching files, and permissions.",
     "explanation": {
@@ -635,7 +629,6 @@
     "title": "File uploads",
     "category": "NODE",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Handling multipart/form-data, Multer middleware, disk storage vs memory storage, and file validation.",
     "explanation": {
@@ -741,7 +734,6 @@
     "title": "Events",
     "category": "NODE",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "EventEmitter class, on, once, emit, removeListener, handling error events.",
     "explanation": {
@@ -846,7 +838,6 @@
     "title": "Buffer",
     "category": "NODE",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Binary data storage, V8 heap allocation, Buffer.from, Buffer.alloc, encodings (utf-8, base64, hex).",
     "explanation": {
@@ -951,7 +942,6 @@
     "title": "HTTP",
     "category": "NODE",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Core http module, createServer, req/res streams, status codes, and header management.",
     "explanation": {
@@ -1056,7 +1046,6 @@
     "title": "Async I/O",
     "category": "NODE",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Non-blocking asynchronous input/output, callback conventions, error-first callbacks, promise-based APIs.",
     "explanation": {
@@ -1160,7 +1149,6 @@
     "title": "Node architecture",
     "category": "NODE",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Single-threaded event loop, V8 engine, libuv thread pool, and non-blocking asynchronous I/O model.",
     "explanation": {
@@ -1266,7 +1254,6 @@
     "title": "Streams",
     "category": "NODE",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Processing large data chunk by chunk, Readable, Writable, Duplex, Transform streams, and pipe().",
     "explanation": {
@@ -1371,7 +1358,6 @@
     "title": "Backpressure",
     "category": "NODE",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Stream rate management, readable buffer vs writable buffer, highWaterMark, drain event.",
     "explanation": {
@@ -1475,7 +1461,6 @@
     "title": "Error handling",
     "category": "NODE",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Operational vs Programmer errors, uncaughtException, unhandledRejection, and graceful shutdown.",
     "explanation": {
@@ -1580,7 +1565,6 @@
     "title": "Event loop",
     "category": "NODE",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Phases of Node event loop: Timers, Pending Callbacks, Idle/Prepare, Poll, Check, Close callbacks.",
     "explanation": {
@@ -1685,7 +1669,6 @@
     "title": "V8",
     "category": "NODE",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Google V8 engine architecture, JIT compilation (Ignition & TurboFan), memory heaps, and optimization flags.",
     "explanation": {

@@ -4,7 +4,6 @@
     "title": "HTTP methods",
     "category": "HTTP",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "HTTP request methods: GET, POST, PUT, DELETE, PATCH, HEAD, OPTIONS, safe vs idempotent methods.",
     "explanation": {
@@ -110,7 +109,6 @@
     "title": "Status codes",
     "category": "HTTP",
     "difficulty": "Beginner",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "HTTP status code ranges: 1xx (Informational), 2xx (Success), 3xx (Redirection), 4xx (Client Error), 5xx (Server Error).",
     "explanation": {
@@ -217,7 +215,6 @@
     "title": "Headers",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Request vs Response headers, Content-Type, Authorization, Cache-Control, ETag, and User-Agent.",
     "explanation": {
@@ -323,7 +320,6 @@
     "title": "REST",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "REST architectural constraints: Client-Server, Stateless, Cacheable, Uniform Interface, Layered System.",
     "explanation": {
@@ -427,7 +423,6 @@
     "title": "Cookies",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "State management via Set-Cookie, Cookie flags: HttpOnly, Secure, SameSite (Strict, Lax, None), domain & path scoping.",
     "explanation": {
@@ -533,7 +528,6 @@
     "title": "Sessions",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Stateful session management, session IDs, server store (Memory, Redis), session fixation, and termination.",
     "explanation": {
@@ -637,7 +631,6 @@
     "title": "Authentication",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Verifying user identity: HTTP Basic Auth, Session Cookies, OAuth2, OpenID Connect, and 2FA/MFA.",
     "explanation": {
@@ -742,7 +735,6 @@
     "title": "Authorization",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Verifying permissions (AuthZ), RBAC (Role-Based), ABAC (Attribute-Based), and 403 Forbidden.",
     "explanation": {
@@ -846,7 +838,6 @@
     "title": "JWT",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "JSON Web Tokens architecture: Header, Payload, Signature, HMAC vs RSA, refresh tokens, and revocation.",
     "explanation": {
@@ -952,7 +943,6 @@
     "title": "CORS",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Cross-Origin Resource Sharing security mechanism, Same-Origin Policy (SOP), Access-Control headers, and origin matching.",
     "explanation": {
@@ -1056,7 +1046,6 @@
     "title": "Preflight",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Simple requests vs Preflighted requests, OPTIONS method, Access-Control-Max-Age caching.",
     "explanation": {
@@ -1160,7 +1149,6 @@
     "title": "HTTPS",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "SSL/TLS encryption, public/private key cryptography, TLS handshake, and TLS certificates.",
     "explanation": {
@@ -1265,7 +1253,6 @@
     "title": "Idempotency",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Idempotent HTTP methods vs Non-idempotent methods, handling network retries, and Idempotency-Key headers.",
     "explanation": {
@@ -1369,7 +1356,6 @@
     "title": "Pagination",
     "category": "HTTP",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Offset-based pagination vs Cursor-based (keyset) pagination, performance tradeoffs, and metadata structures.",
     "explanation": {

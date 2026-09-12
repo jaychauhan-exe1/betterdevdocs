@@ -32,7 +32,7 @@ export async function POST() {
       title: topic.title,
       category: topic.category,
       difficulty: topic.difficulty,
-      estimated_time: topic.estimatedTime,
+      estimated_time: (topic as any).estimatedTime || "N/A",
       is_important: topic.isImportant || false,
       summary: topic.summary,
       explanation: topic.explanation,

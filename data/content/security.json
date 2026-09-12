@@ -4,7 +4,6 @@
     "title": "XSS",
     "category": "SECURITY",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Cross-Site Scripting types (Stored, Reflected, DOM-based), output escaping, Content Security Policy (CSP), and HttpOnly cookies.",
     "explanation": {
@@ -110,7 +109,6 @@
     "title": "CSRF",
     "category": "SECURITY",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Cross-Site Request Forgery mechanism, Anti-CSRF tokens (Synchronizer Token Pattern), SameSite cookie attribute, and Custom Request Headers.",
     "explanation": {
@@ -215,7 +213,6 @@
     "title": "SQL injection",
     "category": "SECURITY",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "SQL Injection (SQLi) mechanics, Prepared Statements (Parameterized Queries), ORM safety, and input validation.",
     "explanation": {
@@ -321,7 +318,6 @@
     "title": "CORS",
     "category": "SECURITY",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "CORS security model, misconfigurations, Access-Control-Allow-Origin: *, credentials, and wildcard dangers.",
     "explanation": {
@@ -425,7 +421,6 @@
     "title": "Password hashing",
     "category": "SECURITY",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Salted password hashing, Argon2id, bcrypt, PBKDF2, work factors, avoiding MD5/SHA256, and rainbow tables.",
     "explanation": {
@@ -530,7 +525,6 @@
     "title": "Cookies",
     "category": "SECURITY",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Cookie security flags: HttpOnly, Secure, SameSite, Domain/Path scoping, Prefix flags (__Host-, __Secure-).",
     "explanation": {
@@ -635,7 +629,6 @@
     "title": "Authorization",
     "category": "SECURITY",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Broken Object Level Authorization (BOLA/IDOR), Principle of Least Privilege, and server-side permission checks.",
     "explanation": {
@@ -739,7 +732,6 @@
     "title": "JWT security",
     "category": "SECURITY",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "JWT security vulnerabilities: 'none' algorithm attack, weak secret keys, token storage (cookie vs localStorage), and token revocation.",
     "explanation": {
@@ -844,7 +836,6 @@
     "title": "Rate limiting",
     "category": "SECURITY",
     "difficulty": "Intermediate",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Brute-force protection, login throttling, IP vs User account rate limiting, and CAPTCHA integration.",
     "explanation": {
@@ -949,7 +940,6 @@
     "title": "File upload security",
     "category": "SECURITY",
     "difficulty": "Advanced",
-    "estimatedTime": "5 min read",
     "isImportant": true,
     "summary": "Restricting upload vulnerabilities, validating MIME types & Magic Bytes, randomizing file names, and disabling execution permissions.",
     "explanation": {
