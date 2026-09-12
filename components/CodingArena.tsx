@@ -103,7 +103,9 @@ export default function CodingArena() {
 
   // Current selected challenge object
   const currentChallenge = useMemo(() => {
-    return CODING_CHALLENGES.find((c) => c.id === activeChallengeId) || CODING_CHALLENGES[0];
+    const found = CODING_CHALLENGES.find((c) => c.id === activeChallengeId);
+    if (found) return found;
+    return CODING_CHALLENGES[0];
   }, [activeChallengeId]);
 
   // Load code for challenge (saved attempt, solved code, or starter code)
@@ -159,6 +161,16 @@ export default function CodingArena() {
       return true;
     });
   }, [activeRole, selectedDifficulty, selectedStatus, searchQuery, solvedChallenges]);
+
+  // Ensure activeChallengeId points to a valid challenge in filtered list when role/filters change
+  useEffect(() => {
+    if (filteredChallenges.length > 0) {
+      const existsInFiltered = filteredChallenges.some((c) => c.id === activeChallengeId);
+      if (!existsInFiltered) {
+        setActiveChallengeId(filteredChallenges[0].id);
+      }
+    }
+  }, [filteredChallenges, activeChallengeId]);
 
   // Open question to solve
   const handleSelectChallenge = (id: string) => {

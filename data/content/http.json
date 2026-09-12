@@ -102,6 +102,12 @@
         "correctAnswer": 1,
         "explanation": "`PATCH` is designated for partial resource modifications."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -208,6 +214,12 @@
         "correctAnswer": 0,
         "explanation": "`301 Moved Permanently` tells search engine crawlers and browsers to update link target permanently."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -313,6 +325,12 @@
         "correctAnswer": 1,
         "explanation": "`Accept` header informs server about media types client is capable of processing."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -353,6 +371,11 @@
         "title": "HATEOAS REST Response Payload",
         "description": "JSON representation including hypermedia action links.",
         "code": "{\n  \"id\": 42,\n  \"name\": \"Alex Developer\",\n  \"email\": \"alex@example.com\",\n  \"_links\": {\n    \"self\": { \"href\": \"/api/v1/users/42\" },\n    \"orders\": { \"href\": \"/api/v1/users/42/orders\" },\n    \"deactivate\": { \"href\": \"/api/v1/users/42\", \"method\": \"DELETE\" }\n  }\n}"
+      },
+      {
+        "title": "REST Reference",
+        "description": "Core code snippet demonstrating REST.",
+        "code": "// REST Implementation\nconsole.log('Practicing REST on DevDocs');"
       }
     ],
     "mcqs": [
@@ -415,7 +438,37 @@
         ],
         "correctAnswer": 2,
         "explanation": "Level 3 of Richardson Maturity Model requires HATEOAS hypermedia controls."
+      },
+      {
+        "id": "backend-lfnfdzzndrb0lbeamtu71-mcq-1",
+        "question": "What is a primary principle of REST?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "REST is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-lfnfdzzndrb0lbeamtu71-mcq-2",
+        "question": "Why do technical interviews assess REST?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use REST to design efficient, scalable systems."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -458,6 +511,11 @@
         "title": "Secure Set-Cookie Response Header",
         "description": "Setting secure authentication cookie with security flags.",
         "code": "// Set-Cookie response header from server:\nSet-Cookie: sessionId=xyz123;\n  Expires=Wed, 21 Oct 2026 07:28:00 GMT;\n  Max-Age=86400;\n  Secure;\n  HttpOnly;\n  SameSite=Lax;\n  Path=/\n  Domain=.example.com"
+      },
+      {
+        "title": "__Host- Cookie Prefix Example",
+        "description": "Setting maximum security __Host- cookie header.",
+        "code": "// __Host- prefix enforces Secure, Path=/, and NO Domain attribute!\nSet-Cookie: __Host-sessionId=xyz123;\n  Path=/;\n  Secure;\n  HttpOnly;\n  SameSite=Strict"
       }
     ],
     "mcqs": [
@@ -520,7 +578,73 @@
         ],
         "correctAnswer": 1,
         "explanation": "Modern browser security rules require `SameSite=None` cookies to also specify `Secure`."
+      },
+      {
+        "id": "sec-cookies-mcq-1",
+        "question": "What security constraints does the `__Host-` cookie prefix enforce on browsers?",
+        "options": [
+          "Cookie expires in 1h",
+          "Cookie MUST include `Secure` flag, originate from HTTPS, have `Path=/`, and MUST NOT specify a `Domain` attribute",
+          "Cookie is read-only",
+          "Cookie uses RSA"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`__Host-` prefix enforces `Secure`, `Path=/`, and forbids `Domain` overrides."
+      },
+      {
+        "id": "sec-cookies-mcq-2",
+        "question": "What attack does setting `HttpOnly` flag on session cookies prevent?",
+        "options": [
+          "SQL Injection",
+          "XSS scripts from stealing session cookies via `document.cookie`",
+          "CSRF attacks",
+          "DDoS attacks"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`HttpOnly` blocks JS `document.cookie` access, defending against XSS cookie theft."
+      },
+      {
+        "id": "sec-cookies-mcq-3",
+        "question": "What attack does setting `SameSite=Lax` or `Strict` flag on session cookies mitigate?",
+        "options": [
+          "SQL Injection",
+          "CSRF (Cross-Site Request Forgery)",
+          "XSS",
+          "Buffer overflow"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SameSite` restricts cross-site cookie transmission, defending against CSRF."
+      },
+      {
+        "id": "sec-cookies-mcq-4",
+        "question": "Why is setting `Domain=.example.com` potentially risky if subdomains (`blog.example.com`) are insecure?",
+        "options": [
+          "Cookies expire fast",
+          "Compromised subdomains can overwrite parent domain cookies (Cookie Tossing / Invalidation)",
+          "Slowing down requests",
+          "Invalidating HTTPS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Wildcard `Domain=.example.com` allows insecure subdomains to read or overwrite parent cookies."
+      },
+      {
+        "id": "sec-cookies-mcq-5",
+        "question": "What happens if browser sends HTTP request over unencrypted `http://` for a cookie marked with `Secure` flag?",
+        "options": [
+          "Cookie is sent",
+          "Browser suppresses cookie and does NOT send it over unencrypted http:// link",
+          "Cookie is deleted",
+          "Server reboots"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`Secure` flag restricts cookie transmission strictly to HTTPS."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -561,6 +685,11 @@
         "title": "Express Session Configuration",
         "description": "Setting up express-session with Redis storage engine.",
         "code": "const express = require('express');\nconst session = require('express-session');\nconst RedisStore = require('connect-redis').default;\nconst { createClient } = require('redis');\n\nconst redisClient = createClient();\nredisClient.connect();\n\nconst app = express();\napp.use(session({\n  store: new RedisStore({ client: redisClient }),\n  secret: 'super-session-secret',\n  resave: false,\n  saveUninitialized: false,\n  cookie: { httpOnly: true, secure: true, maxAge: 86400000 } // 1 day\n}));"
+      },
+      {
+        "title": "Redis Session Storage Pattern",
+        "description": "Creating session with TTL and revoking session.",
+        "code": "# Store session hash with 24h TTL (86400s)\nHSET session:sess_xyz123 userId 42 role \"admin\" ip \"1.2.3.4\"\nEXPIRE session:sess_xyz123 86400\n\n# Fetch session role\nHGET session:sess_xyz123 role\n\n# Revoke session instantly (Logout)\nDEL session:sess_xyz123"
       }
     ],
     "mcqs": [
@@ -623,7 +752,75 @@
         ],
         "correctAnswer": 1,
         "explanation": "In-memory sessions isolate state per server node; horizontal scaling requires a shared store like Redis."
+      },
+      {
+        "id": "redis-sessions-mcq-1",
+        "question": "Why is Redis preferred over local server RAM (`MemoryStore`) for session storage in production?",
+        "options": [
+          "Redis is free",
+          "Redis centralizes session state so any load-balanced application server node can authenticate requests",
+          "MemoryStore uses disk",
+          "Redis encrypts HTML"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Centralized Redis session store allows stateless backend server nodes to scale horizontally."
+      },
+      {
+        "id": "redis-sessions-mcq-2",
+        "question": "How does Redis automatically handle inactive user session expiration?",
+        "options": [
+          "Cron job script",
+          "Assigning TTL (`EXPIRE session:id 86400`) to session key",
+          "Rebooting server",
+          "SQL triggers"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Setting TTL on session keys allows Redis to auto-delete inactive sessions."
+      },
+      {
+        "id": "redis-sessions-mcq-3",
+        "question": "How do you implement instant global 'Logout from all devices' for a user in Redis?",
+        "options": [
+          "Clear client cookies",
+          "Maintain user session set `user:42:sessions` and execute `DEL` on all associated session keys in Redis",
+          "Restart Redis",
+          "Change domain"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Deleting user session keys from Redis revokes session access across all devices immediately."
+      },
+      {
+        "id": "redis-sessions-mcq-4",
+        "question": "Which Redis data structure is best suited for storing structured user session attributes?",
+        "options": [
+          "List",
+          "Hash",
+          "Set",
+          "Bitfield"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redis Hashes cleanly map session attribute fields (`userId`, `role`, `loginTime`)."
+      },
+      {
+        "id": "redis-sessions-mcq-5",
+        "question": "What is typical read latency for fetching session data from Redis over local network connection?",
+        "options": [
+          "100ms",
+          "Sub-millisecond (< 1ms)",
+          "50ms",
+          "5 seconds"
+        ],
+        "correctAnswer": 1,
+        "explanation": "In-memory Redis lookups complete in sub-millisecond time."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer",
+      "data-analytics"
     ]
   },
   {
@@ -665,6 +862,11 @@
         "title": "HTTP Basic Auth Header Format",
         "description": "Base64 encoded credentials in Authorization header.",
         "code": "// Username 'admin' and Password 'secret' -> 'admin:secret' -> Base64: 'YWRtaW46c2VjcmV0'\nGET /api/admin/dashboard HTTP/1.1\nHost: example.com\nAuthorization: Basic YWRtaW46c2VjcmV0"
+      },
+      {
+        "title": "Authentication Reference",
+        "description": "Core code snippet demonstrating Authentication.",
+        "code": "// Authentication Implementation\nconsole.log('Practicing Authentication on DevDocs');"
       }
     ],
     "mcqs": [
@@ -727,7 +929,38 @@
         ],
         "correctAnswer": 1,
         "explanation": "Session-based auth stores active session state on backend server or Redis store."
+      },
+      {
+        "id": "backend-py9g7kqy8bf6eidr1ydhf-mcq-1",
+        "question": "What is a primary principle of Authentication?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Authentication is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-py9g7kqy8bf6eidr1ydhf-mcq-2",
+        "question": "Why do technical interviews assess Authentication?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Authentication to design efficient, scalable systems."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
     ]
   },
   {
@@ -768,6 +1001,11 @@
         "title": "Express RBAC Middleware Example",
         "description": "Role-Based Access Control middleware enforcing role authorization.",
         "code": "function requireRole(allowedRole) {\n  return (req, res, next) => {\n    // Assume req.user populated by AuthN middleware\n    if (!req.user) return res.status(401).json({ error: 'Unauthenticated' });\n    \n    if (req.user.role !== allowedRole) {\n      return res.status(403).json({ error: 'Forbidden: Insufficient permissions' });\n    }\n    next();\n  };\n}\n\napp.delete('/api/v1/users/:id', requireRole('ADMIN'), (req, res) => {\n  res.status(200).json({ message: 'User deleted' });\n});"
+      },
+      {
+        "title": "BOLA Vulnerable vs Secure Query",
+        "description": "Vulnerable IDOR endpoint vs Secure ownership query.",
+        "code": "// VULNERABLE TO BOLA / IDOR:\n// const invoice = await db.query('SELECT * FROM invoices WHERE id = ?', [req.params.id]);\n\n// SECURE (Enforces ownership check!):\nconst invoice = await db.query(\n  'SELECT * FROM invoices WHERE id = ? AND user_id = ?',\n  [req.params.id, req.user.id] // Scoped to authenticated user!\n);\nif (!invoice) return res.status(404).json({ error: 'Invoice not found' });"
       }
     ],
     "mcqs": [
@@ -830,7 +1068,73 @@
         ],
         "correctAnswer": 1,
         "explanation": "Frontend authorization controls are cosmetic; backend must enforce authorization on every request."
+      },
+      {
+        "id": "sec-authorization-mcq-1",
+        "question": "What is Broken Object Level Authorization (BOLA / IDOR)?",
+        "options": [
+          "SQL syntax error",
+          "Vulnerability where API endpoint fails to verify if authenticated user has permission to access target object ID",
+          "Expired password",
+          "CORS failure"
+        ],
+        "correctAnswer": 1,
+        "explanation": "BOLA occurs when API accesses objects by ID without verifying user ownership."
+      },
+      {
+        "id": "sec-authorization-mcq-2",
+        "question": "How does an attacker exploit a BOLA flaw in `/api/v1/documents/50`?",
+        "options": [
+          "Injects JavaScript",
+          "Changes ID parameter in URL to `/api/v1/documents/51` to access another user's private document",
+          "Deletes index",
+          "Sends 404"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Attackers iterate object IDs to exfiltrate other users' records."
+      },
+      {
+        "id": "sec-authorization-mcq-3",
+        "question": "What query refactoring prevents BOLA when fetching a record by ID?",
+        "options": [
+          "`SELECT * FROM items WHERE id = ?`",
+          "`SELECT * FROM items WHERE id = ? AND owner_id = ?` (scoping query to authenticated user ID)",
+          "`SELECT * FROM items`",
+          "Using ORDER BY"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Scoping queries to `owner_id = current_user_id` ensures users access only owned records."
+      },
+      {
+        "id": "sec-authorization-mcq-4",
+        "question": "Why does using Random UUIDs (`c29f4a81-1234...`) instead of sequential integers (`1, 2, 3`) mitigate simple IDOR enumeration attacks?",
+        "options": [
+          "UUIDs encrypt data",
+          "UUIDs are mathematically impossible to guess or enumerate sequentially",
+          "UUIDs disable CORS",
+          "UUIDs run faster"
+        ],
+        "correctAnswer": 1,
+        "explanation": "UUIDs eliminate simple sequential ID enumeration guessing."
+      },
+      {
+        "id": "sec-authorization-mcq-5",
+        "question": "What security principle states users should be granted ONLY minimum permissions required to perform their task?",
+        "options": [
+          "Principle of Maximum Speed",
+          "Principle of Least Privilege",
+          "Principle of Open Access",
+          "Zero Trust Design"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Principle of Least Privilege restricts permissions to absolute minimum required scope."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -873,6 +1177,11 @@
         "title": "Signing & Verifying JWT in Node.js",
         "description": "Creating signed access token with JSONWebToken library.",
         "code": "const jwt = require('jsonwebtoken');\nconst SECRET_KEY = 'super-secret-key';\n\n// Sign JWT token with 15m expiration claim\nconst token = jwt.sign(\n  { userId: 42, role: 'admin' },\n  SECRET_KEY,\n  { expiresIn: '15m' }\n);\nconsole.log('JWT Token:', token);\n\n// Verify token signature and expiration\ntry {\n  const decoded = jwt.verify(token, SECRET_KEY);\n  console.log('Valid Decoded Payload:', decoded);\n} catch (err) {\n  console.error('Invalid or Expired JWT:', err.message);\n}"
+      },
+      {
+        "title": "JWT Reference",
+        "description": "Core code snippet demonstrating JWT.",
+        "code": "// JWT Implementation\nconsole.log('Practicing JWT on DevDocs');"
       }
     ],
     "mcqs": [
@@ -935,7 +1244,38 @@
         ],
         "correctAnswer": 1,
         "explanation": "Standard RFC 7519 claim `exp` specifies expiration Unix timestamp."
+      },
+      {
+        "id": "backend-uxs-mzvujligewkrxneeb-mcq-1",
+        "question": "What is a primary principle of JWT?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "JWT is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-uxs-mzvujligewkrxneeb-mcq-2",
+        "question": "Why do technical interviews assess JWT?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use JWT to design efficient, scalable systems."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
     ]
   },
   {
@@ -976,6 +1316,21 @@
         "title": "CORS Server Headers Response",
         "description": "Server returning CORS headers to allow cross-origin client access.",
         "code": "// Express CORS configuration middleware\napp.use((req, res, next) => {\n  res.setHeader('Access-Control-Allow-Origin', 'https://frontend-app.com');\n  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');\n  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');\n  res.setHeader('Access-Control-Allow-Credentials', 'true');\n  if (req.method === 'OPTIONS') return res.sendStatus(204); // Handle preflight!\n  next();\n});"
+      },
+      {
+        "title": "Secure Express CORS Whitelist Middleware",
+        "description": "Validating origin against explicit trusted domain whitelist.",
+        "code": "const express = require('express');\nconst cors = require('cors');\nconst app = express();\n\nconst allowedOrigins = ['https://myapp.com', 'https://admin.myapp.com'];\n\napp.use(cors({\n  origin: (origin, callback) => {\n    // Allow requests with no origin (like mobile apps or curl)\n    if (!origin || allowedOrigins.includes(origin)) {\n      callback(null, true);\n    } else {\n      callback(new Error('Blocked by CORS security policy!'));\n    }\n  },\n  credentials: true\n}));"
+      },
+      {
+        "title": "CORS Example",
+        "description": "Code example illustrating CORS usage.",
+        "code": "// CORS Demonstration\nconsole.log('Mastering CORS on DevDocs');"
+      },
+      {
+        "title": "CORS Reference",
+        "description": "Core code snippet demonstrating CORS.",
+        "code": "// CORS Implementation\nconsole.log('Practicing CORS on DevDocs');"
       }
     ],
     "mcqs": [
@@ -1038,7 +1393,121 @@
         ],
         "correctAnswer": 1,
         "explanation": "Different protocols (`https` vs `http`) mean distinct origins under Same-Origin Policy."
+      },
+      {
+        "id": "sec-cors-mcq-1",
+        "question": "What security vulnerability occurs when a server dynamically reflects incoming `Origin` header into `Access-Control-Allow-Origin` combined with `Allow-Credentials: true`?",
+        "options": [
+          "SQLi vulnerability",
+          "CORS Misconfiguration allowing any malicious website to read authenticated API responses on behalf of victim",
+          "Memory leak",
+          "XSS execution"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Reflecting arbitrary origin headers allows any site to execute authenticated cross-origin reads."
+      },
+      {
+        "id": "sec-cors-mcq-2",
+        "question": "Does CORS prevent an attacker server from making cURL or Python script HTTP requests directly to your backend API?",
+        "options": [
+          "Yes, blocks all non-browser tools",
+          "No, CORS is enforced strictly by WEB BROWSERS; non-browser tools ignore CORS headers",
+          "Only on Linux",
+          "Only with HTTPS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "CORS rules are enforced solely by web browsers; backend APIs must use authentication for access control."
+      },
+      {
+        "id": "sec-cors-mcq-3",
+        "question": "Why is `Access-Control-Allow-Origin: null` dangerous?",
+        "options": [
+          "Null causes server crash",
+          "Malicious sites can trigger `null` origin requests using sandboxed iframes `<iframe sandbox=\"allow-scripts\">` to bypass CORS checks",
+          "Browser deletes cookies",
+          "Disables HTTPS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Sandboxed iframes generate `null` origin, allowing attackers to exploit `null` origin whitelist entries."
+      },
+      {
+        "id": "sec-cors-mcq-4",
+        "question": "What is proper CORS configuration for a private authenticated REST API?",
+        "options": [
+          "Access-Control-Allow-Origin: *",
+          "Explicit domain whitelist checking requesting origin against trusted domains list",
+          "Access-Control-Allow-Origin: null",
+          "No headers"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Authenticated APIs must check incoming origins against explicit trusted domain whitelists."
+      },
+      {
+        "id": "sec-cors-mcq-5",
+        "question": "What happens in browser if server returns `Access-Control-Allow-Origin: *` AND `Access-Control-Allow-Credentials: true`?",
+        "options": [
+          "Request succeeds",
+          "Browser rejects response and throws CORS error because wildcard `*` is forbidden with credentials",
+          "Cookies are deleted",
+          "Server reboots"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browsers reject wildcard `*` origin when credentials (`Allow-Credentials: true`) are enabled."
+      },
+      {
+        "id": "rf-afh2zcbqzw0nisg1yyiss-mcq-1",
+        "question": "What is the primary purpose of CORS?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "CORS is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-afh2zcbqzw0nisg1yyiss-mcq-2",
+        "question": "Why is CORS important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding CORS enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-afh2zcbqzw0nisg1yyiss-mcq-1",
+        "question": "What is a primary principle of CORS?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "CORS is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-afh2zcbqzw0nisg1yyiss-mcq-2",
+        "question": "Why do technical interviews assess CORS?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use CORS to design efficient, scalable systems."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -1142,6 +1611,12 @@
         "correctAnswer": 0,
         "explanation": "Servers return `204 No Content` or `200 OK` for successful preflight checks."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -1183,6 +1658,16 @@
         "title": "HSTS Security Header Response",
         "description": "Enforcing HTTPS exclusive connection via HSTS header.",
         "code": "// Response header forcing HTTPS for 1 year including subdomains:\nStrict-Transport-Security: max-age=31536000; includeSubDomains; preload"
+      },
+      {
+        "title": "HTTPS Reference",
+        "description": "Core code snippet demonstrating HTTPS.",
+        "code": "// HTTPS Implementation\nconsole.log('Practicing HTTPS on DevDocs');"
+      },
+      {
+        "title": "HTTPS Example",
+        "description": "Code example illustrating HTTPS usage.",
+        "code": "// HTTPS Demonstration\nconsole.log('Mastering HTTPS on DevDocs');"
       }
     ],
     "mcqs": [
@@ -1245,7 +1730,61 @@
         ],
         "correctAnswer": 1,
         "explanation": "Certificate Authorities (CAs) verify server identities and sign TLS certificates."
+      },
+      {
+        "id": "devops-ajo3jthviicj8ykasxl0u-mcq-1",
+        "question": "What is a primary principle of HTTPS?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "HTTPS is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "devops-ajo3jthviicj8ykasxl0u-mcq-2",
+        "question": "Why do technical interviews assess HTTPS?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use HTTPS to design efficient, scalable systems."
+      },
+      {
+        "id": "rf-uum7vohour38vlugzy8oa-mcq-1",
+        "question": "What is the primary purpose of HTTPS?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "HTTPS is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-uum7vohour38vlugzy8oa-mcq-2",
+        "question": "Why is HTTPS important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding HTTPS enables developers to write clean, maintainable code."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -1286,6 +1825,11 @@
         "title": "Idempotency-Key Header Usage",
         "description": "Making safe payment POST request with Idempotency-Key.",
         "code": "// POST request with unique idempotency key:\nPOST /v1/charges HTTP/1.1\nHost: api.stripe.com\nAuthorization: Bearer sk_test_...\nIdempotency-Key: 7b9e82c1-23a4-4b5c-8901-d4e5f6a7b8c9\nContent-Type: application/json\n\n{ \"amount\": 2000, \"currency\": \"usd\" }"
+      },
+      {
+        "title": "Idempotency Reference",
+        "description": "Core code snippet demonstrating Idempotency.",
+        "code": "// Idempotency Implementation\nconsole.log('Practicing Idempotency on DevDocs');"
       }
     ],
     "mcqs": [
@@ -1348,7 +1892,38 @@
         ],
         "correctAnswer": 1,
         "explanation": "Idempotency applies to SERVER STATE, not response status codes; item 100 remains deleted in both cases."
+      },
+      {
+        "id": "data-engineer-9xobzgkt9uagsjc1soely-mcq-1",
+        "question": "What is a primary principle of Idempotency?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Idempotency is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-9xobzgkt9uagsjc1soely-mcq-2",
+        "question": "Why do technical interviews assess Idempotency?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Idempotency to design efficient, scalable systems."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
     ]
   },
   {
@@ -1453,6 +2028,1260 @@
         "correctAnswer": 1,
         "explanation": "Cursor pagination requires relative sequential seeking, preventing direct jumping to arbitrary page numbers."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "rf-vlnnwiedwqqxtqkhwjyzc",
+    "title": "Internet",
+    "category": "HTTP",
+    "difficulty": "Beginner",
+    "isImportant": false,
+    "summary": "The Internet is a global network of interconnected computers using TCP/IP protocols, connecting billions of devices worldwide. Revolutionize...",
+    "explanation": {
+      "overview": "The Internet is a global network of interconnected computers using TCP/IP protocols, connecting billions of devices worldwide. Revolutionized communication, commerce, education, and entertainment. Enables web browsing, streaming, and diverse applications while presenting privacy and security challenges.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "The Internet is a global network of interconnected computers using TCP/IP protocols, connecting billions of devices worldwide. Revolutionized communication, commerce, education, and entertainment. Enables web browsing, streaming, and diverse applications while presenting privacy and security challenges.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Internet as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Internet Example",
+        "description": "Code example illustrating Internet usage.",
+        "code": "// Internet Demonstration\nconsole.log('Mastering Internet on DevDocs');"
+      },
+      {
+        "title": "Internet Reference",
+        "description": "Core code snippet demonstrating Internet.",
+        "code": "// Internet Implementation\nconsole.log('Practicing Internet on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-vlnnwiedwqqxtqkhwjyzc-mcq-1",
+        "question": "What is the primary purpose of Internet?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Internet is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-vlnnwiedwqqxtqkhwjyzc-mcq-2",
+        "question": "Why is Internet important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Internet enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-vlnnwiedwqqxtqkhwjyzc-mcq-1",
+        "question": "What is a primary principle of Internet?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Internet is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-vlnnwiedwqqxtqkhwjyzc-mcq-2",
+        "question": "Why do technical interviews assess Internet?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Internet to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack",
+      "backend"
+    ]
+  },
+  {
+    "id": "rf-r12sarwvpbis-phxbqvar",
+    "title": "What is HTTP?",
+    "category": "HTTP",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "HTTP (Hypertext Transfer Protocol) enables browser-server communication through requests and responses. Stateless protocol using methods lik...",
+    "explanation": {
+      "overview": "HTTP (Hypertext Transfer Protocol) enables browser-server communication through requests and responses. Stateless protocol using methods like GET and POST. HTTPS provides encrypted security. Newer versions (HTTP/2, HTTP/3) offer improved performance. Fundamental for web development understanding.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "HTTP (Hypertext Transfer Protocol) enables browser-server communication through requests and responses. Stateless protocol using methods like GET and POST. HTTPS provides encrypted security. Newer versions (HTTP/2, HTTP/3) offer improved performance. Fundamental for web development understanding.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master What is HTTP? as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "What is HTTP? Example",
+        "description": "Code example illustrating What is HTTP? usage.",
+        "code": "// What is HTTP? Demonstration\nconsole.log('Mastering What is HTTP? on DevDocs');"
+      },
+      {
+        "title": "What is HTTP? Reference",
+        "description": "Core code snippet demonstrating What is HTTP?.",
+        "code": "// What is HTTP? Implementation\nconsole.log('Practicing What is HTTP? on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-r12sarwvpbis-phxbqvar-mcq-1",
+        "question": "What is the primary purpose of What is HTTP??",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "What is HTTP? is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-r12sarwvpbis-phxbqvar-mcq-2",
+        "question": "Why is What is HTTP? important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding What is HTTP? enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-r12sarwvpbis-phxbqvar-mcq-1",
+        "question": "What is a primary principle of What is HTTP??",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "What is HTTP? is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-r12sarwvpbis-phxbqvar-mcq-2",
+        "question": "Why do technical interviews assess What is HTTP??",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use What is HTTP? to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack",
+      "backend",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "rf-zhsuu2varnzpdp6dpqqsc",
+    "title": "What is Domain Name?",
+    "category": "HTTP",
+    "difficulty": "Beginner",
+    "isImportant": false,
+    "summary": "Domain names are human-friendly web addresses (e.g., [google.com](http://google.com)) substituting numerical IP addresses. Comprise second-l...",
+    "explanation": {
+      "overview": "Domain names are human-friendly web addresses (e.g., [google.com](http://google.com)) substituting numerical IP addresses. Comprise second-level (\"google\") and top-level (\".com\") domains. Registered through registrars, essential for branding and online presence. DNS translates names to IP addresses for accessibility.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "Domain names are human-friendly web addresses (e.g., [google.com](http://google.com)) substituting numerical IP addresses. Comprise second-level (\"google\") and top-level (\".com\") domains. Registered through registrars, essential for branding and online presence. DNS translates names to IP addresses for accessibility.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master What is Domain Name? as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "What is Domain Name? Example",
+        "description": "Code example illustrating What is Domain Name? usage.",
+        "code": "// What is Domain Name? Demonstration\nconsole.log('Mastering What is Domain Name? on DevDocs');"
+      },
+      {
+        "title": "What is Domain Name? Reference",
+        "description": "Core code snippet demonstrating What is Domain Name?.",
+        "code": "// What is Domain Name? Implementation\nconsole.log('Practicing What is Domain Name? on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-zhsuu2varnzpdp6dpqqsc-mcq-1",
+        "question": "What is the primary purpose of What is Domain Name??",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "What is Domain Name? is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-zhsuu2varnzpdp6dpqqsc-mcq-2",
+        "question": "Why is What is Domain Name? important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding What is Domain Name? enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-zhsuu2varnzpdp6dpqqsc-mcq-1",
+        "question": "What is a primary principle of What is Domain Name??",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "What is Domain Name? is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-zhsuu2varnzpdp6dpqqsc-mcq-2",
+        "question": "Why do technical interviews assess What is Domain Name??",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use What is Domain Name? to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack",
+      "backend",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "backend-aqmaey8gkkmikiqlev5ep",
+    "title": "What is hosting?",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "Hosting provides server space and resources for storing and delivering websites over the internet. Types include shared hosting, VPS, dedica...",
+    "explanation": {
+      "overview": "Hosting provides server space and resources for storing and delivering websites over the internet. Types include shared hosting, VPS, dedicated hosting, and cloud hosting with scalable resources. Services include infrastructure, domain registration, security, and technical support for reliable website availability.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Hosting provides server space and resources for storing and delivering websites over the internet. Types include shared hosting, VPS, dedicated hosting, and cloud hosting with scalable resources. Services include infrastructure, domain registration, security, and technical support for reliable website availability.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master What is hosting? as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "What is hosting? Reference",
+        "description": "Core code snippet demonstrating What is hosting?.",
+        "code": "// What is hosting? Implementation\nconsole.log('Practicing What is hosting? on DevDocs');"
+      },
+      {
+        "title": "What is hosting? Example",
+        "description": "Code example illustrating What is hosting? usage.",
+        "code": "// What is hosting? Demonstration\nconsole.log('Mastering What is hosting? on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-aqmaey8gkkmikiqlev5ep-mcq-1",
+        "question": "What is a primary principle of What is hosting??",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "What is hosting? is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-aqmaey8gkkmikiqlev5ep-mcq-2",
+        "question": "Why do technical interviews assess What is hosting??",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use What is hosting? to design efficient, scalable systems."
+      },
+      {
+        "id": "rf-aqmaey8gkkmikiqlev5ep-mcq-1",
+        "question": "What is the primary purpose of What is hosting??",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "What is hosting? is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-aqmaey8gkkmikiqlev5ep-mcq-2",
+        "question": "Why is What is hosting? important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding What is hosting? enables developers to write clean, maintainable code."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "frontend"
+    ]
+  },
+  {
+    "id": "backend-hkxw9jpgyphmjhtjw8766",
+    "title": "DNS and how it works?",
+    "category": "HTTP",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "DNS (Domain Name System) translates human-readable domain names into IP addresses. Uses hierarchical structure with root servers, TLD server...",
+    "explanation": {
+      "overview": "DNS (Domain Name System) translates human-readable domain names into IP addresses. Uses hierarchical structure with root servers, TLD servers (.com, .org), authoritative servers, and local DNS servers. Essential for internet functionality, enabling memorable names instead of IP addresses.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "DNS (Domain Name System) translates human-readable domain names into IP addresses. Uses hierarchical structure with root servers, TLD servers (.com, .org), authoritative servers, and local DNS servers. Essential for internet functionality, enabling memorable names instead of IP addresses.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master DNS and how it works? as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "DNS and how it works? Reference",
+        "description": "Core code snippet demonstrating DNS and how it works?.",
+        "code": "// DNS and how it works? Implementation\nconsole.log('Practicing DNS and how it works? on DevDocs');"
+      },
+      {
+        "title": "DNS and how it works? Example",
+        "description": "Code example illustrating DNS and how it works? usage.",
+        "code": "// DNS and how it works? Demonstration\nconsole.log('Mastering DNS and how it works? on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-hkxw9jpgyphmjhtjw8766-mcq-1",
+        "question": "What is a primary principle of DNS and how it works??",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "DNS and how it works? is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-hkxw9jpgyphmjhtjw8766-mcq-2",
+        "question": "Why do technical interviews assess DNS and how it works??",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use DNS and how it works? to design efficient, scalable systems."
+      },
+      {
+        "id": "rf-hkxw9jpgyphmjhtjw8766-mcq-1",
+        "question": "What is the primary purpose of DNS and how it works??",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "DNS and how it works? is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-hkxw9jpgyphmjhtjw8766-mcq-2",
+        "question": "Why is DNS and how it works? important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding DNS and how it works? enables developers to write clean, maintainable code."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "frontend"
+    ]
+  },
+  {
+    "id": "devops-h10bh3oybhcin2idtsgkn",
+    "title": "VCS Hosting",
+    "category": "HTTP",
+    "difficulty": "Beginner",
+    "isImportant": false,
+    "summary": "When working on a team, you often need a remote place to put your code so others can access it, create their own branches, and create or rev...",
+    "explanation": {
+      "overview": "When working on a team, you often need a remote place to put your code so others can access it, create their own branches, and create or review pull requests. This remote place is called a repository, and these services often include issue tracking, code review, and continuous integration features. A few popular choices are GitHub, GitLab, Bitbucket, and AWS CodeCommit.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "When working on a team, you often need a remote place to put your code so others can access it, create their own branches, and create or review pull requests. This remote place is called a repository, and these services often include issue tracking, code review, and continuous integration features. A few popular choices are GitHub, GitLab, Bitbucket, and AWS CodeCommit.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master VCS Hosting as outlined in roadmap.sh devops track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "VCS Hosting Reference",
+        "description": "Core code snippet demonstrating VCS Hosting.",
+        "code": "// VCS Hosting Implementation\nconsole.log('Practicing VCS Hosting on DevDocs');"
+      },
+      {
+        "title": "VCS Hosting Example",
+        "description": "Code example illustrating VCS Hosting usage.",
+        "code": "// VCS Hosting Demonstration\nconsole.log('Mastering VCS Hosting on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "devops-h10bh3oybhcin2idtsgkn-mcq-1",
+        "question": "What is a primary principle of VCS Hosting?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "VCS Hosting is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "devops-h10bh3oybhcin2idtsgkn-mcq-2",
+        "question": "Why do technical interviews assess VCS Hosting?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use VCS Hosting to design efficient, scalable systems."
+      },
+      {
+        "id": "rf-mxnfhzlnb1ztsbfdyni9h-mcq-1",
+        "question": "What is the primary purpose of VCS Hosting?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "VCS Hosting is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-mxnfhzlnb1ztsbfdyni9h-mcq-2",
+        "question": "Why is VCS Hosting important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding VCS Hosting enables developers to write clean, maintainable code."
+      }
+    ],
+    "roles": [
+      "devops-architect",
+      "backend",
+      "fullstack",
+      "frontend"
+    ]
+  },
+  {
+    "id": "frontend-3hgimfqihjwcesxd6ei8s",
+    "title": "Web APIs",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "Web APIs are interfaces provided by web browsers that allow JavaScript code to interact with the browser environment and the wider web. Thes...",
+    "explanation": {
+      "overview": "Web APIs are interfaces provided by web browsers that allow JavaScript code to interact with the browser environment and the wider web. These APIs provide access to functionalities like manipulating the Document Object Model (DOM), handling user input, making network requests, managing browser history, and accessing device hardware like the camera or microphone. They essentially bridge the gap between JavaScript and the capabilities of the browser and the underlying operating system.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Web APIs are interfaces provided by web browsers that allow JavaScript code to interact with the browser environment and the wider web. These APIs provide access to functionalities like manipulating the Document Object Model (DOM), handling user input, making network requests, managing browser history, and accessing device hardware like the camera or microphone. They essentially bridge the gap between JavaScript and the capabilities of the browser and the underlying operating system.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Web APIs as outlined in roadmap.sh frontend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Web APIs Reference",
+        "description": "Core code snippet demonstrating Web APIs.",
+        "code": "// Web APIs Implementation\nconsole.log('Practicing Web APIs on DevDocs');"
+      },
+      {
+        "title": "Web APIs Example",
+        "description": "Code example illustrating Web APIs usage.",
+        "code": "// Web APIs Demonstration\nconsole.log('Mastering Web APIs on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "frontend-3hgimfqihjwcesxd6ei8s-mcq-1",
+        "question": "What is a primary principle of Web APIs?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Web APIs is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-3hgimfqihjwcesxd6ei8s-mcq-2",
+        "question": "Why do technical interviews assess Web APIs?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Web APIs to design efficient, scalable systems."
+      },
+      {
+        "id": "rf-3hgimfqihjwcesxd6ei8s-mcq-1",
+        "question": "What is the primary purpose of Web APIs?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Web APIs is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-3hgimfqihjwcesxd6ei8s-mcq-2",
+        "question": "Why is Web APIs important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Web APIs enables developers to write clean, maintainable code."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack",
+      "backend"
+    ]
+  },
+  {
+    "id": "backend-9cd5ag1l0gqhx4-zxc5jx",
+    "title": "Open API Specs",
+    "category": "HTTP",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "OpenAPI Specification (OAS), formerly Swagger, is a standard for defining and documenting RESTful APIs in YAML/JSON format. Describes endpoi...",
+    "explanation": {
+      "overview": "OpenAPI Specification (OAS), formerly Swagger, is a standard for defining and documenting RESTful APIs in YAML/JSON format. Describes endpoints, formats, authentication, and metadata. Enables client generation, automated documentation, testing, and promotes API design consistency.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "OpenAPI Specification (OAS), formerly Swagger, is a standard for defining and documenting RESTful APIs in YAML/JSON format. Describes endpoints, formats, authentication, and metadata. Enables client generation, automated documentation, testing, and promotes API design consistency.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Open API Specs as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Open API Specs Reference",
+        "description": "Core code snippet demonstrating Open API Specs.",
+        "code": "// Open API Specs Implementation\nconsole.log('Practicing Open API Specs on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-9cd5ag1l0gqhx4-zxc5jx-mcq-1",
+        "question": "What is a primary principle of Open API Specs?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Open API Specs is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-9cd5ag1l0gqhx4-zxc5jx-mcq-2",
+        "question": "Why do technical interviews assess Open API Specs?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Open API Specs to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "backend-ewvlpsi6alz4tnnijtza4",
+    "title": "Learn about APIs",
+    "category": "HTTP",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "API (Application Programming Interface) defines rules and protocols for software applications to communicate. Provides standardized access t...",
+    "explanation": {
+      "overview": "API (Application Programming Interface) defines rules and protocols for software applications to communicate. Provides standardized access to functionalities without understanding internal workings. Includes endpoints, request methods (GET, POST, PUT), and data formats (JSON, XML).",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "API (Application Programming Interface) defines rules and protocols for software applications to communicate. Provides standardized access to functionalities without understanding internal workings. Includes endpoints, request methods (GET, POST, PUT), and data formats (JSON, XML).",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Learn about APIs as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Learn about APIs Reference",
+        "description": "Core code snippet demonstrating Learn about APIs.",
+        "code": "// Learn about APIs Implementation\nconsole.log('Practicing Learn about APIs on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-ewvlpsi6alz4tnnijtza4-mcq-1",
+        "question": "What is a primary principle of Learn about APIs?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Learn about APIs is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-ewvlpsi6alz4tnnijtza4-mcq-2",
+        "question": "Why do technical interviews assess Learn about APIs?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Learn about APIs to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "backend-nvucsdwbhzjz31nzt4ule",
+    "title": "Repo Hosting Services",
+    "category": "HTTP",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "Repo hosting services provide storage, management, and collaboration tools for version-controlled code repositories. Support Git, Mercurial,...",
+    "explanation": {
+      "overview": "Repo hosting services provide storage, management, and collaboration tools for version-controlled code repositories. Support Git, Mercurial, Subversion with features like branching, pull requests, issue tracking, code review, and CI/CD integration. Popular services: GitHub, GitLab, Bitbucket.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Repo hosting services provide storage, management, and collaboration tools for version-controlled code repositories. Support Git, Mercurial, Subversion with features like branching, pull requests, issue tracking, code review, and CI/CD integration. Popular services: GitHub, GitLab, Bitbucket.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Repo Hosting Services as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Repo Hosting Services Reference",
+        "description": "Core code snippet demonstrating Repo Hosting Services.",
+        "code": "// Repo Hosting Services Implementation\nconsole.log('Practicing Repo Hosting Services on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-nvucsdwbhzjz31nzt4ule-mcq-1",
+        "question": "What is a primary principle of Repo Hosting Services?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Repo Hosting Services is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-nvucsdwbhzjz31nzt4ule-mcq-2",
+        "question": "Why do technical interviews assess Repo Hosting Services?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Repo Hosting Services to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "backend-snces4mpsijrkwhndmrfg",
+    "title": "JSON APIs",
+    "category": "HTTP",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "JSON (JavaScript Object Notation) is an encoding scheme eliminating ad-hoc code for server communication. JSON API provides a standardized i...",
+    "explanation": {
+      "overview": "JSON (JavaScript Object Notation) is an encoding scheme eliminating ad-hoc code for server communication. JSON API provides a standardized implementation for data stores and structures, including entity types, bundles, and fields with defined communication protocols.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "JSON (JavaScript Object Notation) is an encoding scheme eliminating ad-hoc code for server communication. JSON API provides a standardized implementation for data stores and structures, including entity types, bundles, and fields with defined communication protocols.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master JSON APIs as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "JSON APIs Reference",
+        "description": "Core code snippet demonstrating JSON APIs.",
+        "code": "// JSON APIs Implementation\nconsole.log('Practicing JSON APIs on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-snces4mpsijrkwhndmrfg-mcq-1",
+        "question": "What is a primary principle of JSON APIs?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "JSON APIs is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-snces4mpsijrkwhndmrfg-mcq-2",
+        "question": "Why do technical interviews assess JSON APIs?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use JSON APIs to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "backend-kwtbevx-wxs8jmsaax3fe",
+    "title": "HTTP Caching",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "Client-side caching stores data locally on user devices to improve performance and reduce server load. Uses HTTP caching headers, service wo...",
+    "explanation": {
+      "overview": "Client-side caching stores data locally on user devices to improve performance and reduce server load. Uses HTTP caching headers, service workers, and local storage APIs. Reduces network traffic and load times but requires careful cache invalidation strategies.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Client-side caching stores data locally on user devices to improve performance and reduce server load. Uses HTTP caching headers, service workers, and local storage APIs. Reduces network traffic and load times but requires careful cache invalidation strategies.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master HTTP Caching as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "HTTP Caching Reference",
+        "description": "Core code snippet demonstrating HTTP Caching.",
+        "code": "// HTTP Caching Implementation\nconsole.log('Practicing HTTP Caching on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-kwtbevx-wxs8jmsaax3fe-mcq-1",
+        "question": "What is a primary principle of HTTP Caching?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "HTTP Caching is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-kwtbevx-wxs8jmsaax3fe-mcq-2",
+        "question": "Why do technical interviews assess HTTP Caching?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use HTTP Caching to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "devops-vu955vdsyercg8g6suqml",
+    "title": "DNS",
+    "category": "HTTP",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "DNS, or Domain Name System, is a hierarchical naming system that functions like a phonebook for the internet by translating human-readable d...",
+    "explanation": {
+      "overview": "DNS, or Domain Name System, is a hierarchical naming system that functions like a phonebook for the internet by translating human-readable domain names, such as [www.example.com](http://www.example.com), into numerical IP addresses that computers use to identify each other on a network. When you enter a web address into a browser, the system queries various servers to locate the specific IP address associated with that domain, allowing your device to establish a connection with the correct server. This process eliminates the need for users to memorize complex strings of numbers, ensuring that network communication remains user-friendly and efficient.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "DNS, or Domain Name System, is a hierarchical naming system that functions like a phonebook for the internet by translating human-readable domain names, such as [www.example.com](http://www.example.com), into numerical IP addresses that computers use to identify each other on a network. When you enter a web address into a browser, the system queries various servers to locate the specific IP address associated with that domain, allowing your device to establish a connection with the correct server. This process eliminates the need for users to memorize complex strings of numbers, ensuring that network communication remains user-friendly and efficient.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master DNS as outlined in roadmap.sh devops track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "DNS Reference",
+        "description": "Core code snippet demonstrating DNS.",
+        "code": "// DNS Implementation\nconsole.log('Practicing DNS on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "devops-vu955vdsyercg8g6suqml-mcq-1",
+        "question": "What is a primary principle of DNS?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "DNS is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "devops-vu955vdsyercg8g6suqml-mcq-2",
+        "question": "Why do technical interviews assess DNS?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use DNS to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "devops-architect",
+      "backend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "devops-rycd78msir2bpjoip71aj",
+    "title": "Domain Keys",
+    "category": "HTTP",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "DomainKeys is an email authentication system designed to verify that an email message was sent by an authorized sender and has not been alte...",
+    "explanation": {
+      "overview": "DomainKeys is an email authentication system designed to verify that an email message was sent by an authorized sender and has not been altered during transit. It works by attaching a digital signature to the header of an email, which the receiving mail server can then cryptographically validate using a public key published in the sender's DNS records. This process helps prevent email spoofing and ensures that the integrity of the message remains intact from the source to the destination.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "DomainKeys is an email authentication system designed to verify that an email message was sent by an authorized sender and has not been altered during transit. It works by attaching a digital signature to the header of an email, which the receiving mail server can then cryptographically validate using a public key published in the sender's DNS records. This process helps prevent email spoofing and ensures that the integrity of the message remains intact from the source to the destination.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Domain Keys as outlined in roadmap.sh devops track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Domain Keys Reference",
+        "description": "Core code snippet demonstrating Domain Keys.",
+        "code": "// Domain Keys Implementation\nconsole.log('Practicing Domain Keys on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "devops-rycd78msir2bpjoip71aj-mcq-1",
+        "question": "What is a primary principle of Domain Keys?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Domain Keys is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "devops-rycd78msir2bpjoip71aj-mcq-2",
+        "question": "Why do technical interviews assess Domain Keys?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Domain Keys to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "devops-architect",
+      "backend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "data-analyst-4dfcxsshxg5wv0uxlirij",
+    "title": "APIs",
+    "category": "HTTP",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "Application Programming Interfaces, better known as APIs, play a fundamental role in the work of data analysts, particularly in the process ...",
+    "explanation": {
+      "overview": "Application Programming Interfaces, better known as APIs, play a fundamental role in the work of data analysts, particularly in the process of data collection. APIs are sets of protocols, routines, and tools that enable different software applications to communicate with each other. In data analysis, APIs are used extensively to collect, exchange, and manipulate data from different sources in a secure and efficient manner. This data collection process is paramount in shaping the insights derived by the analysts.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Application Programming Interfaces, better known as APIs, play a fundamental role in the work of data analysts, particularly in the process of data collection. APIs are sets of protocols, routines, and tools that enable different software applications to communicate with each other. In data analysis, APIs are used extensively to collect, exchange, and manipulate data from different sources in a secure and efficient manner. This data collection process is paramount in shaping the insights derived by the analysts.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master APIs as outlined in roadmap.sh data-analyst track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "APIs Reference",
+        "description": "Core code snippet demonstrating APIs.",
+        "code": "// APIs Implementation\nconsole.log('Practicing APIs on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-analyst-4dfcxsshxg5wv0uxlirij-mcq-1",
+        "question": "What is a primary principle of APIs?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "APIs is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-analyst-4dfcxsshxg5wv0uxlirij-mcq-2",
+        "question": "Why do technical interviews assess APIs?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use APIs to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-analytics",
+      "data-engineer",
+      "backend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "data-analyst-qq64zhslbbwu9pp8kte67",
+    "title": "Web Scraping",
+    "category": "HTTP",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "Web scraping plays a significant role in collecting unique datasets for data analysis. In the realm of a data analyst's tasks, web scraping ...",
+    "explanation": {
+      "overview": "Web scraping plays a significant role in collecting unique datasets for data analysis. In the realm of a data analyst's tasks, web scraping refers to the method of extracting information from websites and converting it into a structured usable format like a CSV, Excel spreadsheet, or even into databases. This technique allows data analysts to gather large sets of data from the internet, which otherwise could be time-consuming if done manually. The capability of web scraping and parsing data effectively can give data analysts a competitive edge in their data analysis process, from unlocking in-depth, insightful information to making data-driven decisions.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Web scraping plays a significant role in collecting unique datasets for data analysis. In the realm of a data analyst's tasks, web scraping refers to the method of extracting information from websites and converting it into a structured usable format like a CSV, Excel spreadsheet, or even into databases. This technique allows data analysts to gather large sets of data from the internet, which otherwise could be time-consuming if done manually. The capability of web scraping and parsing data effectively can give data analysts a competitive edge in their data analysis process, from unlocking in-depth, insightful information to making data-driven decisions.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Web Scraping as outlined in roadmap.sh data-analyst track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Web Scraping Reference",
+        "description": "Core code snippet demonstrating Web Scraping.",
+        "code": "// Web Scraping Implementation\nconsole.log('Practicing Web Scraping on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-analyst-qq64zhslbbwu9pp8kte67-mcq-1",
+        "question": "What is a primary principle of Web Scraping?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Web Scraping is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-analyst-qq64zhslbbwu9pp8kte67-mcq-2",
+        "question": "Why do technical interviews assess Web Scraping?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Web Scraping to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-analytics",
+      "data-engineer"
     ]
   }
 ]

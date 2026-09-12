@@ -15,12 +15,46 @@ interface CodePlaygroundProps {
 export default function CodePlayground({ initialCode, title }: CodePlaygroundProps) {
   const [code, setCode] = useState(initialCode);
   const [output, setOutput] = useState<string[]>([]);
+  const [previewHtml, setPreviewHtml] = useState<string | null>(null);
   const [isError, setIsError] = useState(false);
   const [executionTime, setExecutionTime] = useState<number | null>(null);
+
+  const isHtml = (str: string) => {
+    const t = str.trim();
+    return (
+      t.startsWith("<!DOCTYPE") ||
+      t.startsWith("<html") ||
+      t.startsWith("<div") ||
+      t.startsWith("<form") ||
+      t.startsWith("<header") ||
+      t.startsWith("<main") ||
+      t.startsWith("<section") ||
+      t.startsWith("<article") ||
+      t.startsWith("<nav") ||
+      t.startsWith("<style") ||
+      (t.startsWith("<") && t.includes(">") && !t.startsWith("<?"))
+    );
+  };
+
+  const isCss = (str: string) => {
+    const t = str.trim();
+    return (
+      (t.startsWith("*") || t.startsWith(".") || t.startsWith("#") || t.startsWith(":root") || t.startsWith("@media")) &&
+      t.includes("{") &&
+      t.includes("}") &&
+      !t.includes("function") &&
+      !t.includes("const ") &&
+      !t.includes("let ")
+    );
+  };
+
+  const codeLang = isHtml(code) ? "html" : isCss(code) ? "css" : "javascript";
+  const fileName = codeLang === "html" ? "index.html" : codeLang === "css" ? "styles.css" : "example.js";
 
   useEffect(() => {
     setCode(initialCode);
     setOutput([]);
+    setPreviewHtml(null);
     setIsError(false);
     setExecutionTime(null);
   }, [initialCode]);
@@ -28,7 +62,30 @@ export default function CodePlayground({ initialCode, title }: CodePlaygroundPro
   const handleRunCode = () => {
     const logs: string[] = [];
     setIsError(false);
+    const startTime = performance.now();
 
+    if (codeLang === "html") {
+      const fullDoc = code.includes("<!DOCTYPE") || code.includes("<html")
+        ? code
+        : `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>body { font-family: system-ui, sans-serif; padding: 1rem; color: #111; background: #fff; }</style></head><body>${code}</body></html>`;
+      setPreviewHtml(fullDoc);
+      logs.push("// HTML rendered successfully in Live Web Preview.");
+      logs.push("Document ready.");
+      setExecutionTime(Math.round(performance.now() - startTime));
+      setOutput(logs);
+      return;
+    }
+
+    if (codeLang === "css") {
+      const fullDoc = `<!DOCTYPE html><html><head><meta charset="utf-8"/><style>${code}</style></head><body><div class="card" style="padding:1.5rem; font-family:system-ui, sans-serif;"><h2>CSS Preview Sandbox</h2><p>Sample element styled by your CSS code.</p></div></body></html>`;
+      setPreviewHtml(fullDoc);
+      logs.push("// CSS styles applied successfully in Live Web Preview.");
+      setExecutionTime(Math.round(performance.now() - startTime));
+      setOutput(logs);
+      return;
+    }
+
+    setPreviewHtml(null);
     const customConsole = {
       log: (...args: unknown[]) => {
         logs.push(args.map((arg) => (typeof arg === "object" ? JSON.stringify(arg, null, 2) : String(arg))).join(" "));
@@ -40,8 +97,6 @@ export default function CodePlayground({ initialCode, title }: CodePlaygroundPro
         logs.push("[WARN] " + args.map((arg) => (typeof arg === "object" ? JSON.stringify(arg, null, 2) : String(arg))).join(" "));
       },
     };
-
-    const startTime = performance.now();
 
     try {
       const runFn = new Function("console", "setTimeout", "queueMicrotask", code);
@@ -82,6 +137,9 @@ export default function CodePlayground({ initialCode, title }: CodePlaygroundPro
           <Terminal className="w-5 h-5 text-foreground" />
           <span className="text-sm font-semibold text-foreground uppercase tracking-wider">{title}</span>
         </div>
+        <span className="text-xs text-muted-foreground font-mono uppercase px-2 py-0.5 rounded bg-secondary border border-border">
+          {codeLang}
+        </span>
       </div>
 
       {/* Editor & Console Split */}
@@ -91,47 +149,61 @@ export default function CodePlayground({ initialCode, title }: CodePlaygroundPro
           <VSCodeEditor
             value={code}
             onChange={setCode}
-            fileName="example.js"
+            fileName={fileName}
+            language={codeLang}
             onRun={handleRunCode}
             onReset={() => {
               setCode(initialCode);
               setOutput([]);
+              setPreviewHtml(null);
             }}
             minHeight="320px"
           />
         </div>
 
-        {/* Console Output (5 cols) */}
+        {/* Console / Web Preview Output (5 cols) */}
         <div className="lg:col-span-5 p-5 bg-background text-sm flex flex-col justify-between font-normal">
-          <div>
-            <div className="flex items-center justify-between mb-3 font-normal">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between font-normal">
               <span className="text-xs text-muted-foreground uppercase font-semibold tracking-widest">
-                Execution Log
+                {previewHtml ? "Live Web Preview & Log" : "Execution Log"}
               </span>
               {executionTime !== null && (
                 <span className="text-xs text-muted-foreground flex items-center gap-1.5 font-normal">
                   {isError ? (
-                    <AlertCircle className="w-4 h-4 text-muted-foreground" />
+                    <AlertCircle className="w-4 h-4 text-rose-400" />
                   ) : (
-                    <CheckCircle2 className="w-4 h-4 text-foreground" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                   )}
                   {executionTime}ms
                 </span>
               )}
             </div>
 
-            <div className="w-full min-h-[240px] max-h-[340px] overflow-y-auto bg-secondary/30 p-4 rounded-2xl border border-input text-foreground text-sm sm:text-base space-y-2 custom-scrollbar font-normal">
+            {previewHtml && (
+              <div className="w-full rounded-2xl overflow-hidden border border-border bg-white">
+                <iframe
+                  title="Web Preview"
+                  srcDoc={previewHtml}
+                  className="w-full h-[180px] bg-white border-none"
+                />
+              </div>
+            )}
+
+            <div className="w-full min-h-[140px] max-h-[280px] overflow-y-auto bg-secondary/30 p-4 rounded-2xl border border-input text-foreground text-sm sm:text-base space-y-2 custom-scrollbar font-normal font-mono">
               {output.length === 0 ? (
-                <p className="text-muted-foreground italic font-normal">Click "Run Snippet" to view console output here...</p>
+                <p className="text-muted-foreground italic font-normal text-xs">
+                  Click "Run" to {codeLang === "html" || codeLang === "css" ? "render visual preview" : "view console output"} here...
+                </p>
               ) : (
                 output.map((line, idx) => (
                   <div
                     key={idx}
-                    className={`leading-relaxed whitespace-pre-wrap font-normal ${
+                    className={`leading-relaxed whitespace-pre-wrap font-normal text-xs sm:text-sm ${
                       line.startsWith("[ERROR]") || line.startsWith("Runtime Error")
-                        ? "text-muted-foreground underline font-normal"
+                        ? "text-rose-400 font-semibold"
                         : line.startsWith("//")
-                        ? "text-muted-foreground"
+                        ? "text-emerald-400 font-medium"
                         : "text-foreground"
                     }`}
                   >

@@ -20,6 +20,7 @@ interface StudyState {
   isSidebarOpen: boolean;
   searchQuery: string;
   filterState: FilterState;
+  isImportantOnly: boolean;
   collapsedCategories: Record<string, boolean>;
 
   // Coding Challenge State
@@ -48,6 +49,8 @@ interface StudyState {
   setSidebarOpen: (isOpen: boolean) => void;
   setSearchQuery: (query: string) => void;
   setFilterState: (filter: FilterState) => void;
+  setIsImportantOnly: (importantOnly: boolean) => void;
+  toggleImportantOnly: () => void;
   toggleCategoryCollapsed: (category: string) => void;
   setAuthenticated: (isAuth: boolean) => void;
   resetUserProgress: () => void;
@@ -114,6 +117,7 @@ export const useStudyStore = create<StudyState>()(
       isSidebarOpen: false,
       searchQuery: "",
       filterState: "all",
+      isImportantOnly: false,
       collapsedCategories: {},
       syncStatus: "idle",
       isAuthenticated: false,
@@ -128,11 +132,14 @@ export const useStudyStore = create<StudyState>()(
           const res = await fetch("/api/topics");
           if (!res.ok) return;
           const data = await res.json();
-          if (Array.isArray(data?.topics) && data.topics.length > 0) {
+          if (Array.isArray(data?.topics) && data.topics.length >= TOPICS.length) {
             set({ topics: data.topics });
+          } else {
+            set({ topics: TOPICS });
           }
         } catch (err) {
           console.warn("Failed to fetch topics dynamically, using store fallback", err);
+          set({ topics: TOPICS });
         }
       },
 
@@ -364,6 +371,22 @@ export const useStudyStore = create<StudyState>()(
         set({ filterState: filter });
       },
 
+      setIsImportantOnly: (importantOnly: boolean) => {
+        set({ isImportantOnly: importantOnly });
+        const { getRoleFilteredTopics, activeTopicId, setActiveTopicId } = get();
+        const roleTopics = getRoleFilteredTopics();
+        const isCurrentInFiltered = roleTopics.some((t) => t.id === activeTopicId);
+
+        if (!isCurrentInFiltered && roleTopics.length > 0) {
+          setActiveTopicId(roleTopics[0].id);
+        }
+      },
+
+      toggleImportantOnly: () => {
+        const nextState = !get().isImportantOnly;
+        get().setIsImportantOnly(nextState);
+      },
+
       toggleCategoryCollapsed: (category: string) => {
         set((state) => {
           const currentIsCollapsed =
@@ -381,11 +404,21 @@ export const useStudyStore = create<StudyState>()(
       },
 
       getRoleFilteredTopics: () => {
-        const { topics, selectedRole } = get();
-        if (!selectedRole || selectedRole === "all") return topics;
-        const roleDef = ROLES.find((r) => r.id === selectedRole);
-        if (!roleDef) return topics;
-        return topics.filter((t) => roleDef.categories.includes(t.category));
+        const { topics, selectedRole, isImportantOnly } = get();
+        let filtered = topics;
+        if (selectedRole && selectedRole !== "all") {
+          const roleDef = ROLES.find((r) => r.id === selectedRole);
+          filtered = topics.filter((t) => {
+            if (t.roles && Array.isArray(t.roles) && t.roles.length > 0) {
+              return t.roles.includes(selectedRole);
+            }
+            return roleDef ? roleDef.categories.includes(t.category) : true;
+          });
+        }
+        if (isImportantOnly) {
+          filtered = filtered.filter((t) => t.isImportant);
+        }
+        return filtered;
       },
 
       getActiveTopic: () => {
@@ -431,6 +464,7 @@ export const useStudyStore = create<StudyState>()(
         challengeAttempts: state.challengeAttempts,
         failedSubmissions: state.failedSubmissions,
         collapsedCategories: state.collapsedCategories,
+        isImportantOnly: state.isImportantOnly,
       }),
     }
   )

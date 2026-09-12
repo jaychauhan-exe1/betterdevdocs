@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TOPICS, Topic } from "@/data/topics";
+import { ROLES } from "@/data/roles";
 import { useStudyStore } from "@/store/useStudyStore";
 import { useUser } from "@clerk/nextjs";
 import AuthModal from "./AuthModal";
@@ -165,9 +166,11 @@ function renderSpeechFormattedText(
 }
 
 export default function TopicViewer(props: TopicViewerProps) {
-  const storeActiveTopic = useStudyStore((state) => state.getActiveTopic());
-  const storeIsCompleted = useStudyStore((state) => state.isTopicCompleted(storeActiveTopic.id));
-  const storeMcqAnswers = useStudyStore((state) => state.mcqAnswers[storeActiveTopic.id]);
+  const topics = useStudyStore((state) => state.topics);
+  const selectedRole = useStudyStore((state) => state.selectedRole);
+  const activeTopicId = useStudyStore((state) => state.activeTopicId);
+  const completedTopics = useStudyStore((state) => state.completedTopics);
+  const mcqAnswers = useStudyStore((state) => state.mcqAnswers);
   const storeSubmittedQuizzes = useStudyStore((state) => state.submittedQuizzes);
   const setTopicMcqAnswers = useStudyStore((state) => state.setTopicMcqAnswers);
   const setQuizSubmittedStore = useStudyStore((state) => state.setQuizSubmitted);
@@ -175,9 +178,23 @@ export default function TopicViewer(props: TopicViewerProps) {
   const setActiveTopicId = useStudyStore((state) => state.setActiveTopicId);
   const topicNotes = useStudyStore((state) => state.topicNotes);
   const setTopicNote = useStudyStore((state) => state.setTopicNote);
+  const isImportantOnly = useStudyStore((state) => state.isImportantOnly);
+  const getRoleFilteredTopics = useStudyStore((state) => state.getRoleFilteredTopics);
+
+  const roleFilteredTopics = useMemo(() => {
+    return getRoleFilteredTopics();
+  }, [topics, selectedRole, isImportantOnly, getRoleFilteredTopics]);
+
+  const storeActiveTopic = useMemo(() => {
+    const foundInRole = roleFilteredTopics.find((t) => t.id === activeTopicId);
+    if (foundInRole) return foundInRole;
+    return roleFilteredTopics[0] || topics.find((t) => t.id === activeTopicId) || topics[0] || TOPICS[0];
+  }, [roleFilteredTopics, topics, activeTopicId]);
 
   const topic = props.topic || storeActiveTopic;
-  const allTopics = props.allTopics || TOPICS;
+  const allTopics = props.allTopics || roleFilteredTopics;
+  const storeIsCompleted = completedTopics.includes(topic.id);
+  const storeMcqAnswers = mcqAnswers[topic.id];
   const isCompleted = props.isCompleted !== undefined ? props.isCompleted : storeIsCompleted;
   const isQuizSubmitted = !!storeSubmittedQuizzes[topic.id];
   const onToggleComplete = props.onToggleComplete || toggleTopicComplete;

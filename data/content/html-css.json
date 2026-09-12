@@ -1,0 +1,1036 @@
+[
+  {
+    "id": "html-semantics-structure",
+    "title": "HTML5 & Semantic Structure",
+    "category": "HTML & CSS",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "HTML5 document structure, semantic tags (<header>, <main>, <nav>, <article>, <aside>, <footer>), and DOM accessibility fundamentals.",
+    "explanation": {
+      "overview": "Semantic HTML means using HTML elements according to their intended structural purpose. Rather than relying on generic <div> containers, semantic tags convey meaning to both the browser, search engines, and screen readers.",
+      "sections": [
+        {
+          "heading": "Core Semantic Landmark Tags",
+          "content": "HTML5 introduces structural landmark tags that organize the document outline cleanly.",
+          "bulletPoints": [
+            "<header>: Introductory content, site branding, and primary navigation.",
+            "<nav>: Section containing major site navigation links.",
+            "<main>: Primary unique content block of the document (should only appear once per page).",
+            "<article>: Self-contained independent content piece suitable for syndication (e.g., blog post, comment).",
+            "<section>: Thematic grouping of content, typically with a heading.",
+            "<footer>: Document or section footer containing copyright, contact, or related links."
+          ]
+        },
+        {
+          "heading": "Benefits for SEO & Accessibility",
+          "content": "Screen readers utilize semantic landmarks to allow visually impaired users to jump directly to main content or navigation. Search engine crawlers prioritize semantic elements to weigh content hierarchy.",
+          "bulletPoints": [
+            "Improves accessibility (WCAG compliance) out of the box.",
+            "Enhances search engine indexability and rich snippets.",
+            "Simplifies CSS styling and code maintainability."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Always use landmark elements (<main>, <nav>, <header>) instead of generic <div> tags.",
+      "Ensure one unique <main> element exists per page.",
+      "Semantic HTML enhances screen reader accessibility and search engine ranking."
+    ],
+    "codeExamples": [
+      {
+        "title": "Semantic HTML5 Layout",
+        "description": "Standard document layout using semantic landmarks.",
+        "code": "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <meta charset=\"UTF-8\">\n  <title>Semantic Page</title>\n</head>\n<body>\n  <header>\n    <h1>DevDocs Guide</h1>\n    <nav>\n      <a href=\"#home\">Home</a>\n      <a href=\"#topics\">Topics</a>\n    </nav>\n  </header>\n  <main>\n    <article>\n      <h2>Semantic HTML Overview</h2>\n      <p>Semantic tags improve accessibility and SEO structure.</p>\n    </article>\n  </main>\n  <footer>\n    <p>&copy; 2026 DevDocs</p>\n  </footer>\n</body>\n</html>"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "html-semantics-mcq-1",
+        "question": "Which HTML5 element represents the primary unique content of a webpage?",
+        "options": [
+          "<section>",
+          "<article>",
+          "<main>",
+          "<header>"
+        ],
+        "correctAnswer": 2,
+        "explanation": "<main> represents the dominant, unique content of the document body."
+      },
+      {
+        "id": "html-semantics-mcq-2",
+        "question": "What is the main benefit of using semantic tags like <nav> and <article>?",
+        "options": [
+          "They automatically apply CSS flexbox styling",
+          "They improve web accessibility (screen readers) and SEO",
+          "They make JavaScript execute faster",
+          "They prevent CORS security errors"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Semantic tags describe meaning to screen readers, assistive tools, and search engines."
+      },
+      {
+        "id": "html-semantics-mcq-3",
+        "question": "Which tag should be used for a self-contained blog post or news item?",
+        "options": [
+          "<div>",
+          "<aside>",
+          "<article>",
+          "<span>"
+        ],
+        "correctAnswer": 2,
+        "explanation": "<article> specifies an independent, self-contained composition."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "html-forms-accessibility",
+    "title": "HTML Forms & ARIA Accessibility",
+    "category": "HTML & CSS",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "Form controls, label associations, validation attributes, and WAI-ARIA attributes for accessible web interfaces.",
+    "explanation": {
+      "overview": "HTML forms are the core interactive mechanism on the web. Accessible forms associate explicit labels with inputs, specify semantic input types, and use ARIA attributes when native HTML elements fall short.",
+      "sections": [
+        {
+          "heading": "Form Labeling & Native Validation",
+          "content": "Every interactive input must be explicitly associated with a <label> element using matching for and id attributes.",
+          "bulletPoints": [
+            "Explicit Association: <label for=\"email\">Email</label><input id=\"email\" type=\"email\" />.",
+            "Native Types: type=\"email\", type=\"number\", type=\"url\", type=\"date\" enable mobile-optimized keyboards.",
+            "Attributes: required, minlength, maxlength, pattern allow browser-level validation before submission."
+          ]
+        },
+        {
+          "heading": "WAI-ARIA Essentials",
+          "content": "WAI-ARIA (Web Accessibility Initiative - Accessible Rich Internet Applications) defines attributes to complement custom UI controls.",
+          "bulletPoints": [
+            "aria-label: Supplies text label when no visible text exists.",
+            "aria-expanded: Indicates open/closed state of dropdowns or accordions.",
+            "aria-live: Announces dynamic asynchronous DOM updates to screen readers."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Always connect <label for=\"...\"> with <input id=\"...\">.",
+      "Use native HTML input types for built-in mobile keyboards and validation.",
+      "Use ARIA attributes to describe dynamic states to assistive technologies."
+    ],
+    "codeExamples": [
+      {
+        "title": "Accessible Form Control",
+        "description": "Form input with explicit label association and ARIA states.",
+        "code": "<form onSubmit=\"handleSubmit(event)\">\n  <div className=\"form-group\">\n    <label htmlFor=\"user-email\">Email Address</label>\n    <input\n      id=\"user-email\"\n      type=\"email\"\n      required\n      aria-describedby=\"email-hint\"\n      placeholder=\"dev@example.com\"\n    />\n    <span id=\"email-hint\" className=\"hint\">We'll never share your email.</span>\n  </div>\n  <button type=\"submit\">Submit</button>\n</form>"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "html-forms-mcq-1",
+        "question": "How do you explicitly link a <label> to an <input> for accessibility?",
+        "options": [
+          "Match label 'for' attribute with input 'id' attribute",
+          "Match label 'name' attribute with input 'name' attribute",
+          "Place label directly inside <head>",
+          "Use class selector on both"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Matching <label for=\"xyz\"> with <input id=\"xyz\"> explicitly connects label text for screen readers."
+      },
+      {
+        "id": "html-forms-mcq-2",
+        "question": "Which ARIA attribute communicates the open or collapsed state of an accordion toggle?",
+        "options": [
+          "aria-hidden",
+          "aria-expanded",
+          "aria-live",
+          "aria-controls"
+        ],
+        "correctAnswer": 1,
+        "explanation": "aria-expanded=\"true|false\" informs screen readers whether an interactive region is open or closed."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "css-box-model",
+    "title": "CSS Box Model & Specificity",
+    "category": "HTML & CSS",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "Content, padding, border, margin layout mechanics, box-sizing: border-box, and CSS rule specificity calculation.",
+    "explanation": {
+      "overview": "Every element rendered in CSS is formatted as a rectangular box. The CSS Box Model consists of content, padding, border, and margin. Understanding box-sizing and selector specificity is crucial to building accurate web layouts.",
+      "sections": [
+        {
+          "heading": "Box Model Architecture",
+          "content": "An element's rendered size depends on how box-sizing is declared.",
+          "bulletPoints": [
+            "content-box (default): Total Width = width + left/right padding + left/right border.",
+            "border-box (recommended): Total Width = width (padding and border are absorbed inside)."
+          ]
+        },
+        {
+          "heading": "Selector Specificity Formula",
+          "content": "CSS specificity resolves cascade conflicts when multiple rules target the same element.",
+          "bulletPoints": [
+            "Inline Styles: (1,0,0,0) - e.g. style=\"color: red\".",
+            "IDs: (0,1,0,0) - e.g. #header.",
+            "Classes, Pseudo-classes, Attributes: (0,0,1,0) - e.g. .btn, :hover, [type=\"text\"].",
+            "Elements & Pseudo-elements: (0,0,0,1) - e.g. div, p, ::before."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Set `box-sizing: border-box` globally (`* { box-sizing: border-box; }`) for predictable layout sizing.",
+      "Margin collapses vertically between adjacent block elements.",
+      "IDs outweigh classes; classes outweigh element selectors in CSS specificity."
+    ],
+    "codeExamples": [
+      {
+        "title": "Global Box Sizing Reset",
+        "description": "Standard CSS box-sizing reset applied across all elements.",
+        "code": "/* Global border-box reset */\n*,\n*::before,\n*::after {\n  box-sizing: border-box;\n  margin: 0;\n  padding: 0;\n}\n\n.card {\n  width: 300px;\n  padding: 20px;\n  border: 2px solid #333;\n  /* Total element width remains exactly 300px because of border-box */\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "css-box-model-mcq-1",
+        "question": "With `box-sizing: border-box`, what is the total rendered width of a div with `width: 200px`, `padding: 20px`, `border: 5px`?",
+        "options": [
+          "250px",
+          "200px",
+          "225px",
+          "240px"
+        ],
+        "correctAnswer": 1,
+        "explanation": "With border-box, padding and border are included inside the specified 200px width."
+      },
+      {
+        "id": "css-box-model-mcq-2",
+        "question": "Which CSS selector has the highest specificity score?",
+        "options": [
+          ".nav .item",
+          "#sidebar",
+          "header nav ul li",
+          "button:hover"
+        ],
+        "correctAnswer": 1,
+        "explanation": "An ID selector (#sidebar) has specificity (0,1,0,0), outranking classes and element selectors."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "css-flexbox-grid",
+    "title": "CSS Flexbox & CSS Grid",
+    "category": "HTML & CSS",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "1D layout distribution with Flexbox vs 2D structural layout system with CSS Grid.",
+    "explanation": {
+      "overview": "Modern CSS relies on Flexbox for 1-dimensional layouts (components, toolbars, alignment) and CSS Grid for 2-dimensional overall page grids (rows and columns simultaneously).",
+      "sections": [
+        {
+          "heading": "CSS Flexbox (1D Layout)",
+          "content": "Flexbox distributes space along a main-axis and cross-axis.",
+          "bulletPoints": [
+            "flex-direction: row | column defines main axis.",
+            "justify-content: flex-start | center | space-between aligns along main axis.",
+            "align-items: center | stretch | flex-end aligns along cross axis.",
+            "gap: Defines space between flex items."
+          ]
+        },
+        {
+          "heading": "CSS Grid (2D Layout)",
+          "content": "Grid creates explicit rows and columns for complete layout control.",
+          "bulletPoints": [
+            "grid-template-columns: repeat(12, 1fr) creates fluid column tracks.",
+            "grid-template-areas: Defines named layout regions visually.",
+            "auto-fit / auto-fill with minmax(): Builds responsive card grids without media queries."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use Flexbox for 1D component alignment (headers, button groups, nav bars).",
+      "Use CSS Grid for 2D page layouts and multi-column grid cards.",
+      "Combine `repeat(auto-fit, minmax(250px, 1fr))` for media-query-free responsive grids."
+    ],
+    "codeExamples": [
+      {
+        "title": "Responsive Card Grid",
+        "description": "Media-query-free responsive grid with auto-fit and minmax.",
+        "code": ".grid-container {\n  display: grid;\n  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));\n  gap: 1.5rem;\n}\n\n.flex-header {\n  display: flex;\n  justify-content: space-between;\n  align-items: center;\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "css-flexgrid-mcq-1",
+        "question": "Which property aligns flex items along the CROSS axis in Flexbox?",
+        "options": [
+          "justify-content",
+          "align-items",
+          "flex-direction",
+          "grid-template-rows"
+        ],
+        "correctAnswer": 1,
+        "explanation": "align-items aligns items perpendicular to the main flex axis."
+      },
+      {
+        "id": "css-flexgrid-mcq-2",
+        "question": "What is the primary difference between CSS Flexbox and CSS Grid?",
+        "options": [
+          "Flexbox is 1D (rows OR columns); Grid is 2D (rows AND columns)",
+          "Flexbox only works on mobile devices",
+          "Grid cannot align text elements",
+          "Flexbox requires JavaScript to calculate positions"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Flexbox manages 1-dimensional positioning; Grid handles 2-dimensional rows and columns together."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "css-responsive-media-queries",
+    "title": "Responsive Web Design & Media Queries",
+    "category": "HTML & CSS",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "Mobile-first CSS strategy, viewport meta tag, breakpoints, fluid typography, and CSS custom properties.",
+    "explanation": {
+      "overview": "Responsive Web Design (RWD) ensures web applications look and perform seamlessly across mobile screens, tablets, laptops, and 4K desktop displays.",
+      "sections": [
+        {
+          "heading": "Mobile-First Methodology",
+          "content": "Write default CSS styles targeting mobile screens first, then layer on min-width media queries for larger displays.",
+          "bulletPoints": [
+            "Viewport Meta Tag: <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"> is required.",
+            "min-width Media Queries: @media (min-width: 768px) { ... } for tablet/desktop overrides.",
+            "Fluid Units: rem, em, %, vw, vh, and clamp(min, val, max) for scalable typography."
+          ]
+        },
+        {
+          "heading": "CSS Variables (Custom Properties)",
+          "content": "Declare scoped design tokens that adapt dynamically within media queries or dark-mode themes.",
+          "bulletPoints": [
+            "Declaration: --bg-primary: #0a0a0a;.",
+            "Usage: background-color: var(--bg-primary);.",
+            "Theme switching: Easily override variables under .dark class."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Always include the viewport meta tag in your HTML <head>.",
+      "Build mobile-first CSS using `min-width` media query breakpoints.",
+      "Use CSS custom properties (`var(--var-name)`) for responsive theme tokens."
+    ],
+    "codeExamples": [
+      {
+        "title": "Mobile-First Media Query & CSS Variables",
+        "description": "Responsive layout using min-width breakpoints and CSS variables.",
+        "code": ":root {\n  --container-padding: 1rem;\n  --font-size: 1rem;\n}\n\n@media (min-width: 768px) {\n  :root {\n    --container-padding: 2rem;\n    --font-size: 1.125rem;\n  }\n}\n\n.container {\n  padding: var(--container-padding);\n  font-size: var(--font-size);\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "css-responsive-mcq-1",
+        "question": "In a mobile-first CSS architecture, which type of media query is primarily used?",
+        "options": [
+          "@media (max-width: ...)",
+          "@media (min-width: ...)",
+          "@media (device-height: ...)",
+          "@media (orientation: portrait)"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Mobile-first applies base styles for small screens, using min-width to enhance layout on larger displays."
+      },
+      {
+        "id": "css-responsive-mcq-2",
+        "question": "What is the purpose of `<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">`?",
+        "options": [
+          "To enable dark mode automatically",
+          "To instruct mobile browsers to render the layout at device screen width without auto-zooming out",
+          "To import Google Fonts",
+          "To load CSS files asynchronously"
+        ],
+        "correctAnswer": 1,
+        "explanation": "The viewport meta tag matches page width to screen width, establishing mobile scale."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-ywg2vukaf5ijvvut6aisy",
+    "title": "HTML",
+    "category": "HTML & CSS",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "HTML (Hypertext Markup Language) is the standard for creating web pages, structuring content with elements and attributes. Browsers interpre...",
+    "explanation": {
+      "overview": "HTML (Hypertext Markup Language) is the standard for creating web pages, structuring content with elements and attributes. Browsers interpret HTML tags to render pages. HTML5, the current standard, adds semantic elements, multimedia support, and form controls. It works with CSS for styling and JavaScript for interactivity, forming web development's foundation.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "HTML (Hypertext Markup Language) is the standard for creating web pages, structuring content with elements and attributes. Browsers interpret HTML tags to render pages. HTML5, the current standard, adds semantic elements, multimedia support, and form controls. It works with CSS for styling and JavaScript for interactivity, forming web development's foundation.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master HTML as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "HTML Example",
+        "description": "Code example illustrating HTML usage.",
+        "code": "// HTML Demonstration\nconsole.log('Mastering HTML on DevDocs');"
+      },
+      {
+        "title": "HTML Reference",
+        "description": "Core code snippet demonstrating HTML.",
+        "code": "// HTML Implementation\nconsole.log('Practicing HTML on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-ywg2vukaf5ijvvut6aisy-mcq-1",
+        "question": "What is the primary purpose of HTML?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "HTML is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-ywg2vukaf5ijvvut6aisy-mcq-2",
+        "question": "Why is HTML important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding HTML enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-ywg2vukaf5ijvvut6aisy-mcq-1",
+        "question": "What is a primary principle of HTML?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "HTML is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-ywg2vukaf5ijvvut6aisy-mcq-2",
+        "question": "Why do technical interviews assess HTML?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use HTML to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack",
+      "backend"
+    ]
+  },
+  {
+    "id": "backend-uta1w2o6pzov-lbtde5dn",
+    "title": "CSS",
+    "category": "HTML & CSS",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "CSS (Cascading Style Sheets) is a stylesheet language used to describe the presentation of a document written in HTML or XML (including XML ...",
+    "explanation": {
+      "overview": "CSS (Cascading Style Sheets) is a stylesheet language used to describe the presentation of a document written in HTML or XML (including XML dialects such as SVG, MathML or XHTML). It controls the layout, colors, fonts, and other visual aspects of web pages, ensuring a consistent and visually appealing user experience. CSS allows developers to separate content from presentation, making websites easier to maintain and update.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "CSS (Cascading Style Sheets) is a stylesheet language used to describe the presentation of a document written in HTML or XML (including XML dialects such as SVG, MathML or XHTML). It controls the layout, colors, fonts, and other visual aspects of web pages, ensuring a consistent and visually appealing user experience. CSS allows developers to separate content from presentation, making websites easier to maintain and update.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master CSS as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "CSS Reference",
+        "description": "Core code snippet demonstrating CSS.",
+        "code": "// CSS Implementation\nconsole.log('Practicing CSS on DevDocs');"
+      },
+      {
+        "title": "CSS Example",
+        "description": "Code example illustrating CSS usage.",
+        "code": "// CSS Demonstration\nconsole.log('Mastering CSS on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-uta1w2o6pzov-lbtde5dn-mcq-1",
+        "question": "What is a primary principle of CSS?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "CSS is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-uta1w2o6pzov-lbtde5dn-mcq-2",
+        "question": "Why do technical interviews assess CSS?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use CSS to design efficient, scalable systems."
+      },
+      {
+        "id": "rf-zhjhf1m2ophybemdufq-9-mcq-1",
+        "question": "What is the primary purpose of CSS?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "CSS is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-zhjhf1m2ophybemdufq-9-mcq-2",
+        "question": "Why is CSS important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding CSS enables developers to write clean, maintainable code."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "frontend"
+    ]
+  },
+  {
+    "id": "rf-xdtd8el6owuq55wc-x4iv",
+    "title": "CSS Frameworks",
+    "category": "HTML & CSS",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "Modern CSS creates responsive designs using media queries, flexible typography, CSS-in-JS, and frameworks like Tailwind. Features CSS Logica...",
+    "explanation": {
+      "overview": "Modern CSS creates responsive designs using media queries, flexible typography, CSS-in-JS, and frameworks like Tailwind. Features CSS Logical Properties for internationalization and CSS Houdini for custom styling. Goals: performance, maintainability, and accessible designs across all devices.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "Modern CSS creates responsive designs using media queries, flexible typography, CSS-in-JS, and frameworks like Tailwind. Features CSS Logical Properties for internationalization and CSS Houdini for custom styling. Goals: performance, maintainability, and accessible designs across all devices.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master CSS Frameworks as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "CSS Frameworks Example",
+        "description": "Code example illustrating CSS Frameworks usage.",
+        "code": "// CSS Frameworks Demonstration\nconsole.log('Mastering CSS Frameworks on DevDocs');"
+      },
+      {
+        "title": "CSS Frameworks Reference",
+        "description": "Core code snippet demonstrating CSS Frameworks.",
+        "code": "// CSS Frameworks Implementation\nconsole.log('Practicing CSS Frameworks on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-xdtd8el6owuq55wc-x4iv-mcq-1",
+        "question": "What is the primary purpose of CSS Frameworks?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "CSS Frameworks is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-xdtd8el6owuq55wc-x4iv-mcq-2",
+        "question": "Why is CSS Frameworks important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding CSS Frameworks enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-xdtd8el6owuq55wc-x4iv-mcq-1",
+        "question": "What is a primary principle of CSS Frameworks?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "CSS Frameworks is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-xdtd8el6owuq55wc-x4iv-mcq-2",
+        "question": "Why do technical interviews assess CSS Frameworks?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use CSS Frameworks to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-eghnfg4p7i-edwfp3cqxc",
+    "title": "Tailwind",
+    "category": "HTML & CSS",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "Tailwind CSS is a utility-first CSS framework providing small, composable classes for rapid custom design development. Features mobile-first...",
+    "explanation": {
+      "overview": "Tailwind CSS is a utility-first CSS framework providing small, composable classes for rapid custom design development. Features mobile-first approach, automatic unused style removal (purging), and flexible customization. Enables quick responsive design prototyping without writing custom CSS.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "Tailwind CSS is a utility-first CSS framework providing small, composable classes for rapid custom design development. Features mobile-first approach, automatic unused style removal (purging), and flexible customization. Enables quick responsive design prototyping without writing custom CSS.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Tailwind as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Tailwind Example",
+        "description": "Code example illustrating Tailwind usage.",
+        "code": "// Tailwind Demonstration\nconsole.log('Mastering Tailwind on DevDocs');"
+      },
+      {
+        "title": "Tailwind Reference",
+        "description": "Core code snippet demonstrating Tailwind.",
+        "code": "// Tailwind Implementation\nconsole.log('Practicing Tailwind on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-eghnfg4p7i-edwfp3cqxc-mcq-1",
+        "question": "What is the primary purpose of Tailwind?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Tailwind is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-eghnfg4p7i-edwfp3cqxc-mcq-2",
+        "question": "Why is Tailwind important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Tailwind enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-eghnfg4p7i-edwfp3cqxc-mcq-1",
+        "question": "What is a primary principle of Tailwind?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Tailwind is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-eghnfg4p7i-edwfp3cqxc-mcq-2",
+        "question": "Why do technical interviews assess Tailwind?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Tailwind to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-hk8avonod693-y1sykpqd",
+    "title": "HTML Templates",
+    "category": "HTML & CSS",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "The `<template>` HTML element holds hidden content for later use by JavaScript. Acts as a reusable blueprint for creating dynamic page eleme...",
+    "explanation": {
+      "overview": "The `<template>` HTML element holds hidden content for later use by JavaScript. Acts as a reusable blueprint for creating dynamic page elements. Enables efficient content templating and component-based development patterns in web applications.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "The `<template>` HTML element holds hidden content for later use by JavaScript. Acts as a reusable blueprint for creating dynamic page elements. Enables efficient content templating and component-based development patterns in web applications.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master HTML Templates as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "HTML Templates Example",
+        "description": "Code example illustrating HTML Templates usage.",
+        "code": "// HTML Templates Demonstration\nconsole.log('Mastering HTML Templates on DevDocs');"
+      },
+      {
+        "title": "HTML Templates Reference",
+        "description": "Core code snippet demonstrating HTML Templates.",
+        "code": "// HTML Templates Implementation\nconsole.log('Practicing HTML Templates on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-hk8avonod693-y1sykpqd-mcq-1",
+        "question": "What is the primary purpose of HTML Templates?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "HTML Templates is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-hk8avonod693-y1sykpqd-mcq-2",
+        "question": "Why is HTML Templates important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding HTML Templates enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-hk8avonod693-y1sykpqd-mcq-1",
+        "question": "What is a primary principle of HTML Templates?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "HTML Templates is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-hk8avonod693-y1sykpqd-mcq-2",
+        "question": "Why do technical interviews assess HTML Templates?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use HTML Templates to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-ap4h4v5sr4jbh3gwwsh8x",
+    "title": "Design Systems",
+    "category": "HTML & CSS",
+    "difficulty": "Beginner",
+    "isImportant": false,
+    "summary": "A design system is a structured collection of reusable components, guidelines, standards, and best practices that ensure consistency across ...",
+    "explanation": {
+      "overview": "A design system is a structured collection of reusable components, guidelines, standards, and best practices that ensure consistency across an application's visual design and user experience. It typically includes typography, colors, spacing, icons, UI components, interaction patterns, and documentation on how to use everything correctly.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "A design system is a structured collection of reusable components, guidelines, standards, and best practices that ensure consistency across an application's visual design and user experience. It typically includes typography, colors, spacing, icons, UI components, interaction patterns, and documentation on how to use everything correctly.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Design Systems as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Design Systems Example",
+        "description": "Code example illustrating Design Systems usage.",
+        "code": "// Design Systems Demonstration\nconsole.log('Mastering Design Systems on DevDocs');"
+      },
+      {
+        "title": "Design Systems Reference",
+        "description": "Core code snippet demonstrating Design Systems.",
+        "code": "// Design Systems Implementation\nconsole.log('Practicing Design Systems on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-ap4h4v5sr4jbh3gwwsh8x-mcq-1",
+        "question": "What is the primary purpose of Design Systems?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Design Systems is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-ap4h4v5sr4jbh3gwwsh8x-mcq-2",
+        "question": "Why is Design Systems important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Design Systems enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-ap4h4v5sr4jbh3gwwsh8x-mcq-1",
+        "question": "What is a primary principle of Design Systems?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Design Systems is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-ap4h4v5sr4jbh3gwwsh8x-mcq-2",
+        "question": "Why do technical interviews assess Design Systems?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Design Systems to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-e-k6ehoxyg9h0x6vwordh",
+    "title": "Accessibility",
+    "category": "HTML & CSS",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "Website accessibility ensures sites are usable by everyone, including people with disabilities. Involves alt text for images, keyboard navig...",
+    "explanation": {
+      "overview": "Website accessibility ensures sites are usable by everyone, including people with disabilities. Involves alt text for images, keyboard navigation, color contrast, and captions. Benefits all users, supports legal compliance, and expands audience reach. Visit the following resources to learn more:",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "Website accessibility ensures sites are usable by everyone, including people with disabilities. Involves alt text for images, keyboard navigation, color contrast, and captions. Benefits all users, supports legal compliance, and expands audience reach. Visit the following resources to learn more:",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Accessibility as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Accessibility Example",
+        "description": "Code example illustrating Accessibility usage.",
+        "code": "// Accessibility Demonstration\nconsole.log('Mastering Accessibility on DevDocs');"
+      },
+      {
+        "title": "Accessibility Reference",
+        "description": "Core code snippet demonstrating Accessibility.",
+        "code": "// Accessibility Implementation\nconsole.log('Practicing Accessibility on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-e-k6ehoxyg9h0x6vwordh-mcq-1",
+        "question": "What is the primary purpose of Accessibility?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Accessibility is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-e-k6ehoxyg9h0x6vwordh-mcq-2",
+        "question": "Why is Accessibility important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Accessibility enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-e-k6ehoxyg9h0x6vwordh-mcq-1",
+        "question": "What is a primary principle of Accessibility?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Accessibility is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-e-k6ehoxyg9h0x6vwordh-mcq-2",
+        "question": "Why do technical interviews assess Accessibility?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Accessibility to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  }
+]

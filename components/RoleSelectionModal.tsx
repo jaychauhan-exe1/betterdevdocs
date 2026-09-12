@@ -15,6 +15,7 @@ import {
   Database,
   BarChart3,
   Cpu,
+  Binary,
   Target,
   Sparkles,
   ArrowRight,
@@ -29,6 +30,7 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
   "data-engineer": <Database className="w-5 h-5 text-foreground" />,
   "data-analytics": <BarChart3 className="w-5 h-5 text-foreground" />,
   "devops-architect": <Cpu className="w-5 h-5 text-foreground" />,
+  dsa: <Binary className="w-5 h-5 text-foreground" />,
 };
 
 export function RoleSelectionModal() {

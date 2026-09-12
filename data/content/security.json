@@ -1,5 +1,182 @@
 [
   {
+    "id": "sec-rate-limiting",
+    "title": "Rate limiting",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "Brute-force protection, login throttling, IP vs User account rate limiting, and CAPTCHA integration.",
+    "explanation": {
+      "overview": "Security rate limiting protects authentication endpoints (login, password reset, 2FA verification) against automated brute-force credential stuffing and dictionary attacks.",
+      "sections": [
+        {
+          "heading": "Brute-Force & Credential Stuffing Defense",
+          "content": "Attackers use botnets to test millions of leaked username/password combinations. Rate limiting restricts attempts per IP and per targeted user account.",
+          "bulletPoints": [
+            "Per-IP Limiting: Restricts requests from single IP address (e.g. max 5 login attempts / min).",
+            "Per-Account Limiting: Restricts failed attempts targeting single user account across multiple IPs.",
+            "Account Lockout: Temporarily lock account after 5 failed login attempts."
+          ]
+        },
+        {
+          "heading": "Progressive Throttling & CAPTCHA",
+          "content": "- **Progressive Delay**: Increase wait duration after each failed attempt (1s, 2s, 4s, 8s).\n- **CAPTCHA**: Trigger Cloudflare Turnstile or reCAPTCHA after 3 failed attempts to verify human presence.",
+          "bulletPoints": [
+            "Progressive Delay: Slows down automated brute-force bots.",
+            "reCAPTCHA / Turnstile: Distinguishes human users from automated scripts."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Rate limit sensitive security endpoints (login, password reset, 2FA).",
+      "Combine per-IP limiting with per-account failed attempt lockouts.",
+      "Integrate CAPTCHA or progressive delays after multiple failed logins."
+    ],
+    "codeExamples": [
+      {
+        "title": "Express Login Brute-Force Rate Limiter",
+        "description": "Applying strict rate limiter middleware on login route.",
+        "code": "import rateLimit from 'express-rate-limit';\n\n// Strict rate limiter for login route\nexport const loginLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 5, // Limit each IP to 5 failed login attempts per window\n  message: { error: 'Too many failed login attempts. Try again in 15 minutes.' },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\napp.post('/api/v1/auth/login', loginLimiter, handleLogin);"
+      },
+      {
+        "title": "Rate Limit Response Headers",
+        "description": "Standard HTTP rate limit headers.",
+        "code": "HTTP/1.1 429 Too Many Requests\nContent-Type: application/json\nRetry-After: 60\nX-RateLimit-Limit: 100\nX-RateLimit-Remaining: 0\nX-RateLimit-Reset: 1693835400\n\n{ \"error\": \"Rate limit exceeded. Try again in 60 seconds.\" }"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "sec-rate-limiting-mcq-1",
+        "question": "What primary security attack is neutralized by applying rate limits to `/api/login`?",
+        "options": [
+          "SQL Injection",
+          "Automated Brute-Force and Credential Stuffing password attacks",
+          "XSS attacks",
+          "CORS misconfiguration"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Rate limiting login endpoints stops automated password guessing and credential stuffing."
+      },
+      {
+        "id": "sec-rate-limiting-mcq-2",
+        "question": "Why is rate limiting by IP address ALONE insufficient to stop distributed botnet credential stuffing attacks?",
+        "options": [
+          "IPs are secret",
+          "Botnets distribute attack traffic across thousands of distinct residential proxy IPs",
+          "IPs use SSL",
+          "IPs do not exist on mobile"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Distributed botnets use thousands of residential IPs, bypassing per-IP limits."
+      },
+      {
+        "id": "sec-rate-limiting-mcq-3",
+        "question": "What secondary rate-limiting control complements per-IP limits during login attack?",
+        "options": [
+          "Disabling HTTPS",
+          "Per-Account Throttling / Lockout (tracking failed attempts against targeted username/email)",
+          "Deleting user",
+          "Using GET"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Per-account throttling tracks failed attempts targeting a specific user account regardless of IP."
+      },
+      {
+        "id": "sec-rate-limiting-mcq-4",
+        "question": "What is 'Progressive Delay' in login rate limiting?",
+        "options": [
+          "Server reboot",
+          "Gradually increasing delay response time after each consecutive failed login attempt (1s, 2s, 4s, 8s)",
+          "Immediate IP ban",
+          "Disabling JavaScript"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Progressive delay increases wait times on consecutive failures to slow down automated bots."
+      },
+      {
+        "id": "sec-rate-limiting-mcq-5",
+        "question": "Which modern privacy-friendly CAPTCHA alternative replaces legacy image puzzle reCAPTCHAs?",
+        "options": [
+          "Cloudflare Turnstile",
+          "Flash plugin",
+          "Basic Auth",
+          "MD5 hash"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Cloudflare Turnstile provides frictionless, privacy-preserving CAPTCHA validation."
+      },
+      {
+        "id": "redis-rate-limiting-mcq-1",
+        "question": "Which HTTP status code must be returned when a client exceeds allowed API rate limits?",
+        "options": [
+          "400 Bad Request",
+          "401 Unauthorized",
+          "429 Too Many Requests",
+          "503 Service Unavailable"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`429 Too Many Requests` is standard status code for rate limit throttling."
+      },
+      {
+        "id": "redis-rate-limiting-mcq-2",
+        "question": "Which header indicates how many seconds client must wait before retrying request after 429 response?",
+        "options": [
+          "Retry-After",
+          "X-Wait-Time",
+          "Reset-In",
+          "Rate-Wait"
+        ],
+        "correctAnswer": 0,
+        "explanation": "`Retry-After` header specifies wait time in seconds."
+      },
+      {
+        "id": "redis-rate-limiting-mcq-3",
+        "question": "Why is Redis preferred over local server memory for API rate limiting across multi-server clusters?",
+        "options": [
+          "Redis is free",
+          "Redis provides centralized shared atomic counters accessible by all cluster API nodes",
+          "Redis disables HTTP",
+          "Redis uses disk"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Centralized Redis atomic counters ensure rate limits are enforced across all backend nodes."
+      },
+      {
+        "id": "redis-rate-limiting-mcq-4",
+        "question": "Which client attribute is typically used to identify unauthenticated API rate limit buckets?",
+        "options": [
+          "User Agent",
+          "Client IP address",
+          "Accept header",
+          "Referer URL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Client IP address is standard identifier for unauthenticated request rate limiters."
+      },
+      {
+        "id": "redis-rate-limiting-mcq-5",
+        "question": "What is primary engineering goal of implementing API rate limiting?",
+        "options": [
+          "To compress JSON",
+          "To protect backend servers from DDoS attacks, brute-force attempts, and resource exhaustion",
+          "To speed up SQL queries",
+          "To format HTML"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Rate limiting protects system availability against abuse and resource exhaustion."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer",
+      "data-analytics"
+    ]
+  },
+  {
     "id": "sec-xss",
     "title": "XSS",
     "category": "SECURITY",
@@ -102,6 +279,12 @@
         "correctAnswer": 1,
         "explanation": "Assigning untrusted input to `innerHTML` executes raw `<script>` tags, causing DOM XSS."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -206,6 +389,12 @@
         "correctAnswer": 1,
         "explanation": "Browsers do not attach custom `Authorization` headers automatically; client JS must send header explicitly."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -311,109 +500,12 @@
         "correctAnswer": 1,
         "explanation": "Manual escaping is error-prone; Prepared Statements provide guaranteed structural separation."
       }
-    ]
-  },
-  {
-    "id": "sec-cors",
-    "title": "CORS",
-    "category": "SECURITY",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "CORS security model, misconfigurations, Access-Control-Allow-Origin: *, credentials, and wildcard dangers.",
-    "explanation": {
-      "overview": "CORS is a browser enforcement mechanism. Misconfiguring CORS headers can expose sensitive user data to malicious cross-origin websites.",
-      "sections": [
-        {
-          "heading": "CORS Security Misconfigurations",
-          "content": "- **Wildcard Origin with Credentials**: `Access-Control-Allow-Origin: *` combined with `Access-Control-Allow-Credentials: true` (Browsers block this, but improper reflection can bypass).\n- **Dynamic Reflection Misconfiguration**: Server dynamically reflects incoming `Origin` header blindly: `res.setHeader('Access-Control-Allow-Origin', req.headers.origin)`. This allows ANY malicious site to make authenticated requests!",
-          "bulletPoints": [
-            "Origin Reflection Flaw: Blindly returning incoming `Origin` header value.",
-            "Null Origin: Allowing `Access-Control-Allow-Origin: null` (exploitable via sandboxed iframes)."
-          ]
-        },
-        {
-          "heading": "Secure CORS Policy",
-          "content": "Maintain an explicit whitelist of trusted domain origins. Reject un-whitelisted origins.",
-          "bulletPoints": [
-            "Domain Whitelist: Check requesting origin against explicit list (`['https://app.example.com']`).",
-            "Public APIs: Use `*` ONLY for non-authenticated public read APIs."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "CORS is a browser security mechanism, NOT a server access control firewall.",
-      "Never dynamically reflect incoming `Origin` headers blindly.",
-      "Maintain an explicit whitelist of trusted domains for authenticated APIs."
     ],
-    "codeExamples": [
-      {
-        "title": "Secure Express CORS Whitelist Middleware",
-        "description": "Validating origin against explicit trusted domain whitelist.",
-        "code": "const express = require('express');\nconst cors = require('cors');\nconst app = express();\n\nconst allowedOrigins = ['https://myapp.com', 'https://admin.myapp.com'];\n\napp.use(cors({\n  origin: (origin, callback) => {\n    // Allow requests with no origin (like mobile apps or curl)\n    if (!origin || allowedOrigins.includes(origin)) {\n      callback(null, true);\n    } else {\n      callback(new Error('Blocked by CORS security policy!'));\n    }\n  },\n  credentials: true\n}));"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "sec-cors-mcq-1",
-        "question": "What security vulnerability occurs when a server dynamically reflects incoming `Origin` header into `Access-Control-Allow-Origin` combined with `Allow-Credentials: true`?",
-        "options": [
-          "SQLi vulnerability",
-          "CORS Misconfiguration allowing any malicious website to read authenticated API responses on behalf of victim",
-          "Memory leak",
-          "XSS execution"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Reflecting arbitrary origin headers allows any site to execute authenticated cross-origin reads."
-      },
-      {
-        "id": "sec-cors-mcq-2",
-        "question": "Does CORS prevent an attacker server from making cURL or Python script HTTP requests directly to your backend API?",
-        "options": [
-          "Yes, blocks all non-browser tools",
-          "No, CORS is enforced strictly by WEB BROWSERS; non-browser tools ignore CORS headers",
-          "Only on Linux",
-          "Only with HTTPS"
-        ],
-        "correctAnswer": 1,
-        "explanation": "CORS rules are enforced solely by web browsers; backend APIs must use authentication for access control."
-      },
-      {
-        "id": "sec-cors-mcq-3",
-        "question": "Why is `Access-Control-Allow-Origin: null` dangerous?",
-        "options": [
-          "Null causes server crash",
-          "Malicious sites can trigger `null` origin requests using sandboxed iframes `<iframe sandbox=\"allow-scripts\">` to bypass CORS checks",
-          "Browser deletes cookies",
-          "Disables HTTPS"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Sandboxed iframes generate `null` origin, allowing attackers to exploit `null` origin whitelist entries."
-      },
-      {
-        "id": "sec-cors-mcq-4",
-        "question": "What is proper CORS configuration for a private authenticated REST API?",
-        "options": [
-          "Access-Control-Allow-Origin: *",
-          "Explicit domain whitelist checking requesting origin against trusted domains list",
-          "Access-Control-Allow-Origin: null",
-          "No headers"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Authenticated APIs must check incoming origins against explicit trusted domain whitelists."
-      },
-      {
-        "id": "sec-cors-mcq-5",
-        "question": "What happens in browser if server returns `Access-Control-Allow-Origin: *` AND `Access-Control-Allow-Credentials: true`?",
-        "options": [
-          "Request succeeds",
-          "Browser rejects response and throws CORS error because wildcard `*` is forbidden with credentials",
-          "Cookies are deleted",
-          "Server reboots"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Browsers reject wildcard `*` origin when credentials (`Allow-Credentials: true`) are enabled."
-      }
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -518,213 +610,12 @@
         "correctAnswer": 1,
         "explanation": "Rainbow Tables store precomputed hash lookups to reverse unsalted passwords instantly."
       }
-    ]
-  },
-  {
-    "id": "sec-cookies",
-    "title": "Cookies",
-    "category": "SECURITY",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "Cookie security flags: HttpOnly, Secure, SameSite, Domain/Path scoping, Prefix flags (__Host-, __Secure-).",
-    "explanation": {
-      "overview": "Cookies store session and state data. Securing cookies requires configuring security flags and scoping prefixes.",
-      "sections": [
-        {
-          "heading": "Security Flags Review",
-          "content": "- `HttpOnly`: Prevents client JS access (`document.cookie`), mitigating XSS token theft.\n- `Secure`: Forces HTTPS transmission only.\n- `SameSite=Lax/Strict`: Mitigates CSRF attacks.",
-          "bulletPoints": [
-            "HttpOnly: Protects against XSS cookie theft.",
-            "Secure: Protects against Man-in-the-Middle network sniffing.",
-            "SameSite: Protects against CSRF cross-site submission."
-          ]
-        },
-        {
-          "heading": "Cookie Prefixes (__Host- and __Secure-)",
-          "content": "Cookie Prefixes enforce browser security constraints on cookie creation:\n- `__Secure-`: Cookie MUST have `Secure` flag and originate from HTTPS.\n- `__Host-`: Cookie MUST have `Secure` flag, originate from HTTPS, specify `Path=/`, and MUST NOT specify a `Domain` attribute.",
-          "bulletPoints": [
-            "__Host-CookieName: Maximum security prefix (locks path to `/` and disables subdomain overrides).",
-            "Prevents Subdomain Injection: Stops compromised subdomains from overwriting parent domain session cookies."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Always set `HttpOnly`, `Secure`, and `SameSite=Lax/Strict` on auth cookies.",
-      "Use `__Host-` cookie prefix for maximum security isolation.",
-      "Restrict cookie scope with explicit `Path` and `Domain`."
     ],
-    "codeExamples": [
-      {
-        "title": "__Host- Cookie Prefix Example",
-        "description": "Setting maximum security __Host- cookie header.",
-        "code": "// __Host- prefix enforces Secure, Path=/, and NO Domain attribute!\nSet-Cookie: __Host-sessionId=xyz123;\n  Path=/;\n  Secure;\n  HttpOnly;\n  SameSite=Strict"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "sec-cookies-mcq-1",
-        "question": "What security constraints does the `__Host-` cookie prefix enforce on browsers?",
-        "options": [
-          "Cookie expires in 1h",
-          "Cookie MUST include `Secure` flag, originate from HTTPS, have `Path=/`, and MUST NOT specify a `Domain` attribute",
-          "Cookie is read-only",
-          "Cookie uses RSA"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`__Host-` prefix enforces `Secure`, `Path=/`, and forbids `Domain` overrides."
-      },
-      {
-        "id": "sec-cookies-mcq-2",
-        "question": "What attack does setting `HttpOnly` flag on session cookies prevent?",
-        "options": [
-          "SQL Injection",
-          "XSS scripts from stealing session cookies via `document.cookie`",
-          "CSRF attacks",
-          "DDoS attacks"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`HttpOnly` blocks JS `document.cookie` access, defending against XSS cookie theft."
-      },
-      {
-        "id": "sec-cookies-mcq-3",
-        "question": "What attack does setting `SameSite=Lax` or `Strict` flag on session cookies mitigate?",
-        "options": [
-          "SQL Injection",
-          "CSRF (Cross-Site Request Forgery)",
-          "XSS",
-          "Buffer overflow"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`SameSite` restricts cross-site cookie transmission, defending against CSRF."
-      },
-      {
-        "id": "sec-cookies-mcq-4",
-        "question": "Why is setting `Domain=.example.com` potentially risky if subdomains (`blog.example.com`) are insecure?",
-        "options": [
-          "Cookies expire fast",
-          "Compromised subdomains can overwrite parent domain cookies (Cookie Tossing / Invalidation)",
-          "Slowing down requests",
-          "Invalidating HTTPS"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Wildcard `Domain=.example.com` allows insecure subdomains to read or overwrite parent cookies."
-      },
-      {
-        "id": "sec-cookies-mcq-5",
-        "question": "What happens if browser sends HTTP request over unencrypted `http://` for a cookie marked with `Secure` flag?",
-        "options": [
-          "Cookie is sent",
-          "Browser suppresses cookie and does NOT send it over unencrypted http:// link",
-          "Cookie is deleted",
-          "Server reboots"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`Secure` flag restricts cookie transmission strictly to HTTPS."
-      }
-    ]
-  },
-  {
-    "id": "sec-authorization",
-    "title": "Authorization",
-    "category": "SECURITY",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "Broken Object Level Authorization (BOLA/IDOR), Principle of Least Privilege, and server-side permission checks.",
-    "explanation": {
-      "overview": "Broken Object Level Authorization (BOLA), also known as Insecure Direct Object References (IDOR), is the #1 security vulnerability on OWASP API Security Top 10 list.",
-      "sections": [
-        {
-          "heading": "BOLA / IDOR Vulnerability Mechanics",
-          "content": "BOLA occurs when an API endpoint accesses objects by ID parameter (`/api/invoices/1001`) but fails to verify whether current authenticated user OWNS invoice `1001`.",
-          "bulletPoints": [
-            "OWASP API #1: BOLA is the most common severe API flaw.",
-            "Exploit: Changing URL ID parameter from `/invoices/1001` to `/invoices/1002` reveals another user's private data."
-          ]
-        },
-        {
-          "heading": "BOLA Defense Strategy",
-          "content": "Always validate object ownership on backend: `WHERE invoice_id = :id AND owner_user_id = :current_user_id`.",
-          "bulletPoints": [
-            "Contextual Checks: Verify user ownership or tenant permission scope.",
-            "UUID Keys: Use un-guessable Random UUIDs (`v4`) instead of sequential integer IDs (`1, 2, 3`)."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "BOLA / IDOR is the #1 API security vulnerability.",
-      "Always verify user ownership/permissions on backend for object ID queries.",
-      "Use un-guessable UUIDs for public resource identifiers."
-    ],
-    "codeExamples": [
-      {
-        "title": "BOLA Vulnerable vs Secure Query",
-        "description": "Vulnerable IDOR endpoint vs Secure ownership query.",
-        "code": "// VULNERABLE TO BOLA / IDOR:\n// const invoice = await db.query('SELECT * FROM invoices WHERE id = ?', [req.params.id]);\n\n// SECURE (Enforces ownership check!):\nconst invoice = await db.query(\n  'SELECT * FROM invoices WHERE id = ? AND user_id = ?',\n  [req.params.id, req.user.id] // Scoped to authenticated user!\n);\nif (!invoice) return res.status(404).json({ error: 'Invoice not found' });"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "sec-authorization-mcq-1",
-        "question": "What is Broken Object Level Authorization (BOLA / IDOR)?",
-        "options": [
-          "SQL syntax error",
-          "Vulnerability where API endpoint fails to verify if authenticated user has permission to access target object ID",
-          "Expired password",
-          "CORS failure"
-        ],
-        "correctAnswer": 1,
-        "explanation": "BOLA occurs when API accesses objects by ID without verifying user ownership."
-      },
-      {
-        "id": "sec-authorization-mcq-2",
-        "question": "How does an attacker exploit a BOLA flaw in `/api/v1/documents/50`?",
-        "options": [
-          "Injects JavaScript",
-          "Changes ID parameter in URL to `/api/v1/documents/51` to access another user's private document",
-          "Deletes index",
-          "Sends 404"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Attackers iterate object IDs to exfiltrate other users' records."
-      },
-      {
-        "id": "sec-authorization-mcq-3",
-        "question": "What query refactoring prevents BOLA when fetching a record by ID?",
-        "options": [
-          "`SELECT * FROM items WHERE id = ?`",
-          "`SELECT * FROM items WHERE id = ? AND owner_id = ?` (scoping query to authenticated user ID)",
-          "`SELECT * FROM items`",
-          "Using ORDER BY"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Scoping queries to `owner_id = current_user_id` ensures users access only owned records."
-      },
-      {
-        "id": "sec-authorization-mcq-4",
-        "question": "Why does using Random UUIDs (`c29f4a81-1234...`) instead of sequential integers (`1, 2, 3`) mitigate simple IDOR enumeration attacks?",
-        "options": [
-          "UUIDs encrypt data",
-          "UUIDs are mathematically impossible to guess or enumerate sequentially",
-          "UUIDs disable CORS",
-          "UUIDs run faster"
-        ],
-        "correctAnswer": 1,
-        "explanation": "UUIDs eliminate simple sequential ID enumeration guessing."
-      },
-      {
-        "id": "sec-authorization-mcq-5",
-        "question": "What security principle states users should be granted ONLY minimum permissions required to perform their task?",
-        "options": [
-          "Principle of Maximum Speed",
-          "Principle of Least Privilege",
-          "Principle of Open Access",
-          "Zero Trust Design"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Principle of Least Privilege restricts permissions to absolute minimum required scope."
-      }
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -829,110 +720,12 @@
         "correctAnswer": 1,
         "explanation": "Short-lived access tokens limit window of stolen tokens; refresh tokens allow revocable session renewals."
       }
-    ]
-  },
-  {
-    "id": "sec-rate-limiting",
-    "title": "Rate limiting",
-    "category": "SECURITY",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "Brute-force protection, login throttling, IP vs User account rate limiting, and CAPTCHA integration.",
-    "explanation": {
-      "overview": "Security rate limiting protects authentication endpoints (login, password reset, 2FA verification) against automated brute-force credential stuffing and dictionary attacks.",
-      "sections": [
-        {
-          "heading": "Brute-Force & Credential Stuffing Defense",
-          "content": "Attackers use botnets to test millions of leaked username/password combinations. Rate limiting restricts attempts per IP and per targeted user account.",
-          "bulletPoints": [
-            "Per-IP Limiting: Restricts requests from single IP address (e.g. max 5 login attempts / min).",
-            "Per-Account Limiting: Restricts failed attempts targeting single user account across multiple IPs.",
-            "Account Lockout: Temporarily lock account after 5 failed login attempts."
-          ]
-        },
-        {
-          "heading": "Progressive Throttling & CAPTCHA",
-          "content": "- **Progressive Delay**: Increase wait duration after each failed attempt (1s, 2s, 4s, 8s).\n- **CAPTCHA**: Trigger Cloudflare Turnstile or reCAPTCHA after 3 failed attempts to verify human presence.",
-          "bulletPoints": [
-            "Progressive Delay: Slows down automated brute-force bots.",
-            "reCAPTCHA / Turnstile: Distinguishes human users from automated scripts."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Rate limit sensitive security endpoints (login, password reset, 2FA).",
-      "Combine per-IP limiting with per-account failed attempt lockouts.",
-      "Integrate CAPTCHA or progressive delays after multiple failed logins."
     ],
-    "codeExamples": [
-      {
-        "title": "Express Login Brute-Force Rate Limiter",
-        "description": "Applying strict rate limiter middleware on login route.",
-        "code": "import rateLimit from 'express-rate-limit';\n\n// Strict rate limiter for login route\nexport const loginLimiter = rateLimit({\n  windowMs: 15 * 60 * 1000, // 15 minutes\n  max: 5, // Limit each IP to 5 failed login attempts per window\n  message: { error: 'Too many failed login attempts. Try again in 15 minutes.' },\n  standardHeaders: true,\n  legacyHeaders: false\n});\n\napp.post('/api/v1/auth/login', loginLimiter, handleLogin);"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "sec-rate-limiting-mcq-1",
-        "question": "What primary security attack is neutralized by applying rate limits to `/api/login`?",
-        "options": [
-          "SQL Injection",
-          "Automated Brute-Force and Credential Stuffing password attacks",
-          "XSS attacks",
-          "CORS misconfiguration"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Rate limiting login endpoints stops automated password guessing and credential stuffing."
-      },
-      {
-        "id": "sec-rate-limiting-mcq-2",
-        "question": "Why is rate limiting by IP address ALONE insufficient to stop distributed botnet credential stuffing attacks?",
-        "options": [
-          "IPs are secret",
-          "Botnets distribute attack traffic across thousands of distinct residential proxy IPs",
-          "IPs use SSL",
-          "IPs do not exist on mobile"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Distributed botnets use thousands of residential IPs, bypassing per-IP limits."
-      },
-      {
-        "id": "sec-rate-limiting-mcq-3",
-        "question": "What secondary rate-limiting control complements per-IP limits during login attack?",
-        "options": [
-          "Disabling HTTPS",
-          "Per-Account Throttling / Lockout (tracking failed attempts against targeted username/email)",
-          "Deleting user",
-          "Using GET"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Per-account throttling tracks failed attempts targeting a specific user account regardless of IP."
-      },
-      {
-        "id": "sec-rate-limiting-mcq-4",
-        "question": "What is 'Progressive Delay' in login rate limiting?",
-        "options": [
-          "Server reboot",
-          "Gradually increasing delay response time after each consecutive failed login attempt (1s, 2s, 4s, 8s)",
-          "Immediate IP ban",
-          "Disabling JavaScript"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Progressive delay increases wait times on consecutive failures to slow down automated bots."
-      },
-      {
-        "id": "sec-rate-limiting-mcq-5",
-        "question": "Which modern privacy-friendly CAPTCHA alternative replaces legacy image puzzle reCAPTCHAs?",
-        "options": [
-          "Cloudflare Turnstile",
-          "Flash plugin",
-          "Basic Auth",
-          "MD5 hash"
-        ],
-        "correctAnswer": 0,
-        "explanation": "Cloudflare Turnstile provides frictionless, privacy-preserving CAPTCHA validation."
-      }
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -1038,6 +831,597 @@
         "correctAnswer": 1,
         "explanation": "Zip bombs expand exponentially upon decompression, triggering disk storage Denial of Service."
       }
+    ],
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "rf-u5md5fmvx7vwekxdpqxb5",
+    "title": "Auth Strategies",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "Authentication strategies verify a user's identity to grant access. Common methods include Basic Auth (username/password), Session-based (se...",
+    "explanation": {
+      "overview": "Authentication strategies verify a user's identity to grant access. Common methods include Basic Auth (username/password), Session-based (server remembers login), Token-based (like JWT, a secure digital key), OAuth (for third-party access like \"Login with Google\"), and SSO (Single Sign-On, one login for many apps). Knowing these helps choose the right security for your app.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "Authentication strategies verify a user's identity to grant access. Common methods include Basic Auth (username/password), Session-based (server remembers login), Token-based (like JWT, a secure digital key), OAuth (for third-party access like \"Login with Google\"), and SSO (Single Sign-On, one login for many apps). Knowing these helps choose the right security for your app.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Auth Strategies as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Auth Strategies Example",
+        "description": "Code example illustrating Auth Strategies usage.",
+        "code": "// Auth Strategies Demonstration\nconsole.log('Mastering Auth Strategies on DevDocs');"
+      },
+      {
+        "title": "Auth Strategies Reference",
+        "description": "Core code snippet demonstrating Auth Strategies.",
+        "code": "// Auth Strategies Implementation\nconsole.log('Practicing Auth Strategies on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-u5md5fmvx7vwekxdpqxb5-mcq-1",
+        "question": "What is the primary purpose of Auth Strategies?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Auth Strategies is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-u5md5fmvx7vwekxdpqxb5-mcq-2",
+        "question": "Why is Auth Strategies important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Auth Strategies enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-u5md5fmvx7vwekxdpqxb5-mcq-1",
+        "question": "What is a primary principle of Auth Strategies?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Auth Strategies is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-u5md5fmvx7vwekxdpqxb5-mcq-2",
+        "question": "Why do technical interviews assess Auth Strategies?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Auth Strategies to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack",
+      "backend"
+    ]
+  },
+  {
+    "id": "rf-rdwbg3iui6ipgp0shvxtg",
+    "title": "Web Security",
+    "category": "SECURITY",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "Web security protects websites from cyber threats through HTTPS/TLS, XSS/SQL injection/CSRF prevention, CSP, secure authentication, input va...",
+    "explanation": {
+      "overview": "Web security protects websites from cyber threats through HTTPS/TLS, XSS/SQL injection/CSRF prevention, CSP, secure authentication, input validation, and regular updates. Involves understanding OWASP Top Ten vulnerabilities, access controls, secure coding practices, and threat awareness for comprehensive protection.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "Web security protects websites from cyber threats through HTTPS/TLS, XSS/SQL injection/CSRF prevention, CSP, secure authentication, input validation, and regular updates. Involves understanding OWASP Top Ten vulnerabilities, access controls, secure coding practices, and threat awareness for comprehensive protection.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Web Security as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Web Security Example",
+        "description": "Code example illustrating Web Security usage.",
+        "code": "// Web Security Demonstration\nconsole.log('Mastering Web Security on DevDocs');"
+      },
+      {
+        "title": "Web Security Reference",
+        "description": "Core code snippet demonstrating Web Security.",
+        "code": "// Web Security Implementation\nconsole.log('Practicing Web Security on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-rdwbg3iui6ipgp0shvxtg-mcq-1",
+        "question": "What is the primary purpose of Web Security?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Web Security is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-rdwbg3iui6ipgp0shvxtg-mcq-2",
+        "question": "Why is Web Security important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Web Security enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-rdwbg3iui6ipgp0shvxtg-mcq-1",
+        "question": "What is a primary principle of Web Security?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Web Security is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-rdwbg3iui6ipgp0shvxtg-mcq-2",
+        "question": "Why do technical interviews assess Web Security?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Web Security to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack",
+      "backend",
+      "devops-architect",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": "backend-tz0bwoenpv6pqm8qyb8ow",
+    "title": "Server Security",
+    "category": "SECURITY",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "Server security protects servers from threats through patch management, access control, firewalls, encryption, security hardening, regular b...",
+    "explanation": {
+      "overview": "Server security protects servers from threats through patch management, access control, firewalls, encryption, security hardening, regular backups, and monitoring. Ensures confidentiality, integrity, and availability of data and services with continuous threat detection and response.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Server security protects servers from threats through patch management, access control, firewalls, encryption, security hardening, regular backups, and monitoring. Ensures confidentiality, integrity, and availability of data and services with continuous threat detection and response.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Server Security as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Server Security Reference",
+        "description": "Core code snippet demonstrating Server Security.",
+        "code": "// Server Security Implementation\nconsole.log('Practicing Server Security on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-tz0bwoenpv6pqm8qyb8ow-mcq-1",
+        "question": "What is a primary principle of Server Security?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Server Security is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-tz0bwoenpv6pqm8qyb8ow-mcq-2",
+        "question": "Why do technical interviews assess Server Security?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Server Security to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": "backend-yrijgjjv2s1uv9vgo3n8m",
+    "title": "Basic Authentication",
+    "category": "SECURITY",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "Basic Authentication sends base64-encoded username:password in HTTP headers. Simple to implement but insecure since base64 is easily decoded...",
+    "explanation": {
+      "overview": "Basic Authentication sends base64-encoded username:password in HTTP headers. Simple to implement but insecure since base64 is easily decoded. Should only be used over HTTPS for credential protection. Best for low-risk scenarios or fallback mechanisms.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Basic Authentication sends base64-encoded username:password in HTTP headers. Simple to implement but insecure since base64 is easily decoded. Should only be used over HTTPS for credential protection. Best for low-risk scenarios or fallback mechanisms.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Basic Authentication as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Basic Authentication Reference",
+        "description": "Core code snippet demonstrating Basic Authentication.",
+        "code": "// Basic Authentication Implementation\nconsole.log('Practicing Basic Authentication on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-yrijgjjv2s1uv9vgo3n8m-mcq-1",
+        "question": "What is a primary principle of Basic Authentication?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Basic Authentication is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-yrijgjjv2s1uv9vgo3n8m-mcq-2",
+        "question": "Why do technical interviews assess Basic Authentication?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Basic Authentication to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": "backend-0rgj7fthljzousquhnqgw",
+    "title": "Token Authentication",
+    "category": "SECURITY",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "Token-based authentication verifies user identity and provides unique access tokens. Users access protected resources without re-entering cr...",
+    "explanation": {
+      "overview": "Token-based authentication verifies user identity and provides unique access tokens. Users access protected resources without re-entering credentials while token remains valid. Works like stamped tickets, invalidated on logout. Offers second security layer with detailed administrative control.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Token-based authentication verifies user identity and provides unique access tokens. Users access protected resources without re-entering credentials while token remains valid. Works like stamped tickets, invalidated on logout. Offers second security layer with detailed administrative control.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Token Authentication as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Token Authentication Reference",
+        "description": "Core code snippet demonstrating Token Authentication.",
+        "code": "// Token Authentication Implementation\nconsole.log('Practicing Token Authentication on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-0rgj7fthljzousquhnqgw-mcq-1",
+        "question": "What is a primary principle of Token Authentication?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Token Authentication is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-0rgj7fthljzousquhnqgw-mcq-2",
+        "question": "Why do technical interviews assess Token Authentication?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Token Authentication to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": "backend-vp-muizdiccmu0gn8zmks",
+    "title": "OAuth",
+    "category": "SECURITY",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "OAuth is an open authorization standard allowing third-party applications to access user resources without exposing credentials. Uses access...",
+    "explanation": {
+      "overview": "OAuth is an open authorization standard allowing third-party applications to access user resources without exposing credentials. Uses access tokens issued after user permission, involving the resource owner, the resource server, and the authorization server. Enables secure token-based access management for services.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "OAuth is an open authorization standard allowing third-party applications to access user resources without exposing credentials. Uses access tokens issued after user permission, involving the resource owner, the resource server, and the authorization server. Enables secure token-based access management for services.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master OAuth as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "OAuth Reference",
+        "description": "Core code snippet demonstrating OAuth.",
+        "code": "// OAuth Implementation\nconsole.log('Practicing OAuth on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-vp-muizdiccmu0gn8zmks-mcq-1",
+        "question": "What is a primary principle of OAuth?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "OAuth is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-vp-muizdiccmu0gn8zmks-mcq-2",
+        "question": "Why do technical interviews assess OAuth?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use OAuth to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": "backend-ffzsh8-5yrq85trft9xhk",
+    "title": "Cookie Based Auth",
+    "category": "SECURITY",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "Cookie-based authentication maintains user sessions by storing session IDs in browser cookies. Server stores session data and uses cookies a...",
+    "explanation": {
+      "overview": "Cookie-based authentication maintains user sessions by storing session IDs in browser cookies. Server stores session data and uses cookies as keys. Simple to implement and browser-native, but vulnerable to CSRF attacks and challenging for cross-origin requests.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Cookie-based authentication maintains user sessions by storing session IDs in browser cookies. Server stores session data and uses cookies as keys. Simple to implement and browser-native, but vulnerable to CSRF attacks and challenging for cross-origin requests.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Cookie Based Auth as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Cookie Based Auth Reference",
+        "description": "Core code snippet demonstrating Cookie Based Auth.",
+        "code": "// Cookie Based Auth Implementation\nconsole.log('Practicing Cookie Based Auth on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-ffzsh8-5yrq85trft9xhk-mcq-1",
+        "question": "What is a primary principle of Cookie Based Auth?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Cookie Based Auth is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-ffzsh8-5yrq85trft9xhk-mcq-2",
+        "question": "Why do technical interviews assess Cookie Based Auth?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Cookie Based Auth to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": "data-engineer-hdvhttlnmlmiaveobcoq3",
+    "title": "Authentication vs Authorization",
+    "category": "SECURITY",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "Authentication and authorization are popular terms in modern computer systems that often confuse people. **Authentication** is the process o...",
+    "explanation": {
+      "overview": "Authentication and authorization are popular terms in modern computer systems that often confuse people. **Authentication** is the process of confirming the identity of a user or a device (i.e., an entity). During the authentication process, an entity usually relies on some proof to authenticate itself, i.e. an authentication factor. In contrast to authentication, **authorization** refers to the process of verifying what resources entities (users or devices) can access, or what actions they can perform, i.e., their access rights.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Authentication and authorization are popular terms in modern computer systems that often confuse people. **Authentication** is the process of confirming the identity of a user or a device (i.e., an entity). During the authentication process, an entity usually relies on some proof to authenticate itself, i.e. an authentication factor. In contrast to authentication, **authorization** refers to the process of verifying what resources entities (users or devices) can access, or what actions they can perform, i.e., their access rights.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Authentication vs Authorization as outlined in roadmap.sh data-engineer track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Authentication vs Authorization Reference",
+        "description": "Core code snippet demonstrating Authentication vs Authorization.",
+        "code": "// Authentication vs Authorization Implementation\nconsole.log('Practicing Authentication vs Authorization on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-engineer-hdvhttlnmlmiaveobcoq3-mcq-1",
+        "question": "What is a primary principle of Authentication vs Authorization?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Authentication vs Authorization is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-hdvhttlnmlmiaveobcoq3-mcq-2",
+        "question": "Why do technical interviews assess Authentication vs Authorization?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Authentication vs Authorization to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-engineer",
+      "backend",
+      "fullstack"
     ]
   }
 ]

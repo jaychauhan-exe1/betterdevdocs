@@ -1,5 +1,171 @@
 [
   {
+    "id": "react-performance",
+    "title": "Performance",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "Profiling React apps, identifying waste renders, key prop rules, windowing/virtualization (react-window).",
+    "explanation": {
+      "overview": "React performance optimization eliminates wasteful component re-renders and reduces DOM element counts using profiling tools and list virtualization.",
+      "sections": [
+        {
+          "heading": "Identifying Waste Renders & React DevTools",
+          "content": "Waste renders occur when components execute render functions without producing visible DOM updates. Use React DevTools Profiler tab to record render timings and component re-render reasons.",
+          "bulletPoints": [
+            "Profiler Tab: Visualizes flame graphs and commit render durations.",
+            "Highlight Updates: Highlights components on screen when re-rendering.",
+            "Common Causes: Unstable prop object references, parent re-renders."
+          ]
+        },
+        {
+          "heading": "List Virtualization (Windowing)",
+          "content": "Rendering thousands of DOM nodes causes severe UI lag. Virtualization libraries (`react-window`, `react-virtualized`) render ONLY DOM nodes visible inside current viewport window.",
+          "bulletPoints": [
+            "Viewport Windowing: Render 20 items visible on screen out of 10,000 total dataset.",
+            "DOM Node Reduction: Keeps browser memory usage flat and scrolling smooth."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use React DevTools Profiler to identify waste re-renders.",
+      "Use list virtualization (`react-window`) for long datasets.",
+      "Optimize state placement to prevent top-level tree re-renders."
+    ],
+    "codeExamples": [
+      {
+        "title": "List Virtualization Concept",
+        "description": "Virtualizing large dataset rendering using react-window.",
+        "code": "import { FixedSizeList as List } from 'react-window';\n\nconst items = Array.from({ length: 10000 }, (_, i) => `Item #${i + 1}`);\n\nexport function VirtualizedList() {\n  return (\n    // Only renders ~10 DOM items visible inside 400px window height!\n    <List height={400} itemCount={items.length} itemSize={35} width={300}>\n      {({ index, style }) => <div style={style}>{items[index]}</div>}\n    </List>\n  );\n}"
+      },
+      {
+        "title": "Performance Example",
+        "description": "Code example illustrating Performance usage.",
+        "code": "// Performance Demonstration\nconsole.log('Mastering Performance on DevDocs');"
+      },
+      {
+        "title": "Performance Reference",
+        "description": "Core code snippet demonstrating Performance.",
+        "code": "// Performance Implementation\nconsole.log('Practicing Performance on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "react-performance-mcq-1",
+        "question": "What is a 'waste render' in React?",
+        "options": [
+          "A component throwing an error",
+          "A component re-rendering when its rendered DOM output remains unchanged",
+          "Unused CSS rule",
+          "Failed API call"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Waste render occurs when render phase calculates Virtual DOM that results in zero real DOM changes."
+      },
+      {
+        "id": "react-performance-mcq-2",
+        "question": "What technique does 'List Virtualization' (Windowing) use to optimize rendering 50,000 items?",
+        "options": [
+          "Loads items in Web Worker",
+          "Renders ONLY items visible within current container viewport DOM window",
+          "Compiles items to Canvas",
+          "Paginates backend"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Virtualization renders only visible items in DOM, recycling container nodes as user scrolls."
+      },
+      {
+        "id": "react-performance-mcq-3",
+        "question": "Which browser extension tool visualizes React component render durations and re-render triggers?",
+        "options": [
+          "Network Tab",
+          "React DevTools Profiler",
+          "Redux DevTools",
+          "Lighthouse"
+        ],
+        "correctAnswer": 1,
+        "explanation": "React DevTools Profiler records flamegraphs of component render timing and state/prop update triggers."
+      },
+      {
+        "id": "react-performance-mcq-4",
+        "question": "How does lifting state UP too high in component tree impact render performance?",
+        "options": [
+          "Improves performance",
+          "Forces entire component subtree below state provider to re-render whenever state changes",
+          "Causes CSS corruption",
+          "Deletes props"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Lifting state high causes all descendant child components to re-render when state updates."
+      },
+      {
+        "id": "react-performance-mcq-5",
+        "question": "What benefit does moving state DOWN to localized leaf components provide?",
+        "options": [
+          "Reduces state sizes",
+          "Isolates re-renders to only leaf components that require updated state",
+          "Disables hooks",
+          "Accelerates bundle downloads"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Pushing state down prevents parent and sibling components from re-rendering on local state changes."
+      },
+      {
+        "id": "rf-6d8cjwz4buujwt0seiuzj-mcq-1",
+        "question": "What is the primary purpose of Performance?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Performance is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-6d8cjwz4buujwt0seiuzj-mcq-2",
+        "question": "Why is Performance important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Performance enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-6d8cjwz4buujwt0seiuzj-mcq-1",
+        "question": "What is a primary principle of Performance?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Performance is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-6d8cjwz4buujwt0seiuzj-mcq-2",
+        "question": "Why do technical interviews assess Performance?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Performance to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
     "id": "react-components",
     "title": "Components",
     "category": "REACT",
@@ -100,6 +266,10 @@
         "correctAnswer": 1,
         "explanation": "Presentational components focus purely on rendering UI based on props without managing complex async state."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -205,6 +375,10 @@
         "correctAnswer": 0,
         "explanation": "Logical AND `{ condition && <Element /> }` renders `<Element />` if `condition` evaluates to true."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -309,6 +483,10 @@
         "correctAnswer": 1,
         "explanation": "Modern React uses standard ES6 destructured parameter defaults directly in component signature."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -413,6 +591,10 @@
         "correctAnswer": 1,
         "explanation": "Array state must be updated immutably using spread `[...items, newItem]` to create a new array reference."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -517,6 +699,10 @@
         "correctAnswer": 1,
         "explanation": "React Rules of Hooks mandate calling hooks at top level unconditionally to preserve hook call order."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -620,6 +806,10 @@
         "correctAnswer": 2,
         "explanation": "Checkbox input elements use boolean `e.target.checked` property."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -724,6 +914,10 @@
         "correctAnswer": 1,
         "explanation": "Calling `abort()` in effect cleanup cancels pending network requests if component unmounts mid-fetch."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -828,6 +1022,10 @@
         "correctAnswer": 1,
         "explanation": "Un-memoized functional components re-render whenever parent re-renders regardless of prop equivalence."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -933,6 +1131,10 @@
         "correctAnswer": 1,
         "explanation": "Uncontrolled inputs bypass React state update pipeline, avoiding component re-renders per keystroke."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -1037,6 +1239,10 @@
         "correctAnswer": 1,
         "explanation": "Reading/writing refs during render phase violates component render purity; access refs in effects or event handlers."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -1141,6 +1347,10 @@
         "correctAnswer": 1,
         "explanation": "`defaultValue` is fallback used only if component consumes context outside matching Provider tree."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -1245,6 +1455,10 @@
         "correctAnswer": 1,
         "explanation": "Custom hooks decouple stateful business logic from UI view code."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -1349,6 +1563,10 @@
         "correctAnswer": 1,
         "explanation": "`React.memo` skips renders triggered by parent updates, but component still re-renders on its own state/context changes."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -1452,6 +1670,10 @@
         "correctAnswer": 1,
         "explanation": "`useMemo` returns the evaluated result of its callback function."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -1555,6 +1777,10 @@
         "correctAnswer": 1,
         "explanation": "`useCallback` has allocation cost; using it without memoized receiver components adds unnecessary overhead."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -1658,6 +1884,10 @@
         "correctAnswer": 1,
         "explanation": "Route-level code splitting ensures users download code only for pages they actually visit."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -1763,6 +1993,10 @@
         "correctAnswer": 1,
         "explanation": "Next.js is the leading React framework for Server-Side Rendering and static site generation."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -1866,110 +2100,10 @@
         "correctAnswer": 2,
         "explanation": "Keys need to be unique only among immediate sibling elements in mapped array."
       }
-    ]
-  },
-  {
-    "id": "react-performance",
-    "title": "Performance",
-    "category": "REACT",
-    "difficulty": "Advanced",
-    "isImportant": true,
-    "summary": "Profiling React apps, identifying waste renders, key prop rules, windowing/virtualization (react-window).",
-    "explanation": {
-      "overview": "React performance optimization eliminates wasteful component re-renders and reduces DOM element counts using profiling tools and list virtualization.",
-      "sections": [
-        {
-          "heading": "Identifying Waste Renders & React DevTools",
-          "content": "Waste renders occur when components execute render functions without producing visible DOM updates. Use React DevTools Profiler tab to record render timings and component re-render reasons.",
-          "bulletPoints": [
-            "Profiler Tab: Visualizes flame graphs and commit render durations.",
-            "Highlight Updates: Highlights components on screen when re-rendering.",
-            "Common Causes: Unstable prop object references, parent re-renders."
-          ]
-        },
-        {
-          "heading": "List Virtualization (Windowing)",
-          "content": "Rendering thousands of DOM nodes causes severe UI lag. Virtualization libraries (`react-window`, `react-virtualized`) render ONLY DOM nodes visible inside current viewport window.",
-          "bulletPoints": [
-            "Viewport Windowing: Render 20 items visible on screen out of 10,000 total dataset.",
-            "DOM Node Reduction: Keeps browser memory usage flat and scrolling smooth."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Use React DevTools Profiler to identify waste re-renders.",
-      "Use list virtualization (`react-window`) for long datasets.",
-      "Optimize state placement to prevent top-level tree re-renders."
     ],
-    "codeExamples": [
-      {
-        "title": "List Virtualization Concept",
-        "description": "Virtualizing large dataset rendering using react-window.",
-        "code": "import { FixedSizeList as List } from 'react-window';\n\nconst items = Array.from({ length: 10000 }, (_, i) => `Item #${i + 1}`);\n\nexport function VirtualizedList() {\n  return (\n    // Only renders ~10 DOM items visible inside 400px window height!\n    <List height={400} itemCount={items.length} itemSize={35} width={300}>\n      {({ index, style }) => <div style={style}>{items[index]}</div>}\n    </List>\n  );\n}"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "react-performance-mcq-1",
-        "question": "What is a 'waste render' in React?",
-        "options": [
-          "A component throwing an error",
-          "A component re-rendering when its rendered DOM output remains unchanged",
-          "Unused CSS rule",
-          "Failed API call"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Waste render occurs when render phase calculates Virtual DOM that results in zero real DOM changes."
-      },
-      {
-        "id": "react-performance-mcq-2",
-        "question": "What technique does 'List Virtualization' (Windowing) use to optimize rendering 50,000 items?",
-        "options": [
-          "Loads items in Web Worker",
-          "Renders ONLY items visible within current container viewport DOM window",
-          "Compiles items to Canvas",
-          "Paginates backend"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Virtualization renders only visible items in DOM, recycling container nodes as user scrolls."
-      },
-      {
-        "id": "react-performance-mcq-3",
-        "question": "Which browser extension tool visualizes React component render durations and re-render triggers?",
-        "options": [
-          "Network Tab",
-          "React DevTools Profiler",
-          "Redux DevTools",
-          "Lighthouse"
-        ],
-        "correctAnswer": 1,
-        "explanation": "React DevTools Profiler records flamegraphs of component render timing and state/prop update triggers."
-      },
-      {
-        "id": "react-performance-mcq-4",
-        "question": "How does lifting state UP too high in component tree impact render performance?",
-        "options": [
-          "Improves performance",
-          "Forces entire component subtree below state provider to re-render whenever state changes",
-          "Causes CSS corruption",
-          "Deletes props"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Lifting state high causes all descendant child components to re-render when state updates."
-      },
-      {
-        "id": "react-performance-mcq-5",
-        "question": "What benefit does moving state DOWN to localized leaf components provide?",
-        "options": [
-          "Reduces state sizes",
-          "Isolates re-renders to only leaf components that require updated state",
-          "Disables hooks",
-          "Accelerates bundle downloads"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Pushing state down prevents parent and sibling components from re-rendering on local state changes."
-      }
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -2073,6 +2207,10 @@
         "correctAnswer": 1,
         "explanation": "Module bundlers split JS code into distinct chunk files during build process."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   },
   {
@@ -2177,6 +2315,754 @@
         "correctAnswer": 1,
         "explanation": "`componentDidCatch` receives error details and component stack trace for logging to telemetry services."
       }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-k6rp6ua9quew-da-fog5u",
+    "title": "Angular",
+    "category": "REACT",
+    "difficulty": "Beginner",
+    "isImportant": false,
+    "summary": "Angular is a popular tool from Google for building websites and web apps. It uses TypeScript (a type of JavaScript) to create large, efficie...",
+    "explanation": {
+      "overview": "Angular is a popular tool from Google for building websites and web apps. It uses TypeScript (a type of JavaScript) to create large, efficient single-page applications (SPAs), where content loads in one go without needing to reload the whole page. Angular builds UIs with reusable components, like building blocks. It has features like two-way data binding (data updates automatically in different places), dependency injection (helps manage code parts), and a strong template system. Angular also offers tools for testing, page navigation, and managing app data, making it great for big, complex projects.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "Angular is a popular tool from Google for building websites and web apps. It uses TypeScript (a type of JavaScript) to create large, efficient single-page applications (SPAs), where content loads in one go without needing to reload the whole page. Angular builds UIs with reusable components, like building blocks. It has features like two-way data binding (data updates automatically in different places), dependency injection (helps manage code parts), and a strong template system. Angular also offers tools for testing, page navigation, and managing app data, making it great for big, complex projects.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Angular as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Angular Example",
+        "description": "Code example illustrating Angular usage.",
+        "code": "// Angular Demonstration\nconsole.log('Mastering Angular on DevDocs');"
+      },
+      {
+        "title": "Angular Reference",
+        "description": "Core code snippet demonstrating Angular.",
+        "code": "// Angular Implementation\nconsole.log('Practicing Angular on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-k6rp6ua9quew-da-fog5u-mcq-1",
+        "question": "What is the primary purpose of Angular?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Angular is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-k6rp6ua9quew-da-fog5u-mcq-2",
+        "question": "Why is Angular important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Angular enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-k6rp6ua9quew-da-fog5u-mcq-1",
+        "question": "What is a primary principle of Angular?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Angular is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-k6rp6ua9quew-da-fog5u-mcq-2",
+        "question": "Why do technical interviews assess Angular?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Angular to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-eradwl1g9m1bnx-fom5za",
+    "title": "Vue.js",
+    "category": "REACT",
+    "difficulty": "Beginner",
+    "isImportant": false,
+    "summary": "Vue.js is a JavaScript framework for building website interfaces. It's easy to start with and can be added to projects bit by bit. Vue uses ...",
+    "explanation": {
+      "overview": "Vue.js is a JavaScript framework for building website interfaces. It's easy to start with and can be added to projects bit by bit. Vue uses templates and a virtual DOM (a lightweight copy of the real page) to show things on screen efficiently. It has a system of reusable components, making code organized. While Vue mainly handles what users see, it works well with other tools for things like managing data or page navigation. It's known for being easy to learn, flexible, and fast, making it popular for all kinds of projects.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "Vue.js is a JavaScript framework for building website interfaces. It's easy to start with and can be added to projects bit by bit. Vue uses templates and a virtual DOM (a lightweight copy of the real page) to show things on screen efficiently. It has a system of reusable components, making code organized. While Vue mainly handles what users see, it works well with other tools for things like managing data or page navigation. It's known for being easy to learn, flexible, and fast, making it popular for all kinds of projects.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Vue.js as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Vue.js Example",
+        "description": "Code example illustrating Vue.js usage.",
+        "code": "// Vue.js Demonstration\nconsole.log('Mastering Vue.js on DevDocs');"
+      },
+      {
+        "title": "Vue.js Reference",
+        "description": "Core code snippet demonstrating Vue.js.",
+        "code": "// Vue.js Implementation\nconsole.log('Practicing Vue.js on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-eradwl1g9m1bnx-fom5za-mcq-1",
+        "question": "What is the primary purpose of Vue.js?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Vue.js is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-eradwl1g9m1bnx-fom5za-mcq-2",
+        "question": "Why is Vue.js important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Vue.js enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-eradwl1g9m1bnx-fom5za-mcq-1",
+        "question": "What is a primary principle of Vue.js?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Vue.js is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-eradwl1g9m1bnx-fom5za-mcq-2",
+        "question": "Why do technical interviews assess Vue.js?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Vue.js to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-tg5v3o4lnifc2ucnacpak",
+    "title": "React",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "React is a JavaScript tool from Facebook for building UIs, especially for single-page apps. It lets you create reusable UI parts that update...",
+    "explanation": {
+      "overview": "React is a JavaScript tool from Facebook for building UIs, especially for single-page apps. It lets you create reusable UI parts that update when data changes. React uses a virtual DOM for speed and has a one-way data flow. This component style makes code neat and reusable. React also works with tools like Redux for data management and React Native for mobile apps. It's popular because it's clear, fast, and has a big community.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "React is a JavaScript tool from Facebook for building UIs, especially for single-page apps. It lets you create reusable UI parts that update when data changes. React uses a virtual DOM for speed and has a one-way data flow. This component style makes code neat and reusable. React also works with tools like Redux for data management and React Native for mobile apps. It's popular because it's clear, fast, and has a big community.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master React as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "React Example",
+        "description": "Code example illustrating React usage.",
+        "code": "// React Demonstration\nconsole.log('Mastering React on DevDocs');"
+      },
+      {
+        "title": "React Reference",
+        "description": "Core code snippet demonstrating React.",
+        "code": "// React Implementation\nconsole.log('Practicing React on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-tg5v3o4lnifc2ucnacpak-mcq-1",
+        "question": "What is the primary purpose of React?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "React is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-tg5v3o4lnifc2ucnacpak-mcq-2",
+        "question": "Why is React important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding React enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-tg5v3o4lnifc2ucnacpak-mcq-1",
+        "question": "What is a primary principle of React?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "React is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-tg5v3o4lnifc2ucnacpak-mcq-2",
+        "question": "Why do technical interviews assess React?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use React to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-zr-qz2lcbu3ftqamd3wm4",
+    "title": "Svelte",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "Svelte is a JavaScript tool for building UIs. Unlike others, Svelte does its main work during build time, not in the browser. It turns your ...",
+    "explanation": {
+      "overview": "Svelte is a JavaScript tool for building UIs. Unlike others, Svelte does its main work during build time, not in the browser. It turns your code into small, fast, plain JavaScript. Svelte uses components and has a simple syntax, so you write less code. It includes features for managing data, styling, and animations. Because Svelte doesn't use a virtual DOM, pages load and update quickly. It's liked for its simplicity and speed.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "Svelte is a JavaScript tool for building UIs. Unlike others, Svelte does its main work during build time, not in the browser. It turns your code into small, fast, plain JavaScript. Svelte uses components and has a simple syntax, so you write less code. It includes features for managing data, styling, and animations. Because Svelte doesn't use a virtual DOM, pages load and update quickly. It's liked for its simplicity and speed.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Svelte as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Svelte Example",
+        "description": "Code example illustrating Svelte usage.",
+        "code": "// Svelte Demonstration\nconsole.log('Mastering Svelte on DevDocs');"
+      },
+      {
+        "title": "Svelte Reference",
+        "description": "Core code snippet demonstrating Svelte.",
+        "code": "// Svelte Implementation\nconsole.log('Practicing Svelte on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-zr-qz2lcbu3ftqamd3wm4-mcq-1",
+        "question": "What is the primary purpose of Svelte?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Svelte is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-zr-qz2lcbu3ftqamd3wm4-mcq-2",
+        "question": "Why is Svelte important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Svelte enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-zr-qz2lcbu3ftqamd3wm4-mcq-1",
+        "question": "What is a primary principle of Svelte?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Svelte is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-zr-qz2lcbu3ftqamd3wm4-mcq-2",
+        "question": "Why do technical interviews assess Svelte?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Svelte to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-kjrkrfziihcubrof579eu",
+    "title": "react-router",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "React Router enables client-side routing in React applications, creating single-page apps with multiple views. Handles URL management, provi...",
+    "explanation": {
+      "overview": "React Router enables client-side routing in React applications, creating single-page apps with multiple views. Handles URL management, provides route definition components, and supports lazy loading and route guards. The standard navigation solution for React applications.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "React Router enables client-side routing in React applications, creating single-page apps with multiple views. Handles URL management, provides route definition components, and supports lazy loading and route guards. The standard navigation solution for React applications.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master react-router as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "react-router Example",
+        "description": "Code example illustrating react-router usage.",
+        "code": "// react-router Demonstration\nconsole.log('Mastering react-router on DevDocs');"
+      },
+      {
+        "title": "react-router Reference",
+        "description": "Core code snippet demonstrating react-router.",
+        "code": "// react-router Implementation\nconsole.log('Practicing react-router on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-kjrkrfziihcubrof579eu-mcq-1",
+        "question": "What is the primary purpose of react-router?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "react-router is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-kjrkrfziihcubrof579eu-mcq-2",
+        "question": "Why is react-router important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding react-router enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-kjrkrfziihcubrof579eu-mcq-1",
+        "question": "What is a primary principle of react-router?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "react-router is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-kjrkrfziihcubrof579eu-mcq-2",
+        "question": "Why do technical interviews assess react-router?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use react-router to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-p4st-telfcwklsau2wsqp",
+    "title": "SvelteKit",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "SvelteKit is a full-stack framework for building websites and applications with Svelte. Features file-based routing, code splitting, server-...",
+    "explanation": {
+      "overview": "SvelteKit is a full-stack framework for building websites and applications with Svelte. Features file-based routing, code splitting, server-side rendering, and static site generation. Designed for simplicity and performance with excellent developer experience and easy deployment options.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "SvelteKit is a full-stack framework for building websites and applications with Svelte. Features file-based routing, code splitting, server-side rendering, and static site generation. Designed for simplicity and performance with excellent developer experience and easy deployment options.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master SvelteKit as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "SvelteKit Example",
+        "description": "Code example illustrating SvelteKit usage.",
+        "code": "// SvelteKit Demonstration\nconsole.log('Mastering SvelteKit on DevDocs');"
+      },
+      {
+        "title": "SvelteKit Reference",
+        "description": "Core code snippet demonstrating SvelteKit.",
+        "code": "// SvelteKit Implementation\nconsole.log('Practicing SvelteKit on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-p4st-telfcwklsau2wsqp-mcq-1",
+        "question": "What is the primary purpose of SvelteKit?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "SvelteKit is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-p4st-telfcwklsau2wsqp-mcq-2",
+        "question": "Why is SvelteKit important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding SvelteKit enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-p4st-telfcwklsau2wsqp-mcq-1",
+        "question": "What is a primary principle of SvelteKit?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "SvelteKit is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-p4st-telfcwklsau2wsqp-mcq-2",
+        "question": "Why do technical interviews assess SvelteKit?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use SvelteKit to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-cmrss8e2w0ea6dveqtpjt",
+    "title": "Vuepress",
+    "category": "REACT",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "VuePress is a Vue.js-powered static site generator optimized for documentation. Creates fast, SEO-friendly sites with Vue-based theming, syn...",
+    "explanation": {
+      "overview": "VuePress is a Vue.js-powered static site generator optimized for documentation. Creates fast, SEO-friendly sites with Vue-based theming, syntax highlighting, and Markdown support with Vue components. Features built-in search, responsive layouts, and plugin/theme customization. Ideal for documentation and simple websites.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "VuePress is a Vue.js-powered static site generator optimized for documentation. Creates fast, SEO-friendly sites with Vue-based theming, syntax highlighting, and Markdown support with Vue components. Features built-in search, responsive layouts, and plugin/theme customization. Ideal for documentation and simple websites.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Vuepress as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "Vuepress Example",
+        "description": "Code example illustrating Vuepress usage.",
+        "code": "// Vuepress Demonstration\nconsole.log('Mastering Vuepress on DevDocs');"
+      },
+      {
+        "title": "Vuepress Reference",
+        "description": "Core code snippet demonstrating Vuepress.",
+        "code": "// Vuepress Implementation\nconsole.log('Practicing Vuepress on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-cmrss8e2w0ea6dveqtpjt-mcq-1",
+        "question": "What is the primary purpose of Vuepress?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Vuepress is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-cmrss8e2w0ea6dveqtpjt-mcq-2",
+        "question": "Why is Vuepress important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding Vuepress enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-cmrss8e2w0ea6dveqtpjt-mcq-1",
+        "question": "What is a primary principle of Vuepress?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Vuepress is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-cmrss8e2w0ea6dveqtpjt-mcq-2",
+        "question": "Why do technical interviews assess Vuepress?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Vuepress to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "rf-dstegxtyupjs8iu6i7xiv",
+    "title": "React Native",
+    "category": "REACT",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "React Native enables building native mobile apps for iOS and Android using JavaScript and React. Compiles to native components for authentic...",
+    "explanation": {
+      "overview": "React Native enables building native mobile apps for iOS and Android using JavaScript and React. Compiles to native components for authentic look and performance. Features code sharing, hot reloading, and device API access. Ideal for React developers transitioning to mobile development.",
+      "sections": [
+        {
+          "heading": "Overview & Key Principles",
+          "content": "React Native enables building native mobile apps for iOS and Android using JavaScript and React. Compiles to native components for authentic look and performance. Features code sharing, hot reloading, and device API access. Ideal for React developers transitioning to mobile development.",
+          "bulletPoints": [
+            "Essential concept for modern web developers",
+            "Directly tested in frontend engineering interviews",
+            "Improves application structure and user experience"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master React Native as outlined in roadmap.sh guidelines.",
+      "Understand real-world browser execution and performance trade-offs.",
+      "Apply industry best practices for responsive, accessible web apps."
+    ],
+    "codeExamples": [
+      {
+        "title": "React Native Example",
+        "description": "Code example illustrating React Native usage.",
+        "code": "// React Native Demonstration\nconsole.log('Mastering React Native on DevDocs');"
+      },
+      {
+        "title": "React Native Reference",
+        "description": "Core code snippet demonstrating React Native.",
+        "code": "// React Native Implementation\nconsole.log('Practicing React Native on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "rf-dstegxtyupjs8iu6i7xiv-mcq-1",
+        "question": "What is the primary purpose of React Native?",
+        "options": [
+          "To build scalable and efficient frontend applications",
+          "To configure database connections",
+          "To replace server hardware",
+          "To compile native C++ binaries"
+        ],
+        "correctAnswer": 0,
+        "explanation": "React Native is a key topic in the frontend developer curriculum."
+      },
+      {
+        "id": "rf-dstegxtyupjs8iu6i7xiv-mcq-2",
+        "question": "Why is React Native important for web developers?",
+        "options": [
+          "It is required for modern web performance and architecture",
+          "It disables browser security policies",
+          "It eliminates the need for HTML markup",
+          "It restricts CSS styling"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Understanding React Native enables developers to write clean, maintainable code."
+      },
+      {
+        "id": "frontend-dstegxtyupjs8iu6i7xiv-mcq-1",
+        "question": "What is a primary principle of React Native?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "React Native is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "frontend-dstegxtyupjs8iu6i7xiv-mcq-2",
+        "question": "Why do technical interviews assess React Native?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use React Native to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "frontend",
+      "fullstack"
     ]
   }
 ]

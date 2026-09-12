@@ -29,13 +29,12 @@ export async function GET() {
         .select("*")
         .order("sort_order", { ascending: true });
 
-      if (!error && Array.isArray(data) && data.length > 0) {
+      if (!error && Array.isArray(data) && data.length >= TOPICS.length) {
         const topics: Topic[] = data.map((row: any) => ({
           id: row.id,
           title: row.title,
           category: row.category,
           difficulty: row.difficulty,
-          estimatedTime: row.estimated_time,
           isImportant: row.is_important ?? false,
           summary: row.summary,
           explanation: row.explanation,

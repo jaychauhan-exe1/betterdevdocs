@@ -9,6 +9,7 @@ interface VSCodeEditorProps {
   value: string;
   onChange: (val: string) => void;
   fileName?: string;
+  language?: string;
   onRun?: () => void;
   onSubmit?: () => void;
   isRunning?: boolean;
@@ -22,6 +23,7 @@ export default function VSCodeEditor({
   value,
   onChange,
   fileName = "solution.js",
+  language,
   onRun,
   onSubmit,
   isRunning = false,
@@ -31,6 +33,10 @@ export default function VSCodeEditor({
   minHeight = "360px",
 }: VSCodeEditorProps) {
   const [copied, setCopied] = useState(false);
+
+  const effectiveLanguage =
+    language ||
+    (fileName.endsWith(".html") ? "html" : fileName.endsWith(".css") ? "css" : "javascript");
 
   const handleCopy = () => {
     navigator.clipboard.writeText(value);
@@ -49,6 +55,9 @@ export default function VSCodeEditor({
         { token: "number", foreground: "b5cea8" },
         { token: "comment", foreground: "6a9955", fontStyle: "italic" },
         { token: "function", foreground: "dcdcaa" },
+        { token: "tag", foreground: "569cd6" },
+        { token: "attribute.name", foreground: "9cdcfe" },
+        { token: "attribute.value", foreground: "ce9178" },
       ],
       colors: {
         "editor.background": "#0a0a0a",
@@ -156,7 +165,7 @@ export default function VSCodeEditor({
       <div className="w-full relative bg-[#0a0a0a]" style={{ height: minHeight }}>
         <Editor
           height={minHeight}
-          defaultLanguage="javascript"
+          language={effectiveLanguage}
           theme="vs-dark"
           value={value}
           onChange={(val) => onChange(val || "")}

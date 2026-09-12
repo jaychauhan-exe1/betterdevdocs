@@ -25,6 +25,8 @@ import {
   Layers,
   Cpu,
   Binary,
+  FileCode,
+  Sparkles,
 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
@@ -34,6 +36,7 @@ import { triggerHaptic } from "@/lib/haptics";
 import { usePathname, useRouter } from "next/navigation";
 
 const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
+  "HTML & CSS": <FileCode className="w-4 h-4 text-muted-foreground" />,
   JAVASCRIPT: <Code2 className="w-4 h-4 text-muted-foreground" />,
   REACT: <Zap className="w-4 h-4 text-muted-foreground" />,
   NODE: <Server className="w-4 h-4 text-muted-foreground" />,
@@ -67,13 +70,14 @@ export default function Sidebar() {
   const setFilterState = useStudyStore((state) => state.setFilterState);
   const collapsedCategories = useStudyStore((state) => state.collapsedCategories);
   const toggleCategoryCollapsed = useStudyStore((state) => state.toggleCategoryCollapsed);
+  const isImportantOnly = useStudyStore((state) => state.isImportantOnly);
+  const toggleImportantOnly = useStudyStore((state) => state.toggleImportantOnly);
+
+  const getRoleFilteredTopics = useStudyStore((state) => state.getRoleFilteredTopics);
 
   const roleTopics = useMemo(() => {
-    if (!selectedRole || selectedRole === "all") return topics;
-    const roleDef = ROLES.find((r) => r.id === selectedRole);
-    if (!roleDef) return topics;
-    return topics.filter((t) => roleDef.categories.includes(t.category));
-  }, [topics, selectedRole]);
+    return getRoleFilteredTopics();
+  }, [topics, selectedRole, isImportantOnly, getRoleFilteredTopics]);
 
   const categories = Array.from(new Set(roleTopics.map((t) => t.category))) as CategoryType[];
 
@@ -200,11 +204,10 @@ export default function Sidebar() {
               router.push("/coding");
               setSidebarOpen(false);
             }}
-            className={`p-3.5 rounded-2xl border flex items-center justify-between font-normal cursor-pointer transition-all hover:bg-secondary/80 active:scale-[0.99] ${
-              isCodingPage
+            className={`p-3.5 rounded-2xl border flex items-center justify-between font-normal cursor-pointer transition-all hover:bg-secondary/80 active:scale-[0.99] ${isCodingPage
                 ? "bg-secondary border-foreground/60 text-foreground shadow-sm"
                 : "bg-secondary/50 border-border text-foreground hover:border-foreground/40"
-            }`}
+              }`}
             role="button"
             tabIndex={0}
             title="Click to view Coding Arena"
@@ -244,8 +247,41 @@ export default function Sidebar() {
             )}
           </div>
 
+          {/* Important Topics Only Toggle - Strict Monochrome */}
+          <button
+            type="button"
+            onClick={() => {
+              triggerHaptic("medium");
+              toggleImportantOnly();
+            }}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
+              isImportantOnly
+                ? "bg-secondary text-foreground border-foreground/40 shadow-sm"
+                : "bg-secondary/30 text-muted-foreground border-border hover:bg-secondary/60 hover:text-foreground"
+            }`}
+            title="Toggle to show only important topics"
+          >
+            <div className="flex items-center gap-2">
+              <Sparkles className={`w-3.5 h-3.5 ${isImportantOnly ? "text-foreground fill-foreground/20" : "text-muted-foreground"}`} />
+              <span>Important Topics Only</span>
+            </div>
+            <div
+              className={`w-8 h-4.5 rounded-full p-0.5 transition-colors flex items-center ${
+                isImportantOnly ? "bg-foreground justify-end" : "bg-zinc-800 border border-zinc-700 justify-start"
+              }`}
+            >
+              <motion.div
+                layout
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                className={`w-3.5 h-3.5 rounded-full shadow-xs ${
+                  isImportantOnly ? "bg-background" : "bg-zinc-400"
+                }`}
+              />
+            </div>
+          </button>
+
           {/* Filter Pills */}
-          <div className="grid grid-cols-3 gap-1.5 pt-1 text-center font-normal">
+          <div className="grid grid-cols-3 gap-1.5 pt-0.5 text-center font-normal">
             <Button
               variant={filterState === "all" ? "default" : "outline"}
               size="sm"

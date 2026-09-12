@@ -1,109 +1,5 @@
 [
   {
-    "id": "redis-strings",
-    "title": "Strings",
-    "category": "REDIS",
-    "difficulty": "Beginner",
-    "isImportant": true,
-    "summary": "Basic key-value data type, 512MB limit, SET/GET, INCR/DECR atomic counters, and MSET/MGET.",
-    "explanation": {
-      "overview": "Redis Strings are the fundamental key-value building block in Redis, capable of storing text, serialized JSON, or binary data up to 512MB.",
-      "sections": [
-        {
-          "heading": "String Commands & Atomic Operations",
-          "content": "Core commands include `SET key val`, `GET key`, `MSET`, `MGET`, and atomic integer operations `INCR`, `DECR`, `INCRBY`.",
-          "bulletPoints": [
-            "`SET key val EX 60`: Sets string with 60-second TTL.",
-            "`INCR counter`: Atomically increments integer string by 1.",
-            "`MGET k1 k2`: Batch retrieves multiple keys in single roundtrip."
-          ]
-        },
-        {
-          "heading": "Bitmaps & Bit Operations",
-          "content": "Redis Strings support bit-level operations (`SETBIT`, `GETBIT`, `BITCOUNT`), enabling space-efficient binary tracking (e.g. daily active users).",
-          "bulletPoints": [
-            "Bitmaps: Tracks boolean flags across millions of users in kilobytes.",
-            "Bitcount: Counts set bits efficiently."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Strings hold text, JSON, or binary data up to 512MB.",
-      "`INCR`/`DECR` provide atomic thread-safe counters.",
-      "Use `MGET`/`MSET` to batch network roundtrips."
-    ],
-    "codeExamples": [
-      {
-        "title": "Redis String Commands",
-        "description": "Setting string with expiration and incrementing atomic counter.",
-        "code": "# Set key with 60s expiration\nSET user:session:1001 \"{\"userId\": 42}\" EX 60\n\n# Atomic counter increment\nINCR page:views:home\nINCRBY page:views:home 5\n\n# Get current counter value\nGET page:views:home"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "redis-strings-mcq-1",
-        "question": "What is maximum binary size limit for a single Redis String value?",
-        "options": [
-          "1MB",
-          "64MB",
-          "512MB",
-          "2GB"
-        ],
-        "correctAnswer": 2,
-        "explanation": "A single Redis String key can store up to 512MB of data."
-      },
-      {
-        "id": "redis-strings-mcq-2",
-        "question": "What property makes `INCR key` suitable for concurrent rate limit counters?",
-        "options": [
-          "Runs asynchronously",
-          "Atomic thread-safe execution in single-threaded Redis engine prevents race conditions",
-          "Deletes key on 0",
-          "Uses SSL"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Redis single-threaded execution guarantees `INCR` is atomic and safe against race conditions."
-      },
-      {
-        "id": "redis-strings-mcq-3",
-        "question": "Which command retrieves values for multiple string keys in a single network roundtrip?",
-        "options": [
-          "GETALL",
-          "MGET",
-          "MULTI-GET",
-          "FETCH"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`MGET key1 key2 key3` batch fetches values in single network roundtrip."
-      },
-      {
-        "id": "redis-strings-mcq-4",
-        "question": "How do you set a string key `user:token` to expire automatically after 300 seconds?",
-        "options": [
-          "SET user:token val EX 300",
-          "SET user:token val TTL 300",
-          "EXPIRE user:token val 300",
-          "SETTIME user:token 300"
-        ],
-        "correctAnswer": 0,
-        "explanation": "`SET key val EX 300` sets value and 300-second expiration atomically."
-      },
-      {
-        "id": "redis-strings-mcq-5",
-        "question": "What happens when `INCR counter` is called on a key that does NOT exist?",
-        "options": [
-          "Throws error",
-          "Redis initializes key to 0 then increments it to 1",
-          "Returns null",
-          "Ignores call"
-        ],
-        "correctAnswer": 1,
-        "explanation": "If key does not exist, Redis sets key to 0 before executing `INCR`, resulting in value 1."
-      }
-    ]
-  },
-  {
     "id": "redis-ttl",
     "title": "TTL",
     "category": "REDIS",
@@ -205,6 +101,13 @@
         "correctAnswer": 1,
         "explanation": "`PTTL key` returns remaining lifespan in milliseconds."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -309,6 +212,13 @@
         "correctAnswer": 0,
         "explanation": "`HDEL key field` removes specific field from hash."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -412,110 +322,13 @@
         "correctAnswer": 1,
         "explanation": "`LRANGE key start stop` returns range of list elements."
       }
-    ]
-  },
-  {
-    "id": "redis-sets",
-    "title": "Sets",
-    "category": "REDIS",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "Unordered collection of unique strings, SADD, SREM, SISMEMBER, SINTER, SUNION, SDIFF.",
-    "explanation": {
-      "overview": "Redis Sets are unordered collections of unique strings. Sets prevent duplicate elements and support mathematical set operations.",
-      "sections": [
-        {
-          "heading": "Set Commands & Uniqueness",
-          "content": "Core commands: `SADD key member`, `SREM key member`, `SISMEMBER key member`, `SMEMBERS key`, `SCARD key`.",
-          "bulletPoints": [
-            "Uniqueness: Adding duplicate member with `SADD` is ignored.",
-            "`SISMEMBER`: $O(1)$ lookup verifying membership presence.",
-            "`SCARD`: Returns total member count."
-          ]
-        },
-        {
-          "heading": "Set Operations (Intersection, Union, Difference)",
-          "content": "- `SINTER s1 s2`: Intersection (members present in ALL sets).\n- `SUNION s1 s2`: Union (combined unique members).\n- `SDIFF s1 s2`: Difference (members in s1 but NOT in s2).",
-          "bulletPoints": [
-            "Social Graph: Common friends (`SINTER user:1:friends user:2:friends`).",
-            "Tagging: Unique tags assigned to articles."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Redis Sets guarantee unique elements.",
-      "`SISMEMBER` checks member existence in $O(1)$ time.",
-      "Use `SINTER`, `SUNION`, `SDIFF` for set algebra."
     ],
-    "codeExamples": [
-      {
-        "title": "Redis Set Operations",
-        "description": "Adding members, checking membership, and finding common friends.",
-        "code": "# Add unique tags to article\nSADD article:100:tags \"redis\" \"database\" \"caching\"\nSADD article:100:tags \"redis\" # Duplicate ignored!\n\n# Check if member exists (O(1))\nSISMEMBER article:100:tags \"redis\" # Returns 1\n\n# Find common friends between user 1 and user 2\nSADD user:1:friends \"alice\" \"bob\" \"charlie\"\nSADD user:2:friends \"bob\" \"charlie\" \"david\"\nSINTER user:1:friends user:2:friends # Returns [\"bob\", \"charlie\"]"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "redis-sets-mcq-1",
-        "question": "What happens when `SADD mySet \"item\"` is executed twice with identical member string?",
-        "options": [
-          "Throws error",
-          "Item is added twice",
-          "Duplicate is ignored; set retains exactly one instance of member",
-          "Set is cleared"
-        ],
-        "correctAnswer": 2,
-        "explanation": "Redis Sets enforce element uniqueness; duplicates are ignored."
-      },
-      {
-        "id": "redis-sets-mcq-2",
-        "question": "Which command checks whether member `\"alice\"` exists in set `users` in $O(1)$ time?",
-        "options": [
-          "SCONTAINS users alice",
-          "SISMEMBER users alice",
-          "SGET users alice",
-          "SFIND users alice"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`SISMEMBER key member` checks member existence in constant $O(1)$ time."
-      },
-      {
-        "id": "redis-sets-mcq-3",
-        "question": "Which set operation returns members common to ALL target sets?",
-        "options": [
-          "SUNION",
-          "SDIFF",
-          "SINTER",
-          "SMERGE"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`SINTER key1 key2` calculates mathematical set intersection."
-      },
-      {
-        "id": "redis-sets-mcq-4",
-        "question": "Which command returns total count of elements in a Set?",
-        "options": [
-          "SLEN",
-          "SCARD",
-          "COUNT",
-          "SIZE"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`SCARD key` returns cardinality (element count) of a set."
-      },
-      {
-        "id": "redis-sets-mcq-5",
-        "question": "Which command pops and removes a random element from a Set?",
-        "options": [
-          "SPOP",
-          "SRANDMEMBER",
-          "SREM",
-          "SDEL"
-        ],
-        "correctAnswer": 0,
-        "explanation": "`SPOP key` removes and returns one or more random members from set."
-      }
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -620,6 +433,13 @@
         "correctAnswer": 1,
         "explanation": "Inserting into SkipList data structure runs in $O(\\log N)$ time."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -723,317 +543,13 @@
         "correctAnswer": 1,
         "explanation": "Active expiration runs background sampling 10 times per second."
       }
-    ]
-  },
-  {
-    "id": "redis-caching",
-    "title": "Caching",
-    "category": "REDIS",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "Caching strategies: Cache-Aside (Lazy loading), Write-Through, Write-Back, Cache Stampede, and Cache Penetration.",
-    "explanation": {
-      "overview": "Redis is the industry-standard in-memory caching engine used to accelerate database queries and API response times.",
-      "sections": [
-        {
-          "heading": "Cache-Aside Pattern (Lazy Loading)",
-          "content": "Application checks Redis cache first (Cache Hit). If missing (Cache Miss), application queries database, writes result to Redis with TTL, and returns data to client.",
-          "bulletPoints": [
-            "Cache Hit: Returns data instantly from RAM ($<1$ms).",
-            "Cache Miss: Queries DB, populates Redis, returns data."
-          ]
-        },
-        {
-          "heading": "Cache Pitfalls: Stampede & Penetration",
-          "content": "- **Cache Stampede (Thundering Herd)**: Hot key expires, causing thousands of concurrent requests to hit database simultaneously. Solution: Distributed locks or probabilistic early expiration.\n- **Cache Penetration**: Queries for non-existent IDs bypass cache and hit DB continuously. Solution: Cache null values or use Bloom Filters.",
-          "bulletPoints": [
-            "Cache Stampede: Concurrent DB overload when hot key expires.",
-            "Cache Penetration: Non-existent key queries bypassing cache; solution: cache null objects."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Cache-Aside pattern queries Redis first, populating on miss.",
-      "Cache null values to prevent Cache Penetration attacks.",
-      "Use distributed locks to prevent Cache Stampede on hot key expirations."
     ],
-    "codeExamples": [
-      {
-        "title": "Cache-Aside Pattern Implementation",
-        "description": "Fetching product data with Redis Cache-Aside pattern.",
-        "code": "async function getProduct(productId) {\n  const cacheKey = `product:${productId}`;\n  \n  // 1. Check Redis Cache\n  const cached = await redis.get(cacheKey);\n  if (cached) return JSON.parse(cached); // Cache Hit!\n  \n  // 2. Cache Miss: Query Database\n  const product = await db.findProduct(productId);\n  \n  if (product) {\n    // 3. Write to Redis with 10m TTL\n    await redis.set(cacheKey, JSON.stringify(product), 'EX', 600);\n  } else {\n    // Prevent Cache Penetration: Cache null for 1m\n    await redis.set(cacheKey, 'null', 'EX', 60);\n  }\n  \n  return product;\n}"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "redis-caching-mcq-1",
-        "question": "What is Cache-Aside (Lazy Loading) pattern workflow on a Cache Miss?",
-        "options": [
-          "Return error",
-          "Application queries database, writes result to Redis cache with TTL, and returns response",
-          "Deletes key",
-          "Restarts server"
-        ],
-        "correctAnswer": 1,
-        "explanation": "On cache miss, application fetches from DB, populates cache, and returns result."
-      },
-      {
-        "id": "redis-caching-mcq-2",
-        "question": "What is 'Cache Penetration' vulnerability?",
-        "options": [
-          "RAM explosion",
-          "Requests for non-existent keys bypass cache and hit database continuously, overloading DB",
-          "Redis restart",
-          "CSS bug"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Cache Penetration occurs when queries for non-existent IDs bypass cache to hit database."
-      },
-      {
-        "id": "redis-caching-mcq-3",
-        "question": "How do you mitigate Cache Penetration for non-existent records?",
-        "options": [
-          "Disable cache",
-          "Cache null/empty placeholder values in Redis with short TTL or use Bloom Filters",
-          "Increase RAM",
-          "Use GET requests"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Caching `null` values prevents subsequent queries for non-existent IDs from hitting DB."
-      },
-      {
-        "id": "redis-caching-mcq-4",
-        "question": "What is 'Cache Stampede' (Thundering Herd)?",
-        "options": [
-          "Redis out of memory",
-          "High-traffic hot key expires, causing thousands of concurrent requests to hit database simultaneously",
-          "Disk failure",
-          "Network loss"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Cache Stampede happens when hot key expiration causes concurrent DB query burst."
-      },
-      {
-        "id": "redis-caching-mcq-5",
-        "question": "What is 'Write-Through' caching pattern?",
-        "options": [
-          "Write only to cache",
-          "Application writes data to cache, and cache immediately writes data to database synchronously before completing",
-          "Write only to DB",
-          "Write to disk"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Write-Through updates cache and database synchronously during write operation."
-      }
-    ]
-  },
-  {
-    "id": "redis-sessions",
-    "title": "Sessions",
-    "category": "REDIS",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "Distributed session storage, session persistence, TTL auto-invalidation, and multi-node scaling.",
-    "explanation": {
-      "overview": "Redis is the ideal distributed session store for web applications, providing high-speed in-memory session lookups with automatic TTL expiration.",
-      "sections": [
-        {
-          "heading": "Why Use Redis for Session Storage?",
-          "content": "Storing session state in local server RAM prevents multi-node horizontal scaling. Redis provides a centralized, ultra-fast ($<1$ms) shared session store accessible by all backend API server instances.",
-          "bulletPoints": [
-            "Horizontal Scaling: Any backend server node can read/write session state.",
-            "Automatic TTL Expiration: Redis handles session timeouts naturally without background cleanup scripts.",
-            "Sub-millisecond Speed: In-memory hash lookups."
-          ]
-        },
-        {
-          "heading": "Session Security & Revocation",
-          "content": "Store session data inside Redis Hashes (`session:<sessionId>`). Revoke user sessions instantly across all devices by deleting matching session keys.",
-          "bulletPoints": [
-            "Instant Logout: `DEL session:<sessionId>` invalidates session across all nodes.",
-            "User Session List: Maintain a set of active session IDs per user (`user:<userId>:sessions`)."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Redis enables stateless backend servers by centralizing session storage.",
-      "Automatic session expiration via Redis TTL.",
-      "Delete session keys from Redis for instant global user logout."
-    ],
-    "codeExamples": [
-      {
-        "title": "Redis Session Storage Pattern",
-        "description": "Creating session with TTL and revoking session.",
-        "code": "# Store session hash with 24h TTL (86400s)\nHSET session:sess_xyz123 userId 42 role \"admin\" ip \"1.2.3.4\"\nEXPIRE session:sess_xyz123 86400\n\n# Fetch session role\nHGET session:sess_xyz123 role\n\n# Revoke session instantly (Logout)\nDEL session:sess_xyz123"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "redis-sessions-mcq-1",
-        "question": "Why is Redis preferred over local server RAM (`MemoryStore`) for session storage in production?",
-        "options": [
-          "Redis is free",
-          "Redis centralizes session state so any load-balanced application server node can authenticate requests",
-          "MemoryStore uses disk",
-          "Redis encrypts HTML"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Centralized Redis session store allows stateless backend server nodes to scale horizontally."
-      },
-      {
-        "id": "redis-sessions-mcq-2",
-        "question": "How does Redis automatically handle inactive user session expiration?",
-        "options": [
-          "Cron job script",
-          "Assigning TTL (`EXPIRE session:id 86400`) to session key",
-          "Rebooting server",
-          "SQL triggers"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Setting TTL on session keys allows Redis to auto-delete inactive sessions."
-      },
-      {
-        "id": "redis-sessions-mcq-3",
-        "question": "How do you implement instant global 'Logout from all devices' for a user in Redis?",
-        "options": [
-          "Clear client cookies",
-          "Maintain user session set `user:42:sessions` and execute `DEL` on all associated session keys in Redis",
-          "Restart Redis",
-          "Change domain"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Deleting user session keys from Redis revokes session access across all devices immediately."
-      },
-      {
-        "id": "redis-sessions-mcq-4",
-        "question": "Which Redis data structure is best suited for storing structured user session attributes?",
-        "options": [
-          "List",
-          "Hash",
-          "Set",
-          "Bitfield"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Redis Hashes cleanly map session attribute fields (`userId`, `role`, `loginTime`)."
-      },
-      {
-        "id": "redis-sessions-mcq-5",
-        "question": "What is typical read latency for fetching session data from Redis over local network connection?",
-        "options": [
-          "100ms",
-          "Sub-millisecond (< 1ms)",
-          "50ms",
-          "5 seconds"
-        ],
-        "correctAnswer": 1,
-        "explanation": "In-memory Redis lookups complete in sub-millisecond time."
-      }
-    ]
-  },
-  {
-    "id": "redis-rate-limiting",
-    "title": "Rate limiting",
-    "category": "REDIS",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "Protecting APIs from abuse, key naming strategies, HTTP 429 Too Many Requests, and header standards.",
-    "explanation": {
-      "overview": "Rate limiting restricts number of requests a client can submit within a specified time window to protect APIs from abuse and DDoS attacks.",
-      "sections": [
-        {
-          "heading": "Rate Limiting Architecture",
-          "content": "Rate limiters track request counts per client IP or authenticated API key. When limit is exceeded, server responds with `429 Too Many Requests`.",
-          "bulletPoints": [
-            "Client Identification: Track by IP address (`rate:ip:1.2.3.4`) or API Key (`rate:key:abc`).",
-            "HTTP 429: Return `Retry-After` header specifying wait duration in seconds."
-          ]
-        },
-        {
-          "heading": "Standard Rate Limit Response Headers",
-          "content": "- `X-RateLimit-Limit`: Maximum allowed requests per window.\n- `X-RateLimit-Remaining`: Remaining request quota.\n- `X-RateLimit-Reset`: Unix timestamp when quota resets.",
-          "bulletPoints": [
-            "Limit: Max request quota.",
-            "Remaining: Remaining available quota.",
-            "Reset: Timestamp when quota resets."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Rate limiting protects backend systems from DDoS and brute force abuse.",
-      "Return HTTP `429 Too Many Requests` when limit is exceeded.",
-      "Include `X-RateLimit-Limit` and `X-RateLimit-Remaining` headers."
-    ],
-    "codeExamples": [
-      {
-        "title": "Rate Limit Response Headers",
-        "description": "Standard HTTP rate limit headers.",
-        "code": "HTTP/1.1 429 Too Many Requests\nContent-Type: application/json\nRetry-After: 60\nX-RateLimit-Limit: 100\nX-RateLimit-Remaining: 0\nX-RateLimit-Reset: 1693835400\n\n{ \"error\": \"Rate limit exceeded. Try again in 60 seconds.\" }"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "redis-rate-limiting-mcq-1",
-        "question": "Which HTTP status code must be returned when a client exceeds allowed API rate limits?",
-        "options": [
-          "400 Bad Request",
-          "401 Unauthorized",
-          "429 Too Many Requests",
-          "503 Service Unavailable"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`429 Too Many Requests` is standard status code for rate limit throttling."
-      },
-      {
-        "id": "redis-rate-limiting-mcq-2",
-        "question": "Which header indicates how many seconds client must wait before retrying request after 429 response?",
-        "options": [
-          "Retry-After",
-          "X-Wait-Time",
-          "Reset-In",
-          "Rate-Wait"
-        ],
-        "correctAnswer": 0,
-        "explanation": "`Retry-After` header specifies wait time in seconds."
-      },
-      {
-        "id": "redis-rate-limiting-mcq-3",
-        "question": "Why is Redis preferred over local server memory for API rate limiting across multi-server clusters?",
-        "options": [
-          "Redis is free",
-          "Redis provides centralized shared atomic counters accessible by all cluster API nodes",
-          "Redis disables HTTP",
-          "Redis uses disk"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Centralized Redis atomic counters ensure rate limits are enforced across all backend nodes."
-      },
-      {
-        "id": "redis-rate-limiting-mcq-4",
-        "question": "Which client attribute is typically used to identify unauthenticated API rate limit buckets?",
-        "options": [
-          "User Agent",
-          "Client IP address",
-          "Accept header",
-          "Referer URL"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Client IP address is standard identifier for unauthenticated request rate limiters."
-      },
-      {
-        "id": "redis-rate-limiting-mcq-5",
-        "question": "What is primary engineering goal of implementing API rate limiting?",
-        "options": [
-          "To compress JSON",
-          "To protect backend servers from DDoS attacks, brute-force attempts, and resource exhaustion",
-          "To speed up SQL queries",
-          "To format HTML"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Rate limiting protects system availability against abuse and resource exhaustion."
-      }
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1137,110 +653,13 @@
         "correctAnswer": 0,
         "explanation": "Setting TTL on first `INCR` ensures old window keys expire automatically from RAM."
       }
-    ]
-  },
-  {
-    "id": "redis-sliding-window",
-    "title": "Sliding window",
-    "category": "REDIS",
-    "difficulty": "Advanced",
-    "isImportant": true,
-    "summary": "Sliding Window Log algorithm, Sorted Set ZADD + ZREMRANGEBYSCORE pattern, accurate smooth rate limiting.",
-    "explanation": {
-      "overview": "Sliding Window Log algorithm eliminates boundary burst spikes by tracking individual request timestamps inside a Redis Sorted Set (ZSET).",
-      "sections": [
-        {
-          "heading": "Sliding Window Log ZSET Algorithm",
-          "content": "Algorithm steps:\n1. Remove timestamps older than current window: `ZREMRANGEBYSCORE key 0 (now - 60000)`.\n2. Count remaining elements: `ZCARD key`.\n3. If count < limit, insert current timestamp: `ZADD key now now`.\n4. Set key TTL to window size (`EXPIRE key 60`).",
-          "bulletPoints": [
-            "`ZREMRANGEBYSCORE`: Prunes outdated request timestamps.",
-            "`ZCARD`: Counts requests in rolling window.",
-            "Smooth Rate Limiting: Completely eliminates boundary burst spikes."
-          ]
-        },
-        {
-          "heading": "Tradeoffs of Sliding Window Log",
-          "content": "Provides 100% precise rolling rate limiting, but consumes more RAM because every request stores a unique timestamp element in Sorted Set.",
-          "bulletPoints": [
-            "Precision: Perfectly accurate rolling window enforcement.",
-            "Memory Tradeoff: Higher RAM usage than Fixed Window integer counters."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Sliding Window Log uses Sorted Sets (ZSET) to track request timestamps.",
-      "Eliminates boundary burst spikes completely.",
-      "Uses `ZREMRANGEBYSCORE` to prune expired timestamps."
     ],
-    "codeExamples": [
-      {
-        "title": "Sliding Window Log with Redis ZSET",
-        "description": "Precise sliding window rate limiting algorithm using Redis ZSET.",
-        "code": "async function slidingWindowRateLimit(ip) {\n  const key = `ratelimit:sliding:${ip}`;\n  const now = Date.now();\n  const windowMs = 60000; // 1-minute rolling window\n  const clearBefore = now - windowMs;\n  \n  // 1. Remove timestamps older than rolling window\n  await redis.zremrangebyscore(key, 0, clearBefore);\n  \n  // 2. Count requests in current rolling window\n  const count = await redis.zcard(key);\n  \n  if (count >= 100) {\n    return { allowed: false }; // Exceeded limit!\n  }\n  \n  // 3. Add current timestamp to ZSET\n  await redis.zadd(key, now, `${now}-${Math.random()}`);\n  await redis.expire(key, 60);\n  \n  return { allowed: true };\n}"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "redis-sliding-window-mcq-1",
-        "question": "What primary problem of Fixed Window algorithm does Sliding Window Log solve?",
-        "options": [
-          "Slow network speed",
-          "Completely eliminates Boundary Burst Spikes across window edges",
-          "Reduces RAM to 0",
-          "Disables CORS"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Sliding Window tracks rolling time windows continuously, preventing boundary burst spikes."
-      },
-      {
-        "id": "redis-sliding-window-mcq-2",
-        "question": "Which Redis data structure is used to implement Sliding Window Log algorithm?",
-        "options": [
-          "String",
-          "List",
-          "Sorted Set (ZSET)",
-          "Hash"
-        ],
-        "correctAnswer": 2,
-        "explanation": "Sorted Sets (ZSET) store request timestamps as scores for rolling range pruning."
-      },
-      {
-        "id": "redis-sliding-window-mcq-3",
-        "question": "Which command removes outdated timestamps older than rolling window start from ZSET?",
-        "options": [
-          "ZREM",
-          "ZREMRANGEBYSCORE key 0 clearBeforeTimestamp",
-          "ZDEL",
-          "ZPOP"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`ZREMRANGEBYSCORE` prunes timestamps older than rolling window start."
-      },
-      {
-        "id": "redis-sliding-window-mcq-4",
-        "question": "What is memory drawback of Sliding Window Log compared to Fixed Window?",
-        "options": [
-          "No drawback",
-          "Consumes more RAM because every request stores a unique timestamp element in ZSET",
-          "Slower CPU speed",
-          "Requires disk"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Storing individual timestamps for every request increases RAM footprint."
-      },
-      {
-        "id": "redis-sliding-window-mcq-5",
-        "question": "Which command counts active request timestamps remaining inside rolling window ZSET?",
-        "options": [
-          "ZCARD key",
-          "ZCOUNT key",
-          "ZLEN key",
-          "ZSIZE key"
-        ],
-        "correctAnswer": 0,
-        "explanation": "`ZCARD key` returns total element count in ZSET."
-      }
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1345,6 +764,13 @@
         "correctAnswer": 1,
         "explanation": "Lua scripts execute atomically in Redis, preventing race conditions between concurrent requests."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1450,6 +876,13 @@
         "correctAnswer": 2,
         "explanation": "`DISCARD` flushes queued transaction commands without executing them."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1554,6 +987,147 @@
         "correctAnswer": 1,
         "explanation": "Redis Lua sandbox forbids undeclared global variables to ensure deterministic script execution."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "backend-g8gjkjahvnsxxtzks0v1g",
+    "title": "Redis",
+    "category": "REDIS",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "Redis is an open-source, in-memory data structure store supporting strings, lists, sets, hashes, and sorted sets. Used for caching, session ...",
+    "explanation": {
+      "overview": "Redis is an open-source, in-memory data structure store supporting strings, lists, sets, hashes, and sorted sets. Used for caching, session management, real-time analytics, and message brokering. Offers persistence, replication, clustering, and low-latency high-throughput performance.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Redis is an open-source, in-memory data structure store supporting strings, lists, sets, hashes, and sorted sets. Used for caching, session management, real-time analytics, and message brokering. Offers persistence, replication, clustering, and low-latency high-throughput performance.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Redis as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Redis Reference",
+        "description": "Core code snippet demonstrating Redis.",
+        "code": "// Redis Implementation\nconsole.log('Practicing Redis on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-g8gjkjahvnsxxtzks0v1g-mcq-1",
+        "question": "What is a primary principle of Redis?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Redis is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-g8gjkjahvnsxxtzks0v1g-mcq-2",
+        "question": "Why do technical interviews assess Redis?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Redis to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer",
+      "data-analytics"
+    ]
+  },
+  {
+    "id": "backend-xpvvwgqw28umelyiwn8yn",
+    "title": "Memcached",
+    "category": "REDIS",
+    "difficulty": "Beginner",
+    "isImportant": false,
+    "summary": "Memcached is a distributed memory-caching system that speeds up dynamic websites by caching data and objects in RAM. Provides large distribu...",
+    "explanation": {
+      "overview": "Memcached is a distributed memory-caching system that speeds up dynamic websites by caching data and objects in RAM. Provides large distributed hash table across multiple machines with LRU eviction. Applications layer requests in RAM before falling back to slower backing stores.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Memcached is a distributed memory-caching system that speeds up dynamic websites by caching data and objects in RAM. Provides large distributed hash table across multiple machines with LRU eviction. Applications layer requests in RAM before falling back to slower backing stores.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Memcached as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Memcached Reference",
+        "description": "Core code snippet demonstrating Memcached.",
+        "code": "// Memcached Implementation\nconsole.log('Practicing Memcached on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-xpvvwgqw28umelyiwn8yn-mcq-1",
+        "question": "What is a primary principle of Memcached?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Memcached is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-xpvvwgqw28umelyiwn8yn-mcq-2",
+        "question": "Why do technical interviews assess Memcached?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Memcached to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer",
+      "data-analytics"
     ]
   }
 ]

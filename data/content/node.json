@@ -1,107 +1,629 @@
 [
   {
-    "id": "node-modules",
-    "title": "Modules",
+    "id": "node-http",
+    "title": "HTTP",
     "category": "NODE",
-    "difficulty": "Beginner",
+    "difficulty": "Intermediate",
     "isImportant": true,
-    "summary": "CommonJS vs ES Modules, module loading resolution, require cache, and module.exports.",
+    "summary": "Core http module, createServer, req/res streams, status codes, and header management.",
     "explanation": {
-      "overview": "Node.js supports CommonJS (`require`/`module.exports`) and ES Modules (`import`/`export`).",
+      "overview": "The built-in `http` module allows building web servers and HTTP clients without external dependencies.",
       "sections": [
         {
-          "heading": "CommonJS & require Cache",
-          "content": "CommonJS loads modules synchronously via `require()`. Resolved module exports are cached inside `require.cache`. Subsequent `require()` calls return cached singleton export.",
+          "heading": "http.createServer & Stream Handling",
+          "content": "`http.createServer((req, res) => {})` initializes HTTP server. `req` is Readable stream of incoming request data; `res` is Writable stream for sending response.",
           "bulletPoints": [
-            "`module.exports`: Object exported by module.",
-            "`require.cache`: Caches resolved exports by absolute file path.",
-            "Singleton Behavior: Modules execute once upon initial require."
+            "`req` (IncomingMessage): Readable stream (headers, method, url, body chunks).",
+            "`res` (ServerResponse): Writable stream (`writeHead`, `setHeader`, `write`, `end`).",
+            "Port Listening: `server.listen(port, callback)`."
           ]
         },
         {
-          "heading": "ES Modules (ESM) in Node.js",
-          "content": "Node enables ESM when `package.json` contains `\"type\": \"module\"` or files use `.mjs` extension.",
+          "heading": "Request Body Parsing",
+          "content": "Incoming POST request bodies stream in chunks over `req.on('data')` events. Assemble buffer chunks before parsing JSON.",
           "bulletPoints": [
-            "Package JSON: `\"type\": \"module\"` makes `.js` files ESM.",
-            "Extensions: Explicit file extensions (`./utils.js`) required in ESM imports.",
-            "Interoperability: ESM can import CommonJS, but CommonJS cannot use synchronous `require()` on ESM."
+            "Data Event: `req.on('data', chunk => chunks.push(chunk))`.",
+            "End Event: `req.on('end', () => JSON.parse(Buffer.concat(chunks)))`."
           ]
         }
       ]
     },
     "keyTakeaways": [
-      "CommonJS uses `require`/`module.exports`; ESM uses `import`/`export`.",
-      "`require()` caches exports in `require.cache`.",
-      "Set `\"type\": \"module\"` in `package.json` to enable ES Modules natively."
+      "`http.createServer` handles request and response streams.",
+      "`req` is a Readable stream; `res` is a Writable stream.",
+      "Always call `res.end()` to complete HTTP response."
     ],
     "codeExamples": [
       {
-        "title": "CommonJS vs ESM Exports",
-        "description": "Demonstrating CommonJS module.exports vs ESM default/named exports.",
-        "code": "// CommonJS (logger.js):\nmodule.exports = {\n  log: (msg) => console.log(`[LOG]: ${msg}`)\n};\n\n// ESM (math.mjs):\nexport const add = (a, b) => a + b;\nexport default class Calculator {}"
+        "title": "Native Node.js HTTP Server",
+        "description": "Creating HTTP server with status code, headers, and JSON body.",
+        "code": "const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  if (req.method === 'GET' && req.url === '/api/health') {\n    res.writeHead(200, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ status: 'ok', timestamp: Date.now() }));\n  } else {\n    res.writeHead(404, { 'Content-Type': 'text/plain' });\n    res.end('Not Found');\n  }\n});\n\nserver.listen(3000, () => console.log('Server running on port 3000'));"
+      },
+      {
+        "title": "HTTP Reference",
+        "description": "Core code snippet demonstrating HTTP.",
+        "code": "// HTTP Implementation\nconsole.log('Practicing HTTP on DevDocs');"
       }
     ],
     "mcqs": [
       {
-        "id": "node-modules-mcq-1",
-        "question": "What happens when a file is required twice `require('./db')` in CommonJS?",
+        "id": "node-http-mcq-1",
+        "question": "What type of stream is `req` object inside `http.createServer((req, res) => {})`?",
         "options": [
-          "File executes twice",
-          "Node returns cached export from `require.cache` without re-executing file body",
-          "Throws error",
-          "Clears state"
+          "Writable Stream",
+          "Readable Stream",
+          "Duplex Stream",
+          "Transform Stream"
         ],
         "correctAnswer": 1,
-        "explanation": "CommonJS caches exported module object on first load; subsequent requires return cached instance."
+        "explanation": "Incoming request `req` is a `Readable` stream emitting incoming data chunks."
       },
       {
-        "id": "node-modules-mcq-2",
-        "question": "How do you enable native ES Modules (`import`/`export`) for all `.js` files in a Node.js project?",
+        "id": "node-http-mcq-2",
+        "question": "What happens if you forget to invoke `res.end()` in a Node.js HTTP request handler?",
         "options": [
-          "Set `\"type\": \"module\"` in package.json",
-          "Set `\"esm\": true` in tsconfig.json",
-          "Pass --esm CLI flag",
-          "Add use esm at top of file"
+          "Response sends automatically after 1 second",
+          "Client connection hangs waiting for server response until client times out",
+          "Throws error",
+          "Server crashes"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Without `res.end()`, HTTP response stream remains open, hanging client connection."
+      },
+      {
+        "id": "node-http-mcq-3",
+        "question": "Which method sets HTTP status code and response headers simultaneously on response stream?",
+        "options": [
+          "res.setHeader()",
+          "res.writeHead(statusCode, headersObject)",
+          "res.setStatus()",
+          "res.sendHeader()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`res.writeHead(200, { 'Content-Type': 'text/html' })` writes status code and headers in single call."
+      },
+      {
+        "id": "node-http-mcq-4",
+        "question": "How do you collect incoming POST body data from raw `req` readable stream?",
+        "options": [
+          "req.body",
+          "Listen to `req.on('data', chunk => ...)` and `req.on('end', ...)` stream events",
+          "req.readAll()",
+          "req.json()"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Raw HTTP request data arrives in chunks via `data` events, assembled on `end` event."
+      },
+      {
+        "id": "node-http-mcq-5",
+        "question": "Which core module makes outgoing HTTP requests to external APIs natively in Node?",
+        "options": [
+          "http / https module (`http.request()`)",
+          "fetchOnly module",
+          "axios module",
+          "net module"
         ],
         "correctAnswer": 0,
-        "explanation": "Adding `\"type\": \"module\"` in `package.json` configures Node to treat `.js` files as ES Modules."
+        "explanation": "Native `http` and `https` modules provide `http.request()` and `https.get()` methods."
       },
       {
-        "id": "node-modules-mcq-3",
-        "question": "What is `__dirname` variable inside CommonJS modules?",
+        "id": "devops-ke-8meulx7as2xjssphxe-mcq-1",
+        "question": "What is a primary principle of HTTP?",
         "options": [
-          "URL of current website",
-          "Absolute directory path of current module file",
-          "Root folder path",
-          "Undefined"
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
         ],
-        "correctAnswer": 1,
-        "explanation": "`__dirname` holds absolute folder directory path of current CommonJS module file."
+        "correctAnswer": 0,
+        "explanation": "HTTP is a key concept in computer science and software engineering."
       },
       {
-        "id": "node-modules-mcq-4",
-        "question": "Are `__dirname` and `__filename` available inside ES Modules (`.mjs`) by default?",
+        "id": "devops-ke-8meulx7as2xjssphxe-mcq-2",
+        "question": "Why do technical interviews assess HTTP?",
         "options": [
-          "Yes, identical",
-          "No, ESM lacks __dirname (use import.meta.url and fileURLToPath)",
-          "Only in strict mode",
-          "Only on Windows"
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
         ],
-        "correctAnswer": 1,
-        "explanation": "ES Modules do not define `__dirname` or `__filename`; construct them using `import.meta.url`."
-      },
-      {
-        "id": "node-modules-mcq-5",
-        "question": "How do you export multiple items from a CommonJS module?",
-        "options": [
-          "export default { a, b }",
-          "module.exports = { a, b } or exports.a = 1",
-          "return { a, b }",
-          "export { a, b }"
-        ],
-        "correctAnswer": 1,
-        "explanation": "CommonJS exports items by mutating `exports` object or assigning `module.exports`."
+        "correctAnswer": 0,
+        "explanation": "Engineers use HTTP to design efficient, scalable systems."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "node-error-handling",
+    "title": "Error handling",
+    "category": "NODE",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "Operational vs Programmer errors, uncaughtException, unhandledRejection, and graceful shutdown.",
+    "explanation": {
+      "overview": "Proper error handling in Node.js distinguishes operational errors from programmer bugs and ensures graceful server shutdown during critical failures.",
+      "sections": [
+        {
+          "heading": "Operational vs Programmer Errors",
+          "content": "**Operational Errors** represent runtime problems (network timeouts, invalid user inputs, DB connection lost). **Programmer Errors** are bugs (null pointer dereferences, syntax errors, bad function arguments).",
+          "bulletPoints": [
+            "Operational: Expected runtime failures; handle gracefully with error status codes.",
+            "Programmer: Code bugs; log stacktrace and restart process using process manager (PM2/K8s)."
+          ]
+        },
+        {
+          "heading": "Uncaught Exceptions & Graceful Shutdown",
+          "content": "Listen to `uncaughtException` and `unhandledRejection` process events. When fatal error occurs, stop receiving new HTTP requests, close database pools, and exit process (`process.exit(1)`).",
+          "bulletPoints": [
+            "`process.on('uncaughtException')`: Catches unhandled synchronous errors.",
+            "`process.on('unhandledRejection')`: Catches unhandled promise rejections.",
+            "Graceful Exit: `server.close(() => process.exit(1))`."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Distinguish operational runtime errors from programmer bugs.",
+      "Do NOT leave process running in corrupted state after `uncaughtException`.",
+      "Perform graceful shutdown (close server & DB connections) before `process.exit(1)`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Graceful Server Shutdown Pattern",
+        "description": "Handling uncaughtException and closing server gracefully.",
+        "code": "const express = require('express');\nconst app = express();\nconst server = app.listen(3000);\n\nconst gracefulShutdown = (signal) => {\n  console.log(`Received ${signal}. Closing HTTP server...`);\n  server.close(() => {\n    console.log('HTTP server closed. Exiting process.');\n    process.exit(0);\n  });\n};\n\nprocess.on('SIGTERM', () => gracefulShutdown('SIGTERM'));\nprocess.on('uncaughtException', (err) => {\n  console.error('UNCAUGHT EXCEPTION! Shutting down...', err);\n  server.close(() => process.exit(1));\n});"
+      },
+      {
+        "title": "Custom Error Class & Handling",
+        "description": "Extending Error class with statusCode and custom try/catch.",
+        "code": "class ValidationError extends Error {\n  constructor(message) {\n    super(message);\n    this.name = 'ValidationError';\n    this.statusCode = 400;\n  }\n}\n\ntry {\n  throw new ValidationError('Invalid email format');\n} catch (err) {\n  if (err instanceof ValidationError) {\n    console.log(`[${err.statusCode}] ${err.name}: ${err.message}`);\n  } else {\n    throw err;\n  }\n}"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-error-handling-mcq-1",
+        "question": "What is an example of an Operational Error in a Node.js web server?",
+        "options": [
+          "Calling undefined function `foo()`",
+          "Database query timeout or invalid user login credentials",
+          "Syntax error in code",
+          "Accessing property of null"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Operational errors are expected runtime failure conditions like database timeouts or bad input."
+      },
+      {
+        "id": "node-error-handling-mcq-2",
+        "question": "Why is it unsafe to keep a Node.js process running after an `uncaughtException` event?",
+        "options": [
+          "Process runs faster",
+          "Application state is un-deterministic and corrupted; subsequent requests may leak data or deadlock",
+          "Disables V8",
+          "Overwrites files"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Uncaught exceptions leave application state unpredictable; process should be restarted."
+      },
+      {
+        "id": "node-error-handling-mcq-3",
+        "question": "Which process event catches unhandled Promise rejections in Node.js?",
+        "options": [
+          "process.on('uncaughtException')",
+          "process.on('unhandledRejection')",
+          "process.on('promiseError')",
+          "process.on('error')"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`unhandledRejection` process event catches rejected promises lacking `.catch()`."
+      },
+      {
+        "id": "node-error-handling-mcq-4",
+        "question": "What process exit code `process.exit(code)` indicates failure exit?",
+        "options": [
+          "0",
+          "1",
+          "200",
+          "-1"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Exit code `0` indicates success exit; non-zero codes (like `1`) indicate failure exit."
+      },
+      {
+        "id": "node-error-handling-mcq-5",
+        "question": "What signal does container orchestrator (Kubernetes / Docker) send to request graceful application shutdown?",
+        "options": [
+          "SIGKILL",
+          "SIGTERM",
+          "SIGINT",
+          "SIGHUP"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`SIGTERM` signal notifies application to finish active requests and shut down gracefully."
+      },
+      {
+        "id": "js-error-handling-mcq-1",
+        "question": "What happens if code inside `try` block returns value `return 10`, but `finally` block contains `return 20`?",
+        "options": [
+          "Returns 10",
+          "Returns 20",
+          "Throws SyntaxError",
+          "Returns undefined"
+        ],
+        "correctAnswer": 1,
+        "explanation": "A `return` statement inside `finally` block overrides any previous `return` statements from `try` or `catch` blocks."
+      },
+      {
+        "id": "js-error-handling-mcq-2",
+        "question": "Can standard synchronous `try { setTimeout(() => { throw new Error('boom'); }, 100); } catch(e) {}` catch the error?",
+        "options": [
+          "Yes",
+          "No, because callback executes asynchronously after try block exits",
+          "Only in strict mode",
+          "Only in Node.js"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Synchronous `try/catch` exits immediately; async callback executes later on event loop, escaping catch block."
+      },
+      {
+        "id": "js-error-handling-mcq-3",
+        "question": "How do you create a custom error class in modern ES6 JavaScript?",
+        "options": [
+          "class MyError extends Error {}",
+          "function MyError() extends Exception",
+          "createErrorClass('MyError')",
+          "Object.create(Error)"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Custom errors extend native built-in `Error` class and invoke `super(message)` inside constructor."
+      },
+      {
+        "id": "js-error-handling-mcq-4",
+        "question": "Which window event fires when a Promise rejects without any `.catch()` handler attached?",
+        "options": [
+          "onerror",
+          "unhandledrejection",
+          "onpromiseerror",
+          "uncaughtexception"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browsers dispatch `unhandledrejection` event when a promise is rejected without rejection handler."
+      },
+      {
+        "id": "js-error-handling-mcq-5",
+        "question": "What is ES2019 optional catch binding feature?",
+        "options": [
+          "Skipping try block",
+          "Omitting error parameter in `catch {}` when error variable is unused",
+          "Catching multiple error types in one line",
+          "Ignoring errors automatically"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Optional catch binding allows writing `catch {}` without specifying unused `catch (err)` parameter."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "frontend",
+      "dsa"
+    ]
+  },
+  {
+    "id": "node-event-loop",
+    "title": "Event loop",
+    "category": "NODE",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "Phases of Node event loop: Timers, Pending Callbacks, Idle/Prepare, Poll, Check, Close callbacks.",
+    "explanation": {
+      "overview": "The Node.js Event Loop handles asynchronous I/O callbacks across 6 distinct phases managed by libuv.",
+      "sections": [
+        {
+          "heading": "6 Phases of Node.js Event Loop",
+          "content": "1. **Timers**: Executes callbacks scheduled by `setTimeout()` and `setInterval()`.\n2. **Pending Callbacks**: Executes I/O callbacks deferred to next loop iteration.\n3. **Idle, Prepare**: Used internally by Node.\n4. **Poll**: Retrieves new I/O events; executes I/O callbacks.\n5. **Check**: Executes `setImmediate()` callbacks.\n6. **Close Callbacks**: Executes close event handlers (`socket.on('close')`).",
+          "bulletPoints": [
+            "Timers: Checks expired timer callbacks.",
+            "Poll: Blocks briefly waiting for incoming I/O events.",
+            "Check: Dedicated phase for `setImmediate()` callbacks."
+          ]
+        },
+        {
+          "heading": "process.nextTick vs setImmediate",
+          "content": "`process.nextTick()` is NOT part of libuv event loop phases; it runs immediately after current operation completes before transitioning to ANY phase. `setImmediate()` runs during Check phase.",
+          "bulletPoints": [
+            "process.nextTick: Runs before next event loop phase transition.",
+            "setImmediate: Runs in Check phase after Poll phase."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Node event loop has 6 distinct libuv phases.",
+      "`setImmediate()` runs in the Check phase.",
+      "`process.nextTick()` executes before transitioning to next event loop phase."
+    ],
+    "codeExamples": [
+      {
+        "title": "process.nextTick vs setImmediate Order",
+        "description": "Comparing execution order of nextTick, setImmediate, and setTimeout.",
+        "code": "setTimeout(() => console.log('1: setTimeout (Timers Phase)'), 0);\n\nsetImmediate(() => console.log('2: setImmediate (Check Phase)'));\n\nprocess.nextTick(() => console.log('3: process.nextTick (Microtask)'));\n\nconsole.log('4: Main Callstack');\n\n// Output:\n// 4: Main Callstack\n// 3: process.nextTick\n// 1 or 2 depending on poll status (nextTick always runs before phase shift!)"
+      },
+      {
+        "title": "Event Loop Execution Order",
+        "description": "Predicting execution output across call stack, microtasks, and macrotasks.",
+        "code": "console.log('1: Sync Stack');\n\nsetTimeout(() => console.log('2: Macrotask (Timer)'), 0);\n\nPromise.resolve().then(() => console.log('3: Microtask (Promise)'));\n\nconsole.log('4: Sync Stack End');\n\n// Output:\n// 1: Sync Stack\n// 4: Sync Stack End\n// 3: Microtask (Promise)\n// 2: Macrotask (Timer)"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-event-loop-mcq-1",
+        "question": "In which phase of Node.js Event Loop do `setImmediate()` callbacks execute?",
+        "options": [
+          "Timers Phase",
+          "Poll Phase",
+          "Check Phase",
+          "Close Phase"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`setImmediate()` callbacks are executed specifically during Check phase."
+      },
+      {
+        "id": "node-event-loop-mcq-2",
+        "question": "When does `process.nextTick()` callback execute relative to Event Loop phases?",
+        "options": [
+          "Inside Timers phase",
+          "Immediately after current JavaScript call stack completes before transitioning to next Event Loop phase",
+          "Inside Check phase",
+          "After 1 second"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`process.nextTick()` drains immediately prior to shifting into any event loop phase."
+      },
+      {
+        "id": "node-event-loop-mcq-3",
+        "question": "Which phase retrieves new I/O events and executes pending I/O callbacks?",
+        "options": [
+          "Timers phase",
+          "Poll phase",
+          "Check phase",
+          "Idle phase"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Poll phase polls for new I/O events and executes incoming I/O callbacks."
+      },
+      {
+        "id": "node-event-loop-mcq-4",
+        "question": "What happens if `process.nextTick()` recursively calls `process.nextTick()` endlessly?",
+        "options": [
+          "Switches to setImmediate",
+          "Starves Event Loop completely, preventing phase transitions and I/O callbacks",
+          "Throws stack overflow",
+          "Node exits cleanly"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Recursive `nextTick` calls starve the event loop by preventing it from reaching Poll phase."
+      },
+      {
+        "id": "node-event-loop-mcq-5",
+        "question": "In which phase do `socket.on('close', fn)` callbacks execute?",
+        "options": [
+          "Timers phase",
+          "Close Callbacks phase",
+          "Check phase",
+          "Pending phase"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Close callbacks (`socket.on('close')`) are handled in Close Callbacks phase."
+      },
+      {
+        "id": "js-event-loop-mcq-1",
+        "question": "What is primary role of the JavaScript Event Loop?",
+        "options": [
+          "To compile JavaScript to machine bytecode",
+          "To monitor Call Stack and push queued async callbacks when stack is empty",
+          "To execute multithreaded worker threads",
+          "To allocate garbage collection memory"
+        ],
+        "correctAnswer": 1,
+        "explanation": "The Event Loop continuously checks call stack; when empty, it pushes queued microtasks and macrotasks to stack."
+      },
+      {
+        "id": "js-event-loop-mcq-2",
+        "question": "What happens if synchronous function loop `while(true){}` runs on main JS thread?",
+        "options": [
+          "Offloaded to background web worker",
+          "Event loop blocks; UI freezes and async callbacks cannot execute",
+          "Event loop skips while loop after 1 second",
+          "Throws stack overflow"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Synchronous loops lock call stack, preventing Event Loop from processing any queued events or rendering UI updates."
+      },
+      {
+        "id": "js-event-loop-mcq-3",
+        "question": "Which queue has higher execution priority when call stack clears?",
+        "options": [
+          "Macrotask Queue (setTimeout)",
+          "Microtask Queue (Promise handlers)",
+          "Render Queue",
+          "Idle Callback Queue"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Microtasks always execute before the next macrotask can be pulled from task queue."
+      },
+      {
+        "id": "js-event-loop-mcq-4",
+        "question": "How many macrotasks does Event Loop process per iteration before re-checking microtasks?",
+        "options": [
+          "All macrotasks in queue",
+          "Exactly ONE macrotask",
+          "Five macrotasks",
+          "Zero"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Event Loop processes exactly ONE macrotask, then immediately drains microtask queue completely."
+      },
+      {
+        "id": "js-event-loop-mcq-5",
+        "question": "Where are browser `fetch()` API network operations processed?",
+        "options": [
+          "Inside Call Stack directly",
+          "Offloaded to Browser Web APIs background threads",
+          "Inside Microtask queue",
+          "Inside V8 heap"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Browser Web APIs handle network operations in background C++ threads, pushing callback/promise handlers to JS queues upon completion."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "frontend",
+      "dsa"
+    ]
+  },
+  {
+    "id": "node-backpressure",
+    "title": "Backpressure",
+    "category": "NODE",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "Stream rate management, readable buffer vs writable buffer, highWaterMark, drain event.",
+    "explanation": {
+      "overview": "Backpressure occurs in stream data processing when data is produced faster by Readable stream than can be consumed by Writable destination stream.",
+      "sections": [
+        {
+          "heading": "highWaterMark & Buffer Saturation",
+          "content": "Streams store chunks in internal buffer bounded by `highWaterMark` (default 16KB for normal streams, 64KB for fs). When Writable buffer exceeds `highWaterMark`, `writable.write()` returns `false`.",
+          "bulletPoints": [
+            "write() returns false: Indicates destination buffer is full.",
+            "Pause Reading: Producer must pause sending data chunks when write returns false."
+          ]
+        },
+        {
+          "heading": "Handling Backpressure with drain Event",
+          "content": "When Writable destination finishes processing queued buffer, it emits `drain` event. Producer resumes reading data upon receiving `drain` event.",
+          "bulletPoints": [
+            "`drain` Event: Signals Writable stream is ready for more data.",
+            "`pipe()` & `pipeline()`: Automatically manage backpressure and `drain` events."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Backpressure prevents fast producers from overwhelming slow consumers in RAM.",
+      "When `writable.write()` returns `false`, pause the readable stream.",
+      "Resume reading when writable stream emits `drain` event."
+    ],
+    "codeExamples": [
+      {
+        "title": "Manual Backpressure Management",
+        "description": "Pausing read stream on false write and resuming on drain event.",
+        "code": "const fs = require('fs');\n\nconst reader = fs.createReadStream('./source.bin');\nconst writer = fs.createWriteStream('./dest.bin');\n\nreader.on('data', (chunk) => {\n  // If writer buffer is full, pause reader stream to prevent RAM explosion!\n  const canContinue = writer.write(chunk);\n  if (!canContinue) {\n    reader.pause();\n  }\n});\n\n// When writer drains buffer, resume reading chunks!\nwriter.on('drain', () => {\n  reader.resume();\n});"
+      },
+      {
+        "title": "Backpressure Reference",
+        "description": "Core code snippet demonstrating Backpressure.",
+        "code": "// Backpressure Implementation\nconsole.log('Practicing Backpressure on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "node-backpressure-mcq-1",
+        "question": "What is 'Backpressure' in Node.js streams?",
+        "options": [
+          "High CPU load",
+          "Condition where Readable stream produces data faster than Writable stream can consume, causing buffer growth in RAM",
+          "Network socket rejection",
+          "Disk failure"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Backpressure arises when data production outpaces consumption rate, risking memory exhaustion."
+      },
+      {
+        "id": "node-backpressure-mcq-2",
+        "question": "What does `writable.write(chunk)` return when internal buffer exceeds `highWaterMark` limit?",
+        "options": [
+          "true",
+          "false",
+          "undefined",
+          "Throws error"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`write()` returns `false` to signal producer to pause pushing data chunks."
+      },
+      {
+        "id": "node-backpressure-mcq-3",
+        "question": "Which event emitted by Writable stream signals producer that buffer has emptied and reading can resume?",
+        "options": [
+          "empty",
+          "drain",
+          "resume",
+          "ready"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`drain` event notifies producer that Writable stream buffer cleared and can accept more data."
+      },
+      {
+        "id": "node-backpressure-mcq-4",
+        "question": "What is default `highWaterMark` buffer size for standard non-file Streams in Node.js?",
+        "options": [
+          "1KB",
+          "16KB (16384 bytes)",
+          "1MB",
+          "64KB"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Default `highWaterMark` for standard streams is 16KB (16384 bytes)."
+      },
+      {
+        "id": "node-backpressure-mcq-5",
+        "question": "Do `.pipe()` and `stream.pipeline()` handle backpressure automatically?",
+        "options": [
+          "No, manual code required",
+          "Yes, they automatically pause and resume streams based on `highWaterMark` and `drain` events",
+          "Only in production",
+          "Only for text"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Built-in `.pipe()` and `pipeline()` manage backpressure and `drain` events under the hood."
+      },
+      {
+        "id": "backend-janscqgdyxecqkd1k7e7e-mcq-1",
+        "question": "What is a primary principle of Backpressure?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Backpressure is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-janscqgdyxecqkd1k7e7e-mcq-2",
+        "question": "Why do technical interviews assess Backpressure?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Backpressure to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -207,6 +729,11 @@
         "correctAnswer": 0,
         "explanation": "`path.normalize()` resolves relative `..` and `.` segments into clean path string."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -311,6 +838,11 @@
         "correctAnswer": 0,
         "explanation": "`app.all('/path', handler)` matches any HTTP request method target."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -415,6 +947,11 @@
         "correctAnswer": 1,
         "explanation": "The `cors` package middleware enables Cross-Origin Resource Sharing in Express."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -518,6 +1055,11 @@
         "correctAnswer": 2,
         "explanation": "`204 No Content` indicates request succeeded and response body is intentionally empty."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -622,6 +1164,11 @@
         "correctAnswer": 1,
         "explanation": "`fs.access()` checks file existence or user read/write permissions."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -727,6 +1274,11 @@
         "correctAnswer": 1,
         "explanation": "File extensions are easily spoofed; server must inspect actual magic binary header bytes."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -831,6 +1383,11 @@
         "correctAnswer": 1,
         "explanation": "`removeListener()` or alias `off()` unregisters specific callback function reference."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -935,110 +1492,11 @@
         "correctAnswer": 1,
         "explanation": "Node Buffers have fixed memory byte lengths established upon allocation."
       }
-    ]
-  },
-  {
-    "id": "node-http",
-    "title": "HTTP",
-    "category": "NODE",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "Core http module, createServer, req/res streams, status codes, and header management.",
-    "explanation": {
-      "overview": "The built-in `http` module allows building web servers and HTTP clients without external dependencies.",
-      "sections": [
-        {
-          "heading": "http.createServer & Stream Handling",
-          "content": "`http.createServer((req, res) => {})` initializes HTTP server. `req` is Readable stream of incoming request data; `res` is Writable stream for sending response.",
-          "bulletPoints": [
-            "`req` (IncomingMessage): Readable stream (headers, method, url, body chunks).",
-            "`res` (ServerResponse): Writable stream (`writeHead`, `setHeader`, `write`, `end`).",
-            "Port Listening: `server.listen(port, callback)`."
-          ]
-        },
-        {
-          "heading": "Request Body Parsing",
-          "content": "Incoming POST request bodies stream in chunks over `req.on('data')` events. Assemble buffer chunks before parsing JSON.",
-          "bulletPoints": [
-            "Data Event: `req.on('data', chunk => chunks.push(chunk))`.",
-            "End Event: `req.on('end', () => JSON.parse(Buffer.concat(chunks)))`."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "`http.createServer` handles request and response streams.",
-      "`req` is a Readable stream; `res` is a Writable stream.",
-      "Always call `res.end()` to complete HTTP response."
     ],
-    "codeExamples": [
-      {
-        "title": "Native Node.js HTTP Server",
-        "description": "Creating HTTP server with status code, headers, and JSON body.",
-        "code": "const http = require('http');\n\nconst server = http.createServer((req, res) => {\n  if (req.method === 'GET' && req.url === '/api/health') {\n    res.writeHead(200, { 'Content-Type': 'application/json' });\n    res.end(JSON.stringify({ status: 'ok', timestamp: Date.now() }));\n  } else {\n    res.writeHead(404, { 'Content-Type': 'text/plain' });\n    res.end('Not Found');\n  }\n});\n\nserver.listen(3000, () => console.log('Server running on port 3000'));"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "node-http-mcq-1",
-        "question": "What type of stream is `req` object inside `http.createServer((req, res) => {})`?",
-        "options": [
-          "Writable Stream",
-          "Readable Stream",
-          "Duplex Stream",
-          "Transform Stream"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Incoming request `req` is a `Readable` stream emitting incoming data chunks."
-      },
-      {
-        "id": "node-http-mcq-2",
-        "question": "What happens if you forget to invoke `res.end()` in a Node.js HTTP request handler?",
-        "options": [
-          "Response sends automatically after 1 second",
-          "Client connection hangs waiting for server response until client times out",
-          "Throws error",
-          "Server crashes"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Without `res.end()`, HTTP response stream remains open, hanging client connection."
-      },
-      {
-        "id": "node-http-mcq-3",
-        "question": "Which method sets HTTP status code and response headers simultaneously on response stream?",
-        "options": [
-          "res.setHeader()",
-          "res.writeHead(statusCode, headersObject)",
-          "res.setStatus()",
-          "res.sendHeader()"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`res.writeHead(200, { 'Content-Type': 'text/html' })` writes status code and headers in single call."
-      },
-      {
-        "id": "node-http-mcq-4",
-        "question": "How do you collect incoming POST body data from raw `req` readable stream?",
-        "options": [
-          "req.body",
-          "Listen to `req.on('data', chunk => ...)` and `req.on('end', ...)` stream events",
-          "req.readAll()",
-          "req.json()"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Raw HTTP request data arrives in chunks via `data` events, assembled on `end` event."
-      },
-      {
-        "id": "node-http-mcq-5",
-        "question": "Which core module makes outgoing HTTP requests to external APIs natively in Node?",
-        "options": [
-          "http / https module (`http.request()`)",
-          "fetchOnly module",
-          "axios module",
-          "net module"
-        ],
-        "correctAnswer": 0,
-        "explanation": "Native `http` and `https` modules provide `http.request()` and `https.get()` methods."
-      }
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -1142,6 +1600,11 @@
         "correctAnswer": 1,
         "explanation": "libuv offloads OS file I/O to worker thread pool, notifying JS event loop upon completion."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -1247,6 +1710,11 @@
         "correctAnswer": 1,
         "explanation": "Synchronous CPU loops block single main thread, freezing server request processing."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -1351,317 +1819,11 @@
         "correctAnswer": 1,
         "explanation": "Writable streams emit `finish` event after `stream.end()` completes writing."
       }
-    ]
-  },
-  {
-    "id": "node-backpressure",
-    "title": "Backpressure",
-    "category": "NODE",
-    "difficulty": "Advanced",
-    "isImportant": true,
-    "summary": "Stream rate management, readable buffer vs writable buffer, highWaterMark, drain event.",
-    "explanation": {
-      "overview": "Backpressure occurs in stream data processing when data is produced faster by Readable stream than can be consumed by Writable destination stream.",
-      "sections": [
-        {
-          "heading": "highWaterMark & Buffer Saturation",
-          "content": "Streams store chunks in internal buffer bounded by `highWaterMark` (default 16KB for normal streams, 64KB for fs). When Writable buffer exceeds `highWaterMark`, `writable.write()` returns `false`.",
-          "bulletPoints": [
-            "write() returns false: Indicates destination buffer is full.",
-            "Pause Reading: Producer must pause sending data chunks when write returns false."
-          ]
-        },
-        {
-          "heading": "Handling Backpressure with drain Event",
-          "content": "When Writable destination finishes processing queued buffer, it emits `drain` event. Producer resumes reading data upon receiving `drain` event.",
-          "bulletPoints": [
-            "`drain` Event: Signals Writable stream is ready for more data.",
-            "`pipe()` & `pipeline()`: Automatically manage backpressure and `drain` events."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Backpressure prevents fast producers from overwhelming slow consumers in RAM.",
-      "When `writable.write()` returns `false`, pause the readable stream.",
-      "Resume reading when writable stream emits `drain` event."
     ],
-    "codeExamples": [
-      {
-        "title": "Manual Backpressure Management",
-        "description": "Pausing read stream on false write and resuming on drain event.",
-        "code": "const fs = require('fs');\n\nconst reader = fs.createReadStream('./source.bin');\nconst writer = fs.createWriteStream('./dest.bin');\n\nreader.on('data', (chunk) => {\n  // If writer buffer is full, pause reader stream to prevent RAM explosion!\n  const canContinue = writer.write(chunk);\n  if (!canContinue) {\n    reader.pause();\n  }\n});\n\n// When writer drains buffer, resume reading chunks!\nwriter.on('drain', () => {\n  reader.resume();\n});"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "node-backpressure-mcq-1",
-        "question": "What is 'Backpressure' in Node.js streams?",
-        "options": [
-          "High CPU load",
-          "Condition where Readable stream produces data faster than Writable stream can consume, causing buffer growth in RAM",
-          "Network socket rejection",
-          "Disk failure"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Backpressure arises when data production outpaces consumption rate, risking memory exhaustion."
-      },
-      {
-        "id": "node-backpressure-mcq-2",
-        "question": "What does `writable.write(chunk)` return when internal buffer exceeds `highWaterMark` limit?",
-        "options": [
-          "true",
-          "false",
-          "undefined",
-          "Throws error"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`write()` returns `false` to signal producer to pause pushing data chunks."
-      },
-      {
-        "id": "node-backpressure-mcq-3",
-        "question": "Which event emitted by Writable stream signals producer that buffer has emptied and reading can resume?",
-        "options": [
-          "empty",
-          "drain",
-          "resume",
-          "ready"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`drain` event notifies producer that Writable stream buffer cleared and can accept more data."
-      },
-      {
-        "id": "node-backpressure-mcq-4",
-        "question": "What is default `highWaterMark` buffer size for standard non-file Streams in Node.js?",
-        "options": [
-          "1KB",
-          "16KB (16384 bytes)",
-          "1MB",
-          "64KB"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Default `highWaterMark` for standard streams is 16KB (16384 bytes)."
-      },
-      {
-        "id": "node-backpressure-mcq-5",
-        "question": "Do `.pipe()` and `stream.pipeline()` handle backpressure automatically?",
-        "options": [
-          "No, manual code required",
-          "Yes, they automatically pause and resume streams based on `highWaterMark` and `drain` events",
-          "Only in production",
-          "Only for text"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Built-in `.pipe()` and `pipeline()` manage backpressure and `drain` events under the hood."
-      }
-    ]
-  },
-  {
-    "id": "node-error-handling",
-    "title": "Error handling",
-    "category": "NODE",
-    "difficulty": "Advanced",
-    "isImportant": true,
-    "summary": "Operational vs Programmer errors, uncaughtException, unhandledRejection, and graceful shutdown.",
-    "explanation": {
-      "overview": "Proper error handling in Node.js distinguishes operational errors from programmer bugs and ensures graceful server shutdown during critical failures.",
-      "sections": [
-        {
-          "heading": "Operational vs Programmer Errors",
-          "content": "**Operational Errors** represent runtime problems (network timeouts, invalid user inputs, DB connection lost). **Programmer Errors** are bugs (null pointer dereferences, syntax errors, bad function arguments).",
-          "bulletPoints": [
-            "Operational: Expected runtime failures; handle gracefully with error status codes.",
-            "Programmer: Code bugs; log stacktrace and restart process using process manager (PM2/K8s)."
-          ]
-        },
-        {
-          "heading": "Uncaught Exceptions & Graceful Shutdown",
-          "content": "Listen to `uncaughtException` and `unhandledRejection` process events. When fatal error occurs, stop receiving new HTTP requests, close database pools, and exit process (`process.exit(1)`).",
-          "bulletPoints": [
-            "`process.on('uncaughtException')`: Catches unhandled synchronous errors.",
-            "`process.on('unhandledRejection')`: Catches unhandled promise rejections.",
-            "Graceful Exit: `server.close(() => process.exit(1))`."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Distinguish operational runtime errors from programmer bugs.",
-      "Do NOT leave process running in corrupted state after `uncaughtException`.",
-      "Perform graceful shutdown (close server & DB connections) before `process.exit(1)`."
-    ],
-    "codeExamples": [
-      {
-        "title": "Graceful Server Shutdown Pattern",
-        "description": "Handling uncaughtException and closing server gracefully.",
-        "code": "const express = require('express');\nconst app = express();\nconst server = app.listen(3000);\n\nconst gracefulShutdown = (signal) => {\n  console.log(`Received ${signal}. Closing HTTP server...`);\n  server.close(() => {\n    console.log('HTTP server closed. Exiting process.');\n    process.exit(0);\n  });\n};\n\nprocess.on('SIGTERM', () => gracefulShutdown('SIGTERM'));\nprocess.on('uncaughtException', (err) => {\n  console.error('UNCAUGHT EXCEPTION! Shutting down...', err);\n  server.close(() => process.exit(1));\n});"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "node-error-handling-mcq-1",
-        "question": "What is an example of an Operational Error in a Node.js web server?",
-        "options": [
-          "Calling undefined function `foo()`",
-          "Database query timeout or invalid user login credentials",
-          "Syntax error in code",
-          "Accessing property of null"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Operational errors are expected runtime failure conditions like database timeouts or bad input."
-      },
-      {
-        "id": "node-error-handling-mcq-2",
-        "question": "Why is it unsafe to keep a Node.js process running after an `uncaughtException` event?",
-        "options": [
-          "Process runs faster",
-          "Application state is un-deterministic and corrupted; subsequent requests may leak data or deadlock",
-          "Disables V8",
-          "Overwrites files"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Uncaught exceptions leave application state unpredictable; process should be restarted."
-      },
-      {
-        "id": "node-error-handling-mcq-3",
-        "question": "Which process event catches unhandled Promise rejections in Node.js?",
-        "options": [
-          "process.on('uncaughtException')",
-          "process.on('unhandledRejection')",
-          "process.on('promiseError')",
-          "process.on('error')"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`unhandledRejection` process event catches rejected promises lacking `.catch()`."
-      },
-      {
-        "id": "node-error-handling-mcq-4",
-        "question": "What process exit code `process.exit(code)` indicates failure exit?",
-        "options": [
-          "0",
-          "1",
-          "200",
-          "-1"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Exit code `0` indicates success exit; non-zero codes (like `1`) indicate failure exit."
-      },
-      {
-        "id": "node-error-handling-mcq-5",
-        "question": "What signal does container orchestrator (Kubernetes / Docker) send to request graceful application shutdown?",
-        "options": [
-          "SIGKILL",
-          "SIGTERM",
-          "SIGINT",
-          "SIGHUP"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`SIGTERM` signal notifies application to finish active requests and shut down gracefully."
-      }
-    ]
-  },
-  {
-    "id": "node-event-loop",
-    "title": "Event loop",
-    "category": "NODE",
-    "difficulty": "Advanced",
-    "isImportant": true,
-    "summary": "Phases of Node event loop: Timers, Pending Callbacks, Idle/Prepare, Poll, Check, Close callbacks.",
-    "explanation": {
-      "overview": "The Node.js Event Loop handles asynchronous I/O callbacks across 6 distinct phases managed by libuv.",
-      "sections": [
-        {
-          "heading": "6 Phases of Node.js Event Loop",
-          "content": "1. **Timers**: Executes callbacks scheduled by `setTimeout()` and `setInterval()`.\n2. **Pending Callbacks**: Executes I/O callbacks deferred to next loop iteration.\n3. **Idle, Prepare**: Used internally by Node.\n4. **Poll**: Retrieves new I/O events; executes I/O callbacks.\n5. **Check**: Executes `setImmediate()` callbacks.\n6. **Close Callbacks**: Executes close event handlers (`socket.on('close')`).",
-          "bulletPoints": [
-            "Timers: Checks expired timer callbacks.",
-            "Poll: Blocks briefly waiting for incoming I/O events.",
-            "Check: Dedicated phase for `setImmediate()` callbacks."
-          ]
-        },
-        {
-          "heading": "process.nextTick vs setImmediate",
-          "content": "`process.nextTick()` is NOT part of libuv event loop phases; it runs immediately after current operation completes before transitioning to ANY phase. `setImmediate()` runs during Check phase.",
-          "bulletPoints": [
-            "process.nextTick: Runs before next event loop phase transition.",
-            "setImmediate: Runs in Check phase after Poll phase."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Node event loop has 6 distinct libuv phases.",
-      "`setImmediate()` runs in the Check phase.",
-      "`process.nextTick()` executes before transitioning to next event loop phase."
-    ],
-    "codeExamples": [
-      {
-        "title": "process.nextTick vs setImmediate Order",
-        "description": "Comparing execution order of nextTick, setImmediate, and setTimeout.",
-        "code": "setTimeout(() => console.log('1: setTimeout (Timers Phase)'), 0);\n\nsetImmediate(() => console.log('2: setImmediate (Check Phase)'));\n\nprocess.nextTick(() => console.log('3: process.nextTick (Microtask)'));\n\nconsole.log('4: Main Callstack');\n\n// Output:\n// 4: Main Callstack\n// 3: process.nextTick\n// 1 or 2 depending on poll status (nextTick always runs before phase shift!)"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "node-event-loop-mcq-1",
-        "question": "In which phase of Node.js Event Loop do `setImmediate()` callbacks execute?",
-        "options": [
-          "Timers Phase",
-          "Poll Phase",
-          "Check Phase",
-          "Close Phase"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`setImmediate()` callbacks are executed specifically during Check phase."
-      },
-      {
-        "id": "node-event-loop-mcq-2",
-        "question": "When does `process.nextTick()` callback execute relative to Event Loop phases?",
-        "options": [
-          "Inside Timers phase",
-          "Immediately after current JavaScript call stack completes before transitioning to next Event Loop phase",
-          "Inside Check phase",
-          "After 1 second"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`process.nextTick()` drains immediately prior to shifting into any event loop phase."
-      },
-      {
-        "id": "node-event-loop-mcq-3",
-        "question": "Which phase retrieves new I/O events and executes pending I/O callbacks?",
-        "options": [
-          "Timers phase",
-          "Poll phase",
-          "Check phase",
-          "Idle phase"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Poll phase polls for new I/O events and executes incoming I/O callbacks."
-      },
-      {
-        "id": "node-event-loop-mcq-4",
-        "question": "What happens if `process.nextTick()` recursively calls `process.nextTick()` endlessly?",
-        "options": [
-          "Switches to setImmediate",
-          "Starves Event Loop completely, preventing phase transitions and I/O callbacks",
-          "Throws stack overflow",
-          "Node exits cleanly"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Recursive `nextTick` calls starve the event loop by preventing it from reaching Poll phase."
-      },
-      {
-        "id": "node-event-loop-mcq-5",
-        "question": "In which phase do `socket.on('close', fn)` callbacks execute?",
-        "options": [
-          "Timers phase",
-          "Close Callbacks phase",
-          "Check phase",
-          "Pending phase"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Close callbacks (`socket.on('close')`) are handled in Close Callbacks phase."
-      }
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
     ]
   },
   {
@@ -1766,6 +1928,76 @@
         "correctAnswer": 0,
         "explanation": "`--max-old-space-size=4096` configures V8 old space memory limit in megabytes."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "devops-qcdemtwa2me78ponxeqzr",
+    "title": "JavaScript / Node.js",
+    "category": "NODE",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "JavaScript is a high-level, interpreted programming language primarily used for client-side web development. It enables interactive and dyna...",
+    "explanation": {
+      "overview": "JavaScript is a high-level, interpreted programming language primarily used for client-side web development. It enables interactive and dynamic content on web pages, allowing developers to create responsive user interfaces and complex web applications. JavaScript is a core technology of the World Wide Web, alongside HTML and CSS. It supports object-oriented, imperative, and functional programming paradigms. With the advent of Node.js, JavaScript has also become popular for server-side development. The language features dynamic typing, first-class functions, and prototype-based object-orientation. JavaScript's ubiquity in web browsers, extensive ecosystem of libraries and frameworks (like React, Angular, and Vue.js), and its versatility across front-end and back-end development have made it one of the most widely used programming languages in modern software development.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "JavaScript is a high-level, interpreted programming language primarily used for client-side web development. It enables interactive and dynamic content on web pages, allowing developers to create responsive user interfaces and complex web applications. JavaScript is a core technology of the World Wide Web, alongside HTML and CSS. It supports object-oriented, imperative, and functional programming paradigms. With the advent of Node.js, JavaScript has also become popular for server-side development. The language features dynamic typing, first-class functions, and prototype-based object-orientation. JavaScript's ubiquity in web browsers, extensive ecosystem of libraries and frameworks (like React, Angular, and Vue.js), and its versatility across front-end and back-end development have made it one of the most widely used programming languages in modern software development.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master JavaScript / Node.js as outlined in roadmap.sh devops track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "JavaScript / Node.js Reference",
+        "description": "Core code snippet demonstrating JavaScript / Node.js.",
+        "code": "// JavaScript / Node.js Implementation\nconsole.log('Practicing JavaScript / Node.js on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "devops-qcdemtwa2me78ponxeqzr-mcq-1",
+        "question": "What is a primary principle of JavaScript / Node.js?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "JavaScript / Node.js is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "devops-qcdemtwa2me78ponxeqzr-mcq-2",
+        "question": "Why do technical interviews assess JavaScript / Node.js?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use JavaScript / Node.js to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "devops-architect",
+      "backend",
+      "fullstack"
     ]
   }
 ]

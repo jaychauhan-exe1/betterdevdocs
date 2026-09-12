@@ -31,11 +31,13 @@ import {
   Shield,
   Binary,
   Zap,
+  FileCode,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { CategoryType } from "@/data/topics";
 
 const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
+  "HTML & CSS": <FileCode className="w-4 h-4 text-foreground" />,
   JAVASCRIPT: <Code2 className="w-4 h-4 text-foreground" />,
   REACT: <Zap className="w-4 h-4 text-foreground" />,
   NODE: <Server className="w-4 h-4 text-foreground" />,
@@ -63,12 +65,12 @@ export default function ProgressRoadmapView() {
 
   const [viewTab, setViewTab] = useState<"map" | "analytics">("map");
 
+  const isImportantOnly = useStudyStore((state) => state.isImportantOnly);
+  const getRoleFilteredTopics = useStudyStore((state) => state.getRoleFilteredTopics);
+
   const roleTopics = useMemo(() => {
-    if (!selectedRole || selectedRole === "all") return topics;
-    const roleDef = ROLES.find((r) => r.id === selectedRole);
-    if (!roleDef) return topics;
-    return topics.filter((t) => roleDef.categories.includes(t.category));
-  }, [topics, selectedRole]);
+    return getRoleFilteredTopics();
+  }, [topics, selectedRole, isImportantOnly, getRoleFilteredTopics]);
 
   const currentTopicRef = useRef<HTMLDivElement>(null);
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);

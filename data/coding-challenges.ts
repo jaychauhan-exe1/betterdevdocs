@@ -32,7 +32,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target` as an array `[index1, index2]`. You may assume that each input would have exactly one solution, and you may not use the same element twice. Return the indices sorted in ascending order.",
     difficulty: "Easy",
     category: "DSA",
-    roles: ["frontend", "backend", "fullstack", "data-engineer", "data-analytics", "devops-architect"],
+    roles: ["frontend","backend","fullstack","data-engineer","data-analytics","devops-architect", "dsa"],
     starterCode: `function twoSum(nums, target) {
   // Write your code here
   
@@ -77,7 +77,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a function `myFilter(array, callback)` that behaves identically to standard `Array.prototype.filter()`. It should create a new array with all elements that pass the test implemented by the provided callback function `callback(element, index, array)`.",
     difficulty: "Easy",
     category: "JAVASCRIPT",
-    roles: ["frontend", "fullstack"],
+    roles: ["frontend","fullstack"],
     starterCode: `function myFilter(array, callback) {
   // Write your code here
   
@@ -120,7 +120,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Write a function `countVowelsAndConsonants(str)` that accepts a string and returns an object `{ vowels: number, consonants: number }`. Ignore spaces, numbers, punctuation, and casing (treat 'A' and 'a' as vowels).",
     difficulty: "Easy",
     category: "JAVASCRIPT",
-    roles: ["frontend", "fullstack"],
+    roles: ["frontend","fullstack"],
     starterCode: `function countVowelsAndConsonants(str) {
   // Write your code here
   
@@ -165,7 +165,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Given a sorted array of numbers `nums`, remove the duplicates in-place such that each unique element appears only once. Return the resulting array of unique values.",
     difficulty: "Easy",
     category: "DSA",
-    roles: ["frontend", "backend", "fullstack", "data-engineer", "data-analytics", "devops-architect"],
+    roles: ["frontend","backend","fullstack","data-engineer","data-analytics","devops-architect", "dsa"],
     starterCode: `function removeDuplicates(nums) {
   // Write your code here
   
@@ -205,7 +205,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a function `flatten(arr)` that flattens a nested array by 1 level depth, equivalent to `arr.flat(1)` without using built-in `.flat()`.",
     difficulty: "Easy",
     category: "JAVASCRIPT",
-    roles: ["frontend", "fullstack"],
+    roles: ["frontend","fullstack"],
     starterCode: `function flatten(arr) {
   // Write your code here
   
@@ -245,7 +245,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Write a function `parseQueryString(url)` that takes a URL string or query string (e.g. `\"https://devdocs.io/search?q=react&page=2&sort=desc\"` or `\"q=react&page=2\"`) and parses the query parameters into a key-value object. Auto-convert numeric string values to numbers.",
     difficulty: "Easy",
     category: "HTTP",
-    roles: ["frontend", "backend", "fullstack", "devops-architect"],
+    roles: ["frontend","backend","fullstack","devops-architect"],
     starterCode: `function parseQueryString(url) {
   // Write your code here
   
@@ -290,7 +290,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Write a function `filterRows(rows, condition)` that simulates an in-memory SQL `WHERE` clause. `rows` is an array of objects. `condition` is an object specifying column equals value requirements (e.g., `{ role: 'frontend', level: 2 }`). Return only rows matching all conditions.",
     difficulty: "Easy",
     category: "MYSQL",
-    roles: ["data-engineer", "data-analytics", "backend", "fullstack"],
+    roles: ["backend","fullstack","data-engineer","data-analytics","devops-architect"],
     starterCode: `function filterRows(rows, condition) {
   // Write your code here
   
@@ -325,7 +325,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Create an `EventEmitter` class with `on(eventName, listener)` and `emit(eventName, ...args)` methods. `on` subscribes a callback, and `emit` invokes all subscribed callbacks with the passed arguments.",
     difficulty: "Easy",
     category: "JAVASCRIPT",
-    roles: ["frontend", "backend", "fullstack"],
+    roles: ["frontend","backend","fullstack"],
     starterCode: `class EventEmitter {
   constructor() {
     // Initialize state
@@ -396,7 +396,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement `isAnagram(s1, s2)` that returns `true` if `s1` and `s2` are valid anagrams (contain exact same characters with exact same frequencies ignoring case and non-alphanumeric characters).",
     difficulty: "Easy",
     category: "DSA",
-    roles: ["frontend", "backend", "fullstack", "data-engineer", "data-analytics", "devops-architect"],
+    roles: ["frontend","backend","fullstack","data-engineer","data-analytics","devops-architect", "dsa"],
     starterCode: `function isAnagram(s1, s2) {
   // Write your code here
   
@@ -445,7 +445,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Write a function `slugify(title)` that transforms a article title string into a web-friendly URL slug: lowercase, replace spaces & special characters with hyphens `-`, and strip duplicate leading/trailing hyphens.",
     difficulty: "Easy",
     category: "JAVASCRIPT",
-    roles: ["frontend", "fullstack"],
+    roles: ["frontend","fullstack"],
     starterCode: `function slugify(title) {
   // Write your code here
   
@@ -485,7 +485,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a `debounce(fn, delay)` function. It delays invoking `fn` until after `delay` milliseconds have elapsed since the last time the debounced function was invoked. The debounced function must return a promise that resolves with the return value of `fn`.",
     difficulty: "Medium",
     category: "JAVASCRIPT",
-    roles: ["frontend", "fullstack"],
+    roles: ["frontend","fullstack"],
     starterCode: `function debounce(fn, delay) {
   // Write your code here
   
@@ -536,7 +536,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a `throttle(fn, interval)` function that ensures `fn` is called at most once per `interval` milliseconds. Subsequent calls during the wait window should be ignored or queued for the trailing edge.",
     difficulty: "Medium",
     category: "JAVASCRIPT",
-    roles: ["frontend", "fullstack"],
+    roles: ["frontend","fullstack"],
     starterCode: `function throttle(fn, interval) {
   // Write your code here
   
@@ -577,7 +577,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a function `deepClone(value)` that creates a deep copy of any nested JavaScript object/array structure. Handle primitive types, Arrays, Objects, Dates, and RegExp instances without using `structuredClone` or `JSON.parse`.",
     difficulty: "Medium",
     category: "JAVASCRIPT",
-    roles: ["frontend", "backend", "fullstack"],
+    roles: ["frontend","backend","fullstack"],
     starterCode: `function deepClone(value) {
   // Write your code here
   
@@ -629,7 +629,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement `promiseAll(promises)` which takes an array of Promises (or values) and returns a new Promise that resolves to an array of all resolved values, maintaining order. If any promise rejects, the returned Promise immediately rejects with that error.",
     difficulty: "Medium",
     category: "JAVASCRIPT",
-    roles: ["frontend", "backend", "fullstack"],
+    roles: ["frontend","backend","fullstack"],
     starterCode: `function promiseAll(promises) {
   // Write your code here
   
@@ -697,7 +697,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Design a data structure for a Least Recently Used (LRU) Cache. Implement `LRUCache` class with `capacity`, `get(key)`, and `put(key, value)` methods in O(1) time complexity. When capacity is exceeded, invalidate the least recently accessed item before inserting.",
     difficulty: "Medium",
     category: "REDIS",
-    roles: ["backend", "data-engineer", "fullstack", "devops-architect"],
+    roles: ["backend","fullstack","data-engineer","data-analytics","devops-architect"],
     starterCode: `class LRUCache {
   constructor(capacity) {
     // Write your constructor here
@@ -764,7 +764,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a `MiddlewareRunner` class inspired by Express/Koa middleware. It supports `.use(fn)` where `fn(ctx, next)` can execute async logic and invoke `await next()` to delegate to the next middleware in the pipeline.",
     difficulty: "Medium",
     category: "NODE",
-    roles: ["backend", "fullstack", "devops-architect"],
+    roles: ["backend","fullstack","devops-architect"],
     starterCode: `class MiddlewareRunner {
   constructor() {
     this.middlewares = [];
@@ -831,7 +831,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a `curry(fn)` function that transforms a multi-argument function into a curried function. When invoked with fewer arguments than required by `fn.length`, it returns a new function expecting the remaining arguments.",
     difficulty: "Medium",
     category: "JAVASCRIPT",
-    roles: ["frontend", "fullstack"],
+    roles: ["frontend","fullstack"],
     starterCode: `function curry(fn) {
   // Write your code here
   
@@ -873,7 +873,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Write a function `groupByAggregate(rows, groupKey, aggField, aggFunc)` that simulates SQL `GROUP BY`. `aggFunc` can be `'SUM'`, `'AVG'`, `'COUNT'`, or `'MAX'`. Returns an array of objects `{ [groupKey]: val, [aggFunc.toLowerCase()]: result }`.",
     difficulty: "Medium",
     category: "MYSQL",
-    roles: ["data-engineer", "data-analytics", "backend", "fullstack"],
+    roles: ["backend","fullstack","data-engineer","data-analytics","devops-architect"],
     starterCode: `function groupByAggregate(rows, groupKey, aggField, aggFunc) {
   // Write your code here
   
@@ -944,7 +944,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Extend the event emitter pattern. Implement `AdvancedEventEmitter` with `on`, `once(eventName, listener)` (auto-unsubscribes after 1 trigger), and `off(eventName, listener)` (unsubscribes a specific listener).",
     difficulty: "Medium",
     category: "REACT",
-    roles: ["frontend", "fullstack"],
+    roles: ["frontend","fullstack"],
     starterCode: `class AdvancedEventEmitter {
   constructor() {
     this.listeners = {};
@@ -1041,7 +1041,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement `memoizeWithTTL(fn, ttlMs)` that caches function call results based on arguments. Cached results remain valid for `ttlMs` milliseconds. After `ttlMs`, a new call re-executes `fn` and updates the cache.",
     difficulty: "Medium",
     category: "REDIS",
-    roles: ["backend", "fullstack", "devops-architect"],
+    roles: ["backend","fullstack","data-engineer","devops-architect"],
     starterCode: `function memoizeWithTTL(fn, ttlMs) {
   // Write your code here
   
@@ -1096,7 +1096,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a lightweight `MyPromise` class supporting states `'pending'`, `'fulfilled'`, `'rejected'`, chaining via `.then(onFulfilled, onRejected)`, and `.catch(onRejected)`. Asynchronous callback execution should handle resolution of returned promises.",
     difficulty: "Hard",
     category: "JAVASCRIPT",
-    roles: ["frontend", "backend", "fullstack"],
+    roles: ["frontend","backend","fullstack"],
     starterCode: `class MyPromise {
   constructor(executor) {
     // Write constructor
@@ -1222,7 +1222,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement `diff(oldTree, newTree)` that compares two Virtual DOM node objects `{ type, props, children }` and returns an array of patch operations (`'CREATE'`, `'REMOVE'`, `'REPLACE'`, `'UPDATE_PROPS'`).",
     difficulty: "Hard",
     category: "REACT",
-    roles: ["frontend", "fullstack"],
+    roles: ["frontend","fullstack"],
     starterCode: `function diff(oldTree, newTree) {
   // Write your code here
   
@@ -1290,7 +1290,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Build a tiny React-like state manager function `createMiniReact()`. It returns `{ useState(initialValue), useEffect(callback, deps), render(Component) }` supporting functional component state persistence across re-renders.",
     difficulty: "Hard",
     category: "REACT",
-    roles: ["frontend", "fullstack"],
+    roles: ["frontend","fullstack"],
     starterCode: `function createMiniReact() {
   // Write your mini React implementation
   
@@ -1352,7 +1352,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a `TaskQueue(concurrency)` class. Tasks are asynchronous functions returning Promises. `.push(taskFn)` queues tasks and executes them up to `concurrency` in parallel. Returns a Promise resolving when the task finishes.",
     difficulty: "Hard",
     category: "NODE",
-    roles: ["backend", "fullstack", "devops-architect"],
+    roles: ["backend","fullstack","data-engineer","devops-architect"],
     starterCode: `class TaskQueue {
   constructor(concurrency) {
     // Write constructor
@@ -1430,7 +1430,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a `TokenBucket(capacity, refillRatePerSec)` rate limiter class. `tryConsume(tokens)` consumes tokens if available and returns `true`, or returns `false` if insufficient tokens exist. Tokens dynamically refill based on elapsed time.",
     difficulty: "Hard",
     category: "SYSTEM DESIGN",
-    roles: ["backend", "devops-architect", "fullstack"],
+    roles: ["backend","fullstack","devops-architect"],
     starterCode: `class TokenBucket {
   constructor(capacity, refillRatePerSec) {
     // Write constructor
@@ -1491,7 +1491,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a `CircuitBreaker(fn, failureThreshold, resetTimeoutMs)` microservice state machine with states `'CLOSED'`, `'OPEN'`, and `'HALF_OPEN'`. Trips to `'OPEN'` after consecutive failures, auto-recovers to `'HALF_OPEN'` after `resetTimeoutMs`.",
     difficulty: "Hard",
     category: "SYSTEM DESIGN",
-    roles: ["backend", "devops-architect", "fullstack"],
+    roles: ["backend","fullstack","devops-architect"],
     starterCode: `class CircuitBreaker {
   constructor(fn, failureThreshold = 2, resetTimeoutMs = 100) {
     // Write constructor
@@ -1579,7 +1579,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a `ConsistentHashRing(virtualNodes = 3)` class for distributed cache routing. Supports `addNode(nodeId)`, `removeNode(nodeId)`, and `getNode(key)` to map cache keys to the closest node on a ring.",
     difficulty: "Hard",
     category: "SYSTEM DESIGN",
-    roles: ["backend", "devops-architect", "fullstack"],
+    roles: ["backend","fullstack","data-engineer","devops-architect"],
     starterCode: `class ConsistentHashRing {
   constructor(virtualNodes = 3) {
     // Write constructor
@@ -1671,7 +1671,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Write `joinTables(tableA, tableB, keyA, keyB, type = 'INNER')` that performs in-memory SQL JOINs. Supports `type = 'INNER'` or `type = 'LEFT'`. Combines matching records into a single merged object.",
     difficulty: "Hard",
     category: "MYSQL",
-    roles: ["data-engineer", "data-analytics", "backend", "fullstack"],
+    roles: ["backend","fullstack","data-engineer","data-analytics","devops-architect"],
     starterCode: `function joinTables(tableA, tableB, keyA, keyB, type = 'INNER') {
   // Write your code here
   
@@ -1736,7 +1736,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Write `deepEqual(a, b)` that performs a strict recursive deep equality check across objects, arrays, primitives, Dates, and RegExps.",
     difficulty: "Hard",
     category: "JAVASCRIPT",
-    roles: ["frontend", "backend", "fullstack"],
+    roles: ["frontend","backend","fullstack"],
     starterCode: `function deepEqual(a, b) {
   // Write your code here
   
@@ -1787,7 +1787,7 @@ export const CODING_CHALLENGES: CodingChallenge[] = [
     description: "Implement a `Trie` class with `insert(word)`, `search(word)`, and `startsWith(prefix)` methods for efficient string prefix search and search engines.",
     difficulty: "Hard",
     category: "DSA",
-    roles: ["frontend", "backend", "fullstack", "data-engineer", "data-analytics", "devops-architect"],
+    roles: ["frontend","backend","fullstack","data-engineer","devops-architect", "dsa"],
     starterCode: `class TrieNode {
   constructor() {
     this.children = {};

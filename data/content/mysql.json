@@ -1,5 +1,568 @@
 [
   {
+    "id": "mysql-normalization",
+    "title": "Normalization",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "Database normalization forms: 1NF (atomic values), 2NF (no partial dependencies), 3NF (no transitive dependencies), BCNF, and denormalization trade-offs.",
+    "explanation": {
+      "overview": "Normalization is database design process of organizing columns and tables to reduce data redundancy and eliminate update/delete anomalies.",
+      "sections": [
+        {
+          "heading": "1NF, 2NF, 3NF Normal Forms",
+          "content": "- **1NF (First Normal Form)**: Each cell contains atomic single values (no arrays/comma-separated strings in cells); unique row keys.\n- **2NF (Second Normal Form)**: Must be 1NF AND all non-key columns must fully depend on entire primary key (eliminates partial key dependencies).\n- **3NF (Third Normal Form)**: Must be 2NF AND non-key columns must not depend on other non-key columns (eliminates transitive dependencies: *non-key -> non-key*).",
+          "bulletPoints": [
+            "1NF: Atomic column values.",
+            "2NF: No partial PK dependencies.",
+            "3NF: No transitive non-key dependencies."
+          ]
+        },
+        {
+          "heading": "Denormalization Tradeoffs",
+          "content": "Denormalization intentionally introduces redundant data to optimize read performance and eliminate complex joins in high-scale systems.",
+          "bulletPoints": [
+            "Normalization: Minimizes storage & update anomalies; increases join count.",
+            "Denormalization: Faster reads; requires managing multi-table update sync."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "1NF requires atomic column values.",
+      "2NF eliminates partial dependencies; 3NF eliminates transitive dependencies.",
+      "Denormalize selectively for high-read performance."
+    ],
+    "codeExamples": [
+      {
+        "title": "3NF Normalized Schema Example",
+        "description": "Splitting customer address to satisfy 3NF.",
+        "code": "-- VIOLATES 3NF (Transitive dependency: zip_code -> city, state):\n-- CREATE TABLE users (id INT, zip_code VARCHAR(10), city VARCHAR(50), state VARCHAR(50));\n\n-- SATISFIES 3NF (Separated into zip_codes reference table):\nCREATE TABLE zip_codes (\n  zip_code VARCHAR(10) PRIMARY KEY,\n  city VARCHAR(50) NOT NULL,\n  state VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100) NOT NULL,\n  zip_code VARCHAR(10),\n  FOREIGN KEY (zip_code) REFERENCES zip_codes(zip_code)\n);"
+      },
+      {
+        "title": "Normalization Reference",
+        "description": "Core code snippet demonstrating Normalization.",
+        "code": "// Normalization Implementation\nconsole.log('Practicing Normalization on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-normalization-mcq-1",
+        "question": "What requirement must a table satisfy to comply with 1NF (First Normal Form)?",
+        "options": [
+          "Have foreign keys",
+          "Every cell column value must be atomic (no multi-value comma lists) and rows must be unique",
+          "No joins allowed",
+          "Must use BCNF"
+        ],
+        "correctAnswer": 1,
+        "explanation": "1NF mandates atomic single values in every table cell."
+      },
+      {
+        "id": "mysql-normalization-mcq-2",
+        "question": "What type of dependency does 3NF (Third Normal Form) eliminate?",
+        "options": [
+          "Partial primary key dependencies",
+          "Transitive dependencies (where a non-key column depends on another non-key column)",
+          "Foreign key dependencies",
+          "Atomic dependencies"
+        ],
+        "correctAnswer": 1,
+        "explanation": "3NF requires that non-key columns depend ONLY on the primary key, eliminating transitive dependencies."
+      },
+      {
+        "id": "mysql-normalization-mcq-3",
+        "question": "What type of dependency does 2NF (Second Normal Form) eliminate?",
+        "options": [
+          "Transitive dependencies",
+          "Partial dependencies (where a non-key column depends on only part of a composite primary key)",
+          "Atomic cell values",
+          "No dependencies"
+        ],
+        "correctAnswer": 1,
+        "explanation": "2NF requires non-key attributes to depend on the whole composite primary key."
+      },
+      {
+        "id": "mysql-normalization-mcq-4",
+        "question": "Why do high-scale read-heavy systems selectively Denormalize database tables?",
+        "options": [
+          "To pass 3NF",
+          "To reduce costly multi-table JOIN operations and improve read query latency",
+          "To save disk space",
+          "To prevent SQL injection"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Denormalization duplicates data to avoid expensive multi-table joins on read queries."
+      },
+      {
+        "id": "mysql-normalization-mcq-5",
+        "question": "What anomaly occurs when updating a customer's address in an un-normalized table requires updating 500 duplicate order rows?",
+        "options": [
+          "Insert Anomaly",
+          "Update Anomaly",
+          "Delete Anomaly",
+          "Select Anomaly"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Update Anomaly occurs when redundant data must be updated in multiple places."
+      },
+      {
+        "id": "backend-ge2snkbrqqru-oglz6tmt-mcq-1",
+        "question": "What is a primary principle of Normalization?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Normalization is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-ge2snkbrqqru-oglz6tmt-mcq-2",
+        "question": "Why do technical interviews assess Normalization?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Normalization to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "mysql-acid",
+    "title": "ACID",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "ACID properties: Atomicity (undo log), Consistency (constraints), Isolation (locks/MVCC), Durability (redo log/WAL).",
+    "explanation": {
+      "overview": "ACID is a set of 4 fundamental properties that guarantee database transaction reliability even during power failures or crashes.",
+      "sections": [
+        {
+          "heading": "The 4 ACID Properties",
+          "content": "- **Atomicity**: All operations in transaction succeed, or ALL fail ('All or Nothing'). Powered by **Undo Log**.\n- **Consistency**: Database transitions from one valid state to another, preserving schema constraints (keys, checks).\n- **Isolation**: Concurrent transactions execute independently without interfering with each other. Powered by **Locks** and **MVCC**.\n- **Durability**: Once committed, changes survive system crashes/power failures. Powered by **Redo Log** (Write-Ahead Logging).",
+          "bulletPoints": [
+            "Atomicity: Undo Log mechanism for rollbacks.",
+            "Consistency: Schema constraints & validity invariants.",
+            "Isolation: MVCC multi-version concurrency control.",
+            "Durability: Redo Log (WAL) persistent write-ahead logs."
+          ]
+        },
+        {
+          "heading": "InnoDB Implementation Mechanics",
+          "content": "InnoDB uses **Undo Logs** to reverse uncommitted atomic transactions and **Redo Logs** (WAL) to flush committed changes safely to disk after crashes.",
+          "bulletPoints": [
+            "Undo Log: Atomicity rollback engine.",
+            "Redo Log: Durability crash recovery engine."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Atomicity (All or Nothing) uses Undo Logs.",
+      "Consistency maintains schema constraint invariants.",
+      "Isolation (MVCC/Locks) prevents concurrent interference.",
+      "Durability (Redo Log/WAL) ensures committed data survives crashes."
+    ],
+    "codeExamples": [
+      {
+        "title": "ACID Guarantee Breakdown",
+        "description": "How InnoDB enforces ACID properties under the hood.",
+        "code": "-- Atomicity:  Rolls back via Undo Log on failure\n-- Consistency: Enforces FOREIGN KEY & NOT NULL constraints\n-- Isolation:  MVCC read-views isolate concurrent transactions\n-- Durability: Redo Log flushes to disk before COMMIT returns!\n\nSTART TRANSACTION;\nUPDATE accounts SET balance = balance - 500 WHERE id = 1;\nUPDATE accounts SET balance = balance + 500 WHERE id = 2;\nCOMMIT;"
+      },
+      {
+        "title": "ACID Reference",
+        "description": "Core code snippet demonstrating ACID.",
+        "code": "// ACID Implementation\nconsole.log('Practicing ACID on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-acid-mcq-1",
+        "question": "Which InnoDB log mechanism enforces **Atomicity** by providing rollback capability?",
+        "options": [
+          "Redo Log",
+          "Undo Log",
+          "Binary Log",
+          "Slow Query Log"
+        ],
+        "correctAnswer": 1,
+        "explanation": "InnoDB Undo Logs record reverse operations to roll back uncommitted atomic transactions."
+      },
+      {
+        "id": "mysql-acid-mcq-2",
+        "question": "Which InnoDB log mechanism guarantees **Durability** by flushing committed transactions to disk (Write-Ahead Logging)?",
+        "options": [
+          "Undo Log",
+          "Redo Log",
+          "General Log",
+          "Error Log"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Redo Log (WAL) records committed transactions to ensure crash recovery."
+      },
+      {
+        "id": "mysql-acid-mcq-3",
+        "question": "What does **Atomicity** ('All or Nothing') guarantee in a database transaction?",
+        "options": [
+          "All queries run in 1ms",
+          "Either ALL SQL operations in transaction succeed, or ALL operations are rolled back completely",
+          "Only 1 table updated",
+          "Data is encrypted"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Atomicity ensures partial transaction executions never persist."
+      },
+      {
+        "id": "mysql-acid-mcq-4",
+        "question": "What does **Consistency** guarantee in ACID?",
+        "options": [
+          "All queries use index",
+          "Database transitions from one valid state to another, enforcing all schema constraints, keys, and triggers",
+          "Fast reads",
+          "Single-threaded"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Consistency guarantees database invariants and schema constraints remain valid."
+      },
+      {
+        "id": "mysql-acid-mcq-5",
+        "question": "What technique does InnoDB use to provide high-performance **Isolation** for concurrent SELECT reads without locking rows?",
+        "options": [
+          "Table locks",
+          "Multi-Version Concurrency Control (MVCC)",
+          "Single-threaded queue",
+          "Disk cache"
+        ],
+        "correctAnswer": 1,
+        "explanation": "MVCC creates point-in-time snapshot read views, allowing non-blocking reads during concurrent writes."
+      },
+      {
+        "id": "backend-qsadfagufn8mtmdjhji3z-mcq-1",
+        "question": "What is a primary principle of ACID?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "ACID is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-qsadfagufn8mtmdjhji3z-mcq-2",
+        "question": "Why do technical interviews assess ACID?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use ACID to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "mysql-transactions",
+    "title": "Transactions",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "Database transactions, START TRANSACTION, COMMIT, ROLLBACK, autocommit mode, and savepoints.",
+    "explanation": {
+      "overview": "A Transaction is a sequential group of database operations executed as a single atomic unit of work.",
+      "sections": [
+        {
+          "heading": "Transaction Commands",
+          "content": "- `START TRANSACTION` (or `BEGIN`): Starts transaction block.\n- `COMMIT`: Saves all mutations permanently to disk.\n- `ROLLBACK`: Cancels all mutations, restoring database state back to start of transaction.",
+          "bulletPoints": [
+            "COMMIT: Makes changes permanent.",
+            "ROLLBACK: Undoes all changes on error.",
+            "SAVEPOINT: Sets intermediate rollback points inside transaction."
+          ]
+        },
+        {
+          "heading": "autocommit Mode",
+          "content": "By default, MySQL runs in `autocommit = 1` mode, where every individual SQL statement is treated as a separate auto-committed transaction.",
+          "bulletPoints": [
+            "autocommit=1: Statements commit instantly.",
+            "Explicit Transaction: `START TRANSACTION` temporarily disables autocommit for transaction block."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "`START TRANSACTION` begins an atomic transaction block.",
+      "`COMMIT` saves changes; `ROLLBACK` undoes changes on error.",
+      "MySQL defaults to `autocommit = 1`."
+    ],
+    "codeExamples": [
+      {
+        "title": "Bank Transfer Transaction",
+        "description": "Executing atomic bank transfer with COMMIT and ROLLBACK error handling.",
+        "code": "START TRANSACTION;\n\n-- Debit Account A\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\n\n-- Credit Account B\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\n\n-- Check if errors occurred\n-- If success:\nCOMMIT;\n-- If error:\n-- ROLLBACK;"
+      },
+      {
+        "title": "Transactions Reference",
+        "description": "Core code snippet demonstrating Transactions.",
+        "code": "// Transactions Implementation\nconsole.log('Practicing Transactions on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-transactions-mcq-1",
+        "question": "What does `ROLLBACK` command execute inside an active transaction block?",
+        "options": [
+          "Saves changes permanently",
+          "Undoes all uncommitted mutations executed during current transaction, restoring prior state",
+          "Deletes database",
+          "Restarts MySQL"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`ROLLBACK` cancels all uncommitted mutations executed since transaction start."
+      },
+      {
+        "id": "mysql-transactions-mcq-2",
+        "question": "What is default behavior of MySQL `autocommit` system variable?",
+        "options": [
+          "autocommit = 0 (disabled)",
+          "autocommit = 1 (enabled: every standalone SQL statement commits automatically)",
+          "autocommit = 2",
+          "Depends on OS"
+        ],
+        "correctAnswer": 1,
+        "explanation": "MySQL defaults `autocommit = 1`, committing single statements immediately."
+      },
+      {
+        "id": "mysql-transactions-mcq-3",
+        "question": "What does `SAVEPOINT point1;` allow inside a transaction?",
+        "options": [
+          "Commits transaction",
+          "Establishes intermediate rollback marker allowing partial transaction rollback via `ROLLBACK TO point1`",
+          "Backs up database",
+          "Locks table"
+        ],
+        "correctAnswer": 1,
+        "explanation": "Savepoints allow rolling back to intermediate markers without aborting entire transaction."
+      },
+      {
+        "id": "mysql-transactions-mcq-4",
+        "question": "Can DDL statements like `ALTER TABLE` or `DROP TABLE` be rolled back inside a MySQL transaction?",
+        "options": [
+          "Yes, fully",
+          "No, DDL statements cause an implicit COMMIT, automatically committing transaction!",
+          "Only in InnoDB",
+          "Only in strict mode"
+        ],
+        "correctAnswer": 1,
+        "explanation": "DDL statements (ALTER, DROP, TRUNCATE) trigger implicit commits in MySQL."
+      },
+      {
+        "id": "mysql-transactions-mcq-5",
+        "question": "What command permanently saves all transaction changes to disk?",
+        "options": [
+          "SAVE",
+          "WRITE",
+          "COMMIT",
+          "PUSH"
+        ],
+        "correctAnswer": 2,
+        "explanation": "`COMMIT` persists all transaction updates permanently to database."
+      },
+      {
+        "id": "data-engineer-1bjgxwax6conufkayr4jm-mcq-1",
+        "question": "What is a primary principle of Transactions?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Transactions is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-1bjgxwax6conufkayr4jm-mcq-2",
+        "question": "Why do technical interviews assess Transactions?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Transactions to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "mysql-n-plus-1-problem",
+    "title": "N+1 problem",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "isImportant": true,
+    "summary": "N+1 query problem in ORMs, loop database queries, JOIN batching, and DataLoader pattern.",
+    "explanation": {
+      "overview": "The N+1 Query Problem occurs when an application executes 1 initial query to fetch N parent records, followed by N separate query calls inside a loop to fetch child records.",
+      "sections": [
+        {
+          "heading": "The N+1 Query Bottleneck",
+          "content": "Example: Fetch 100 users (`1 query`). For each user in loop, execute `SELECT * FROM orders WHERE user_id = user.id` (`100 queries`). Result: 101 total database roundtrips!",
+          "bulletPoints": [
+            "1 Initial Query: Fetches N parent records.",
+            "N Additional Queries: Executed inside loop per parent record.",
+            "ORM Default: Common pitfall in Prisma, TypeORM, Hibernate, Sequelize lazy loading."
+          ]
+        },
+        {
+          "heading": "Fixing N+1: JOINs & Batch IN Queries",
+          "content": "Fix N+1 using explicit `JOIN` or batch `IN` query:\n- Single JOIN: `SELECT * FROM users u LEFT JOIN orders o ON u.id = o.user_id` (1 query!).\n- Batch IN: `SELECT * FROM orders WHERE user_id IN (1, 2, ..., 100)` (2 queries total!).",
+          "bulletPoints": [
+            "Eager Loading (JOIN): Solves N+1 in single database roundtrip.",
+            "Batch IN Query: Reduces 101 queries to 2 queries.",
+            "DataLoader: Batches GraphQL and ORM queries automatically."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "N+1 problem executes 1 parent query + N child queries inside loop.",
+      "Fix using Eager Loading (`JOIN`) or Batch `IN` queries.",
+      "Use DataLoader in GraphQL to batch child entity lookups."
+    ],
+    "codeExamples": [
+      {
+        "title": "N+1 Problem vs Fixed Batch Query",
+        "description": "Comparing N+1 loop queries vs single batch IN query.",
+        "code": "// N+1 PROBLEM (101 Database Queries!):\nconst users = await db.query('SELECT * FROM users LIMIT 100'); // 1 query\nfor (const user of users) {\n  // Executed 100 times in loop!\n  user.orders = await db.query('SELECT * FROM orders WHERE user_id = ?', [user.id]);\n}\n\n// FIXED WITH BATCH IN (2 Database Queries Total!):\nconst users = await db.query('SELECT * FROM users LIMIT 100'); // 1 query\nconst userIds = users.map(u => u.id);\nconst allOrders = await db.query('SELECT * FROM orders WHERE user_id IN (?)', [userIds]); // 2nd query!"
+      },
+      {
+        "title": "N+1 Problem Reference",
+        "description": "Core code snippet demonstrating N+1 Problem.",
+        "code": "// N+1 Problem Implementation\nconsole.log('Practicing N+1 Problem on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "mysql-n-plus-1-problem-mcq-1",
+        "question": "What is the N+1 Query Problem in database development?",
+        "options": [
+          "Adding 1 to N in SQL",
+          "Executing 1 initial query to fetch N parent records, followed by N separate query executions in a loop for child records (N+1 roundtrips)",
+          "SQL syntax error",
+          "Creating N tables"
+        ],
+        "correctAnswer": 1,
+        "explanation": "N+1 problem issues 1 parent query plus N loop queries for child relations."
+      },
+      {
+        "id": "mysql-n-plus-1-problem-mcq-2",
+        "question": "If you fetch 500 author records and query each author's books inside a `for` loop, how many total database queries execute under N+1 pattern?",
+        "options": [
+          "1",
+          "500",
+          "501 queries",
+          "1000"
+        ],
+        "correctAnswer": 2,
+        "explanation": "1 initial query for 500 authors + 500 loop queries for books = 501 total database queries."
+      },
+      {
+        "id": "mysql-n-plus-1-problem-mcq-3",
+        "question": "How does Eager Loading with `INNER JOIN` solve the N+1 query problem?",
+        "options": [
+          "Deletes child table",
+          "Fetches parent and child records together in a single SQL query roundtrip",
+          "Runs query in Web Worker",
+          "Caches queries"
+        ],
+        "correctAnswer": 1,
+        "explanation": "`JOIN` fetches parents and children together in 1 single database roundtrip."
+      },
+      {
+        "id": "mysql-n-plus-1-problem-mcq-4",
+        "question": "How does Batching with `WHERE user_id IN (1, 2, ..., 500)` resolve N+1 queries?",
+        "options": [
+          "Reduces 501 queries to 2 queries total (1 parent query + 1 batch child query)",
+          "Eliminates database",
+          "Converts queries to REST",
+          "Uses 500 threads"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Batch `IN()` queries reduce N+1 loop queries down to 2 total database queries."
+      },
+      {
+        "id": "mysql-n-plus-1-problem-mcq-5",
+        "question": "Which utility library pattern is commonly used in GraphQL servers to eliminate N+1 resolver queries?",
+        "options": [
+          "DataLoader",
+          "Express",
+          "Axios",
+          "Redux"
+        ],
+        "correctAnswer": 0,
+        "explanation": "DataLoader batches and caches individual key requests across event loop ticks to solve N+1."
+      },
+      {
+        "id": "backend-bqnoau863hshdynmnyjop-mcq-1",
+        "question": "What is a primary principle of N+1 Problem?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "N+1 Problem is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-bqnoau863hshdynmnyjop-mcq-2",
+        "question": "Why do technical interviews assess N+1 Problem?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use N+1 Problem to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
+    ]
+  },
+  {
     "id": "mysql-keys",
     "title": "Keys",
     "category": "MYSQL",
@@ -100,6 +663,13 @@
         "correctAnswer": 1,
         "explanation": "InnoDB is default storage engine that enforces Foreign Key constraints."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -204,6 +774,13 @@
         "correctAnswer": 1,
         "explanation": "`DISTINCT` evaluates uniqueness across the entire combination of selected columns."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -308,6 +885,13 @@
         "correctAnswer": 1,
         "explanation": "`AND` has higher operator precedence than `OR`; use parentheses `()` to clarify intended logic."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -411,6 +995,13 @@
         "correctAnswer": 1,
         "explanation": "`ORDER BY` executes after `SELECT` phase, permitting reference to column aliases."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -514,6 +1105,13 @@
         "correctAnswer": 1,
         "explanation": "`AVG()` ignores `NULL` values completely from both sum numerator and row count denominator."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -617,6 +1215,13 @@
         "correctAnswer": 1,
         "explanation": "Without `GROUP BY`, aggregate functions treat all matching rows in table as single group."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -719,6 +1324,13 @@
         "correctAnswer": 1,
         "explanation": "Execution sequence: `FROM` -> `WHERE` -> `GROUP BY` -> `HAVING` -> `SELECT` -> `ORDER BY` -> `LIMIT`."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -823,6 +1435,13 @@
         "correctAnswer": 1,
         "explanation": "Indexes allow MySQL join engine to look up matching rows in $O(\\log N)$ time per row."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -927,6 +1546,13 @@
         "correctAnswer": 1,
         "explanation": "Refactoring correlated subqueries into explicit `JOIN` operations enables set-based index optimizations."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1031,110 +1657,13 @@
         "correctAnswer": 1,
         "explanation": "CTEs structure complex queries into clean top-to-bottom sequential blocks."
       }
-    ]
-  },
-  {
-    "id": "mysql-normalization",
-    "title": "Normalization",
-    "category": "MYSQL",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "Database normalization forms: 1NF (atomic values), 2NF (no partial dependencies), 3NF (no transitive dependencies), BCNF, and denormalization trade-offs.",
-    "explanation": {
-      "overview": "Normalization is database design process of organizing columns and tables to reduce data redundancy and eliminate update/delete anomalies.",
-      "sections": [
-        {
-          "heading": "1NF, 2NF, 3NF Normal Forms",
-          "content": "- **1NF (First Normal Form)**: Each cell contains atomic single values (no arrays/comma-separated strings in cells); unique row keys.\n- **2NF (Second Normal Form)**: Must be 1NF AND all non-key columns must fully depend on entire primary key (eliminates partial key dependencies).\n- **3NF (Third Normal Form)**: Must be 2NF AND non-key columns must not depend on other non-key columns (eliminates transitive dependencies: *non-key -> non-key*).",
-          "bulletPoints": [
-            "1NF: Atomic column values.",
-            "2NF: No partial PK dependencies.",
-            "3NF: No transitive non-key dependencies."
-          ]
-        },
-        {
-          "heading": "Denormalization Tradeoffs",
-          "content": "Denormalization intentionally introduces redundant data to optimize read performance and eliminate complex joins in high-scale systems.",
-          "bulletPoints": [
-            "Normalization: Minimizes storage & update anomalies; increases join count.",
-            "Denormalization: Faster reads; requires managing multi-table update sync."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "1NF requires atomic column values.",
-      "2NF eliminates partial dependencies; 3NF eliminates transitive dependencies.",
-      "Denormalize selectively for high-read performance."
     ],
-    "codeExamples": [
-      {
-        "title": "3NF Normalized Schema Example",
-        "description": "Splitting customer address to satisfy 3NF.",
-        "code": "-- VIOLATES 3NF (Transitive dependency: zip_code -> city, state):\n-- CREATE TABLE users (id INT, zip_code VARCHAR(10), city VARCHAR(50), state VARCHAR(50));\n\n-- SATISFIES 3NF (Separated into zip_codes reference table):\nCREATE TABLE zip_codes (\n  zip_code VARCHAR(10) PRIMARY KEY,\n  city VARCHAR(50) NOT NULL,\n  state VARCHAR(50) NOT NULL\n);\n\nCREATE TABLE users (\n  id INT AUTO_INCREMENT PRIMARY KEY,\n  name VARCHAR(100) NOT NULL,\n  zip_code VARCHAR(10),\n  FOREIGN KEY (zip_code) REFERENCES zip_codes(zip_code)\n);"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "mysql-normalization-mcq-1",
-        "question": "What requirement must a table satisfy to comply with 1NF (First Normal Form)?",
-        "options": [
-          "Have foreign keys",
-          "Every cell column value must be atomic (no multi-value comma lists) and rows must be unique",
-          "No joins allowed",
-          "Must use BCNF"
-        ],
-        "correctAnswer": 1,
-        "explanation": "1NF mandates atomic single values in every table cell."
-      },
-      {
-        "id": "mysql-normalization-mcq-2",
-        "question": "What type of dependency does 3NF (Third Normal Form) eliminate?",
-        "options": [
-          "Partial primary key dependencies",
-          "Transitive dependencies (where a non-key column depends on another non-key column)",
-          "Foreign key dependencies",
-          "Atomic dependencies"
-        ],
-        "correctAnswer": 1,
-        "explanation": "3NF requires that non-key columns depend ONLY on the primary key, eliminating transitive dependencies."
-      },
-      {
-        "id": "mysql-normalization-mcq-3",
-        "question": "What type of dependency does 2NF (Second Normal Form) eliminate?",
-        "options": [
-          "Transitive dependencies",
-          "Partial dependencies (where a non-key column depends on only part of a composite primary key)",
-          "Atomic cell values",
-          "No dependencies"
-        ],
-        "correctAnswer": 1,
-        "explanation": "2NF requires non-key attributes to depend on the whole composite primary key."
-      },
-      {
-        "id": "mysql-normalization-mcq-4",
-        "question": "Why do high-scale read-heavy systems selectively Denormalize database tables?",
-        "options": [
-          "To pass 3NF",
-          "To reduce costly multi-table JOIN operations and improve read query latency",
-          "To save disk space",
-          "To prevent SQL injection"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Denormalization duplicates data to avoid expensive multi-table joins on read queries."
-      },
-      {
-        "id": "mysql-normalization-mcq-5",
-        "question": "What anomaly occurs when updating a customer's address in an un-normalized table requires updating 500 duplicate order rows?",
-        "options": [
-          "Insert Anomaly",
-          "Update Anomaly",
-          "Delete Anomaly",
-          "Select Anomaly"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Update Anomaly occurs when redundant data must be updated in multiple places."
-      }
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1240,6 +1769,13 @@
         "correctAnswer": 1,
         "explanation": "Every write requires updating all secondary index B-Tree structures."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1343,216 +1879,13 @@
         "correctAnswer": 1,
         "explanation": "Range conditions (like `LIKE 'X%'`) prevent using subsequent index columns (`c`) for B-Tree lookup."
       }
-    ]
-  },
-  {
-    "id": "mysql-transactions",
-    "title": "Transactions",
-    "category": "MYSQL",
-    "difficulty": "Intermediate",
-    "isImportant": true,
-    "summary": "Database transactions, START TRANSACTION, COMMIT, ROLLBACK, autocommit mode, and savepoints.",
-    "explanation": {
-      "overview": "A Transaction is a sequential group of database operations executed as a single atomic unit of work.",
-      "sections": [
-        {
-          "heading": "Transaction Commands",
-          "content": "- `START TRANSACTION` (or `BEGIN`): Starts transaction block.\n- `COMMIT`: Saves all mutations permanently to disk.\n- `ROLLBACK`: Cancels all mutations, restoring database state back to start of transaction.",
-          "bulletPoints": [
-            "COMMIT: Makes changes permanent.",
-            "ROLLBACK: Undoes all changes on error.",
-            "SAVEPOINT: Sets intermediate rollback points inside transaction."
-          ]
-        },
-        {
-          "heading": "autocommit Mode",
-          "content": "By default, MySQL runs in `autocommit = 1` mode, where every individual SQL statement is treated as a separate auto-committed transaction.",
-          "bulletPoints": [
-            "autocommit=1: Statements commit instantly.",
-            "Explicit Transaction: `START TRANSACTION` temporarily disables autocommit for transaction block."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "`START TRANSACTION` begins an atomic transaction block.",
-      "`COMMIT` saves changes; `ROLLBACK` undoes changes on error.",
-      "MySQL defaults to `autocommit = 1`."
     ],
-    "codeExamples": [
-      {
-        "title": "Bank Transfer Transaction",
-        "description": "Executing atomic bank transfer with COMMIT and ROLLBACK error handling.",
-        "code": "START TRANSACTION;\n\n-- Debit Account A\nUPDATE accounts SET balance = balance - 100 WHERE id = 1;\n\n-- Credit Account B\nUPDATE accounts SET balance = balance + 100 WHERE id = 2;\n\n-- Check if errors occurred\n-- If success:\nCOMMIT;\n-- If error:\n-- ROLLBACK;"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "mysql-transactions-mcq-1",
-        "question": "What does `ROLLBACK` command execute inside an active transaction block?",
-        "options": [
-          "Saves changes permanently",
-          "Undoes all uncommitted mutations executed during current transaction, restoring prior state",
-          "Deletes database",
-          "Restarts MySQL"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`ROLLBACK` cancels all uncommitted mutations executed since transaction start."
-      },
-      {
-        "id": "mysql-transactions-mcq-2",
-        "question": "What is default behavior of MySQL `autocommit` system variable?",
-        "options": [
-          "autocommit = 0 (disabled)",
-          "autocommit = 1 (enabled: every standalone SQL statement commits automatically)",
-          "autocommit = 2",
-          "Depends on OS"
-        ],
-        "correctAnswer": 1,
-        "explanation": "MySQL defaults `autocommit = 1`, committing single statements immediately."
-      },
-      {
-        "id": "mysql-transactions-mcq-3",
-        "question": "What does `SAVEPOINT point1;` allow inside a transaction?",
-        "options": [
-          "Commits transaction",
-          "Establishes intermediate rollback marker allowing partial transaction rollback via `ROLLBACK TO point1`",
-          "Backs up database",
-          "Locks table"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Savepoints allow rolling back to intermediate markers without aborting entire transaction."
-      },
-      {
-        "id": "mysql-transactions-mcq-4",
-        "question": "Can DDL statements like `ALTER TABLE` or `DROP TABLE` be rolled back inside a MySQL transaction?",
-        "options": [
-          "Yes, fully",
-          "No, DDL statements cause an implicit COMMIT, automatically committing transaction!",
-          "Only in InnoDB",
-          "Only in strict mode"
-        ],
-        "correctAnswer": 1,
-        "explanation": "DDL statements (ALTER, DROP, TRUNCATE) trigger implicit commits in MySQL."
-      },
-      {
-        "id": "mysql-transactions-mcq-5",
-        "question": "What command permanently saves all transaction changes to disk?",
-        "options": [
-          "SAVE",
-          "WRITE",
-          "COMMIT",
-          "PUSH"
-        ],
-        "correctAnswer": 2,
-        "explanation": "`COMMIT` persists all transaction updates permanently to database."
-      }
-    ]
-  },
-  {
-    "id": "mysql-acid",
-    "title": "ACID",
-    "category": "MYSQL",
-    "difficulty": "Advanced",
-    "isImportant": true,
-    "summary": "ACID properties: Atomicity (undo log), Consistency (constraints), Isolation (locks/MVCC), Durability (redo log/WAL).",
-    "explanation": {
-      "overview": "ACID is a set of 4 fundamental properties that guarantee database transaction reliability even during power failures or crashes.",
-      "sections": [
-        {
-          "heading": "The 4 ACID Properties",
-          "content": "- **Atomicity**: All operations in transaction succeed, or ALL fail ('All or Nothing'). Powered by **Undo Log**.\n- **Consistency**: Database transitions from one valid state to another, preserving schema constraints (keys, checks).\n- **Isolation**: Concurrent transactions execute independently without interfering with each other. Powered by **Locks** and **MVCC**.\n- **Durability**: Once committed, changes survive system crashes/power failures. Powered by **Redo Log** (Write-Ahead Logging).",
-          "bulletPoints": [
-            "Atomicity: Undo Log mechanism for rollbacks.",
-            "Consistency: Schema constraints & validity invariants.",
-            "Isolation: MVCC multi-version concurrency control.",
-            "Durability: Redo Log (WAL) persistent write-ahead logs."
-          ]
-        },
-        {
-          "heading": "InnoDB Implementation Mechanics",
-          "content": "InnoDB uses **Undo Logs** to reverse uncommitted atomic transactions and **Redo Logs** (WAL) to flush committed changes safely to disk after crashes.",
-          "bulletPoints": [
-            "Undo Log: Atomicity rollback engine.",
-            "Redo Log: Durability crash recovery engine."
-          ]
-        }
-      ]
-    },
-    "keyTakeaways": [
-      "Atomicity (All or Nothing) uses Undo Logs.",
-      "Consistency maintains schema constraint invariants.",
-      "Isolation (MVCC/Locks) prevents concurrent interference.",
-      "Durability (Redo Log/WAL) ensures committed data survives crashes."
-    ],
-    "codeExamples": [
-      {
-        "title": "ACID Guarantee Breakdown",
-        "description": "How InnoDB enforces ACID properties under the hood.",
-        "code": "-- Atomicity:  Rolls back via Undo Log on failure\n-- Consistency: Enforces FOREIGN KEY & NOT NULL constraints\n-- Isolation:  MVCC read-views isolate concurrent transactions\n-- Durability: Redo Log flushes to disk before COMMIT returns!\n\nSTART TRANSACTION;\nUPDATE accounts SET balance = balance - 500 WHERE id = 1;\nUPDATE accounts SET balance = balance + 500 WHERE id = 2;\nCOMMIT;"
-      }
-    ],
-    "mcqs": [
-      {
-        "id": "mysql-acid-mcq-1",
-        "question": "Which InnoDB log mechanism enforces **Atomicity** by providing rollback capability?",
-        "options": [
-          "Redo Log",
-          "Undo Log",
-          "Binary Log",
-          "Slow Query Log"
-        ],
-        "correctAnswer": 1,
-        "explanation": "InnoDB Undo Logs record reverse operations to roll back uncommitted atomic transactions."
-      },
-      {
-        "id": "mysql-acid-mcq-2",
-        "question": "Which InnoDB log mechanism guarantees **Durability** by flushing committed transactions to disk (Write-Ahead Logging)?",
-        "options": [
-          "Undo Log",
-          "Redo Log",
-          "General Log",
-          "Error Log"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Redo Log (WAL) records committed transactions to ensure crash recovery."
-      },
-      {
-        "id": "mysql-acid-mcq-3",
-        "question": "What does **Atomicity** ('All or Nothing') guarantee in a database transaction?",
-        "options": [
-          "All queries run in 1ms",
-          "Either ALL SQL operations in transaction succeed, or ALL operations are rolled back completely",
-          "Only 1 table updated",
-          "Data is encrypted"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Atomicity ensures partial transaction executions never persist."
-      },
-      {
-        "id": "mysql-acid-mcq-4",
-        "question": "What does **Consistency** guarantee in ACID?",
-        "options": [
-          "All queries use index",
-          "Database transitions from one valid state to another, enforcing all schema constraints, keys, and triggers",
-          "Fast reads",
-          "Single-threaded"
-        ],
-        "correctAnswer": 1,
-        "explanation": "Consistency guarantees database invariants and schema constraints remain valid."
-      },
-      {
-        "id": "mysql-acid-mcq-5",
-        "question": "What technique does InnoDB use to provide high-performance **Isolation** for concurrent SELECT reads without locking rows?",
-        "options": [
-          "Table locks",
-          "Multi-Version Concurrency Control (MVCC)",
-          "Single-threaded queue",
-          "Disk cache"
-        ],
-        "correctAnswer": 1,
-        "explanation": "MVCC creates point-in-time snapshot read views, allowing non-blocking reads during concurrent writes."
-      }
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1657,6 +1990,13 @@
         "correctAnswer": 1,
         "explanation": "Non-Repeatable Read occurs when re-reading a row returns updated committed values."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1760,6 +2100,13 @@
         "correctAnswer": 0,
         "explanation": "`max_connections` limits total server-wide concurrent client connections."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1860,6 +2207,13 @@
         "correctAnswer": 1,
         "explanation": "`rows` displays estimated row count MySQL optimizer expects to scan."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -1963,6 +2317,13 @@
         "correctAnswer": 1,
         "explanation": "`PARTITION BY` divides dataset into separate calculation partitions."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
@@ -2066,111 +2427,1076 @@
         "correctAnswer": 1,
         "explanation": "Without an index, MySQL scans all 10 million rows to evaluate `status` count."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "data-engineer",
+      "data-analytics",
+      "devops-architect"
     ]
   },
   {
-    "id": "mysql-n-plus-1-problem",
-    "title": "N+1 problem",
+    "id": "backend-fihtrmo56kj9jt8o-po2t",
+    "title": "PostgreSQL",
     "category": "MYSQL",
-    "difficulty": "Advanced",
-    "isImportant": true,
-    "summary": "N+1 query problem in ORMs, loop database queries, JOIN batching, and DataLoader pattern.",
+    "difficulty": "Beginner",
+    "isImportant": false,
+    "summary": "PostgreSQL is an advanced, open-source RDBMS known for robustness, extensibility, and standards compliance. Supports complex queries, custom...",
     "explanation": {
-      "overview": "The N+1 Query Problem occurs when an application executes 1 initial query to fetch N parent records, followed by N separate query calls inside a loop to fetch child records.",
+      "overview": "PostgreSQL is an advanced, open-source RDBMS known for robustness, extensibility, and standards compliance. Supports complex queries, custom data types, full-text search, and ACID properties. Highly extensible with strong concurrency support, suitable for web apps to data warehousing.",
       "sections": [
         {
-          "heading": "The N+1 Query Bottleneck",
-          "content": "Example: Fetch 100 users (`1 query`). For each user in loop, execute `SELECT * FROM orders WHERE user_id = user.id` (`100 queries`). Result: 101 total database roundtrips!",
+          "heading": "Overview & Fundamentals",
+          "content": "PostgreSQL is an advanced, open-source RDBMS known for robustness, extensibility, and standards compliance. Supports complex queries, custom data types, full-text search, and ACID properties. Highly extensible with strong concurrency support, suitable for web apps to data warehousing.",
           "bulletPoints": [
-            "1 Initial Query: Fetches N parent records.",
-            "N Additional Queries: Executed inside loop per parent record.",
-            "ORM Default: Common pitfall in Prisma, TypeORM, Hibernate, Sequelize lazy loading."
-          ]
-        },
-        {
-          "heading": "Fixing N+1: JOINs & Batch IN Queries",
-          "content": "Fix N+1 using explicit `JOIN` or batch `IN` query:\n- Single JOIN: `SELECT * FROM users u LEFT JOIN orders o ON u.id = o.user_id` (1 query!).\n- Batch IN: `SELECT * FROM orders WHERE user_id IN (1, 2, ..., 100)` (2 queries total!).",
-          "bulletPoints": [
-            "Eager Loading (JOIN): Solves N+1 in single database roundtrip.",
-            "Batch IN Query: Reduces 101 queries to 2 queries.",
-            "DataLoader: Batches GraphQL and ORM queries automatically."
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
           ]
         }
       ]
     },
     "keyTakeaways": [
-      "N+1 problem executes 1 parent query + N child queries inside loop.",
-      "Fix using Eager Loading (`JOIN`) or Batch `IN` queries.",
-      "Use DataLoader in GraphQL to batch child entity lookups."
+      "Master PostgreSQL as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
     ],
     "codeExamples": [
       {
-        "title": "N+1 Problem vs Fixed Batch Query",
-        "description": "Comparing N+1 loop queries vs single batch IN query.",
-        "code": "// N+1 PROBLEM (101 Database Queries!):\nconst users = await db.query('SELECT * FROM users LIMIT 100'); // 1 query\nfor (const user of users) {\n  // Executed 100 times in loop!\n  user.orders = await db.query('SELECT * FROM orders WHERE user_id = ?', [user.id]);\n}\n\n// FIXED WITH BATCH IN (2 Database Queries Total!):\nconst users = await db.query('SELECT * FROM users LIMIT 100'); // 1 query\nconst userIds = users.map(u => u.id);\nconst allOrders = await db.query('SELECT * FROM orders WHERE user_id IN (?)', [userIds]); // 2nd query!"
+        "title": "PostgreSQL Reference",
+        "description": "Core code snippet demonstrating PostgreSQL.",
+        "code": "// PostgreSQL Implementation\nconsole.log('Practicing PostgreSQL on DevDocs');"
       }
     ],
     "mcqs": [
       {
-        "id": "mysql-n-plus-1-problem-mcq-1",
-        "question": "What is the N+1 Query Problem in database development?",
+        "id": "backend-fihtrmo56kj9jt8o-po2t-mcq-1",
+        "question": "What is a primary principle of PostgreSQL?",
         "options": [
-          "Adding 1 to N in SQL",
-          "Executing 1 initial query to fetch N parent records, followed by N separate query executions in a loop for child records (N+1 roundtrips)",
-          "SQL syntax error",
-          "Creating N tables"
-        ],
-        "correctAnswer": 1,
-        "explanation": "N+1 problem issues 1 parent query plus N loop queries for child relations."
-      },
-      {
-        "id": "mysql-n-plus-1-problem-mcq-2",
-        "question": "If you fetch 500 author records and query each author's books inside a `for` loop, how many total database queries execute under N+1 pattern?",
-        "options": [
-          "1",
-          "500",
-          "501 queries",
-          "1000"
-        ],
-        "correctAnswer": 2,
-        "explanation": "1 initial query for 500 authors + 500 loop queries for books = 501 total database queries."
-      },
-      {
-        "id": "mysql-n-plus-1-problem-mcq-3",
-        "question": "How does Eager Loading with `INNER JOIN` solve the N+1 query problem?",
-        "options": [
-          "Deletes child table",
-          "Fetches parent and child records together in a single SQL query roundtrip",
-          "Runs query in Web Worker",
-          "Caches queries"
-        ],
-        "correctAnswer": 1,
-        "explanation": "`JOIN` fetches parents and children together in 1 single database roundtrip."
-      },
-      {
-        "id": "mysql-n-plus-1-problem-mcq-4",
-        "question": "How does Batching with `WHERE user_id IN (1, 2, ..., 500)` resolve N+1 queries?",
-        "options": [
-          "Reduces 501 queries to 2 queries total (1 parent query + 1 batch child query)",
-          "Eliminates database",
-          "Converts queries to REST",
-          "Uses 500 threads"
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
         ],
         "correctAnswer": 0,
-        "explanation": "Batch `IN()` queries reduce N+1 loop queries down to 2 total database queries."
+        "explanation": "PostgreSQL is a key concept in computer science and software engineering."
       },
       {
-        "id": "mysql-n-plus-1-problem-mcq-5",
-        "question": "Which utility library pattern is commonly used in GraphQL servers to eliminate N+1 resolver queries?",
+        "id": "backend-fihtrmo56kj9jt8o-po2t-mcq-2",
+        "question": "Why do technical interviews assess PostgreSQL?",
         "options": [
-          "DataLoader",
-          "Express",
-          "Axios",
-          "Redux"
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
         ],
         "correctAnswer": 0,
-        "explanation": "DataLoader batches and caches individual key requests across event loop ticks to solve N+1."
+        "explanation": "Engineers use PostgreSQL to design efficient, scalable systems."
       }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer",
+      "data-analytics"
+    ]
+  },
+  {
+    "id": "data-engineer-yxniqh6y5ic795-ysajb8",
+    "title": "MS SQL",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "Microsoft SQL Server (MS SQL) is a relational database developed by Microsoft, commonly used in enterprise and Windows-based environments. I...",
+    "explanation": {
+      "overview": "Microsoft SQL Server (MS SQL) is a relational database developed by Microsoft, commonly used in enterprise and Windows-based environments. It integrates tightly with the Microsoft ecosystem, including Azure, Power BI, and .NET. MS SQL supports T-SQL, Microsoft's extension of SQL with additional procedural capabilities.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Microsoft SQL Server (MS SQL) is a relational database developed by Microsoft, commonly used in enterprise and Windows-based environments. It integrates tightly with the Microsoft ecosystem, including Azure, Power BI, and .NET. MS SQL supports T-SQL, Microsoft's extension of SQL with additional procedural capabilities.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master MS SQL as outlined in roadmap.sh data-engineer track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "MS SQL Reference",
+        "description": "Core code snippet demonstrating MS SQL.",
+        "code": "// MS SQL Implementation\nconsole.log('Practicing MS SQL on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-engineer-yxniqh6y5ic795-ysajb8-mcq-1",
+        "question": "What is a primary principle of MS SQL?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "MS SQL is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-yxniqh6y5ic795-ysajb8-mcq-2",
+        "question": "Why do technical interviews assess MS SQL?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use MS SQL to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-engineer",
+      "data-analytics",
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "data-engineer--bfj6rbluqeqb5mjjzpd6",
+    "title": "MySQL",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "MySQL is an open-source relational database management system (RDBMS) known for its speed, reliability, and ease of use. It uses SQL (Struct...",
+    "explanation": {
+      "overview": "MySQL is an open-source relational database management system (RDBMS) known for its speed, reliability, and ease of use. It uses SQL (Structured Query Language) for database interactions and supports a range of features for data management, including transactions, indexing, and stored procedures. MySQL is widely used for web applications, data warehousing, and various other applications due to its scalability and flexibility. It integrates well with many programming languages and platforms, and is often employed in conjunction with web servers and frameworks in popular software stacks like LAMP (Linux, Apache, MySQL, PHP/Python/Perl). MySQL is maintained by Oracle Corporation and has a large community and ecosystem supporting its development and use.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "MySQL is an open-source relational database management system (RDBMS) known for its speed, reliability, and ease of use. It uses SQL (Structured Query Language) for database interactions and supports a range of features for data management, including transactions, indexing, and stored procedures. MySQL is widely used for web applications, data warehousing, and various other applications due to its scalability and flexibility. It integrates well with many programming languages and platforms, and is often employed in conjunction with web servers and frameworks in popular software stacks like LAMP (Linux, Apache, MySQL, PHP/Python/Perl). MySQL is maintained by Oracle Corporation and has a large community and ecosystem supporting its development and use.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master MySQL as outlined in roadmap.sh data-engineer track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "MySQL Reference",
+        "description": "Core code snippet demonstrating MySQL.",
+        "code": "// MySQL Implementation\nconsole.log('Practicing MySQL on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-engineer--bfj6rbluqeqb5mjjzpd6-mcq-1",
+        "question": "What is a primary principle of MySQL?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "MySQL is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer--bfj6rbluqeqb5mjjzpd6-mcq-2",
+        "question": "Why do technical interviews assess MySQL?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use MySQL to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-engineer",
+      "data-analytics",
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "backend-r45b461nxln6wbodj5cnp",
+    "title": "Relational Databases",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "Relational databases organize data into structured tables with rows and columns, using SQL for querying. Enforce data integrity through keys...",
+    "explanation": {
+      "overview": "Relational databases organize data into structured tables with rows and columns, using SQL for querying. Enforce data integrity through keys and constraints, handle complex queries and transactions efficiently. Examples: MySQL, PostgreSQL, Oracle. Used for structured data storage and strong consistency.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Relational databases organize data into structured tables with rows and columns, using SQL for querying. Enforce data integrity through keys and constraints, handle complex queries and transactions efficiently. Examples: MySQL, PostgreSQL, Oracle. Used for structured data storage and strong consistency.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Relational Databases as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Relational Databases Reference",
+        "description": "Core code snippet demonstrating Relational Databases.",
+        "code": "// Relational Databases Implementation\nconsole.log('Practicing Relational Databases on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-r45b461nxln6wbodj5cnp-mcq-1",
+        "question": "What is a primary principle of Relational Databases?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Relational Databases is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-r45b461nxln6wbodj5cnp-mcq-2",
+        "question": "Why do technical interviews assess Relational Databases?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Relational Databases to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer",
+      "data-analytics"
+    ]
+  },
+  {
+    "id": "data-engineer-uzyq8tqtrixt-jiojcm9-",
+    "title": "NoSQL Databases",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "NoSQL databases are a category of database management systems designed for handling unstructured, semi-structured, or rapidly changing data....",
+    "explanation": {
+      "overview": "NoSQL databases are a category of database management systems designed for handling unstructured, semi-structured, or rapidly changing data. Unlike traditional relational databases, which use fixed schemas and SQL for querying, NoSQL databases offer flexible data models and can be classified into several types: 1.  **Document Stores**: Store data in JSON, BSON, or XML formats, allowing for flexible and hierarchical data structures (e.g., MongoDB, CouchDB).",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "NoSQL databases are a category of database management systems designed for handling unstructured, semi-structured, or rapidly changing data. Unlike traditional relational databases, which use fixed schemas and SQL for querying, NoSQL databases offer flexible data models and can be classified into several types: 1.  **Document Stores**: Store data in JSON, BSON, or XML formats, allowing for flexible and hierarchical data structures (e.g., MongoDB, CouchDB).",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        },
+        {
+          "heading": "Key Concepts & Implementation",
+          "content": "2.  **Key-Value Stores**: Store data as key-value pairs, suitable for high-speed read and write operations (e.g., Redis, Riak). 3.  **Column-Family Stores**: Store data in columns rather than rows, which is useful for handling large volumes of data and wide columnar tables (e.g., Apache Cassandra, HBase). 4.  **Graph Databases**: Optimize the storage and querying of data with complex relationships using graph structures (e.g., Neo4j, Amazon Neptune). NoSQL databases are often used for applicatio..."
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master NoSQL Databases as outlined in roadmap.sh data-engineer track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "NoSQL Databases Reference",
+        "description": "Core code snippet demonstrating NoSQL Databases.",
+        "code": "// NoSQL Databases Implementation\nconsole.log('Practicing NoSQL Databases on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-engineer-uzyq8tqtrixt-jiojcm9--mcq-1",
+        "question": "What is a primary principle of NoSQL Databases?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "NoSQL Databases is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-uzyq8tqtrixt-jiojcm9--mcq-2",
+        "question": "Why do technical interviews assess NoSQL Databases?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use NoSQL Databases to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-engineer",
+      "data-analytics",
+      "backend",
+      "fullstack",
+      "devops-architect"
+    ]
+  },
+  {
+    "id": "backend-ljt27oneoeibomiemtykd",
+    "title": "More about Databases",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "A database is a structured collection of useful data that serves as an organizational asset. A database management system (DBMS) is software...",
+    "explanation": {
+      "overview": "A database is a structured collection of useful data that serves as an organizational asset. A database management system (DBMS) is software designed to maintain and extract large data collections efficiently and timely.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "A database is a structured collection of useful data that serves as an organizational asset. A database management system (DBMS) is software designed to maintain and extract large data collections efficiently and timely.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master More about Databases as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "More about Databases Reference",
+        "description": "Core code snippet demonstrating More about Databases.",
+        "code": "// More about Databases Implementation\nconsole.log('Practicing More about Databases on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-ljt27oneoeibomiemtykd-mcq-1",
+        "question": "What is a primary principle of More about Databases?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "More about Databases is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-ljt27oneoeibomiemtykd-mcq-2",
+        "question": "Why do technical interviews assess More about Databases?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use More about Databases to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": "backend-y-xkhfe9yzhnix3eiwspl",
+    "title": "Database Indexes",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "Database indexes are data structures that speed up data retrieval by creating references to table data without full table scans. Include B-t...",
+    "explanation": {
+      "overview": "Database indexes are data structures that speed up data retrieval by creating references to table data without full table scans. Include B-tree, bitmap, and hash types. Enhance query performance but increase storage requirements and slow down writes due to index maintenance.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Database indexes are data structures that speed up data retrieval by creating references to table data without full table scans. Include B-tree, bitmap, and hash types. Enhance query performance but increase storage requirements and slow down writes due to index maintenance.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Database Indexes as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Database Indexes Reference",
+        "description": "Core code snippet demonstrating Database Indexes.",
+        "code": "// Database Indexes Implementation\nconsole.log('Practicing Database Indexes on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-y-xkhfe9yzhnix3eiwspl-mcq-1",
+        "question": "What is a primary principle of Database Indexes?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Database Indexes is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-y-xkhfe9yzhnix3eiwspl-mcq-2",
+        "question": "Why do technical interviews assess Database Indexes?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Database Indexes to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": "backend-95d9itpuz4s9rozn8kg9x",
+    "title": "Scaling Databases",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "Scaling databases adapts them to handle more data and users efficiently through vertical scaling (upgrading hardware) or horizontal scaling ...",
+    "explanation": {
+      "overview": "Scaling databases adapts them to handle more data and users efficiently through vertical scaling (upgrading hardware) or horizontal scaling (adding servers). Key techniques include sharding and replication to maintain robustness as databases grow.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Scaling databases adapts them to handle more data and users efficiently through vertical scaling (upgrading hardware) or horizontal scaling (adding servers). Key techniques include sharding and replication to maintain robustness as databases grow.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Scaling Databases as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Scaling Databases Reference",
+        "description": "Core code snippet demonstrating Scaling Databases.",
+        "code": "// Scaling Databases Implementation\nconsole.log('Practicing Scaling Databases on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-95d9itpuz4s9rozn8kg9x-mcq-1",
+        "question": "What is a primary principle of Scaling Databases?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Scaling Databases is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-95d9itpuz4s9rozn8kg9x-mcq-2",
+        "question": "Why do technical interviews assess Scaling Databases?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Scaling Databases to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": "backend-kdule3z-bdbtrmq6t2kmr",
+    "title": "SQLite",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "SQLite is a lightweight, serverless, self-contained SQL database engine storing data in a single file. Used in mobile apps, desktop applicat...",
+    "explanation": {
+      "overview": "SQLite is a lightweight, serverless, self-contained SQL database engine storing data in a single file. Used in mobile apps, desktop applications, and small websites. Supports standard SQL with ACID compliance. Popular for compact, high-performance database needs with minimal configuration.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "SQLite is a lightweight, serverless, self-contained SQL database engine storing data in a single file. Used in mobile apps, desktop applications, and small websites. Supports standard SQL with ACID compliance. Popular for compact, high-performance database needs with minimal configuration.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master SQLite as outlined in roadmap.sh backend track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "SQLite Reference",
+        "description": "Core code snippet demonstrating SQLite.",
+        "code": "// SQLite Implementation\nconsole.log('Practicing SQLite on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "backend-kdule3z-bdbtrmq6t2kmr-mcq-1",
+        "question": "What is a primary principle of SQLite?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "SQLite is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "backend-kdule3z-bdbtrmq6t2kmr-mcq-2",
+        "question": "Why do technical interviews assess SQLite?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use SQLite to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "backend",
+      "fullstack",
+      "devops-architect",
+      "data-engineer"
+    ]
+  },
+  {
+    "id": "data-engineer-qrhead2uddaitaxmiiiug",
+    "title": "Database",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "A database is an organized, structured collection of electronic data that is stored, managed, and accessed via a computer system, usually co...",
+    "explanation": {
+      "overview": "A database is an organized, structured collection of electronic data that is stored, managed, and accessed via a computer system, usually controlled by a Database Management System (DBMS). Databases organize various types of data, such as words, numbers, images, and videos, allowing users to easily retrieve, update, and modify it for various purposes, from managing customer information to analyzing business processes.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "A database is an organized, structured collection of electronic data that is stored, managed, and accessed via a computer system, usually controlled by a Database Management System (DBMS). Databases organize various types of data, such as words, numbers, images, and videos, allowing users to easily retrieve, update, and modify it for various purposes, from managing customer information to analyzing business processes.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Database as outlined in roadmap.sh data-engineer track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Database Reference",
+        "description": "Core code snippet demonstrating Database.",
+        "code": "// Database Implementation\nconsole.log('Practicing Database on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-engineer-qrhead2uddaitaxmiiiug-mcq-1",
+        "question": "What is a primary principle of Database?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Database is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-qrhead2uddaitaxmiiiug-mcq-2",
+        "question": "Why do technical interviews assess Database?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Database to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-engineer",
+      "data-analytics",
+      "backend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "data-engineer-g4uc0go7opcjyjlac9w-i",
+    "title": "Database Fundamentals",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "isImportant": false,
+    "summary": "Database fundamentals cover the core concepts that apply across most relational database systems: how data is organized into tables, how que...",
+    "explanation": {
+      "overview": "Database fundamentals cover the core concepts that apply across most relational database systems: how data is organized into tables, how queries are executed, and how the database ensures consistency and durability. Topics include normalization, indexing, transactions, and query optimization. These concepts apply whether using PostgreSQL, MySQL, or any other relational system.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Database fundamentals cover the core concepts that apply across most relational database systems: how data is organized into tables, how queries are executed, and how the database ensures consistency and durability. Topics include normalization, indexing, transactions, and query optimization. These concepts apply whether using PostgreSQL, MySQL, or any other relational system.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Database Fundamentals as outlined in roadmap.sh data-engineer track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Database Fundamentals Reference",
+        "description": "Core code snippet demonstrating Database Fundamentals.",
+        "code": "// Database Fundamentals Implementation\nconsole.log('Practicing Database Fundamentals on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-engineer-g4uc0go7opcjyjlac9w-i-mcq-1",
+        "question": "What is a primary principle of Database Fundamentals?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Database Fundamentals is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-g4uc0go7opcjyjlac9w-i-mcq-2",
+        "question": "Why do technical interviews assess Database Fundamentals?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Database Fundamentals to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-engineer",
+      "data-analytics",
+      "backend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "data-engineer-2rrvwpon-o3mvpgzmru-a",
+    "title": "Learn SQL",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "SQL stands for Structured Query Language. It is a standardized programming language designed to manage and interact with relational database...",
+    "explanation": {
+      "overview": "SQL stands for Structured Query Language. It is a standardized programming language designed to manage and interact with relational database management systems (RDBMS). SQL allows you to create, read, edit, and delete data stored in database tables by writing specific queries.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "SQL stands for Structured Query Language. It is a standardized programming language designed to manage and interact with relational database management systems (RDBMS). SQL allows you to create, read, edit, and delete data stored in database tables by writing specific queries.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Learn SQL as outlined in roadmap.sh data-engineer track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Learn SQL Reference",
+        "description": "Core code snippet demonstrating Learn SQL.",
+        "code": "// Learn SQL Implementation\nconsole.log('Practicing Learn SQL on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-engineer-2rrvwpon-o3mvpgzmru-a-mcq-1",
+        "question": "What is a primary principle of Learn SQL?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Learn SQL is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-2rrvwpon-o3mvpgzmru-a-mcq-2",
+        "question": "Why do technical interviews assess Learn SQL?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Learn SQL to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-engineer",
+      "data-analytics",
+      "backend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "data-engineer-gtfk7phygfxuhxanicynq",
+    "title": "Amazon RDS (Database)",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "Amazon RDS (Relational Database Service) is a managed relational database service from AWS that supports MySQL, PostgreSQL, MariaDB, Oracle,...",
+    "explanation": {
+      "overview": "Amazon RDS (Relational Database Service) is a managed relational database service from AWS that supports MySQL, PostgreSQL, MariaDB, Oracle, and MS SQL Server. It handles provisioning, backups, patching, and replication automatically. RDS is used for transactional databases that require minimal database administration overhead.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Amazon RDS (Relational Database Service) is a managed relational database service from AWS that supports MySQL, PostgreSQL, MariaDB, Oracle, and MS SQL Server. It handles provisioning, backups, patching, and replication automatically. RDS is used for transactional databases that require minimal database administration overhead.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Amazon RDS (Database) as outlined in roadmap.sh data-engineer track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Amazon RDS (Database) Reference",
+        "description": "Core code snippet demonstrating Amazon RDS (Database).",
+        "code": "// Amazon RDS (Database) Implementation\nconsole.log('Practicing Amazon RDS (Database) on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-engineer-gtfk7phygfxuhxanicynq-mcq-1",
+        "question": "What is a primary principle of Amazon RDS (Database)?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Amazon RDS (Database) is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-gtfk7phygfxuhxanicynq-mcq-2",
+        "question": "Why do technical interviews assess Amazon RDS (Database)?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Amazon RDS (Database) to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-engineer",
+      "data-analytics",
+      "backend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "data-engineer-iiz3g70krwejcbnaond2d",
+    "title": "Azure SQL Database",
+    "category": "MYSQL",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "Azure SQL Database is a fully managed Platform as a Service (PaaS) offering. It abstracts the underlying infrastructure, enabling developers...",
+    "explanation": {
+      "overview": "Azure SQL Database is a fully managed Platform as a Service (PaaS) offering. It abstracts the underlying infrastructure, enabling developers to focus on building and deploying applications without worrying about database maintenance tasks.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Azure SQL Database is a fully managed Platform as a Service (PaaS) offering. It abstracts the underlying infrastructure, enabling developers to focus on building and deploying applications without worrying about database maintenance tasks.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Azure SQL Database as outlined in roadmap.sh data-engineer track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Azure SQL Database Reference",
+        "description": "Core code snippet demonstrating Azure SQL Database.",
+        "code": "// Azure SQL Database Implementation\nconsole.log('Practicing Azure SQL Database on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-engineer-iiz3g70krwejcbnaond2d-mcq-1",
+        "question": "What is a primary principle of Azure SQL Database?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Azure SQL Database is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-iiz3g70krwejcbnaond2d-mcq-2",
+        "question": "Why do technical interviews assess Azure SQL Database?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Azure SQL Database to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-engineer",
+      "data-analytics",
+      "backend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "data-engineer-9-wqwqidaxqmmajc9ojpg",
+    "title": "Cloud SQL (Database)",
+    "category": "MYSQL",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "Google Cloud SQL is a fully-managed, cost-effective and scalable database service that makes it easy to set-up, maintain, manage and adminis...",
+    "explanation": {
+      "overview": "Google Cloud SQL is a fully-managed, cost-effective and scalable database service that makes it easy to set-up, maintain, manage and administer MySQL, PostgreSQL, and SQL Server databases in the cloud. Hosted on Google Cloud Platform, Cloud SQL provides a database infrastructure for applications running anywhere.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Google Cloud SQL is a fully-managed, cost-effective and scalable database service that makes it easy to set-up, maintain, manage and administer MySQL, PostgreSQL, and SQL Server databases in the cloud. Hosted on Google Cloud Platform, Cloud SQL provides a database infrastructure for applications running anywhere.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Cloud SQL (Database) as outlined in roadmap.sh data-engineer track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Cloud SQL (Database) Reference",
+        "description": "Core code snippet demonstrating Cloud SQL (Database).",
+        "code": "// Cloud SQL (Database) Implementation\nconsole.log('Practicing Cloud SQL (Database) on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-engineer-9-wqwqidaxqmmajc9ojpg-mcq-1",
+        "question": "What is a primary principle of Cloud SQL (Database)?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Cloud SQL (Database) is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-engineer-9-wqwqidaxqmmajc9ojpg-mcq-2",
+        "question": "Why do technical interviews assess Cloud SQL (Database)?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Cloud SQL (Database) to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-engineer",
+      "data-analytics",
+      "backend",
+      "fullstack"
+    ]
+  },
+  {
+    "id": "data-analyst-typelcxbqvmfltkcgjdhg",
+    "title": "Databases",
+    "category": "MYSQL",
+    "difficulty": "Advanced",
+    "isImportant": false,
+    "summary": "Databases are structured storage systems that hold organized data accessible via query languages like SQL. Data analysts connect to database...",
+    "explanation": {
+      "overview": "Databases are structured storage systems that hold organized data accessible via query languages like SQL. Data analysts connect to databases to extract relevant subsets of data for analysis. Understanding basic SQL and database concepts is necessary for working with most organizational data.",
+      "sections": [
+        {
+          "heading": "Overview & Fundamentals",
+          "content": "Databases are structured storage systems that hold organized data accessible via query languages like SQL. Data analysts connect to databases to extract relevant subsets of data for analysis. Understanding basic SQL and database concepts is necessary for working with most organizational data.",
+          "bulletPoints": [
+            "Core industry standard topic for software engineering",
+            "Frequently asked in technical rounds and system design",
+            "Improves code quality, efficiency, and system scalability"
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Master Databases as outlined in roadmap.sh data-analyst track.",
+      "Apply core computer science and engineering design patterns.",
+      "Understand production trade-offs and performance characteristics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Databases Reference",
+        "description": "Core code snippet demonstrating Databases.",
+        "code": "// Databases Implementation\nconsole.log('Practicing Databases on DevDocs');"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "data-analyst-typelcxbqvmfltkcgjdhg-mcq-1",
+        "question": "What is a primary principle of Databases?",
+        "options": [
+          "It provides standard structures and patterns for building reliable software",
+          "It disables network encryption",
+          "It removes hardware CPU constraints",
+          "It forces synchronous blocking UI execution"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Databases is a key concept in computer science and software engineering."
+      },
+      {
+        "id": "data-analyst-typelcxbqvmfltkcgjdhg-mcq-2",
+        "question": "Why do technical interviews assess Databases?",
+        "options": [
+          "To evaluate problem-solving ability and architectural understanding",
+          "To test computer monitor resolution",
+          "To check internet bandwidth",
+          "To measure typing speed"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Engineers use Databases to design efficient, scalable systems."
+      }
+    ],
+    "roles": [
+      "data-analytics",
+      "data-engineer"
     ]
   }
 ]

@@ -1,3 +1,4 @@
+import htmlCssData from "./content/html-css.json";
 import javascriptData from "./content/javascript.json";
 import reactData from "./content/react.json";
 import nodeData from "./content/node.json";
@@ -24,6 +25,7 @@ export interface MCQ {
 }
 
 export type CategoryType =
+  | "HTML & CSS"
   | "JAVASCRIPT"
   | "REACT"
   | "NODE"
@@ -41,6 +43,7 @@ export interface Topic {
   difficulty: "Beginner" | "Intermediate" | "Advanced";
   isImportant?: boolean;
   summary: string;
+  roles?: string[];
   explanation: {
     overview: string;
     sections: {
@@ -55,6 +58,7 @@ export interface Topic {
 }
 
 export const TOPICS: Topic[] = [
+  ...(htmlCssData as Topic[]),
   ...(javascriptData as Topic[]),
   ...(reactData as Topic[]),
   ...(nodeData as Topic[]),

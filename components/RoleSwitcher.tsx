@@ -12,6 +12,7 @@ import {
   Database,
   BarChart3,
   Cpu,
+  Binary,
   ChevronDown,
   Check,
   Target,
@@ -26,6 +27,7 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
   "data-engineer": <Database className="w-4 h-4 text-foreground" />,
   "data-analytics": <BarChart3 className="w-4 h-4 text-foreground" />,
   "devops-architect": <Cpu className="w-4 h-4 text-foreground" />,
+  dsa: <Binary className="w-4 h-4 text-foreground" />,
 };
 
 export function RoleSwitcher() {
