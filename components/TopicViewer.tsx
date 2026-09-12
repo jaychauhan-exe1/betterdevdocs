@@ -39,6 +39,13 @@ import {
 } from "lucide-react";
 import { AnimatedCheckmark } from "@/components/AnimatedCheckmark";
 import { triggerHaptic } from "@/lib/haptics";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface TopicViewerProps {
   topic?: Topic;
@@ -583,27 +590,27 @@ export default function TopicViewer(props: TopicViewerProps) {
     >
       {/* Top Banner Card */}
       <Card className="bg-card border-border shadow-xl relative font-normal">
-        <CardHeader className="p-6 sm:p-8 pb-6 font-normal">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 relative z-10 font-normal">
-            <div className="space-y-3 font-normal">
-              <div className="flex items-center gap-2.5 flex-wrap font-normal">
-                <Badge variant="secondary" className="text-xs sm:text-sm py-1 px-3 uppercase tracking-wider font-normal">
+        <CardHeader className="p-4 sm:p-8 pb-4 sm:pb-6 font-normal">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6 relative z-10 font-normal">
+            <div className="space-y-2 sm:space-y-3 font-normal">
+              <div className="flex items-center gap-2 flex-wrap font-normal">
+                <Badge variant="secondary" className="text-xs sm:text-sm py-0.5 sm:py-1 px-2.5 sm:px-3 uppercase tracking-wider font-normal">
                   {topic.category}
                 </Badge>
-                <Badge variant="outline" className="text-xs sm:text-sm py-1 px-3 font-normal">
+                <Badge variant="outline" className="text-xs sm:text-sm py-0.5 sm:py-1 px-2.5 sm:px-3 font-normal">
                   {topic.difficulty}
                 </Badge>
                 <span className="flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground font-normal">
-                  <Clock className="w-4 h-4" />
+                  <Clock className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                   {topic.estimatedTime}
                 </span>
               </div>
 
               {/* Title */}
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold text-foreground tracking-tight leading-tight">
+              <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold text-foreground tracking-tight leading-tight">
                 {topic.title}
               </h1>
-              <p className="text-base sm:text-xl text-muted-foreground max-w-3xl leading-relaxed font-normal">
+              <p className="text-sm sm:text-lg text-muted-foreground max-w-3xl leading-relaxed font-normal">
                 {renderFormattedText(topic.summary)}
               </p>
             </div>
@@ -615,171 +622,192 @@ export default function TopicViewer(props: TopicViewerProps) {
                 triggerHaptic(isCompleted ? "light" : "success");
                 onToggleComplete(topic.id);
               }}
-              className="flex items-center gap-2.5 font-semibold text-sm sm:text-base flex-shrink-0 transition-transform active:scale-95 shadow-sm"
+              className="flex items-center justify-center gap-2 font-semibold text-xs sm:text-base w-full sm:w-auto h-10 sm:h-12 rounded-xl sm:rounded-2xl transition-transform active:scale-95 shadow-sm mt-1 sm:mt-0"
             >
-              <AnimatedCheckmark checked={isCompleted} size={20} />
+              <AnimatedCheckmark checked={isCompleted} size={18} />
               <span>Topic Mastered</span>
             </Button>
           </div>
         </CardHeader>
 
         {/* Tabs Container */}
-        <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-0 font-normal">
+        <CardContent className="px-4 sm:px-8 pb-4 sm:pb-8 pt-0 font-normal">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="relative w-full">
-            {/* Audio Control Widget (Inline with TabsList at top-0, ONLY sticks to top-16 when TTS is playing/paused/loading) */}
-            {activeTab === "explanation" && (
-              <div
-                className={
-                  (isSpeaking || isPaused || isLoadingAudio)
-                    ? "absolute top-0 right-0 bottom-0 pointer-events-none z-30"
-                    : "absolute top-0 right-0 h-[52px] pointer-events-none z-30"
-                }
-              >
-                <div
-                  className={
-                    (isSpeaking || isPaused || isLoadingAudio)
-                      ? "sticky top-16 pointer-events-auto h-[52px] flex items-center justify-end"
-                      : "relative pointer-events-auto h-[52px] flex items-center justify-end"
-                  }
-                >
-                  <div className="flex items-center gap-2 p-1.5 rounded-full bg-card/95 backdrop-blur-xl border border-border/90 shadow-2xl flex-shrink-0 transition-all duration-300">
-                    {isLoadingAudio ? (
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        disabled
-                        className="w-9 h-9 rounded-full border border-border bg-secondary/60 text-foreground flex items-center justify-center opacity-80"
-                        title="Generating Microsoft Edge Neural speech..."
-                      >
-                        <Loader2 className="w-4 h-4 animate-spin text-foreground" />
-                      </Button>
-                    ) : !isSpeaking && !isPaused ? (
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={handleStartSpeech}
-                        className="w-9 h-9 rounded-full border border-border bg-secondary/80 hover:bg-secondary text-foreground transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm flex items-center justify-center"
-                        title="Listen to topic narration (Microsoft Edge Neural)"
-                        aria-label="Listen to topic narration"
-                      >
-                        <Play className="w-4 h-4 text-foreground fill-foreground ml-0.5" />
-                      </Button>
-                    ) : isSpeaking ? (
-                      <div className="flex items-center gap-2">
-                        {/* Close on left */}
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={handleStopSpeech}
-                          className="w-9 h-9 rounded-full border border-border bg-secondary/40 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
-                          title="Exit narration"
-                          aria-label="Exit narration"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                        {/* Reset in middle */}
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={handleResetSpeech}
-                          className="w-9 h-9 rounded-full border border-border bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary/90 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
-                          title="Restart narration from beginning"
-                          aria-label="Restart narration"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                        </Button>
-                        {/* Pause on right */}
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={handlePauseSpeech}
-                          className="w-9 h-9 rounded-full border border-border bg-secondary text-foreground hover:bg-secondary/80 transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm flex items-center justify-center"
-                          title="Pause narration"
-                          aria-label="Pause narration"
-                        >
-                          <Pause className="w-4 h-4 text-foreground fill-foreground" />
-                        </Button>
+            {/* Header row: Tabs & Select on Left, Audio Narration Widget on Right */}
+            <div className="flex items-center justify-between gap-3 w-full mb-5 sm:mb-6">
+              {/* Mobile Select Dropdown (< sm) - Official shadcn UI Select */}
+              <div className="sm:hidden flex-1 min-w-0">
+                <Select value={activeTab} onValueChange={(val: any) => { if (val) setActiveTab(val); }}>
+                  <SelectTrigger className="w-full h-11 px-4 rounded-xl bg-secondary border border-border text-foreground font-semibold text-xs shadow-sm flex items-center justify-between">
+                    <div className="flex items-center gap-2 truncate min-w-0">
+                      {activeTab === "explanation" && <BookOpen className="w-4 h-4 text-foreground shrink-0" />}
+                      {activeTab === "code" && <Code className="w-4 h-4 text-foreground shrink-0" />}
+                      {activeTab === "mcq" && <HelpCircle className="w-4 h-4 text-foreground shrink-0" />}
+                      {activeTab === "notes" && <StickyNote className="w-4 h-4 text-foreground shrink-0" />}
+                      <span className="truncate">
+                        {activeTab === "explanation" && "Concept Overview"}
+                        {activeTab === "code" && `Code (${topic.codeExamples.length})`}
+                        {activeTab === "mcq" && `MCQ Test (${mcqs.length})`}
+                        {activeTab === "notes" && "Make Notes"}
+                      </span>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent className="bg-card border border-border text-foreground rounded-xl shadow-xl z-50 p-1.5 space-y-1">
+                    <SelectItem value="explanation" className="text-xs sm:text-sm font-medium cursor-pointer py-2.5 px-3 rounded-lg">
+                      <div className="flex items-center gap-2.5">
+                        <BookOpen className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <span>Concept Overview</span>
                       </div>
-                    ) : (
-                      <div className="flex items-center gap-2">
-                        {/* Close on left */}
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={handleStopSpeech}
-                          className="w-9 h-9 rounded-full border border-border bg-secondary/40 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
-                          title="Exit narration"
-                          aria-label="Exit narration"
-                        >
-                          <X className="w-4 h-4" />
-                        </Button>
-                        {/* Reset in middle */}
-                        <Button
-                          variant="outline"
-                          size="icon"
-                          onClick={handleResetSpeech}
-                          className="w-9 h-9 rounded-full border border-border bg-secondary/50 text-muted-foreground hover:text-foreground hover:bg-secondary/90 transition-all hover:scale-105 active:scale-95 cursor-pointer flex items-center justify-center"
-                          title="Restart narration from beginning"
-                          aria-label="Restart narration"
-                        >
-                          <RotateCcw className="w-4 h-4" />
-                        </Button>
-                        {/* Play on right */}
-                        <Button
-                          variant="default"
-                          size="icon"
-                          onClick={handleResumeSpeech}
-                          className="w-9 h-9 rounded-full bg-foreground text-background hover:bg-foreground/90 transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm flex items-center justify-center"
-                          title="Resume narration"
-                          aria-label="Resume narration"
-                        >
-                          <Play className="w-4 h-4 fill-background text-background ml-0.5" />
-                        </Button>
+                    </SelectItem>
+                    <SelectItem value="code" className="text-xs sm:text-sm font-medium cursor-pointer py-2.5 px-3 rounded-lg">
+                      <div className="flex items-center gap-2.5">
+                        <Code className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <span>Code Examples ({topic.codeExamples.length})</span>
                       </div>
-                    )}
-                  </div>
-                </div>
+                    </SelectItem>
+                    <SelectItem value="mcq" className="text-xs sm:text-sm font-medium cursor-pointer py-2.5 px-3 rounded-lg">
+                      <div className="flex items-center gap-2.5">
+                        <HelpCircle className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <span>MCQ Quiz Test ({mcqs.length})</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="notes" className="text-xs sm:text-sm font-medium cursor-pointer py-2.5 px-3 rounded-lg">
+                      <div className="flex items-center gap-2.5">
+                        <StickyNote className="w-4 h-4 text-muted-foreground shrink-0" />
+                        <span>Make Notes {noteText.trim() ? "•" : ""}</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-            )}
 
-            {/* Header row: Tabs on left */}
-            <div className="flex items-center justify-between gap-4 w-full mb-6 pr-20 sm:pr-28">
-              <TabsList className="w-full sm:w-auto font-normal overflow-x-auto">
-                <TabsTrigger value="explanation" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
-                  <BookOpen className="w-4 h-4" />
-                  Concept Overview
-                </TabsTrigger>
+              {/* Desktop TabsList (>= sm) */}
+              <div className="hidden sm:flex items-center gap-4">
+                <TabsList className="font-normal overflow-x-auto">
+                  <TabsTrigger value="explanation" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
+                    <BookOpen className="w-4 h-4" />
+                    Concept Overview
+                  </TabsTrigger>
 
-                <TabsTrigger value="code" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
-                  <Code className="w-4 h-4" />
-                  Code ({topic.codeExamples.length})
-                </TabsTrigger>
+                  <TabsTrigger value="code" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
+                    <Code className="w-4 h-4" />
+                    Code ({topic.codeExamples.length})
+                  </TabsTrigger>
 
-                <TabsTrigger value="mcq" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
-                  <HelpCircle className="w-4 h-4" />
-                  MCQ Quiz Test ({mcqs.length})
-                </TabsTrigger>
+                  <TabsTrigger value="mcq" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
+                    <HelpCircle className="w-4 h-4" />
+                    MCQ Quiz Test ({mcqs.length})
+                  </TabsTrigger>
 
-                <TabsTrigger value="notes" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
-                  <StickyNote className="w-4 h-4" />
-                  <span>Make Notes</span>
-                  {noteText.trim() && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
-                </TabsTrigger>
-              </TabsList>
+                  <TabsTrigger value="notes" className="flex items-center gap-2 font-medium focus:outline-none focus-visible:outline-none">
+                    <StickyNote className="w-4 h-4" />
+                    <span>Make Notes</span>
+                    {noteText.trim() && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />}
+                  </TabsTrigger>
+                </TabsList>
+              </div>
+
+              {/* Audio Control Widget (Inline flex on right side matching h-11 Select height) */}
+              {activeTab === "explanation" && (
+                <div className="shrink-0 flex items-center justify-end">
+                  {isLoadingAudio ? (
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      disabled
+                      className="w-11 h-11 rounded-full border border-border bg-secondary/60 text-foreground flex items-center justify-center opacity-80 shrink-0 shadow-sm"
+                      title="Generating speech..."
+                    >
+                      <Loader2 className="w-4 h-4 animate-spin text-foreground" />
+                    </Button>
+                  ) : !isSpeaking && !isPaused ? (
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      onClick={handleStartSpeech}
+                      className="w-11 h-11 rounded-full border border-border bg-secondary hover:bg-secondary/80 text-foreground transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm flex items-center justify-center shrink-0"
+                      title="Listen to topic narration"
+                      aria-label="Listen to topic narration"
+                    >
+                      <Play className="w-4 h-4 text-foreground fill-foreground ml-0.5" />
+                    </Button>
+                  ) : isSpeaking ? (
+                    <div className="flex items-center gap-1.5 h-11 px-2.5 rounded-full bg-secondary border border-border shadow-sm shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleStopSpeech}
+                        className="w-7 h-7 rounded-full text-muted-foreground hover:text-destructive flex items-center justify-center"
+                        title="Exit narration"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleResetSpeech}
+                        className="w-7 h-7 rounded-full text-muted-foreground hover:text-foreground flex items-center justify-center"
+                        title="Restart narration"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handlePauseSpeech}
+                        className="w-7 h-7 rounded-full bg-foreground text-background hover:bg-foreground/90 flex items-center justify-center"
+                        title="Pause narration"
+                      >
+                        <Pause className="w-3.5 h-3.5 text-background fill-background" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 h-11 px-2.5 rounded-full bg-secondary border border-border shadow-sm shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleStopSpeech}
+                        className="w-7 h-7 rounded-full text-muted-foreground hover:text-destructive flex items-center justify-center"
+                        title="Exit narration"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={handleResetSpeech}
+                        className="w-7 h-7 rounded-full text-muted-foreground hover:text-foreground flex items-center justify-center"
+                        title="Restart narration"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" />
+                      </Button>
+                      <Button
+                        variant="default"
+                        size="icon"
+                        onClick={handleResumeSpeech}
+                        className="w-7 h-7 rounded-full bg-foreground text-background hover:bg-foreground/90 flex items-center justify-center"
+                        title="Resume narration"
+                      >
+                        <Play className="w-3.5 h-3.5 fill-background text-background ml-0.5" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Explanation Content */}
-            <TabsContent value="explanation" className="space-y-6 mt-0 font-normal focus:outline-none focus-visible:outline-none relative">
-              <div className="space-y-6">
+            <TabsContent value="explanation" className="space-y-6 sm:space-y-8 mt-0 font-normal focus:outline-none focus-visible:outline-none relative">
+              <div className="space-y-6 sm:space-y-8">
 
                 <Card className="bg-card border-border font-normal">
-                  <CardHeader className="p-6 sm:p-8 pb-3">
-                    <CardTitle className="text-lg sm:text-xl font-semibold text-foreground flex items-center gap-2.5 uppercase tracking-wide">
-                      <Lightbulb className="w-5 h-5 text-foreground" />
+                  <CardHeader className="p-5 sm:p-8 pb-3 sm:pb-4">
+                    <CardTitle className="text-base sm:text-xl font-bold text-foreground flex items-center gap-2.5 uppercase tracking-wide">
+                      <Lightbulb className="w-4 h-4 sm:w-5 sm:h-5 text-foreground shrink-0" />
                       <span>Core Concept Overview</span>
                     </CardTitle>
                   </CardHeader>
-                  <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-0 text-base sm:text-lg text-muted-foreground leading-relaxed font-normal">
+                  <CardContent className="px-5 sm:px-8 pb-6 sm:pb-8 pt-0 text-base sm:text-lg text-muted-foreground leading-relaxed font-normal">
                     {renderSpeechFormattedText(
                       topic.explanation.overview,
                       isSpeaking || isPaused,
@@ -795,8 +823,8 @@ export default function TopicViewer(props: TopicViewerProps) {
 
                   return (
                     <Card key={idx} className="bg-card border-border font-normal">
-                      <CardHeader className="p-6 sm:p-8 pb-3">
-                        <CardTitle className="text-base sm:text-xl font-semibold text-foreground uppercase tracking-wider">
+                      <CardHeader className="p-5 sm:p-8 pb-3 sm:pb-4">
+                        <CardTitle className="text-base sm:text-xl font-bold text-foreground uppercase tracking-wider">
                           {renderSpeechFormattedText(
                             section.heading,
                             isNarrationActive,
@@ -805,7 +833,7 @@ export default function TopicViewer(props: TopicViewerProps) {
                           )}
                         </CardTitle>
                       </CardHeader>
-                      <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-0 space-y-4 font-normal">
+                      <CardContent className="px-5 sm:px-8 pb-6 sm:pb-8 pt-0 space-y-4 font-normal">
                         <p className="text-base sm:text-lg text-muted-foreground leading-relaxed font-normal">
                           {renderSpeechFormattedText(
                             section.content,
@@ -839,20 +867,20 @@ export default function TopicViewer(props: TopicViewerProps) {
 
               {/* Key Takeaways Card */}
               <Card className="bg-card border-border font-normal">
-                <CardHeader className="p-6 sm:p-8 pb-4">
-                  <CardTitle className="text-sm sm:text-base font-semibold text-foreground uppercase tracking-widest flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-foreground" />
+                <CardHeader className="p-5 sm:p-8 pb-3 sm:pb-4">
+                  <CardTitle className="text-sm sm:text-base font-bold text-foreground uppercase tracking-widest flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5 text-foreground shrink-0" />
                     Key Rules & Takeaways
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-0">
+                <CardContent className="px-5 sm:px-8 pb-6 sm:pb-8 pt-0">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-normal">
                     {topic.keyTakeaways.map((takeaway, idx) => (
                       <div
                         key={idx}
-                        className="p-4 rounded-2xl bg-secondary/50 border border-border text-base text-foreground flex items-start gap-3 leading-relaxed font-normal"
+                        className="p-4 sm:p-5 rounded-2xl bg-secondary/50 border border-border text-sm sm:text-base text-foreground flex items-start gap-3 leading-relaxed font-normal"
                       >
-                        <span className="text-foreground font-semibold text-lg">{idx + 1}.</span>
+                        <span className="text-foreground font-semibold text-base sm:text-lg">{idx + 1}.</span>
                         <span>{renderFormattedText(takeaway)}</span>
                       </div>
                     ))}
@@ -1260,18 +1288,18 @@ export default function TopicViewer(props: TopicViewerProps) {
       </Card>
 
       {/* Pagination Controls */}
-      <div className="pt-8 border-t border-border flex items-center justify-between gap-4 font-normal">
+      <div className="pt-6 sm:pt-8 border-t border-border flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 sm:gap-4 font-normal">
         {prevTopic ? (
           <Button
             variant="outline"
             size="lg"
             onClick={() => onSelectTopic(prevTopic.id)}
-            className="flex items-center gap-3 h-auto py-4 text-left font-normal focus:outline-none focus-visible:outline-none"
+            className="flex items-center gap-3 h-auto py-3 sm:py-4 px-4 text-left font-normal focus:outline-none focus-visible:outline-none w-full sm:w-auto"
           >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 text-foreground shrink-0" />
             <div>
-              <span className="text-xs text-muted-foreground block uppercase font-normal">Previous Topic</span>
-              <span className="text-sm font-medium text-foreground">{prevTopic.title}</span>
+              <span className="text-[10px] sm:text-xs text-muted-foreground block uppercase font-normal">Previous Topic</span>
+              <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-[200px] block">{prevTopic.title}</span>
             </div>
           </Button>
         ) : (
@@ -1283,13 +1311,13 @@ export default function TopicViewer(props: TopicViewerProps) {
             variant="outline"
             size="lg"
             onClick={() => onSelectTopic(nextTopic.id)}
-            className="flex items-center gap-3 h-auto py-4 text-right font-normal focus:outline-none focus-visible:outline-none"
+            className="flex items-center justify-end gap-3 h-auto py-3 sm:py-4 px-4 text-right font-normal focus:outline-none focus-visible:outline-none w-full sm:w-auto ml-auto"
           >
             <div>
-              <span className="text-xs text-muted-foreground block uppercase font-normal">Next Topic</span>
-              <span className="text-sm font-medium text-foreground">{nextTopic.title}</span>
+              <span className="text-[10px] sm:text-xs text-muted-foreground block uppercase font-normal">Next Topic</span>
+              <span className="text-xs sm:text-sm font-medium text-foreground truncate max-w-[200px] block">{nextTopic.title}</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-foreground" />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 text-foreground shrink-0" />
           </Button>
         ) : (
           <div />

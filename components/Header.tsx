@@ -11,7 +11,7 @@ import UserMenu from "./UserMenu";
 import AuthModal from "./AuthModal";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import { calculateUserPoints, formatPoints } from "@/lib/points";
+import { calculateUserPoints, formatKPoints } from "@/lib/points";
 import { ROLES } from "@/data/roles";
 
 function formatStarCount(count: number): string {
@@ -67,7 +67,8 @@ export default function Header() {
   const [userRank, setUserRank] = useState<number>(1);
 
   useEffect(() => {
-    fetch("/api/leaderboard")
+    const controller = new AbortController();
+    fetch("/api/leaderboard", { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch leaderboard rank");
         return res.json();
@@ -77,9 +78,12 @@ export default function Header() {
           setUserRank(data.currentUserRank);
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err.name === "AbortError") return;
         setUserRank(1);
       });
+
+    return () => controller.abort();
   }, [user, currentUserPoints.totalPoints]);
 
   const totalCount = roleTopics.length;
@@ -88,7 +92,8 @@ export default function Header() {
   const [starCount, setStarCount] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("/api/github-stars")
+    const controller = new AbortController();
+    fetch("/api/github-stars", { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error("Internal route error");
         return res.json();
@@ -98,112 +103,116 @@ export default function Header() {
           setStarCount(formatStarCount(data.stars));
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        if (err.name === "AbortError") return;
         // Fallback directly to ungh.cc API if local route fails
-        fetch("https://ungh.cc/repos/jaychauhan-exe1/devdocs")
+        fetch("https://ungh.cc/repos/jaychauhan-exe1/devdocs", { signal: controller.signal })
           .then((res) => res.json())
           .then((data) => {
             if (typeof data?.repo?.stars === "number") {
               setStarCount(formatStarCount(data.repo.stars));
             }
           })
-          .catch((err) => {
-            console.warn("Failed to fetch live GitHub stars", err);
+          .catch((e) => {
+            if (e.name === "AbortError") return;
+            console.warn("Failed to fetch live GitHub stars", e);
           });
       });
+
+    return () => controller.abort();
   }, []);
 
   return (
-    <header className="sticky top-0 z-40 h-14 bg-background/90 backdrop-blur-md border-b border-border px-4 lg:px-8 flex items-center justify-between font-normal">
-      <div className="flex items-center gap-3 font-normal">
+    <header className="shrink-0 sticky top-0 z-40 h-14 bg-background/90 backdrop-blur-md border-b border-border px-2.5 sm:px-6 lg:px-8 flex items-center justify-between font-normal min-w-0">
+      <div className="flex items-center gap-1.5 sm:gap-3 font-normal min-w-0 pr-1">
         <Button
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="lg:hidden"
+          className="lg:hidden shrink-0"
           aria-label="Toggle Navigation"
         >
           <Menu className="w-5 h-5" />
         </Button>
 
-        <div className="flex items-center gap-2 text-xs font-normal">
+        <div className="flex items-center gap-1.5 text-xs font-normal min-w-0">
           {pathname === "/progress" ? (
             <>
-              <Link href="/">
+              <Link href="/" className="shrink-0">
                 <Badge variant="secondary" className="font-medium uppercase text-[10px] hover:bg-secondary/80 cursor-pointer transition-colors">
                   PROGRESS
                 </Badge>
               </Link>
-              <span className="text-muted-foreground font-normal">/</span>
-              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+              <span className="text-muted-foreground font-normal shrink-0">/</span>
+              <span className="text-foreground font-medium truncate max-w-[80px] xs:max-w-[120px] sm:max-w-none">
                 Quest Roadmap
               </span>
             </>
           ) : pathname === "/points" ? (
             <>
-              <Link href="/">
+              <Link href="/" className="shrink-0">
                 <Badge variant="secondary" className="font-medium uppercase text-[10px] hover:bg-secondary/80 cursor-pointer transition-colors">
                   POINTS
                 </Badge>
               </Link>
-              <span className="text-muted-foreground font-normal">/</span>
-              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+              <span className="text-muted-foreground font-normal shrink-0">/</span>
+              <span className="text-foreground font-medium truncate max-w-[80px] xs:max-w-[120px] sm:max-w-none">
                 Score Breakdown
               </span>
             </>
           ) : pathname === "/leaderboard" ? (
             <>
-              <Link href="/">
+              <Link href="/" className="shrink-0">
                 <Badge variant="secondary" className="font-medium uppercase text-[10px] hover:bg-secondary/80 cursor-pointer transition-colors">
                   LEADERBOARD
                 </Badge>
               </Link>
-              <span className="text-muted-foreground font-normal">/</span>
-              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+              <span className="text-muted-foreground font-normal shrink-0">/</span>
+              <span className="text-foreground font-medium truncate max-w-[80px] xs:max-w-[120px] sm:max-w-none">
                 Global Rankings
               </span>
             </>
           ) : pathname === "/coding" ? (
             <>
-              <Link href="/">
+              <Link href="/" className="shrink-0">
                 <Badge variant="secondary" className="font-medium uppercase text-[10px] hover:bg-secondary/80 cursor-pointer transition-colors">
                   CODING
                 </Badge>
               </Link>
-              <span className="text-muted-foreground font-normal">/</span>
-              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+              <span className="text-muted-foreground font-normal shrink-0">/</span>
+              <span className="text-foreground font-medium truncate max-w-[80px] xs:max-w-[120px] sm:max-w-none">
                 Interview Arena
               </span>
             </>
           ) : pathname === "/sign-in" ? (
             <>
-              <Badge variant="secondary" className="font-medium uppercase text-[10px]">
+              <Badge variant="secondary" className="font-medium uppercase text-[10px] shrink-0">
                 AUTH
               </Badge>
-              <span className="text-muted-foreground font-normal">/</span>
-              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+              <span className="text-muted-foreground font-normal shrink-0">/</span>
+              <span className="text-foreground font-medium truncate max-w-[80px] xs:max-w-[120px] sm:max-w-none">
                 Sign In
               </span>
             </>
           ) : pathname === "/sign-up" ? (
             <>
-              <Badge variant="secondary" className="font-medium uppercase text-[10px]">
+              <Badge variant="secondary" className="font-medium uppercase text-[10px] shrink-0">
                 AUTH
               </Badge>
-              <span className="text-muted-foreground font-normal">/</span>
-              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+              <span className="text-muted-foreground font-normal shrink-0">/</span>
+              <span className="text-foreground font-medium truncate max-w-[80px] xs:max-w-[120px] sm:max-w-none">
                 Sign Up
               </span>
             </>
           ) : (
             <>
-              <Link href="/">
+              <Link href="/" className="shrink-0">
                 <Badge variant="secondary" className="font-medium uppercase text-[10px] hover:bg-secondary/80 cursor-pointer transition-colors">
                   {activeTopic.category}
                 </Badge>
               </Link>
-              <span className="text-muted-foreground font-normal">/</span>
-              <span className="text-foreground font-medium truncate max-w-[180px] sm:max-w-none">
+              <span className="text-muted-foreground font-normal shrink-0">/</span>
+              <span className="text-foreground font-medium truncate max-w-[80px] xs:max-w-[120px] sm:max-w-none">
                 {activeTopic.title}
               </span>
             </>
@@ -211,29 +220,29 @@ export default function Header() {
         </div>
       </div>
 
-      <div className="flex items-center gap-3 font-normal">
-        {/* User Rank Badge */}
-        <Link href="/leaderboard" title="View Leaderboard">
+      <div className="flex items-center gap-2.5 sm:gap-3 font-normal">
+        {/* User Rank Badge - Hidden on Mobile */}
+        <Link href="/leaderboard" title="View Leaderboard" className="hidden sm:flex">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl border border-border bg-secondary/60 hover:bg-secondary text-foreground text-xs font-semibold transition-all hover:scale-105 active:scale-95 cursor-pointer">
             <Trophy className="w-3.5 h-3.5 text-foreground" />
             <span>#{userRank} Rank</span>
           </div>
         </Link>
 
-        {/* User Points Badge */}
-        <Link href="/points" title="View Points Breakdown">
+        {/* User Points Badge - Hidden on Mobile */}
+        <Link href="/points" title="View Points Breakdown" className="hidden sm:flex">
           <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl border border-border bg-secondary/60 hover:bg-secondary text-foreground text-xs font-semibold transition-all hover:scale-105 active:scale-95 cursor-pointer">
             <Zap className="w-3.5 h-3.5 text-foreground fill-foreground" />
-            <span>{formatPoints(pointsSummary.totalPoints)} pts</span>
+            <span>{formatKPoints(pointsSummary.totalPoints)} pts</span>
           </div>
         </Link>
 
-        {/* Dynamic GitHub Star Badge */}
+        {/* Dynamic GitHub Star Badge - Visible on Mobile */}
         <a
           href="https://github.com/jaychauhan-exe1/devdocs"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border bg-secondary/50 hover:bg-secondary text-xs font-medium text-foreground transition-all hover:scale-105 active:scale-95"
+          className="flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full border border-border bg-secondary/50 hover:bg-secondary text-xs font-medium text-foreground transition-all hover:scale-105 active:scale-95 shrink-0"
           title="Star on GitHub"
         >
           <FaGithub className="w-4 h-4 text-foreground" />
@@ -242,17 +251,18 @@ export default function Header() {
           </span>
         </a>
 
-        {/* Progress Counter */}
-        <Link href="/progress">
-          <div className="hidden md:flex items-center gap-2 px-3 py-1 rounded-xl border border-border bg-card text-xs text-muted-foreground font-normal">
+        {/* Progress Counter - Hidden on Mobile & Tablet */}
+        <Link href="/progress" className="hidden md:flex">
+          <div className="flex items-center gap-2 px-3 py-1 rounded-xl border border-border bg-card text-xs text-muted-foreground font-normal">
             <CheckCircle2 className="w-3.5 h-3.5 text-foreground" />
             <span>
               Mastered <strong className="text-foreground font-semibold">{completedCount}</strong> of {totalCount}
             </span>
           </div>
         </Link>
+
         {/* Auth Controls */}
-        <div className="flex items-center gap-2 pl-2 border-l border-border">
+        <div className="flex items-center gap-2 sm:pl-2 sm:border-l sm:border-border">
           {!user ? (
             <>
               <Button
@@ -262,7 +272,7 @@ export default function Header() {
                   setAuthModalMode("sign-in");
                   setShowAuthModal(true);
                 }}
-                className="text-xs font-normal"
+                className="hidden sm:inline-flex text-xs font-normal"
               >
                 Sign In
               </Button>
@@ -273,7 +283,7 @@ export default function Header() {
                   setAuthModalMode("sign-up");
                   setShowAuthModal(true);
                 }}
-                className="text-xs bg-foreground text-background hover:bg-foreground/90 font-medium"
+                className="text-xs bg-foreground text-background hover:bg-foreground/90 font-medium px-3 sm:px-4"
               >
                 Sign Up
               </Button>

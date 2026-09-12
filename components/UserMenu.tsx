@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useUser, useClerk } from "@clerk/nextjs";
 import { useStudyStore } from "@/store/useStudyStore";
-import { formatPoints } from "@/lib/points";
+import { formatKPoints } from "@/lib/points";
 import Link from "next/link";
 import {
   User,
@@ -130,7 +130,7 @@ export default function UserMenu() {
             </div>
             <div className="flex items-center gap-1.5 font-semibold text-foreground justify-end">
               <Zap className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
-              <span>{formatPoints(pointsSummary.totalPoints)} pts</span>
+              <span>{formatKPoints(pointsSummary.totalPoints)} pts</span>
             </div>
           </div>
 

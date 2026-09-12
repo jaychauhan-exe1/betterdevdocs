@@ -42,9 +42,19 @@ export interface PointsSummary {
   codingPoints?: CodingPointsSummary;
 }
 
-export function formatPoints(points: number): string {
+export function formatPoints(points: number, useK: boolean = false): string {
+  if (useK && Math.abs(points) >= 1000) {
+    const kVal = points / 1000;
+    const rounded = Math.round(kVal * 10) / 10;
+    const formatted = rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(1);
+    return `${formatted}k`;
+  }
   const rounded = Math.round(points * 10) / 10;
   return rounded % 1 === 0 ? rounded.toString() : rounded.toFixed(1);
+}
+
+export function formatKPoints(points: number): string {
+  return formatPoints(points, true);
 }
 
 export function calculateCodingPoints(

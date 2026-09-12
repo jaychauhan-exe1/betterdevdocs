@@ -131,7 +131,7 @@ export default function PointsView() {
             Topic Score Ledger ({filteredTopics.length})
           </h2>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
             {/* Search Box */}
             <div className="relative w-full sm:w-64 font-normal">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
@@ -145,12 +145,12 @@ export default function PointsView() {
             </div>
 
             {/* Filter Pills */}
-            <div className="flex items-center gap-1 font-normal">
+            <div className="flex items-center gap-1.5 font-normal">
               <Button
                 variant={filterType === "earned" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setFilterType("earned")}
-                className="text-xs font-medium"
+                className="text-xs font-medium flex-1 sm:flex-initial"
               >
                 Scored
               </Button>
@@ -158,7 +158,7 @@ export default function PointsView() {
                 variant={filterType === "perfect" ? "default" : "outline"}
                 size="sm"
                 onClick={() => setFilterType("perfect")}
-                className="text-xs font-medium"
+                className="text-xs font-medium flex-1 sm:flex-initial"
               >
                 Perfect
               </Button>

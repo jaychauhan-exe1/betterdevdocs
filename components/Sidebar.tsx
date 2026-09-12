@@ -193,46 +193,32 @@ export default function Sidebar() {
             <Progress value={percentage} className="h-2" />
           </div>
 
-          {/* Global Leaderboard Widget */}
-          <div
-            onClick={() => {
-              triggerHaptic("light");
-              router.push("/leaderboard");
-              setSidebarOpen(false);
-            }}
-            className={`p-3 rounded-2xl bg-secondary/50 border flex items-center justify-between font-normal cursor-pointer transition-all hover:bg-secondary/80 hover:border-foreground/40 active:scale-[0.99] ${
-              isLeaderboardPage ? "border-foreground/60 bg-secondary/80 shadow-sm" : "border-border"
-            }`}
-            role="button"
-            tabIndex={0}
-            title="Click to view Global Leaderboard"
-          >
-            <span className="text-foreground font-medium text-xs sm:text-sm flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-foreground" /> Global Leaderboard
-            </span>
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-          </div>
-
-          {/* Coding Arena Practice Widget */}
+          {/* Minimal Coding Arena Practice Widget */}
           <div
             onClick={() => {
               triggerHaptic("light");
               router.push("/coding");
               setSidebarOpen(false);
             }}
-            className={`p-3 rounded-2xl bg-secondary/50 border flex items-center justify-between font-normal cursor-pointer transition-all hover:bg-secondary/80 hover:border-foreground/40 active:scale-[0.99] ${
-              isCodingPage ? "border-foreground/60 bg-secondary/80 shadow-sm" : "border-border"
+            className={`p-3.5 rounded-2xl border flex items-center justify-between font-normal cursor-pointer transition-all hover:bg-secondary/80 active:scale-[0.99] ${
+              isCodingPage
+                ? "bg-secondary border-foreground/60 text-foreground shadow-sm"
+                : "bg-secondary/50 border-border text-foreground hover:border-foreground/40"
             }`}
             role="button"
             tabIndex={0}
             title="Click to view Coding Arena"
           >
-            <span className="text-foreground font-medium text-xs sm:text-sm flex items-center gap-2">
-              <Code2 className="w-4 h-4 text-foreground" /> Coding Arena
-            </span>
+            <div className="flex items-center gap-2.5">
+              <Code2 className="w-4 h-4 text-foreground" />
+              <span className="text-foreground font-medium text-xs sm:text-sm">
+                Coding Arena
+              </span>
+            </div>
+
             <div className="flex items-center gap-1.5">
               <Badge variant="outline" className="text-[10px] bg-emerald-500/10 text-emerald-400 border-emerald-500/30 font-semibold px-2 py-0.5">
-                {Object.keys(solvedChallenges || {}).length}/30 Solved
+                {Object.keys(solvedChallenges || {}).length}/30
               </Badge>
               <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
             </div>

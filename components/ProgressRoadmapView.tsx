@@ -12,6 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { AnimatedCheckmark } from "@/components/AnimatedCheckmark";
 import { triggerHaptic } from "@/lib/haptics";
+import { formatKPoints } from "@/lib/points";
 import {
   CheckCircle2,
   Navigation,
@@ -172,12 +173,12 @@ export default function ProgressRoadmapView() {
       {viewTab === "map" && (
         <div className="space-y-6 font-normal">
           {/* Sticky Top Map Action Bar */}
-          <div className="sticky top-0 z-30 flex items-center justify-between p-4 rounded-2xl bg-card/95 backdrop-blur-md border border-border shadow-md font-normal">
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="px-3 py-1 text-xs font-mono uppercase font-semibold">
-                Checkpoint {userPositionIndex + 1} of {totalCount}
+          <div className="sticky top-0 z-30 flex items-center justify-between gap-2 p-3 sm:p-4 rounded-2xl bg-card/95 backdrop-blur-md border border-border shadow-md font-normal min-w-0">
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <Badge variant="outline" className="px-2.5 py-1 text-[10px] sm:text-xs font-mono uppercase font-semibold shrink-0">
+                Check {userPositionIndex + 1}/{totalCount}
               </Badge>
-              <span className="text-sm font-medium text-foreground truncate max-w-[180px] sm:max-w-none">
+              <span className="text-xs sm:text-sm font-medium text-foreground truncate min-w-0 flex-1">
                 {roleTopics[userPositionIndex]?.title || "All Mastered!"}
               </span>
             </div>
@@ -186,10 +187,11 @@ export default function ProgressRoadmapView() {
               variant="outline"
               size="sm"
               onClick={() => scrollToCurrentLevel(true)}
-              className="flex items-center gap-2 text-xs font-medium"
+              className="flex items-center gap-1.5 text-xs font-medium shrink-0 px-2.5 sm:px-3 h-8 sm:h-9"
             >
-              <Navigation className="w-3.5 h-3.5 text-foreground" />
-              <span>Jump to My Position</span>
+              <Navigation className="w-3.5 h-3.5 text-foreground shrink-0" />
+              <span className="hidden xs:inline sm:inline">Jump to My Position</span>
+              <span className="xs:hidden sm:hidden">Jump</span>
             </Button>
           </div>
 
@@ -271,31 +273,59 @@ export default function ProgressRoadmapView() {
                     className="absolute -translate-x-1/2 -translate-y-1/2 group z-10"
                     style={{ left: `${(nodeX / 400) * 100}%`, top: `${node.y}px` }}
                   >
-                    {/* User Avatar Marker Pin on Left Side of Current Position (3D Floating Badge) */}
+                    {/* User Avatar Marker Pin on Dynamic Side of Current Position (3D Floating Badge) */}
                     {node.isCurrentPosition && (
-                      <div className="absolute right-full mr-3.5 top-1/2 -translate-y-1/2 z-30 flex items-center drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] w-max max-w-none">
-                        {/* 3D White Pill Container with Profile Picture & "You" */}
-                        <div className="flex items-center gap-2 bg-foreground text-background pl-1.5 pr-4 py-1.5 rounded-full shadow-[0_6px_0_#18181b,0_10px_20px_rgba(0,0,0,0.8)] border-2 border-background whitespace-nowrap">
-                          <div className="p-0.5 rounded-full bg-background/20 flex-shrink-0">
-                            {user?.imageUrl ? (
-                              <img
-                                src={user.imageUrl}
-                                alt="User Avatar"
-                                className="w-7.5 h-7.5 rounded-full object-cover shadow-md"
-                              />
-                            ) : (
-                              <div className="w-7.5 h-7.5 rounded-full bg-background text-foreground font-bold flex items-center justify-center text-[10px]">
-                                Y
-                              </div>
-                            )}
+                      node.xOffset < 0 ? (
+                        // Node is on left side of map -> place "You" badge to the RIGHT of node
+                        <div className="absolute left-full ml-3.5 top-1/2 -translate-y-1/2 z-30 flex items-center drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] w-max max-w-none">
+                          {/* White Arrow Tip pointing left towards node */}
+                          <div className="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-r-[7px] border-r-foreground -mr-px flex-shrink-0" />
+                          {/* 3D White Pill Container with Profile Picture & "You" */}
+                          <div className="flex items-center gap-2 bg-foreground text-background pl-1.5 pr-4 py-1.5 rounded-full shadow-[0_6px_0_#18181b,0_10px_20px_rgba(0,0,0,0.8)] border-2 border-background whitespace-nowrap">
+                            <div className="p-0.5 rounded-full bg-background/20 flex-shrink-0">
+                              {user?.imageUrl ? (
+                                <img
+                                  src={user.imageUrl}
+                                  alt="User Avatar"
+                                  className="w-7.5 h-7.5 rounded-full object-cover shadow-md"
+                                />
+                              ) : (
+                                <div className="w-7.5 h-7.5 rounded-full bg-background text-foreground font-bold flex items-center justify-center text-[10px]">
+                                  Y
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-xs font-extrabold tracking-tight text-background whitespace-nowrap pr-0.5">
+                              You
+                            </span>
                           </div>
-                          <span className="text-xs font-extrabold tracking-tight text-background whitespace-nowrap pr-0.5">
-                            You
-                          </span>
                         </div>
-                        {/* White Arrow Tip attached cleanly after the pill */}
-                        <div className="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[7px] border-l-foreground -ml-px flex-shrink-0" />
-                      </div>
+                      ) : (
+                        // Node is on right side of map -> place "You" badge to the LEFT of node
+                        <div className="absolute right-full mr-3.5 top-1/2 -translate-y-1/2 z-30 flex items-center drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] w-max max-w-none">
+                          {/* 3D White Pill Container with Profile Picture & "You" */}
+                          <div className="flex items-center gap-2 bg-foreground text-background pl-1.5 pr-4 py-1.5 rounded-full shadow-[0_6px_0_#18181b,0_10px_20px_rgba(0,0,0,0.8)] border-2 border-background whitespace-nowrap">
+                            <div className="p-0.5 rounded-full bg-background/20 flex-shrink-0">
+                              {user?.imageUrl ? (
+                                <img
+                                  src={user.imageUrl}
+                                  alt="User Avatar"
+                                  className="w-7.5 h-7.5 rounded-full object-cover shadow-md"
+                                />
+                              ) : (
+                                <div className="w-7.5 h-7.5 rounded-full bg-background text-foreground font-bold flex items-center justify-center text-[10px]">
+                                  Y
+                                </div>
+                              )}
+                            </div>
+                            <span className="text-xs font-extrabold tracking-tight text-background whitespace-nowrap pr-0.5">
+                              You
+                            </span>
+                          </div>
+                          {/* White Arrow Tip pointing right towards node */}
+                          <div className="w-0 h-0 border-t-[6px] border-t-transparent border-b-[6px] border-b-transparent border-l-[7px] border-l-foreground -ml-px flex-shrink-0" />
+                        </div>
+                      )
                     )}
 
                     {/* Glossy Metallic 3D Glass Orb Checkpoint Button */}
@@ -374,14 +404,14 @@ export default function ProgressRoadmapView() {
                         triggerHaptic("medium");
                         setSelectedTopicId(node.topic.id);
                       }}
-                      className={`absolute left-full ml-3.5 top-1/2 -translate-y-1/2 px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap border shadow-[0_4px_0_#18181b,0_6px_12px_rgba(0,0,0,0.5)] cursor-pointer z-20 transition-colors ${node.isCompleted
+                      className={`absolute top-full mt-2 left-1/2 -translate-x-1/2 sm:left-full sm:ml-3.5 sm:top-1/2 sm:-translate-y-1/2 sm:mt-0 sm:translate-x-0 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold whitespace-nowrap border shadow-[0_4px_0_#18181b,0_6px_12px_rgba(0,0,0,0.5)] cursor-pointer z-20 transition-colors ${node.isCompleted
                           ? "bg-card text-emerald-400 border-emerald-500/50 hover:border-emerald-400 hover:bg-secondary font-medium"
                           : node.isCurrentPosition
                             ? "bg-card text-foreground border-foreground font-bold ring-1 ring-foreground/20"
                             : "bg-card/95 text-foreground border-border/80 hover:border-foreground/50 hover:bg-secondary"
                         }`}
                     >
-                      <span className="truncate max-w-[140px] sm:max-w-[180px] block">
+                      <span className="truncate max-w-[120px] sm:max-w-[180px] block text-center sm:text-left">
                         {node.topic.title}
                       </span>
                     </div>
@@ -416,9 +446,9 @@ export default function ProgressRoadmapView() {
                 </h2>
               </div>
 
-              <div className="p-4 rounded-2xl bg-secondary/50 border border-border text-right min-w-[140px]">
-                <span className="text-xs text-muted-foreground block">Overall Mastered</span>
-                <span className="text-2xl font-extrabold text-foreground">{percentage}%</span>
+              <div className="p-4 rounded-2xl bg-secondary/50 border border-border text-center flex flex-col items-center justify-center min-w-[140px]">
+                <span className="text-xs text-muted-foreground block text-center">Overall Mastered</span>
+                <span className="text-2xl font-extrabold text-foreground text-center">{percentage}%</span>
               </div>
             </div>
 
@@ -478,19 +508,19 @@ export default function ProgressRoadmapView() {
 
             return (
               <Card className="bg-card border-border p-6 shadow-sm space-y-4 font-normal">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <div className="p-2 rounded-xl bg-secondary border border-border text-foreground">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="p-2 rounded-xl bg-secondary border border-border text-foreground shrink-0">
                       <Code2 className="w-5 h-5" />
                     </div>
-                    <div>
-                      <h3 className="text-base font-bold text-foreground">Interview Coding Practice</h3>
-                      <p className="text-xs text-muted-foreground">Real-world coding challenge achievements</p>
+                    <div className="min-w-0">
+                      <h3 className="text-sm sm:text-base font-bold text-foreground truncate">Interview Coding Practice</h3>
+                      <p className="text-xs text-muted-foreground truncate">Real-world coding challenge achievements</p>
                     </div>
                   </div>
 
-                  <Link href="/coding">
-                    <Button variant="outline" size="sm" className="text-xs border-border text-foreground hover:bg-secondary">
+                  <Link href="/coding" className="shrink-0">
+                    <Button variant="outline" size="sm" className="w-full sm:w-auto text-xs border-border text-foreground hover:bg-secondary">
                       Open Coding Arena
                     </Button>
                   </Link>
@@ -504,7 +534,7 @@ export default function ProgressRoadmapView() {
 
                   <div className="p-3 bg-secondary/30 rounded-xl border border-border">
                     <span className="text-xs text-muted-foreground block">Coding Points</span>
-                    <span className="text-lg font-bold text-foreground">+{codingSummary.totalCodingPoints} pts</span>
+                    <span className="text-lg font-bold text-foreground">+{formatKPoints(codingSummary.totalCodingPoints)} pts</span>
                   </div>
 
                   <div className="p-3 bg-secondary/30 rounded-xl border border-border">

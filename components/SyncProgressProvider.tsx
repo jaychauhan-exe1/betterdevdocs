@@ -16,6 +16,8 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
   useEffect(() => {
     if (!isLoaded) return;
 
+    const controller = new AbortController();
+
     if (isSignedIn && userId) {
       // If user switched accounts or signed in for first time
       if (lastUserIdRef.current && lastUserIdRef.current !== userId) {
@@ -25,7 +27,7 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
       setAuthenticated(true);
 
       // Fetch user's individual cloud progress from API endpoint
-      fetch("/api/progress")
+      fetch("/api/progress", { signal: controller.signal })
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch progress");
           return res.json();
@@ -42,6 +44,7 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
           );
         })
         .catch((err) => {
+          if (err.name === "AbortError") return;
           console.warn("Failed to fetch cloud progress on login:", err);
         });
     } else {
@@ -52,6 +55,8 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
       }
       setAuthenticated(false);
     }
+
+    return () => controller.abort();
   }, [isLoaded, isSignedIn, userId, setAuthenticated, hydrateFromServer, resetUserProgress]);
 
   return (

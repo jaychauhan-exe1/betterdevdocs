@@ -31,7 +31,15 @@ import {
   Building2,
   Briefcase,
   Layers,
+  BookOpen,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface TestResult {
   description: string;
@@ -377,7 +385,7 @@ export default function CodingArena() {
   };
 
   return (
-    <div className="min-h-screen bg-black text-foreground flex flex-col p-4 md:p-6 max-w-[1600px] mx-auto gap-6">
+    <div className="min-h-screen bg-black text-foreground flex flex-col p-3 sm:p-6 max-w-[1600px] mx-auto gap-4 sm:gap-6">
       {/* Victory Celebration Modal */}
       <AnimatePresence>
         {showCelebration && (
@@ -391,26 +399,26 @@ export default function CodingArena() {
             <motion.div
               initial={{ y: 20 }}
               animate={{ y: 0 }}
-              className="bg-card border border-emerald-500/40 rounded-3xl p-8 max-w-md w-full text-center relative overflow-hidden shadow-2xl"
+              className="bg-card border border-emerald-500/40 rounded-3xl p-6 sm:p-8 max-w-md w-full text-center relative overflow-hidden shadow-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto mb-4 text-emerald-400">
-                <CheckCircle2 className="w-7 h-7" />
+              <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center mx-auto mb-4 text-emerald-400">
+                <CheckCircle2 className="w-6 h-6 sm:w-7 sm:h-7" />
               </div>
 
-              <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 mb-2 uppercase tracking-wider text-xs font-semibold">
+              <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30 mb-2 uppercase tracking-wider text-[10px] sm:text-xs font-semibold">
                 Passed & Solved
               </Badge>
 
-              <h2 className="text-2xl font-bold text-white mb-2">{currentChallenge.title}</h2>
-              <p className="text-muted-foreground text-sm mb-6">
+              <h2 className="text-xl sm:text-2xl font-bold text-white mb-2">{currentChallenge.title}</h2>
+              <p className="text-muted-foreground text-xs sm:text-sm mb-6">
                 All test cases passed cleanly! You earned{" "}
                 <span className="text-emerald-400 font-bold">+{celebrationPoints} points</span>.
               </p>
 
               <Button
                 onClick={() => setShowCelebration(false)}
-                className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl h-11"
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-black font-semibold rounded-xl h-10 sm:h-11 text-xs sm:text-sm"
               >
                 Continue Practice
               </Button>
@@ -423,79 +431,44 @@ export default function CodingArena() {
       {/* VIEW MODE 1: QUESTIONS LIST VIEW (Default - Shows list of questions first) */}
       {/* ========================================================================= */}
       {viewMode === "list" && (
-        <div className="flex flex-col gap-6">
-          {/* Sign In Required Notice Banner for Unauthenticated Users */}
-          {!isSignedIn && (
-            <div className="p-4 rounded-2xl bg-secondary/40 border border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 rounded-xl bg-card border border-border text-foreground shrink-0">
-                  <Sparkles className="w-5 h-5 text-foreground" />
-                </div>
-                <div>
-                  <h4 className="text-sm font-bold text-foreground">Sign in to solve coding challenges</h4>
-                  <p className="text-xs text-muted-foreground">Sign in or create a free account to select questions, run solutions in Monaco Editor, and earn practice points.</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2 shrink-0">
-                <Button
-                  size="sm"
-                  onClick={() => setShowAuthModal(true)}
-                  className="text-xs bg-foreground text-background hover:bg-foreground/90 font-bold px-4 rounded-xl shadow-sm"
-                >
-                  Sign In
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => setShowAuthModal(true)}
-                  className="text-xs border-border text-foreground hover:bg-secondary font-medium px-4 rounded-xl"
-                >
-                  Sign Up
-                </Button>
-              </div>
-            </div>
-          )}
-
+        <div className="flex flex-col gap-4 sm:gap-6">
           {/* Top Banner Overview */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-6 rounded-3xl bg-card border border-border/80 relative overflow-hidden">
-            <div className="space-y-1 z-10">
-              <div className="flex items-center gap-2">
-                <Badge variant="secondary" className="border-border text-foreground bg-secondary/60 gap-1.5 px-3 py-1 text-xs">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-4 sm:p-6 rounded-3xl bg-card border border-border/80 relative overflow-hidden">
+            <div className="space-y-1.5 z-10">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="secondary" className="border-border text-foreground bg-secondary/60 gap-1.5 px-2.5 py-0.5 text-[10px] sm:text-xs">
                   <Zap className="w-3.5 h-3.5" /> REAL-WORLD CODING ROUNDS
                 </Badge>
-                <Badge variant="outline" className="text-xs border-border text-muted-foreground">
-                  {filteredChallenges.length} Questions Available
-                </Badge>
               </div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
+              <h1 className="text-xl sm:text-3xl font-extrabold text-white tracking-tight">
                 Interview Coding Practice
               </h1>
-              <p className="text-muted-foreground text-sm max-w-xl">
+              <p className="text-muted-foreground text-xs sm:text-sm max-w-xl leading-relaxed">
                 Master real FAANG interview questions tailored to your chosen career path. Click any question to open the VS Code practice workspace.
               </p>
             </div>
 
             {/* Quick Stats Pill Cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 z-10">
-              <div className="p-3.5 rounded-2xl bg-black/40 border border-border/60 text-center">
-                <div className="text-xs text-muted-foreground mb-0.5">Total Solved</div>
-                <div className="text-xl font-bold text-white flex items-center justify-center gap-1">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-3 z-10">
+              <div className="p-2.5 sm:p-3.5 rounded-2xl bg-black/40 border border-border/60 text-center">
+                <div className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">Total Solved</div>
+                <div className="text-base sm:text-xl font-bold text-white flex items-center justify-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400" />
                   {codingPoints.solvedCount} / {CODING_CHALLENGES.length}
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-black/40 border border-border/60 text-center">
-                <div className="text-xs text-muted-foreground mb-0.5">Coding Points</div>
-                <div className="text-xl font-bold text-white flex items-center justify-center gap-1">
-                  <Trophy className="w-4 h-4 text-muted-foreground" />
+              <div className="p-2.5 sm:p-3.5 rounded-2xl bg-black/40 border border-border/60 text-center">
+                <div className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">Coding Points</div>
+                <div className="text-base sm:text-xl font-bold text-white flex items-center justify-center gap-1">
+                  <Trophy className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground" />
                   +{codingPoints.totalCodingPoints}
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-black/40 border border-border/60 text-center">
-                <div className="text-xs text-muted-foreground mb-0.5">Easy / Med / Hard</div>
-                <div className="text-xs font-semibold text-white mt-1.5 flex items-center justify-center gap-2">
+              <div className="p-2.5 sm:p-3.5 rounded-2xl bg-black/40 border border-border/60 text-center">
+                <div className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">Easy / Med / Hard</div>
+                <div className="text-[10px] sm:text-xs font-semibold text-white mt-1 flex items-center justify-center gap-1.5">
                   <span className="text-emerald-400">{codingPoints.easySolved}E</span>
                   <span className="text-muted-foreground">•</span>
                   <span className="text-amber-400">{codingPoints.mediumSolved}M</span>
@@ -504,9 +477,9 @@ export default function CodingArena() {
                 </div>
               </div>
 
-              <div className="p-3.5 rounded-2xl bg-black/40 border border-border/60 text-center flex flex-col justify-center">
-                <div className="text-xs text-muted-foreground mb-0.5">Active Path</div>
-                <div className="text-xs font-semibold text-white truncate">
+              <div className="p-2.5 sm:p-3.5 rounded-2xl bg-black/40 border border-border/60 text-center flex flex-col justify-center">
+                <div className="text-[10px] sm:text-xs text-muted-foreground mb-0.5">Active Path</div>
+                <div className="text-[11px] sm:text-xs font-semibold text-white truncate">
                   {ROLES.find((r) => r.id === activeRole)?.shortTitle || "All Topics"}
                 </div>
               </div>
@@ -514,24 +487,46 @@ export default function CodingArena() {
           </div>
 
           {/* Role Path Selector Toolbar */}
-          <div className="p-4 rounded-2xl bg-card border border-border/60 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                <Briefcase className="w-3.5 h-3.5 text-foreground" /> Target Career Path
+          <div className="p-3.5 sm:p-4 rounded-2xl bg-card border border-border/60 flex flex-col gap-2.5">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 sm:gap-2">
+              <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                <Briefcase className="w-3.5 h-3.5 text-foreground shrink-0" /> Target Career Path
               </span>
-              <span className="text-xs text-muted-foreground">
+              <span className="text-[10px] sm:text-xs text-muted-foreground">
                 Showing {filteredChallenges.length} role-specific questions
               </span>
             </div>
 
-            <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {/* Mobile Career Path Select Dropdown (< sm) */}
+            <div className="sm:hidden w-full">
+              <Select value={activeRole} onValueChange={(val: any) => { if (val) handleRoleSelect(val); }}>
+                <SelectTrigger className="w-full h-11 px-3.5 rounded-xl bg-secondary border border-border text-foreground font-semibold text-xs shadow-sm flex items-center justify-between">
+                  <div className="flex items-center gap-2 truncate">
+                    <Briefcase className="w-4 h-4 text-foreground shrink-0" />
+                    <span className="truncate">
+                      Path: {ROLES.find((r) => r.id === activeRole)?.shortTitle || "All Career Paths"}
+                    </span>
+                  </div>
+                </SelectTrigger>
+                <SelectContent className="bg-card border border-border text-foreground rounded-xl shadow-xl z-50 p-1.5 space-y-1">
+                  {ROLES.map((role) => (
+                    <SelectItem key={role.id} value={role.id} className="text-xs font-medium cursor-pointer py-2.5 px-3 rounded-lg">
+                      <span>{role.shortTitle}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Desktop Career Path Button Pills (>= sm) */}
+            <div className="hidden sm:flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
               {ROLES.map((role) => {
                 const isActive = activeRole === role.id;
                 return (
                   <button
                     key={role.id}
                     onClick={() => handleRoleSelect(role.id)}
-                    className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all whitespace-nowrap border flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-medium transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0 ${
                       isActive
                         ? "bg-white text-black border-white font-semibold shadow-md"
                         : "bg-secondary/40 text-muted-foreground border-border hover:bg-secondary hover:text-white"
@@ -545,9 +540,9 @@ export default function CodingArena() {
           </div>
 
           {/* Filters Bar: Search & Difficulty & Status */}
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 p-4 bg-card/60 border border-border/80 rounded-2xl">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 p-3.5 sm:p-4 bg-card/60 border border-border/80 rounded-2xl">
             {/* Search Input */}
-            <div className="relative w-full md:w-80">
+            <div className="relative w-full sm:w-72 md:w-80">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search by title, company, category..."
@@ -557,15 +552,44 @@ export default function CodingArena() {
               />
             </div>
 
-            {/* Filter Buttons */}
-            <div className="flex items-center gap-3 w-full md:w-auto overflow-x-auto">
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold text-muted-foreground">Difficulty:</span>
+            {/* Mobile Filters Select Dropdowns (< sm) */}
+            <div className="sm:hidden grid grid-cols-2 gap-2 w-full">
+              <Select value={selectedDifficulty} onValueChange={(val: any) => { if (val) setSelectedDifficulty(val); }}>
+                <SelectTrigger className="w-full h-10 px-3 rounded-xl bg-secondary border border-border text-foreground font-semibold text-xs shadow-sm flex items-center justify-between">
+                  <span className="truncate">Diff: {selectedDifficulty === "all" ? "All" : selectedDifficulty}</span>
+                </SelectTrigger>
+                <SelectContent className="bg-card border border-border text-foreground rounded-xl shadow-xl z-50 p-1.5 space-y-1">
+                  {["all", "Easy", "Medium", "Hard"].map((diff) => (
+                    <SelectItem key={diff} value={diff} className="text-xs font-medium cursor-pointer py-2.5 px-3 rounded-lg">
+                      <span>{diff === "all" ? "All Difficulties" : diff}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Select value={selectedStatus} onValueChange={(val: any) => { if (val) setSelectedStatus(val); }}>
+                <SelectTrigger className="w-full h-10 px-3 rounded-xl bg-secondary border border-border text-foreground font-semibold text-xs shadow-sm flex items-center justify-between">
+                  <span className="truncate capitalize">Status: {selectedStatus}</span>
+                </SelectTrigger>
+                <SelectContent className="bg-card border border-border text-foreground rounded-xl shadow-xl z-50 p-1.5 space-y-1">
+                  {["all", "unsolved", "solved"].map((st) => (
+                    <SelectItem key={st} value={st} className="text-xs font-medium cursor-pointer py-2.5 px-3 rounded-lg capitalize">
+                      <span>{st === "all" ? "All Status" : st}</span>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Desktop Filter Buttons (>= sm) */}
+            <div className="hidden sm:flex items-center gap-2.5 w-full sm:w-auto overflow-x-auto custom-scrollbar">
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground">Difficulty:</span>
                 {["all", "Easy", "Medium", "Hard"].map((diff) => (
                   <button
                     key={diff}
                     onClick={() => setSelectedDifficulty(diff)}
-                    className={`px-2.5 py-1 rounded-lg text-xs transition-all border ${
+                    className={`px-2 py-1 rounded-lg text-[11px] sm:text-xs transition-all border ${
                       selectedDifficulty === diff
                         ? "bg-white text-black border-white font-semibold"
                         : "bg-secondary/30 text-muted-foreground border-border/40 hover:bg-secondary/60 hover:text-white"
@@ -576,15 +600,15 @@ export default function CodingArena() {
                 ))}
               </div>
 
-              <div className="h-4 w-px bg-border hidden sm:block" />
+              <div className="h-4 w-px bg-border shrink-0" />
 
-              <div className="flex items-center gap-1.5">
-                <span className="text-xs font-semibold text-muted-foreground">Status:</span>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-[11px] sm:text-xs font-semibold text-muted-foreground">Status:</span>
                 {["all", "unsolved", "solved"].map((st) => (
                   <button
                     key={st}
                     onClick={() => setSelectedStatus(st)}
-                    className={`px-2.5 py-1 rounded-lg text-xs transition-all capitalize border ${
+                    className={`px-2 py-1 rounded-lg text-[11px] sm:text-xs transition-all capitalize border ${
                       selectedStatus === st
                         ? "bg-white text-black border-white font-semibold"
                         : "bg-secondary/30 text-muted-foreground border-border/40 hover:bg-secondary/60 hover:text-white"
@@ -598,9 +622,9 @@ export default function CodingArena() {
           </div>
 
           {/* Question Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
             {filteredChallenges.length === 0 ? (
-              <div className="col-span-full p-12 text-center bg-card/40 border border-border/40 rounded-3xl text-muted-foreground text-sm">
+              <div className="col-span-full p-8 sm:p-12 text-center bg-card/40 border border-border/40 rounded-3xl text-muted-foreground text-xs sm:text-sm">
                 No coding questions match your current search and role filters.
               </div>
             ) : (
@@ -611,9 +635,9 @@ export default function CodingArena() {
                   <div
                     key={challenge.id}
                     onClick={() => handleSelectChallenge(challenge.id)}
-                    className="p-5 rounded-2xl bg-card border border-border/80 hover:border-white/60 transition-all duration-100 ease-out hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between gap-4 group shadow-sm hover:shadow-md"
+                    className="p-4 sm:p-5 rounded-2xl bg-card border border-border/80 hover:border-white/60 transition-all duration-100 ease-out hover:-translate-y-0.5 cursor-pointer flex flex-col justify-between gap-3.5 group shadow-sm hover:shadow-md"
                   >
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                       <div className="flex items-center justify-between gap-2">
                         <div className="flex items-center gap-2">
                           {isSolved ? (
@@ -636,7 +660,7 @@ export default function CodingArena() {
                         </div>
                       </div>
 
-                      <h3 className="text-base font-bold text-white group-hover:text-white transition-colors line-clamp-1">
+                      <h3 className="text-sm sm:text-base font-bold text-white group-hover:text-white transition-colors line-clamp-1">
                         {challenge.title}
                       </h3>
 
@@ -645,19 +669,19 @@ export default function CodingArena() {
                       </p>
                     </div>
 
-                    <div className="pt-3 border-t border-border/40 flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1.5 truncate">
-                        <span className="bg-secondary px-2 py-0.5 rounded text-[10px] text-foreground font-mono">
+                    <div className="pt-2.5 border-t border-border/40 flex items-center justify-between text-xs gap-2">
+                      <div className="flex items-center gap-1.5 truncate min-w-0">
+                        <span className="bg-secondary px-2 py-0.5 rounded text-[10px] text-foreground font-mono shrink-0">
                           {challenge.category}
                         </span>
                         {challenge.companyTags.slice(0, 2).map((comp) => (
-                          <span key={comp} className="text-muted-foreground text-[10px]">
+                          <span key={comp} className="text-muted-foreground text-[10px] truncate">
                             • {comp}
                           </span>
                         ))}
                       </div>
 
-                      <span className="text-xs font-semibold text-white group-hover:translate-x-1 transition-transform flex items-center gap-1">
+                      <span className="text-xs font-semibold text-white group-hover:translate-x-1 transition-transform flex items-center gap-1 shrink-0">
                         Solve <ChevronRight className="w-3.5 h-3.5" />
                       </span>
                     </div>
@@ -675,23 +699,23 @@ export default function CodingArena() {
       {viewMode === "solve" && (
         <div className="flex flex-col gap-6">
           {/* Top Bar with Back Button & Navigation */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-2xl bg-card border border-border/80">
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-card border border-border/80">
+            <div className="flex flex-wrap items-center gap-2.5">
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setViewMode("list")}
-                className="text-xs border-border text-foreground hover:bg-secondary gap-1.5 h-9"
+                className="text-xs border-border text-foreground hover:bg-secondary gap-1.5 h-8.5 px-3"
               >
-                <ArrowLeft className="w-4 h-4" /> Back to Questions List
+                <ArrowLeft className="w-4 h-4" /> Back to Questions
               </Button>
 
               <div className="h-4 w-px bg-border hidden sm:block" />
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <Badge
                   variant="outline"
-                  className={`text-xs px-2.5 py-0.5 border ${
+                  className={`text-[10px] sm:text-xs px-2 py-0.5 border ${
                     currentChallenge.difficulty === "Easy"
                       ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30"
                       : currentChallenge.difficulty === "Medium"
@@ -701,12 +725,12 @@ export default function CodingArena() {
                 >
                   {currentChallenge.difficulty}
                 </Badge>
-                <Badge variant="secondary" className="text-xs font-mono">
+                <Badge variant="secondary" className="text-[10px] sm:text-xs font-mono px-2 py-0.5">
                   {currentChallenge.category}
                 </Badge>
                 {solvedChallenges[currentChallenge.id] && (
-                  <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/40 text-xs gap-1">
-                    <CheckCircle2 className="w-3.5 h-3.5" /> Solved
+                  <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/40 text-[10px] sm:text-xs gap-1 px-2 py-0.5">
+                    <CheckCircle2 className="w-3 h-3" /> Solved
                   </Badge>
                 )}
               </div>
@@ -719,9 +743,9 @@ export default function CodingArena() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setActiveChallengeId(prevChallenge.id)}
-                  className="text-xs text-muted-foreground hover:text-white hover:bg-secondary gap-1"
+                  className="text-xs text-muted-foreground hover:text-white hover:bg-secondary gap-1 h-8 px-2.5"
                 >
-                  <ChevronLeft className="w-4 h-4" /> Prev
+                  <ChevronLeft className="w-3.5 h-3.5" /> Prev
                 </Button>
               )}
               {nextChallenge && (
@@ -729,33 +753,33 @@ export default function CodingArena() {
                   variant="ghost"
                   size="sm"
                   onClick={() => setActiveChallengeId(nextChallenge.id)}
-                  className="text-xs text-muted-foreground hover:text-white hover:bg-secondary gap-1"
+                  className="text-xs text-muted-foreground hover:text-white hover:bg-secondary gap-1 h-8 px-2.5"
                 >
-                  Next <ChevronRight className="w-4 h-4" />
+                  Next <ChevronRight className="w-3.5 h-3.5" />
                 </Button>
               )}
             </div>
           </div>
 
           {/* Main Problem & VS Code Editor Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 items-start">
             {/* Left Column: Question Details & Test Cases (5 cols) */}
             <div className="lg:col-span-5 flex flex-col gap-4">
-              <Card className="p-6 bg-card border-border/80 rounded-3xl flex flex-col gap-5">
-                <div className="space-y-2">
-                  <h2 className="text-xl md:text-2xl font-bold text-white">
+              <Card className="p-4 sm:p-6 bg-card border-border/80 rounded-3xl flex flex-col gap-4 sm:gap-5">
+                <div className="space-y-1.5">
+                  <h2 className="text-lg sm:text-2xl font-bold text-white">
                     {currentChallenge.title}
                   </h2>
 
                   {/* Company Tags */}
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="text-[10px] sm:text-xs text-muted-foreground flex items-center gap-1">
                       <Building2 className="w-3 h-3" /> Asked at:
                     </span>
                     {currentChallenge.companyTags.map((comp) => (
                       <span
                         key={comp}
-                        className="text-xs bg-secondary/60 text-foreground px-2.5 py-1 rounded-xl border border-border/60 font-medium"
+                        className="text-[10px] sm:text-xs bg-secondary/60 text-foreground px-2 py-0.5 rounded-lg border border-border/60 font-medium"
                       >
                         {comp}
                       </span>
@@ -763,11 +787,49 @@ export default function CodingArena() {
                   </div>
                 </div>
 
-                {/* Description / Hints / Solution Tabs */}
-                <div className="flex items-center gap-2 border-b border-border/60 pb-2">
+                {/* Mobile Description / Hints / Solution Select Dropdown (< sm) */}
+                <div className="sm:hidden w-full pb-1">
+                  <Select value={activeTab} onValueChange={(val: any) => { if (val) setActiveTab(val); }}>
+                    <SelectTrigger className="w-full h-11 px-3.5 rounded-xl bg-secondary border border-border text-foreground font-semibold text-xs shadow-sm flex items-center justify-between">
+                      <div className="flex items-center gap-2 truncate">
+                        {activeTab === "problem" && <BookOpen className="w-4 h-4 text-foreground shrink-0" />}
+                        {activeTab === "hints" && <Lightbulb className="w-4 h-4 text-foreground shrink-0" />}
+                        {activeTab === "solution" && <Eye className="w-4 h-4 text-foreground shrink-0" />}
+                        <span className="truncate">
+                          {activeTab === "problem" && "Problem Description"}
+                          {activeTab === "hints" && `Hints (${currentChallenge.hints.length})`}
+                          {activeTab === "solution" && "Solution Code"}
+                        </span>
+                      </div>
+                    </SelectTrigger>
+                    <SelectContent className="bg-card border border-border text-foreground rounded-xl shadow-xl z-50 p-1.5 space-y-1">
+                      <SelectItem value="problem" className="text-xs font-medium cursor-pointer py-2.5 px-3 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <BookOpen className="w-4 h-4 text-muted-foreground" />
+                          <span>Problem Description</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="hints" className="text-xs font-medium cursor-pointer py-2.5 px-3 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Lightbulb className="w-4 h-4 text-muted-foreground" />
+                          <span>Hints ({currentChallenge.hints.length})</span>
+                        </div>
+                      </SelectItem>
+                      <SelectItem value="solution" className="text-xs font-medium cursor-pointer py-2.5 px-3 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <Eye className="w-4 h-4 text-muted-foreground" />
+                          <span>Solution Code</span>
+                        </div>
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Desktop Description / Hints / Solution Tabs (>= sm) */}
+                <div className="hidden sm:flex items-center gap-2 border-b border-border/60 pb-2 overflow-x-auto custom-scrollbar">
                   <button
                     onClick={() => setActiveTab("problem")}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border shrink-0 ${
                       activeTab === "problem"
                         ? "bg-white text-black border-white shadow"
                         : "text-muted-foreground border-transparent hover:text-white"
@@ -777,7 +839,7 @@ export default function CodingArena() {
                   </button>
                   <button
                     onClick={() => setActiveTab("hints")}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0 ${
                       activeTab === "hints"
                         ? "bg-white text-black border-white shadow"
                         : "text-muted-foreground border-transparent hover:text-white"
@@ -788,7 +850,7 @@ export default function CodingArena() {
                   </button>
                   <button
                     onClick={() => setActiveTab("solution")}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all whitespace-nowrap border flex items-center gap-1.5 shrink-0 ${
                       activeTab === "solution"
                         ? "bg-white text-black border-white shadow"
                         : "text-muted-foreground border-transparent hover:text-white"

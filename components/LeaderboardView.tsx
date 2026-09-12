@@ -4,7 +4,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { motion } from "framer-motion";
 import { useStudyStore } from "@/store/useStudyStore";
 import { useUser } from "@clerk/nextjs";
-import { calculateUserPoints, formatPoints } from "@/lib/points";
+import { calculateUserPoints, formatPoints, formatKPoints } from "@/lib/points";
 import { LeaderboardUser, getLocalUserLeaderboardEntry } from "@/lib/leaderboard";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -51,9 +51,10 @@ export default function LeaderboardView() {
     totalParticipants: 1,
   });
 
-  const fetchRealLeaderboard = () => {
+  useEffect(() => {
+    const controller = new AbortController();
     setLoading(true);
-    fetch("/api/leaderboard")
+    fetch("/api/leaderboard", { signal: controller.signal })
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch leaderboard");
         return res.json();
@@ -68,15 +69,14 @@ export default function LeaderboardView() {
         }
       })
       .catch((err) => {
+        if (err.name === "AbortError") return;
         console.warn("Falling back to active user entry:", err);
       })
       .finally(() => {
         setLoading(false);
       });
-  };
 
-  useEffect(() => {
-    fetchRealLeaderboard();
+    return () => controller.abort();
   }, [user, currentUserPoints.totalPoints]);
 
   const filteredLeaderboard = useMemo(() => {
@@ -119,7 +119,7 @@ export default function LeaderboardView() {
             </span>
             <div className="flex items-baseline gap-2">
               <span className="text-3xl sm:text-4xl font-extrabold text-foreground font-mono">
-                {formatPoints(currentUserPoints.totalPoints)}
+                {formatKPoints(currentUserPoints.totalPoints)}
               </span>
               <span className="text-xs text-muted-foreground font-semibold">
                 pts
@@ -260,18 +260,18 @@ export default function LeaderboardView() {
 
                     {/* Topic Wise Points */}
                     <td className="py-3.5 px-4 text-right font-mono text-xs text-muted-foreground font-medium">
-                      {formatPoints(u.topicPoints)} pts
+                      {formatKPoints(u.topicPoints)} pts
                     </td>
 
                     {/* MCQ Wise Points */}
                     <td className="py-3.5 px-4 text-right font-mono text-xs text-muted-foreground font-medium">
-                      {formatPoints(u.mcqPoints)} pts
+                      {formatKPoints(u.mcqPoints)} pts
                     </td>
 
                     {/* Total Points */}
                     <td className="py-3.5 px-4 text-right">
                       <span className="inline-block px-3 py-1 rounded-xl bg-secondary border border-border font-mono text-xs font-bold text-foreground">
-                        {formatPoints(u.totalPoints)} pts
+                        {formatKPoints(u.totalPoints)} pts
                       </span>
                     </td>
                   </motion.tr>
