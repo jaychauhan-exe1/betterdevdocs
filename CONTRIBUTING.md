@@ -1,6 +1,6 @@
-# Contributing to DevDocs
+# Contributing to Better DevDocs
 
-Thank you for your interest in contributing to **DevDocs**! We welcome contributions from developers of all skill levels. Whether you are fixing a bug, adding new interview topics, improving mobile responsiveness, or enhancing coding challenges, your help is greatly appreciated.
+Thank you for your interest in contributing to **Better DevDocs**! We welcome contributions from developers of all skill levels. Whether you are fixing a bug, adding new interview topics, improving mobile responsiveness, or enhancing coding challenges, your help is greatly appreciated.
 
 ---
 
@@ -162,8 +162,8 @@ docker compose down
 Fork the repository on GitHub, then clone your fork:
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/devdocs.git
-cd devdocs
+git clone https://github.com/YOUR-USERNAME/better-devdocs.git
+cd better-devdocs
 ```
 
 ### 2. Create a Feature Branch
@@ -207,7 +207,7 @@ npm run build
    ```bash
    git push origin feature/amazing-new-feature
    ```
-2. Open a Pull Request against the `main` branch of `devdocs`.
+2. Open a Pull Request against the `main` branch of `better-devdocs`.
 3. Provide a concise summary of your changes, screenshots for UI modifications, and test details.
 
 ---
@@ -221,4 +221,4 @@ npm run build
 
 ---
 
-Thank you for helping make **DevDocs** better for developers everywhere! 🚀
+Thank you for helping make **Better DevDocs** better for developers everywhere! 🚀

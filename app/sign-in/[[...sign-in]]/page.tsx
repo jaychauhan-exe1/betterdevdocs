@@ -17,7 +17,7 @@ export default function SignInPage() {
           className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-full border border-border bg-card/50 backdrop-blur-md"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
-          <span>Back to DevDocs</span>
+          <span>Back to Better DevDocs</span>
         </Link>
       </div>
 

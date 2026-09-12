@@ -6,7 +6,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: devdocs-app
+    container_name: better-devdocs-app
     ports:
       - "3000:3000"
     env_file:
@@ -16,7 +16,7 @@ services:
   # Local development container with live reload
   dev:
     image: node:20-alpine
-    container_name: devdocs-dev
+    container_name: better-devdocs-dev
     working_dir: /app
     ports:
       - "3001:3000"
