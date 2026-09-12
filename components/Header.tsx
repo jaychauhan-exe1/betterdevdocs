@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Menu, CheckCircle2, Zap, Trophy } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
-import { SignInButton, SignUpButton, Show, UserButton, useUser } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
+import UserMenu from "./UserMenu";
+import AuthModal from "./AuthModal";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { calculateUserPoints, formatPoints } from "@/lib/points";
@@ -25,6 +27,8 @@ function formatStarCount(count: number): string {
 export default function Header() {
   const pathname = usePathname();
   const { user } = useUser();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState<"sign-in" | "sign-up">("sign-in");
   const topics = useStudyStore((state) => state.topics);
   const activeTopicId = useStudyStore((state) => state.activeTopicId);
   const completedTopics = useStudyStore((state) => state.completedTopics);
@@ -249,40 +253,43 @@ export default function Header() {
         </Link>
         {/* Auth Controls */}
         <div className="flex items-center gap-2 pl-2 border-l border-border">
-          <Show when="signed-out">
-            <SignInButton mode="modal">
-              <Button variant="ghost" size="sm" className="text-xs font-normal">
+          {!user ? (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setAuthModalMode("sign-in");
+                  setShowAuthModal(true);
+                }}
+                className="text-xs font-normal"
+              >
                 Sign In
               </Button>
-            </SignInButton>
-            <SignUpButton mode="modal">
-              <Button variant="default" size="sm" className="text-xs bg-foreground text-background hover:bg-foreground/90 font-medium">
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => {
+                  setAuthModalMode("sign-up");
+                  setShowAuthModal(true);
+                }}
+                className="text-xs bg-foreground text-background hover:bg-foreground/90 font-medium"
+              >
                 Sign Up
               </Button>
-            </SignUpButton>
-          </Show>
-          <Show when="signed-in">
-            <UserButton
-              userProfileProps={{
-                appearance: {
-                  variables: {
-                    colorBackground: "var(--clerk-bg-header)",
-                  },
-                  elements: {
-                    navbarFooter: "hidden",
-                    devModeBadge: "hidden",
-                    profileSectionItemValue: "text-foreground font-semibold text-sm",
-                    profileSectionValue: "text-foreground font-semibold text-sm",
-                    profileSectionPrimaryButton: "text-foreground font-semibold text-xs underline",
-                    profileSectionItemLabel: "text-muted-foreground text-xs uppercase font-medium",
-                    profileSectionLabel: "text-muted-foreground text-xs uppercase font-medium",
-                  },
-                },
-              }}
-            />
-          </Show>
+            </>
+          ) : (
+            <UserMenu />
+          )}
         </div>
       </div>
+
+      {/* Global Custom Auth Modal */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultMode={authModalMode}
+      />
     </header>
   );
 }

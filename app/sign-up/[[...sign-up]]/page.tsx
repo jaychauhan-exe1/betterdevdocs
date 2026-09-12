@@ -1,6 +1,8 @@
-import { SignUp } from "@clerk/nextjs";
+"use client";
+
 import Link from "next/link";
-import { BookOpen, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import AuthForm from "@/components/AuthForm";
 
 export default function SignUpPage() {
   return (
@@ -20,18 +22,14 @@ export default function SignUpPage() {
       </div>
 
       {/* Main Content */}
-      <div className="z-10 w-full max-w-md flex flex-col items-center gap-6">
+      <div className="z-10 w-full max-w-md flex flex-col items-center gap-5 my-12">
+        <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
+          Create Account
+        </h1>
 
-
-        <SignUp
-          appearance={{
-            elements: {
-              footer: "hidden",
-              footerAction: "hidden",
-              devModeBadge: "hidden",
-            },
-          }}
-        />
+        <div className="w-full bg-card border border-border rounded-3xl p-6 sm:p-7 shadow-2xl">
+          <AuthForm defaultMode="sign-up" />
+        </div>
       </div>
     </div>
   );

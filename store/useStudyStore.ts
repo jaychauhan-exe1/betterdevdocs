@@ -48,6 +48,7 @@ interface StudyState {
   setFilterState: (filter: FilterState) => void;
   toggleCategoryCollapsed: (category: string) => void;
   setAuthenticated: (isAuth: boolean) => void;
+  resetUserProgress: () => void;
   syncToServer: (
     completedTopicsOverride?: string[],
     activeTopicOverride?: string,
@@ -297,6 +298,19 @@ export const useStudyStore = create<StudyState>()(
         set({ syncStatus: ok ? "synced" : "error" });
       },
 
+      resetUserProgress: () => {
+        set({
+          completedTopics: [],
+          activeTopicId: TOPICS[0]?.id || "js-variables",
+          mcqAnswers: {},
+          submittedQuizzes: {},
+          topicNotes: {},
+          solvedChallenges: {},
+          challengeAttempts: {},
+          syncStatus: "idle",
+        });
+      },
+
       hydrateFromServer: (
         serverCompleted: string[],
         serverActiveTopic?: string | null,
@@ -306,37 +320,16 @@ export const useStudyStore = create<StudyState>()(
         serverTopicNotes?: Record<string, string>,
         serverSolvedChallenges?: Record<string, { solvedAt: number; code: string }>
       ) => {
-        set((state) => {
-          const mergedSet = new Set([...state.completedTopics, ...serverCompleted]);
-          const mergedCompleted = Array.from(mergedSet);
-          const nextActiveTopic = serverActiveTopic || state.activeTopicId;
-          const nextRole = serverRole || state.selectedRole;
-          const nextMcqAnswers = {
-            ...state.mcqAnswers,
-            ...(serverMcqAnswers || {}),
-          };
-          const nextTopicNotes = {
-            ...state.topicNotes,
-            ...(serverTopicNotes || {}),
-          };
-          const nextSolvedChallenges = {
-            ...state.solvedChallenges,
-            ...(serverSolvedChallenges || {}),
-          };
-
-          return {
-            completedTopics: mergedCompleted,
-            activeTopicId: nextActiveTopic,
-            selectedRole: nextRole,
-            mcqAnswers: nextMcqAnswers,
-            topicNotes: nextTopicNotes,
-            solvedChallenges: nextSolvedChallenges,
-            syncStatus: "synced",
-          };
+        set({
+          completedTopics: Array.isArray(serverCompleted) ? serverCompleted : [],
+          activeTopicId: serverActiveTopic || TOPICS[0]?.id || "js-variables",
+          selectedRole: serverRole !== undefined ? serverRole : null,
+          mcqAnswers: serverMcqAnswers || {},
+          submittedQuizzes: serverSubmittedQuizzes || {},
+          topicNotes: serverTopicNotes || {},
+          solvedChallenges: serverSolvedChallenges || {},
+          syncStatus: "synced",
         });
-
-        const { completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, solvedChallenges } = get();
-        postProgressToServer(completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, solvedChallenges);
       },
 
       toggleSidebar: () => set((state) => ({ isSidebarOpen: !state.isSidebarOpen })),

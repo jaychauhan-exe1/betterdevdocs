@@ -4,6 +4,8 @@ import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TOPICS, Topic } from "@/data/topics";
 import { useStudyStore } from "@/store/useStudyStore";
+import { useUser } from "@clerk/nextjs";
+import AuthModal from "./AuthModal";
 import CodePlayground from "./CodePlayground";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -199,6 +201,9 @@ export default function TopicViewer(props: TopicViewerProps) {
 
 
 
+  const { isSignedIn } = useUser();
+  const [showAuthModal, setShowAuthModal] = useState(false);
+
   // Microsoft Edge Neural TTS State
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
@@ -298,6 +303,10 @@ export default function TopicViewer(props: TopicViewerProps) {
 
   const handleStartSpeech = async () => {
     if (typeof window === "undefined") return;
+    if (!isSignedIn) {
+      setShowAuthModal(true);
+      return;
+    }
     triggerHaptic("medium");
 
     stopCurrentAudio();
@@ -1286,6 +1295,14 @@ export default function TopicViewer(props: TopicViewerProps) {
           <div />
         )}
       </div>
+
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        title="Sign in to listen to AI Audio"
+        description="Please sign in or create a free account to listen to Microsoft Edge Neural AI voice narration for topics."
+        badge="Audio Narration Locked"
+      />
     </motion.div>
   );
 }

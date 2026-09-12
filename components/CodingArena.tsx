@@ -2,6 +2,8 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useUser } from "@clerk/nextjs";
+import AuthModal from "./AuthModal";
 import { useStudyStore } from "@/store/useStudyStore";
 import { CODING_CHALLENGES, CodingChallenge, CodingDifficulty, TestCase } from "@/data/coding-challenges";
 import { ROLES } from "@/data/roles";
@@ -47,6 +49,9 @@ interface ConsoleOutputLine {
 }
 
 export default function CodingArena() {
+  const { isSignedIn } = useUser();
+  const [showAuthModal, setShowAuthModal] = useState<boolean>(false);
+
   const {
     solvedChallenges,
     challengeAttempts,
@@ -150,6 +155,10 @@ export default function CodingArena() {
 
   // Open question to solve
   const handleSelectChallenge = (id: string) => {
+    if (!isSignedIn) {
+      setShowAuthModal(true);
+      return;
+    }
     setActiveChallengeId(id);
     setViewMode("solve");
   };
@@ -231,6 +240,10 @@ export default function CodingArena() {
   // Run Code (Executes code and captures Console Output)
   const handleRunCode = async () => {
     if (!currentChallenge || isRunning || isSubmitting) return;
+    if (!isSignedIn) {
+      setShowAuthModal(true);
+      return;
+    }
     setIsRunning(true);
     setTestResults(null);
     setConsoleLogs(null);
@@ -320,6 +333,10 @@ export default function CodingArena() {
   // Submit Solution (Evaluates test cases and marks challenge solved if passed)
   const handleSubmitCode = async () => {
     if (!currentChallenge || isRunning || isSubmitting) return;
+    if (!isSignedIn) {
+      setShowAuthModal(true);
+      return;
+    }
     setIsSubmitting(true);
     setConsoleLogs(null);
     setTestResults(null);
@@ -407,6 +424,38 @@ export default function CodingArena() {
       {/* ========================================================================= */}
       {viewMode === "list" && (
         <div className="flex flex-col gap-6">
+          {/* Sign In Required Notice Banner for Unauthenticated Users */}
+          {!isSignedIn && (
+            <div className="p-4 rounded-2xl bg-secondary/40 border border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 rounded-xl bg-card border border-border text-foreground shrink-0">
+                  <Sparkles className="w-5 h-5 text-foreground" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold text-foreground">Sign in to solve coding challenges</h4>
+                  <p className="text-xs text-muted-foreground">Sign in or create a free account to select questions, run solutions in Monaco Editor, and earn practice points.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Button
+                  size="sm"
+                  onClick={() => setShowAuthModal(true)}
+                  className="text-xs bg-foreground text-background hover:bg-foreground/90 font-bold px-4 rounded-xl shadow-sm"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowAuthModal(true)}
+                  className="text-xs border-border text-foreground hover:bg-secondary font-medium px-4 rounded-xl"
+                >
+                  Sign Up
+                </Button>
+              </div>
+            </div>
+          )}
+
           {/* Top Banner Overview */}
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 p-6 rounded-3xl bg-card border border-border/80 relative overflow-hidden">
             <div className="space-y-1 z-10">
@@ -1006,6 +1055,15 @@ export default function CodingArena() {
           </div>
         </div>
       )}
+
+      {/* Auth Gate Modal for Unauthenticated Practice Actions */}
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        title="Sign in for Coding Practice"
+        description="Please sign in or create a free account to solve interview coding challenges, run code in the editor, and earn practice points."
+        badge="Coding Arena Access"
+      />
     </div>
   );
 }

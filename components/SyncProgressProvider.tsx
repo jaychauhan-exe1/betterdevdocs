@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { useStudyStore } from "@/store/useStudyStore";
 
@@ -10,38 +10,49 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
   const { isLoaded, isSignedIn, userId } = useAuth();
   const setAuthenticated = useStudyStore((state) => state.setAuthenticated);
   const hydrateFromServer = useStudyStore((state) => state.hydrateFromServer);
+  const resetUserProgress = useStudyStore((state) => state.resetUserProgress);
+  const lastUserIdRef = useRef<string | null>(null);
 
   useEffect(() => {
     if (!isLoaded) return;
 
     if (isSignedIn && userId) {
+      // If user switched accounts or signed in for first time
+      if (lastUserIdRef.current && lastUserIdRef.current !== userId) {
+        resetUserProgress();
+      }
+      lastUserIdRef.current = userId;
       setAuthenticated(true);
 
-      // Fetch progress & role from API endpoint
+      // Fetch user's individual cloud progress from API endpoint
       fetch("/api/progress")
         .then((res) => {
           if (!res.ok) throw new Error("Failed to fetch progress");
           return res.json();
         })
         .then((data) => {
-          if (Array.isArray(data?.completedTopics)) {
-            hydrateFromServer(
-              data.completedTopics,
-              data.activeTopicId,
-              data.selectedRole,
-              data.mcqAnswers,
-              undefined,
-              data.topicNotes
-            );
-          }
+          hydrateFromServer(
+            Array.isArray(data?.completedTopics) ? data.completedTopics : [],
+            data?.activeTopicId,
+            data?.selectedRole,
+            data?.mcqAnswers,
+            undefined,
+            data?.topicNotes,
+            data?.solvedChallenges
+          );
         })
         .catch((err) => {
           console.warn("Failed to fetch cloud progress on login:", err);
         });
     } else {
+      // User signed out: reset local store to avoid leaking progress across accounts
+      if (lastUserIdRef.current !== null) {
+        resetUserProgress();
+        lastUserIdRef.current = null;
+      }
       setAuthenticated(false);
     }
-  }, [isLoaded, isSignedIn, userId, setAuthenticated, hydrateFromServer]);
+  }, [isLoaded, isSignedIn, userId, setAuthenticated, hydrateFromServer, resetUserProgress]);
 
   return (
     <>
