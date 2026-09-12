@@ -52,6 +52,7 @@ interface StudyState {
   setIsImportantOnly: (importantOnly: boolean) => void;
   toggleImportantOnly: () => void;
   toggleCategoryCollapsed: (category: string) => void;
+  setCollapsedCategories: (collapsed: Record<string, boolean>) => void;
   setAuthenticated: (isAuth: boolean) => void;
   resetUserProgress: () => void;
   syncToServer: (
@@ -150,7 +151,8 @@ export const useStudyStore = create<StudyState>()(
         const isCurrentInRole = roleTopics.some((t) => t.id === activeTopicId);
 
         if (!isCurrentInRole && roleTopics.length > 0) {
-          setActiveTopicId(roleTopics[0].id);
+          const firstUndone = roleTopics.find((t) => !completedTopics.includes(t.id));
+          setActiveTopicId(firstUndone ? firstUndone.id : roleTopics[0].id);
         } else if (isAuthenticated) {
           syncToServer(completedTopics, activeTopicId, roleId, mcqAnswers);
         }
@@ -164,10 +166,22 @@ export const useStudyStore = create<StudyState>()(
           const targetTopic = currentTopics.find((t) => t.id === id);
           if (!targetTopic) return { activeTopicId: id };
 
-          const newCollapsed: Record<string, boolean> = {};
+          const newCollapsed: Record<string, boolean> = { ...state.collapsedCategories };
           const categories = Array.from(new Set(currentTopics.map((t) => t.category)));
+
           categories.forEach((cat) => {
-            newCollapsed[cat] = cat !== targetTopic.category;
+            const catTopics = currentTopics.filter((t) => t.category === cat);
+            const isCatCompleted = catTopics.length > 0 && catTopics.every((t) => state.completedTopics.includes(t.id));
+
+            if (isCatCompleted) {
+              if (cat !== targetTopic.category) {
+                newCollapsed[cat] = true;
+              }
+            } else {
+              if (cat === targetTopic.category) {
+                newCollapsed[cat] = false;
+              }
+            }
           });
 
           return {
@@ -185,12 +199,75 @@ export const useStudyStore = create<StudyState>()(
 
       toggleTopicComplete: (id: string) => {
         let updatedCompleted: string[] = [];
+        let newActiveTopicId: string | null = null;
+        let newCollapsed: Record<string, boolean> = {};
+
         set((state) => {
-          const exists = state.completedTopics.includes(id);
-          updatedCompleted = exists
+          const wasCompleted = state.completedTopics.includes(id);
+          updatedCompleted = wasCompleted
             ? state.completedTopics.filter((t) => t !== id)
             : [...state.completedTopics, id];
-          return { completedTopics: updatedCompleted };
+
+          newCollapsed = { ...state.collapsedCategories };
+          newActiveTopicId = state.activeTopicId;
+
+          // Only trigger auto-advance/collapse if topic was JUST marked completed
+          if (!wasCompleted) {
+            const roleTopics = get().getRoleFilteredTopics();
+            const currentTopic = roleTopics.find((t) => t.id === id);
+
+            if (currentTopic) {
+              const currentCategory = currentTopic.category;
+              const catTopics = roleTopics.filter((t) => t.category === currentCategory);
+              const isCatFullyCompleted = catTopics.every((t) => updatedCompleted.includes(t.id));
+
+              if (isCatFullyCompleted) {
+                // 1. Close/collapse current category dropdown
+                newCollapsed[currentCategory] = true;
+
+                // 2. Find next category with undone topics
+                const categories = Array.from(new Set(roleTopics.map((t) => t.category)));
+                const currentCatIdx = categories.indexOf(currentCategory);
+                let nextUndoneCat: string | null = null;
+
+                for (let i = 1; i <= categories.length; i++) {
+                  const checkCat = categories[(currentCatIdx + i) % categories.length];
+                  const checkCatTopics = roleTopics.filter((t) => t.category === checkCat);
+                  const hasUndone = checkCatTopics.some((t) => !updatedCompleted.includes(t.id));
+                  if (hasUndone) {
+                    nextUndoneCat = checkCat;
+                    break;
+                  }
+                }
+
+                if (nextUndoneCat) {
+                  // 3. Open/expand next category dropdown
+                  newCollapsed[nextUndoneCat] = false;
+
+                  // 4. Set active topic to 1st undone topic in that next category
+                  const nextCatTopics = roleTopics.filter((t) => t.category === nextUndoneCat);
+                  const firstUndone = nextCatTopics.find((t) => !updatedCompleted.includes(t.id));
+                  if (firstUndone) {
+                    newActiveTopicId = firstUndone.id;
+                  }
+                }
+              } else {
+                // Advance to next undone topic in current category if active topic was completed
+                if (state.activeTopicId === id) {
+                  const nextUndoneInCat = catTopics.find((t) => !updatedCompleted.includes(t.id));
+                  if (nextUndoneInCat) {
+                    newActiveTopicId = nextUndoneInCat.id;
+                  }
+                }
+              }
+            }
+          }
+
+          return {
+            completedTopics: updatedCompleted,
+            activeTopicId: newActiveTopicId || state.activeTopicId,
+            collapsedCategories: newCollapsed,
+          };
         });
 
         // Trigger background sync if authenticated
@@ -373,12 +450,13 @@ export const useStudyStore = create<StudyState>()(
 
       setIsImportantOnly: (importantOnly: boolean) => {
         set({ isImportantOnly: importantOnly });
-        const { getRoleFilteredTopics, activeTopicId, setActiveTopicId } = get();
+        const { getRoleFilteredTopics, activeTopicId, setActiveTopicId, completedTopics } = get();
         const roleTopics = getRoleFilteredTopics();
         const isCurrentInFiltered = roleTopics.some((t) => t.id === activeTopicId);
 
         if (!isCurrentInFiltered && roleTopics.length > 0) {
-          setActiveTopicId(roleTopics[0].id);
+          const firstUndone = roleTopics.find((t) => !completedTopics.includes(t.id));
+          setActiveTopicId(firstUndone ? firstUndone.id : roleTopics[0].id);
         }
       },
 
@@ -401,6 +479,10 @@ export const useStudyStore = create<StudyState>()(
             },
           };
         });
+      },
+
+      setCollapsedCategories: (collapsed: Record<string, boolean>) => {
+        set({ collapsedCategories: collapsed });
       },
 
       getRoleFilteredTopics: () => {

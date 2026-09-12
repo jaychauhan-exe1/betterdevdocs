@@ -27,6 +27,9 @@ import {
   Binary,
   FileCode,
   Sparkles,
+  CheckCircle2,
+  ChevronsUp,
+  ChevronsDown,
 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import { RoleSwitcher } from "@/components/RoleSwitcher";
@@ -70,6 +73,7 @@ export default function Sidebar() {
   const setFilterState = useStudyStore((state) => state.setFilterState);
   const collapsedCategories = useStudyStore((state) => state.collapsedCategories);
   const toggleCategoryCollapsed = useStudyStore((state) => state.toggleCategoryCollapsed);
+  const setCollapsedCategories = useStudyStore((state) => state.setCollapsedCategories);
   const isImportantOnly = useStudyStore((state) => state.isImportantOnly);
   const toggleImportantOnly = useStudyStore((state) => state.toggleImportantOnly);
 
@@ -84,6 +88,35 @@ export default function Sidebar() {
   const toggleCategory = (category: string) => {
     triggerHaptic("light");
     toggleCategoryCollapsed(category);
+  };
+
+  const isAnyCategoryOpen = useMemo(() => {
+    return categories.some((category) => {
+      const categoryTopics = roleTopics.filter((t) => t.category === category);
+      if (categoryTopics.length === 0) return false;
+      const catCompleted = categoryTopics.filter((t) => completedTopics.includes(t.id)).length;
+      const isCatFullyCompleted = catCompleted === categoryTopics.length && categoryTopics.length > 0;
+      const activeCategory = roleTopics.find((t) => t.id === activeTopicId)?.category;
+
+      const isCollapsed =
+        collapsedCategories[category] !== undefined
+          ? collapsedCategories[category]
+          : isCatFullyCompleted || category !== activeCategory;
+
+      return !isCollapsed;
+    });
+  }, [categories, roleTopics, completedTopics, activeTopicId, collapsedCategories]);
+
+  const handleToggleExpandCollapseAll = () => {
+    triggerHaptic("medium");
+    const nextState: Record<string, boolean> = { ...collapsedCategories };
+    const shouldCollapse = isAnyCategoryOpen;
+
+    categories.forEach((cat) => {
+      nextState[cat] = shouldCollapse;
+    });
+
+    setCollapsedCategories(nextState);
   };
 
   const filteredTopics = roleTopics.filter((topic) => {
@@ -321,36 +354,74 @@ export default function Sidebar() {
         </div>
 
         {/* Topics List Navigation */}
-        <div className="flex-1 overflow-y-auto p-3.5 space-y-4 custom-scrollbar font-normal">
+        <div className="flex-1 overflow-y-auto p-3.5 space-y-3 custom-scrollbar font-normal">
+          {/* Topics Sub-header with Expand / Collapse All Icon */}
+          <div className="flex items-center justify-between px-1 pb-0.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <span>Topics</span>
+            <button
+              type="button"
+              onClick={handleToggleExpandCollapseAll}
+              className="group flex items-center gap-1 px-1.5 py-0.5 rounded-lg hover:bg-secondary/60 hover:text-foreground transition-colors cursor-pointer text-muted-foreground font-semibold text-xs uppercase tracking-wider"
+              title={isAnyCategoryOpen ? "Collapse All Topics" : "Expand All Topics"}
+            >
+              {isAnyCategoryOpen ? (
+                <>
+                  <ChevronsUp className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground" />
+                  <span>Collapse All</span>
+                </>
+              ) : (
+                <>
+                  <ChevronsDown className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground" />
+                  <span>Expand All</span>
+                </>
+              )}
+            </button>
+          </div>
+
           {categories.map((category) => {
             const categoryTopics = filteredTopics.filter((t) => t.category === category);
             if (categoryTopics.length === 0) return null;
+
+            const catCompleted = categoryTopics.filter((t) => completedTopics.includes(t.id)).length;
+            const isCatFullyCompleted = catCompleted === categoryTopics.length && categoryTopics.length > 0;
 
             const activeCategory = roleTopics.find((t) => t.id === activeTopicId)?.category;
             const isCollapsed =
               collapsedCategories[category] !== undefined
                 ? collapsedCategories[category]
-                : category !== activeCategory;
-
-            const catCompleted = categoryTopics.filter((t) => completedTopics.includes(t.id)).length;
+                : isCatFullyCompleted || category !== activeCategory;
 
             return (
               <div key={category} className="space-y-1">
                 {/* Category Header */}
                 <button
                   onClick={() => toggleCategory(category)}
-                  className="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold text-muted-foreground uppercase tracking-wider hover:text-foreground hover:bg-secondary/60 transition-colors"
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold uppercase tracking-wider transition-all ${
+                    isCatFullyCompleted
+                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
+                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                  }`}
                 >
                   <div className="flex items-center gap-2.5 font-semibold">
-                    {CATEGORY_ICONS[category] || <Code2 className="w-4 h-4" />}
-                    <span>{category}</span>
+                    {isCatFullyCompleted ? (
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    ) : (
+                      CATEGORY_ICONS[category] || <Code2 className="w-4 h-4" />
+                    )}
+                    <span className={isCatFullyCompleted ? "text-emerald-400 font-bold" : ""}>{category}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
-                    <span>
+                  <div className="flex items-center gap-2 text-xs font-medium">
+                    <span
+                      className={`px-2 py-0.5 rounded-full border ${
+                        isCatFullyCompleted
+                          ? "text-emerald-400 bg-emerald-500/20 border-emerald-500/40 font-bold"
+                          : "text-muted-foreground border-transparent"
+                      }`}
+                    >
                       {catCompleted}/{categoryTopics.length}
                     </span>
                     <motion.div animate={{ rotate: isCollapsed ? 0 : 90 }} transition={{ duration: 0.2 }}>
-                      <ChevronRight className="w-4 h-4" />
+                      <ChevronRight className={`w-4 h-4 ${isCatFullyCompleted ? "text-emerald-400" : "text-muted-foreground"}`} />
                     </motion.div>
                   </div>
                 </button>
@@ -381,9 +452,10 @@ export default function Sidebar() {
                                 router.push("/");
                               }
                             }}
-                            className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm sm:text-base cursor-pointer transition-all ${isActive && !isProgressPage
-                              ? "bg-secondary text-foreground font-medium border border-border/80 shadow-sm"
-                              : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground font-normal"
+                            className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm sm:text-base cursor-pointer transition-all ${
+                              isActive && !isProgressPage
+                                ? "bg-secondary text-foreground font-medium border border-border/80 shadow-sm"
+                                : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground font-normal"
                               }`}
                           >
                             <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -394,8 +466,9 @@ export default function Sidebar() {
 
                               <div className="flex items-center gap-1.5 truncate">
                                 <span
-                                  className={`truncate ${isCompleted ? "line-through text-muted-foreground" : ""
-                                    }`}
+                                  className={`truncate ${
+                                    isCompleted ? "line-through text-muted-foreground" : ""
+                                  }`}
                                 >
                                   {topic.title}
                                 </span>
