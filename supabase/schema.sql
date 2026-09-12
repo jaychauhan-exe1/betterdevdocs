@@ -4,9 +4,22 @@ CREATE TABLE IF NOT EXISTS public.user_progress (
   completed_topics JSONB NOT NULL DEFAULT '[]'::jsonb,
   active_topic_id TEXT,
   selected_role TEXT DEFAULT 'all',
+  has_completed_onboarding BOOLEAN DEFAULT false,
+  onboarding_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  topic_notes JSONB NOT NULL DEFAULT '{}'::jsonb,
+  solved_challenges JSONB NOT NULL DEFAULT '{}'::jsonb,
   mcq_answers JSONB NOT NULL DEFAULT '{}'::jsonb,
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
+
+-- Ensure all columns exist for existing tables
+ALTER TABLE public.user_progress 
+  ADD COLUMN IF NOT EXISTS selected_role TEXT DEFAULT 'all',
+  ADD COLUMN IF NOT EXISTS has_completed_onboarding BOOLEAN DEFAULT false,
+  ADD COLUMN IF NOT EXISTS onboarding_data JSONB NOT NULL DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS topic_notes JSONB NOT NULL DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS solved_challenges JSONB NOT NULL DEFAULT '{}'::jsonb,
+  ADD COLUMN IF NOT EXISTS mcq_answers JSONB NOT NULL DEFAULT '{}'::jsonb;
 
 -- Enable Row Level Security for user_progress
 ALTER TABLE public.user_progress ENABLE ROW LEVEL SECURITY;
@@ -15,6 +28,7 @@ GRANT ALL ON TABLE public.user_progress TO authenticated;
 GRANT ALL ON TABLE public.user_progress TO service_role;
 GRANT ALL ON TABLE public.user_progress TO anon;
 
+DROP POLICY IF EXISTS "Allow individual user read and write" ON public.user_progress;
 CREATE POLICY "Allow individual user read and write"
   ON public.user_progress
   FOR ALL
@@ -45,11 +59,13 @@ GRANT ALL ON TABLE public.topics TO authenticated;
 GRANT ALL ON TABLE public.topics TO service_role;
 GRANT ALL ON TABLE public.topics TO anon;
 
+DROP POLICY IF EXISTS "Allow public read access to topics" ON public.topics;
 CREATE POLICY "Allow public read access to topics"
   ON public.topics
   FOR SELECT
   USING (true);
 
+DROP POLICY IF EXISTS "Allow service role write access to topics" ON public.topics;
 CREATE POLICY "Allow service role write access to topics"
   ON public.topics
   FOR ALL

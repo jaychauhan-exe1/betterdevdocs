@@ -109,28 +109,23 @@ export function RoleSwitcher() {
                   type="button"
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleSelect(role.id)}
-                  className={`w-full p-2.5 rounded-xl flex items-start justify-between gap-3 text-left text-xs transition-colors ${
+                  className={`w-full px-3 py-2.5 rounded-xl flex items-center justify-between gap-3 text-left text-xs transition-colors ${
                     isSelected
                       ? "bg-secondary text-foreground font-semibold border border-border/80"
                       : "text-muted-foreground hover:text-foreground hover:bg-secondary/40 border border-transparent"
                   }`}
                 >
-                  <div className="flex items-start gap-2.5 min-w-0">
-                    <div className="p-1.5 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="p-1.5 rounded-lg bg-background border border-border flex items-center justify-center flex-shrink-0">
                       {ROLE_ICONS[role.id] || <Target className="w-4 h-4" />}
                     </div>
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="font-semibold text-foreground truncate flex items-center gap-1.5">
-                        <span>{role.title}</span>
-                      </div>
-                      <p className="text-[11px] text-muted-foreground leading-tight line-clamp-2 font-normal">
-                        {role.description}
-                      </p>
-                    </div>
+                    <span className="font-semibold text-foreground truncate text-xs">
+                      {role.title}
+                    </span>
                   </div>
 
                   {isSelected && (
-                    <Check className="w-4 h-4 text-foreground flex-shrink-0 mt-1" />
+                    <Check className="w-4 h-4 text-foreground flex-shrink-0" />
                   )}
                 </motion.button>
               );

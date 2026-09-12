@@ -23,6 +23,15 @@ interface StudyState {
   isImportantOnly: boolean;
   collapsedCategories: Record<string, boolean>;
 
+  // Onboarding State
+  hasCompletedOnboarding: boolean;
+  onboardingData: {
+    goal?: string;
+    level?: string;
+    source?: string;
+  } | null;
+  isOnboardingOpen: boolean;
+
   // Coding Challenge State
   solvedChallenges: Record<string, { solvedAt: number; code: string }>;
   challengeAttempts: Record<string, string>;
@@ -32,12 +41,22 @@ interface StudyState {
   syncStatus: SyncStatus;
   isAuthenticated: boolean;
 
+  // Auto-advance Toast State
+  autoAdvanceToast: {
+    targetTopicId: string;
+    targetTopicTitle: string;
+    timestamp: number;
+  } | null;
+
   // Actions
   setTopics: (topics: Topic[]) => void;
   fetchTopics: () => Promise<void>;
   setSelectedRole: (roleId: string) => void;
+  setCompletedOnboarding: (data?: { goal?: string; level?: string; source?: string }) => void;
+  setOnboardingOpen: (isOpen: boolean) => void;
   setActiveTopicId: (id: string) => void;
   toggleTopicComplete: (id: string) => void;
+  clearAutoAdvanceToast: () => void;
   setTopicMcqAnswers: (topicId: string, answers: Record<number, number>) => void;
   setQuizSubmitted: (topicId: string, isSubmitted: boolean) => void;
   setTopicNote: (topicId: string, note: string) => void;
@@ -61,7 +80,9 @@ interface StudyState {
     roleOverride?: string | null,
     mcqAnswersOverride?: Record<string, Record<number, number>>,
     topicNotesOverride?: Record<string, string>,
-    solvedChallengesOverride?: Record<string, { solvedAt: number; code: string }>
+    solvedChallengesOverride?: Record<string, { solvedAt: number; code: string }>,
+    hasCompletedOnboardingOverride?: boolean,
+    onboardingDataOverride?: any
   ) => Promise<void>;
   hydrateFromServer: (
     completedTopics: string[],
@@ -70,7 +91,9 @@ interface StudyState {
     mcqAnswers?: Record<string, Record<number, number>>,
     submittedQuizzes?: Record<string, boolean>,
     topicNotes?: Record<string, string>,
-    solvedChallenges?: Record<string, { solvedAt: number; code: string }>
+    solvedChallenges?: Record<string, { solvedAt: number; code: string }>,
+    hasCompletedOnboarding?: boolean,
+    onboardingData?: any
   ) => void;
 
   // Helpers
@@ -88,13 +111,24 @@ async function postProgressToServer(
   selectedRole?: string | null,
   mcqAnswers?: Record<string, Record<number, number>>,
   topicNotes?: Record<string, string>,
-  solvedChallenges?: Record<string, { solvedAt: number; code: string }>
+  solvedChallenges?: Record<string, { solvedAt: number; code: string }>,
+  hasCompletedOnboarding?: boolean,
+  onboardingData?: any
 ) {
   try {
     const res = await fetch("/api/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, solvedChallenges }),
+      body: JSON.stringify({
+        completedTopics,
+        activeTopicId,
+        selectedRole,
+        mcqAnswers,
+        topicNotes,
+        solvedChallenges,
+        hasCompletedOnboarding,
+        onboardingData,
+      }),
     });
     return res.ok;
   } catch {
@@ -122,6 +156,10 @@ export const useStudyStore = create<StudyState>()(
       collapsedCategories: {},
       syncStatus: "idle",
       isAuthenticated: false,
+      autoAdvanceToast: null,
+      hasCompletedOnboarding: false,
+      onboardingData: null,
+      isOnboardingOpen: false,
 
       setTopics: (newTopics: Topic[]) => {
         if (!Array.isArray(newTopics) || newTopics.length === 0) return;
@@ -158,13 +196,29 @@ export const useStudyStore = create<StudyState>()(
         }
       },
 
+      setCompletedOnboarding: (data) => {
+        set((state) => ({
+          hasCompletedOnboarding: true,
+          isOnboardingOpen: false,
+          onboardingData: data !== undefined ? { ...(state.onboardingData || {}), ...data } : state.onboardingData,
+        }));
+        const { isAuthenticated, syncToServer } = get();
+        if (isAuthenticated) {
+          syncToServer();
+        }
+      },
+
+      setOnboardingOpen: (isOpen: boolean) => set({ isOnboardingOpen: isOpen }),
+
       setAuthenticated: (isAuth: boolean) => set({ isAuthenticated: isAuth }),
+
+      clearAutoAdvanceToast: () => set({ autoAdvanceToast: null }),
 
       setActiveTopicId: (id: string) => {
         set((state) => {
           const currentTopics = state.topics;
           const targetTopic = currentTopics.find((t) => t.id === id);
-          if (!targetTopic) return { activeTopicId: id };
+          if (!targetTopic) return { activeTopicId: id, autoAdvanceToast: null };
 
           const newCollapsed: Record<string, boolean> = { ...state.collapsedCategories };
           const categories = Array.from(new Set(currentTopics.map((t) => t.category)));
@@ -187,6 +241,7 @@ export const useStudyStore = create<StudyState>()(
           return {
             activeTopicId: id,
             collapsedCategories: newCollapsed,
+            autoAdvanceToast: null,
           };
         });
 
@@ -199,7 +254,7 @@ export const useStudyStore = create<StudyState>()(
 
       toggleTopicComplete: (id: string) => {
         let updatedCompleted: string[] = [];
-        let newActiveTopicId: string | null = null;
+        let nextTopicCandidate: { id: string; title: string } | null = null;
         let newCollapsed: Record<string, boolean> = {};
 
         set((state) => {
@@ -209,9 +264,8 @@ export const useStudyStore = create<StudyState>()(
             : [...state.completedTopics, id];
 
           newCollapsed = { ...state.collapsedCategories };
-          newActiveTopicId = state.activeTopicId;
 
-          // Only trigger auto-advance/collapse if topic was JUST marked completed
+          // Only calculate next topic candidate if topic was JUST marked completed
           if (!wasCompleted) {
             const roleTopics = get().getRoleFilteredTopics();
             const currentTopic = roleTopics.find((t) => t.id === id);
@@ -244,20 +298,18 @@ export const useStudyStore = create<StudyState>()(
                   // 3. Open/expand next category dropdown
                   newCollapsed[nextUndoneCat] = false;
 
-                  // 4. Set active topic to 1st undone topic in that next category
+                  // 4. Find 1st undone topic in that next category
                   const nextCatTopics = roleTopics.filter((t) => t.category === nextUndoneCat);
                   const firstUndone = nextCatTopics.find((t) => !updatedCompleted.includes(t.id));
                   if (firstUndone) {
-                    newActiveTopicId = firstUndone.id;
+                    nextTopicCandidate = { id: firstUndone.id, title: firstUndone.title };
                   }
                 }
               } else {
-                // Advance to next undone topic in current category if active topic was completed
-                if (state.activeTopicId === id) {
-                  const nextUndoneInCat = catTopics.find((t) => !updatedCompleted.includes(t.id));
-                  if (nextUndoneInCat) {
-                    newActiveTopicId = nextUndoneInCat.id;
-                  }
+                // Find next undone topic in current category
+                const nextUndoneInCat = catTopics.find((t) => !updatedCompleted.includes(t.id));
+                if (nextUndoneInCat) {
+                  nextTopicCandidate = { id: nextUndoneInCat.id, title: nextUndoneInCat.title };
                 }
               }
             }
@@ -265,8 +317,14 @@ export const useStudyStore = create<StudyState>()(
 
           return {
             completedTopics: updatedCompleted,
-            activeTopicId: newActiveTopicId || state.activeTopicId,
             collapsedCategories: newCollapsed,
+            autoAdvanceToast: !wasCompleted && nextTopicCandidate
+              ? {
+                  targetTopicId: nextTopicCandidate.id,
+                  targetTopicTitle: nextTopicCandidate.title,
+                  timestamp: Date.now(),
+                }
+              : null,
           };
         });
 
@@ -383,7 +441,9 @@ export const useStudyStore = create<StudyState>()(
         roleOverride?: string | null,
         mcqAnswersOverride?: Record<string, Record<number, number>>,
         topicNotesOverride?: Record<string, string>,
-        solvedChallengesOverride?: Record<string, { solvedAt: number; code: string }>
+        solvedChallengesOverride?: Record<string, { solvedAt: number; code: string }>,
+        hasCompletedOnboardingOverride?: boolean,
+        onboardingDataOverride?: any
       ) => {
         const completed = completedTopicsOverride ?? get().completedTopics;
         const active = activeTopicOverride ?? get().activeTopicId;
@@ -391,9 +451,11 @@ export const useStudyStore = create<StudyState>()(
         const answers = mcqAnswersOverride ?? get().mcqAnswers;
         const notes = topicNotesOverride ?? get().topicNotes;
         const solved = solvedChallengesOverride ?? get().solvedChallenges;
+        const hasOnboarding = hasCompletedOnboardingOverride !== undefined ? hasCompletedOnboardingOverride : get().hasCompletedOnboarding;
+        const onboardingDataVal = onboardingDataOverride ?? get().onboardingData;
 
         set({ syncStatus: "syncing" });
-        const ok = await postProgressToServer(completed, active, role, answers, notes, solved);
+        const ok = await postProgressToServer(completed, active, role, answers, notes, solved, hasOnboarding, onboardingDataVal);
         set({ syncStatus: ok ? "synced" : "error" });
       },
 
@@ -407,6 +469,8 @@ export const useStudyStore = create<StudyState>()(
           solvedChallenges: {},
           challengeAttempts: {},
           failedSubmissions: {},
+          hasCompletedOnboarding: false,
+          onboardingData: null,
           syncStatus: "idle",
         });
       },
@@ -418,18 +482,25 @@ export const useStudyStore = create<StudyState>()(
         serverMcqAnswers?: Record<string, Record<number, number>>,
         serverSubmittedQuizzes?: Record<string, boolean>,
         serverTopicNotes?: Record<string, string>,
-        serverSolvedChallenges?: Record<string, { solvedAt: number; code: string }>
+        serverSolvedChallenges?: Record<string, { solvedAt: number; code: string }>,
+        serverHasCompletedOnboarding?: boolean,
+        serverOnboardingData?: any
       ) => {
-        set({
+        set((state) => ({
           completedTopics: Array.isArray(serverCompleted) ? serverCompleted : [],
           activeTopicId: serverActiveTopic || TOPICS[0]?.id || "js-variables",
           selectedRole: serverRole !== undefined ? serverRole : null,
+          hasCompletedOnboarding:
+            typeof serverHasCompletedOnboarding === "boolean"
+              ? serverHasCompletedOnboarding
+              : state.hasCompletedOnboarding,
+          onboardingData: serverOnboardingData || state.onboardingData,
           mcqAnswers: serverMcqAnswers || {},
           submittedQuizzes: serverSubmittedQuizzes || {},
           topicNotes: serverTopicNotes || {},
           solvedChallenges: serverSolvedChallenges || {},
           syncStatus: "synced",
-        });
+        }));
       },
 
       toggleSidebar: () => {
@@ -547,6 +618,8 @@ export const useStudyStore = create<StudyState>()(
         failedSubmissions: state.failedSubmissions,
         collapsedCategories: state.collapsedCategories,
         isImportantOnly: state.isImportantOnly,
+        hasCompletedOnboarding: state.hasCompletedOnboarding,
+        onboardingData: state.onboardingData,
       }),
     }
   )

@@ -5,6 +5,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useStudyStore } from "@/store/useStudyStore";
 
 import { RoleSelectionModal } from "@/components/RoleSelectionModal";
+import { AutoAdvanceToast } from "@/components/AutoAdvanceToast";
 
 export function SyncProgressProvider({ children }: { children: React.ReactNode }) {
   const { isLoaded, isSignedIn, userId } = useAuth();
@@ -40,7 +41,9 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
             data?.mcqAnswers,
             undefined,
             data?.topicNotes,
-            data?.solvedChallenges
+            data?.solvedChallenges,
+            data?.hasCompletedOnboarding,
+            data?.onboardingData
           );
         })
         .catch((err) => {
@@ -62,6 +65,7 @@ export function SyncProgressProvider({ children }: { children: React.ReactNode }
   return (
     <>
       <RoleSelectionModal />
+      <AutoAdvanceToast />
       {children}
     </>
   );

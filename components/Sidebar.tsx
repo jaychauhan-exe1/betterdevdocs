@@ -37,6 +37,7 @@ import { AnimatedCheckmark } from "@/components/AnimatedCheckmark";
 import { triggerHaptic } from "@/lib/haptics";
 
 import { usePathname, useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 
 const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
   "HTML & CSS": <FileCode className="w-4 h-4 text-muted-foreground" />,
@@ -52,6 +53,7 @@ const CATEGORY_ICONS: Record<CategoryType, React.ReactNode> = {
 };
 
 export default function Sidebar() {
+  const { isSignedIn, isLoaded } = useAuth();
   const pathname = usePathname();
   const router = useRouter();
   const isProgressPage = pathname === "/progress";
@@ -76,6 +78,13 @@ export default function Sidebar() {
   const setCollapsedCategories = useStudyStore((state) => state.setCollapsedCategories);
   const isImportantOnly = useStudyStore((state) => state.isImportantOnly);
   const toggleImportantOnly = useStudyStore((state) => state.toggleImportantOnly);
+
+  const hasCompletedOnboarding = useStudyStore((state) => state.hasCompletedOnboarding);
+  const isOnboardingOpen = useStudyStore((state) => state.isOnboardingOpen);
+
+  const isOnboardingActive =
+    isLoaded &&
+    (isOnboardingOpen || (isSignedIn && (!hasCompletedOnboarding || selectedRole === null)));
 
   const getRoleFilteredTopics = useStudyStore((state) => state.getRoleFilteredTopics);
 
@@ -149,6 +158,10 @@ export default function Sidebar() {
     };
   });
 
+  if (isOnboardingActive) {
+    return null;
+  }
+
   return (
     <>
       {/* Mobile Backdrop */}
@@ -172,17 +185,17 @@ export default function Sidebar() {
         {/* Header */}
         <div className="p-4 sm:p-5 border-b border-border flex flex-col gap-3 bg-card">
           <div className="flex items-center justify-between">
-            <Link href="/">
+            <Link href="/" onClick={() => setSidebarOpen(false)}>
               <div className="flex items-center gap-3">
                 <motion.div
                   whileHover={{ rotate: 5, scale: 1.05 }}
-                  className="p-2.5 rounded-xl bg-secondary border border-border text-foreground"
+                  className=" rounded-xl bg-secondary border border-border text-foreground flex items-center justify-center"
                 >
-                  <BookOpen className="w-5 h-5" />
+                  <img src="/logo-icon.png" alt="Better DevDocs Logo" className="w-10 h-10 object-contain" />
                 </motion.div>
                 <div>
 
-                  <h1 className="font-semibold text-lg tracking-wide text-foreground flex items-center gap-1.5 uppercase">
+                  <h1 className="font-semibold text-lg tracking-wide text-foreground flex items-center gap-1.5">
                     Better DevDocs
                   </h1>
 
@@ -238,8 +251,8 @@ export default function Sidebar() {
               setSidebarOpen(false);
             }}
             className={`p-3.5 rounded-2xl border flex items-center justify-between font-normal cursor-pointer transition-all hover:bg-secondary/80 active:scale-[0.99] ${isCodingPage
-                ? "bg-secondary border-foreground/60 text-foreground shadow-sm"
-                : "bg-secondary/50 border-border text-foreground hover:border-foreground/40"
+              ? "bg-secondary border-foreground/60 text-foreground shadow-sm"
+              : "bg-secondary/50 border-border text-foreground hover:border-foreground/40"
               }`}
             role="button"
             tabIndex={0}
@@ -287,11 +300,10 @@ export default function Sidebar() {
               triggerHaptic("medium");
               toggleImportantOnly();
             }}
-            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${
-              isImportantOnly
-                ? "bg-secondary text-foreground border-foreground/40 shadow-sm"
-                : "bg-secondary/30 text-muted-foreground border-border hover:bg-secondary/60 hover:text-foreground"
-            }`}
+            className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl border text-xs font-semibold transition-all cursor-pointer ${isImportantOnly
+              ? "bg-secondary text-foreground border-foreground/40 shadow-sm"
+              : "bg-secondary/30 text-muted-foreground border-border hover:bg-secondary/60 hover:text-foreground"
+              }`}
             title="Toggle to show only important topics"
           >
             <div className="flex items-center gap-2">
@@ -299,16 +311,14 @@ export default function Sidebar() {
               <span>Important Topics Only</span>
             </div>
             <div
-              className={`w-8 h-4.5 rounded-full p-0.5 transition-colors flex items-center ${
-                isImportantOnly ? "bg-foreground justify-end" : "bg-zinc-800 border border-zinc-700 justify-start"
-              }`}
+              className={`w-8 h-4.5 rounded-full p-0.5 transition-colors flex items-center ${isImportantOnly ? "bg-foreground justify-end" : "bg-zinc-800 border border-zinc-700 justify-start"
+                }`}
             >
               <motion.div
                 layout
                 transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                className={`w-3.5 h-3.5 rounded-full shadow-xs ${
-                  isImportantOnly ? "bg-background" : "bg-zinc-400"
-                }`}
+                className={`w-3.5 h-3.5 rounded-full shadow-xs ${isImportantOnly ? "bg-background" : "bg-zinc-400"
+                  }`}
               />
             </div>
           </button>
@@ -396,11 +406,10 @@ export default function Sidebar() {
                 {/* Category Header */}
                 <button
                   onClick={() => toggleCategory(category)}
-                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold uppercase tracking-wider transition-all ${
-                    isCatFullyCompleted
-                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
-                      : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
-                  }`}
+                  className={`w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs sm:text-sm font-semibold uppercase tracking-wider transition-all ${isCatFullyCompleted
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 hover:bg-emerald-500/20"
+                    : "text-muted-foreground hover:text-foreground hover:bg-secondary/60"
+                    }`}
                 >
                   <div className="flex items-center gap-2.5 font-semibold">
                     {isCatFullyCompleted ? (
@@ -412,11 +421,10 @@ export default function Sidebar() {
                   </div>
                   <div className="flex items-center gap-2 text-xs font-medium">
                     <span
-                      className={`px-2 py-0.5 rounded-full border ${
-                        isCatFullyCompleted
-                          ? "text-emerald-400 bg-emerald-500/20 border-emerald-500/40 font-bold"
-                          : "text-muted-foreground border-transparent"
-                      }`}
+                      className={`px-2 py-0.5 rounded-full border ${isCatFullyCompleted
+                        ? "text-emerald-400 bg-emerald-500/20 border-emerald-500/40 font-bold"
+                        : "text-muted-foreground border-transparent"
+                        }`}
                     >
                       {catCompleted}/{categoryTopics.length}
                     </span>
@@ -452,10 +460,9 @@ export default function Sidebar() {
                                 router.push("/");
                               }
                             }}
-                            className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm sm:text-base cursor-pointer transition-all ${
-                              isActive && !isProgressPage
-                                ? "bg-secondary text-foreground font-medium border border-border/80 shadow-sm"
-                                : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground font-normal"
+                            className={`group w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm sm:text-base cursor-pointer transition-all ${isActive && !isProgressPage
+                              ? "bg-secondary text-foreground font-medium border border-border/80 shadow-sm"
+                              : "text-muted-foreground hover:bg-secondary/40 hover:text-foreground font-normal"
                               }`}
                           >
                             <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -466,9 +473,8 @@ export default function Sidebar() {
 
                               <div className="flex items-center gap-1.5 truncate">
                                 <span
-                                  className={`truncate ${
-                                    isCompleted ? "line-through text-muted-foreground" : ""
-                                  }`}
+                                  className={`truncate ${isCompleted ? "line-through text-muted-foreground" : ""
+                                    }`}
                                 >
                                   {topic.title}
                                 </span>

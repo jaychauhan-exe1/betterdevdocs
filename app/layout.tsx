@@ -13,6 +13,11 @@ const geistSans = Geist({
 export const metadata: Metadata = {
   title: "Better DevDocs - Developer Documentation & Study Guide",
   description: "Minimal monochrome study guide for software developers",
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/logo-icon.png",
+  },
 };
 
 import { SyncProgressProvider } from "@/components/SyncProgressProvider";

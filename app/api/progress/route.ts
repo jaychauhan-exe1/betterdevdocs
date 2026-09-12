@@ -27,6 +27,8 @@ export async function GET() {
     let completedTopics: string[] = [];
     let activeTopicId: string | null = null;
     let selectedRole: string | null = null;
+    let hasCompletedOnboarding: boolean | undefined = undefined;
+    let onboardingData: any = undefined;
     let mcqAnswers: Record<string, Record<number, number>> = {};
     let topicNotes: Record<string, string> = {};
     let solvedChallenges: Record<string, { solvedAt: number; code: string }> = {};
@@ -37,16 +39,20 @@ export async function GET() {
     if (supabase) {
       const { data, error } = await supabase
         .from("user_progress")
-        .select("completed_topics, active_topic_id, selected_role, mcq_answers, topic_notes, solved_challenges")
+        .select("completed_topics, active_topic_id, selected_role, has_completed_onboarding, onboarding_data, mcq_answers, topic_notes, solved_challenges")
         .eq("user_id", userId)
         .maybeSingle();
 
-      if (!error && data) {
+      if (error) {
+        console.error("Supabase select error:", error);
+      } else if (data) {
         completedTopics = Array.isArray(data.completed_topics)
           ? data.completed_topics
           : [];
         activeTopicId = data.active_topic_id || null;
         selectedRole = data.selected_role || null;
+        hasCompletedOnboarding = typeof data.has_completed_onboarding === "boolean" ? data.has_completed_onboarding : undefined;
+        onboardingData = data.onboarding_data && typeof data.onboarding_data === "object" ? data.onboarding_data : undefined;
         mcqAnswers = data.mcq_answers && typeof data.mcq_answers === "object" ? data.mcq_answers : {};
         topicNotes = data.topic_notes && typeof data.topic_notes === "object" ? data.topic_notes : {};
         solvedChallenges = data.solved_challenges && typeof data.solved_challenges === "object" ? data.solved_challenges : {};
@@ -64,6 +70,8 @@ export async function GET() {
         completedTopics?: string[];
         activeTopicId?: string;
         selectedRole?: string;
+        hasCompletedOnboarding?: boolean;
+        onboardingData?: any;
         mcqAnswers?: Record<string, Record<number, number>>;
         topicNotes?: Record<string, string>;
         solvedChallenges?: Record<string, { solvedAt: number; code: string }>;
@@ -78,6 +86,12 @@ export async function GET() {
       if (meta?.selectedRole) {
         selectedRole = meta.selectedRole;
       }
+      if (typeof meta?.hasCompletedOnboarding === "boolean") {
+        hasCompletedOnboarding = meta.hasCompletedOnboarding;
+      }
+      if (meta?.onboardingData) {
+        onboardingData = meta.onboardingData;
+      }
       if (meta?.mcqAnswers && typeof meta.mcqAnswers === "object") {
         mcqAnswers = meta.mcqAnswers;
       }
@@ -89,7 +103,16 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json({ completedTopics, activeTopicId, selectedRole, mcqAnswers, topicNotes, solvedChallenges });
+    return NextResponse.json({
+      completedTopics,
+      activeTopicId,
+      selectedRole,
+      hasCompletedOnboarding,
+      onboardingData,
+      mcqAnswers,
+      topicNotes,
+      solvedChallenges,
+    });
   } catch (err: any) {
     console.error("GET /api/progress error:", err);
     return NextResponse.json(
@@ -112,6 +135,8 @@ export async function POST(req: Request) {
       : [];
     const activeTopicId: string | undefined = body?.activeTopicId;
     const selectedRole: string | undefined = body?.selectedRole;
+    const hasCompletedOnboarding: boolean | undefined = body?.hasCompletedOnboarding;
+    const onboardingData: any = body?.onboardingData;
     const mcqAnswers: Record<string, Record<number, number>> =
       body?.mcqAnswers && typeof body.mcqAnswers === "object" ? body.mcqAnswers : {};
     const topicNotes: Record<string, string> =
@@ -120,14 +145,17 @@ export async function POST(req: Request) {
       body?.solvedChallenges && typeof body.solvedChallenges === "object" ? body.solvedChallenges : {};
 
     // 1. Try Upserting into Supabase
+    let supabaseSuccess = false;
     const supabase = getSupabaseAdmin();
     if (supabase) {
-      await supabase.from("user_progress").upsert(
+      const { error } = await supabase.from("user_progress").upsert(
         {
           user_id: userId,
           completed_topics: completedTopics,
           active_topic_id: activeTopicId || null,
           selected_role: selectedRole || "all",
+          has_completed_onboarding: Boolean(hasCompletedOnboarding),
+          onboarding_data: onboardingData || {},
           mcq_answers: mcqAnswers,
           topic_notes: topicNotes,
           solved_challenges: solvedChallenges,
@@ -135,25 +163,17 @@ export async function POST(req: Request) {
         },
         { onConflict: "user_id" }
       );
+
+      if (error) {
+        console.error("Supabase upsert error:", error);
+      } else {
+        supabaseSuccess = true;
+      }
     }
 
-    // 2. Always sync to Clerk User Metadata as dual-backup
-    try {
-      const clerk = createClerkClient({
-        secretKey: process.env.CLERK_SECRET_KEY,
-      });
-      await clerk.users.updateUserMetadata(userId, {
-        unsafeMetadata: {
-          completedTopics,
-          activeTopicId,
-          selectedRole,
-          mcqAnswers,
-          topicNotes,
-          solvedChallenges,
-        },
-      });
-    } catch (clerkErr) {
-      console.warn("Failed to sync progress to Clerk metadata:", clerkErr);
+    // 2. Return response (Data is stored safely in Supabase PostgreSQL)
+    if (!supabaseSuccess) {
+      console.warn("Supabase upsert did not complete successfully. Ensure Supabase credentials and schema are configured.");
     }
 
     return NextResponse.json({
@@ -161,6 +181,8 @@ export async function POST(req: Request) {
       completedTopics,
       activeTopicId,
       selectedRole,
+      hasCompletedOnboarding,
+      onboardingData,
       mcqAnswers,
       topicNotes,
       solvedChallenges,

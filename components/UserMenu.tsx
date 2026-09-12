@@ -161,16 +161,19 @@ export default function UserMenu() {
               </div>
             </Link>
 
-            <Link
-              href="/leaderboard"
-              onClick={() => setIsOpen(false)}
-              className="flex items-center justify-between px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-xl transition-colors"
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                useStudyStore.getState().setOnboardingOpen(true);
+              }}
+              className="w-full flex items-center justify-between px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-secondary/60 rounded-xl transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2">
-                <Trophy className="w-3.5 h-3.5 text-foreground" />
-                <span>Leaderboard</span>
+                <Sparkles className="w-3.5 h-3.5 text-foreground" />
+                <span>Onboarding Preferences</span>
               </div>
-            </Link>
+            </button>
           </div>
 
           <div className="pt-2 border-t border-border/80">
