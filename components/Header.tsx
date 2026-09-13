@@ -13,6 +13,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { calculateUserPoints, formatKPoints } from "@/lib/points";
 import { ROLES } from "@/data/roles";
+import { getLocalUserLeaderboardEntry, computeRankedLeaderboard } from "@/lib/leaderboard";
 
 function formatStarCount(count: number): string {
   if (count >= 1000000) {
@@ -29,21 +30,21 @@ export default function Header() {
   const { user } = useUser();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<"sign-in" | "sign-up">("sign-in");
-  const topics = useStudyStore((state) => state.topics);
-  const activeTopicId = useStudyStore((state) => state.activeTopicId);
-  const completedTopics = useStudyStore((state) => state.completedTopics);
-  const mcqAnswers = useStudyStore((state) => state.mcqAnswers);
-  const selectedRole = useStudyStore((state) => state.selectedRole);
-  const toggleSidebar = useStudyStore((state) => state.toggleSidebar);
-  const solvedChallenges = useStudyStore((state) => state.solvedChallenges);
-  const getPointsSummary = useStudyStore((state) => state.getPointsSummary);
+  const {
+    topics,
+    completedTopics,
+    activeTopicId,
+    selectedRole,
+    mcqAnswers,
+    solvedChallenges,
+    getPointsSummary,
+    getRoleFilteredTopics,
+    toggleSidebar,
+  } = useStudyStore();
 
   const roleTopics = useMemo(() => {
-    if (!selectedRole || selectedRole === "all") return topics;
-    const roleDef = ROLES.find((r) => r.id === selectedRole);
-    if (!roleDef) return topics;
-    return topics.filter((t) => roleDef.categories.includes(t.category));
-  }, [topics, selectedRole]);
+    return getRoleFilteredTopics();
+  }, [topics, selectedRole, getRoleFilteredTopics]);
 
   const activeTopic = useMemo(() => {
     const foundInRole = roleTopics.find((t) => t.id === activeTopicId);
@@ -64,6 +65,10 @@ export default function Header() {
     };
   }, [pointsSummary]);
 
+  const localUserEntry = useMemo(() => {
+    return getLocalUserLeaderboardEntry(currentUserPoints, user);
+  }, [currentUserPoints, user]);
+
   const [userRank, setUserRank] = useState<number>(1);
 
   useEffect(() => {
@@ -74,8 +79,9 @@ export default function Header() {
         return res.json();
       })
       .then((data) => {
-        if (typeof data?.currentUserRank === "number") {
-          setUserRank(data.currentUserRank);
+        if (Array.isArray(data?.leaderboard)) {
+          const rankedResult = computeRankedLeaderboard(data.leaderboard, localUserEntry, Boolean(user));
+          setUserRank(rankedResult.currentUserRank);
         }
       })
       .catch((err) => {
@@ -84,7 +90,7 @@ export default function Header() {
       });
 
     return () => controller.abort();
-  }, [user, currentUserPoints.totalPoints]);
+  }, [user, localUserEntry]);
 
   const totalCount = roleTopics.length;
   const completedCount = roleTopics.filter((t) => completedTopics.includes(t.id)).length;

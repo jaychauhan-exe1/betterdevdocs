@@ -406,14 +406,14 @@ export default function ProgressRoadmapView() {
                         triggerHaptic("medium");
                         setSelectedTopicId(node.topic.id);
                       }}
-                      className={`absolute top-full mt-2 left-1/2 -translate-x-1/2 sm:left-full sm:ml-3.5 sm:top-1/2 sm:-translate-y-1/2 sm:mt-0 sm:translate-x-0 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold whitespace-nowrap border shadow-[0_4px_0_#18181b,0_6px_12px_rgba(0,0,0,0.5)] cursor-pointer z-20 transition-colors ${node.isCompleted
+                      className={`absolute top-full mt-2 left-1/2 -translate-x-1/2 px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-xl text-[11px] sm:text-xs font-semibold whitespace-nowrap border shadow-[0_4px_0_#18181b,0_6px_12px_rgba(0,0,0,0.5)] cursor-pointer z-20 transition-colors ${node.isCompleted
                           ? "bg-card text-emerald-400 border-emerald-500/50 hover:border-emerald-400 hover:bg-secondary font-medium"
                           : node.isCurrentPosition
                             ? "bg-card text-foreground border-foreground font-bold ring-1 ring-foreground/20"
                             : "bg-card/95 text-foreground border-border/80 hover:border-foreground/50 hover:bg-secondary"
                         }`}
                     >
-                      <span className="truncate max-w-[120px] sm:max-w-[180px] block text-center sm:text-left">
+                      <span className="truncate max-w-[140px] sm:max-w-[200px] block text-center">
                         {node.topic.title}
                       </span>
                     </div>
