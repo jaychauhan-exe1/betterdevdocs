@@ -27789,5 +27789,186 @@
       "data-analytics",
       "data-engineer"
     ]
+  },
+  {
+    "id": "js-arrays",
+    "title": "Arrays & Array Methods",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "JavaScript Array fundamentals, mutator methods (push, pop, splice), non-mutating methods (slice, concat, flat), and array iteration.",
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "dsa"
+    ],
+    "explanation": {
+      "overview": "Arrays in JavaScript are ordered lists of values indexed by integer. JavaScript arrays are dynamic, heterogeneous, and inherit from Array.prototype with built-in iteration and transformation utilities.",
+      "sections": [
+        {
+          "heading": "Mutator vs Non-Mutating Methods",
+          "content": "Mutator methods alter the original array in-place (push, pop, shift, unshift, splice, sort, reverse). Non-mutating methods return a new array or value without modifying the source (slice, concat, flat, indexOf, includes, join).",
+          "bulletPoints": [
+            "splice(start, deleteCount, ...items): Modifies array in place by removing or inserting elements.",
+            "slice(start, end): Returns shallow copy extract of array range.",
+            "Array.from(): Creates true Array instance from array-like or iterable object."
+          ]
+        },
+        {
+          "heading": "Array Performance & Storage",
+          "content": "V8 engine optimizes JS arrays using contiguous memory for packed arrays of numbers/pointers, but degrades to hash tables (dictionary mode) for sparse arrays.",
+          "bulletPoints": [
+            "Avoid sparse arrays (arr[1000] = x) to preserve fast element access.",
+            "Use typed arrays (Int32Array, Float64Array) for performance-critical binary data."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Know which array methods mutate in-place vs return new arrays.",
+      "Use Array.from() or spread [...iterable] to convert iterables to arrays.",
+      "Linked with DSA Arrays topic — completing one marks both as complete."
+    ],
+    "codeExamples": [
+      {
+        "title": "Array Splice vs Slice",
+        "description": "Demonstrating in-place splice deletion vs non-mutating slice.",
+        "code": "const items = ['a', 'b', 'c', 'd'];\nconst sliced = items.slice(1, 3); // ['b', 'c'] (items unchanged)\n\nitems.splice(1, 2, 'x'); // removes 'b', 'c' and inserts 'x'\nconsole.log(items); // ['a', 'x', 'd']"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-arrays-mcq-1",
+        "question": "Which of the following array methods mutates the original array in-place?",
+        "options": [
+          "slice()",
+          "concat()",
+          "splice()",
+          "map()"
+        ],
+        "correctAnswer": 2,
+        "explanation": "splice() modifies the original array in place by removing, replacing, or adding elements."
+      },
+      {
+        "id": "js-arrays-mcq-2",
+        "question": "What is returned by [1, 2, 3].slice(1, 3)?",
+        "options": [
+          "[1, 2]",
+          "[2, 3]",
+          "[1, 2, 3]",
+          "[3]"
+        ],
+        "correctAnswer": 1,
+        "explanation": "slice(start, end) extracts elements from index start up to but excluding index end."
+      }
+    ]
+  },
+  {
+    "id": "js-strings",
+    "title": "Strings & String Methods",
+    "category": "JAVASCRIPT",
+    "difficulty": "Beginner",
+    "isImportant": true,
+    "summary": "JavaScript String primitives, immutability, UTF-16 encoding, template literals, and string searching/manipulation methods.",
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "dsa"
+    ],
+    "explanation": {
+      "overview": "Strings in JavaScript are immutable sequences of 16-bit UTF-16 code units. All string operations return new string instances.",
+      "sections": [
+        {
+          "heading": "String Immutability & Methods",
+          "content": "Because strings are immutable, methods like toLowerCase(), replace(), substring(), trim(), and split() return new strings rather than modifying the existing string.",
+          "bulletPoints": [
+            "split(separator): Converts string into array based on delimiter.",
+            "includes(substring) / indexOf(substring): Searches for substring presence.",
+            "replace(search, replacement): Replaces first match or all matches when using global regex."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "JavaScript strings are primitive and immutable.",
+      "Use template literals for string interpolation.",
+      "Linked with DSA Strings topic — completing one marks both as complete."
+    ],
+    "codeExamples": [
+      {
+        "title": "String Manipulation & Template Literals",
+        "description": "Splitting, replacing, and joining strings.",
+        "code": "const str = 'JavaScript Developer';\nconst parts = str.split(' '); // ['JavaScript', 'Developer']\nconst slug = parts.join('-').toLowerCase(); // 'javascript-developer'\nconsole.log(`Slug: ${slug}`);"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-strings-mcq-1",
+        "question": "Why does str.toUpperCase() not change str itself?",
+        "options": [
+          "JavaScript strings are immutable primitives",
+          "toUpperCase() is asynchronous",
+          "Only let variables allow mutation",
+          "Strings can only be modified inside functions"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Strings in JavaScript are immutable primitives; method calls return new string values."
+      }
+    ]
+  },
+  {
+    "id": "js-sets-maps",
+    "title": "Sets & Maps (Keyed Collections)",
+    "category": "JAVASCRIPT",
+    "difficulty": "Intermediate",
+    "isImportant": true,
+    "summary": "Map (key-value storage with arbitrary keys) vs Set (unique value collection), WeakMap and WeakSet garbage collection mechanics.",
+    "roles": [
+      "frontend",
+      "backend",
+      "fullstack",
+      "dsa"
+    ],
+    "explanation": {
+      "overview": "ES6 introduced Map and Set for keyed collections. Unlike plain objects, Map allows any data type (objects, functions, primitives) as keys and preserves insertion order.",
+      "sections": [
+        {
+          "heading": "Map vs Plain Object",
+          "content": "Map keys can be any value (including objects), features a .size property, guarantees insertion order iteration, and has better performance for frequent additions/removals.",
+          "bulletPoints": [
+            "Set: Guarantees unique values; duplicate additions are ignored.",
+            "WeakMap / WeakSet: Keys must be objects; held weakly to allow garbage collection when no other references exist."
+          ]
+        }
+      ]
+    },
+    "keyTakeaways": [
+      "Use Map when keys are non-strings or for frequent dynamic key addition.",
+      "Use Set to automatically eliminate duplicates from array collections.",
+      "Linked with DSA Hash Maps & Sets topics."
+    ],
+    "codeExamples": [
+      {
+        "title": "Map & Set Usage",
+        "description": "Removing duplicates with Set and using object keys in Map.",
+        "code": "const dupes = [1, 2, 2, 3, 4, 4];\nconst unique = [...new Set(dupes)]; // [1, 2, 3, 4]\n\nconst map = new Map();\nconst keyObj = { id: 101 };\nmap.set(keyObj, 'User Record');\nconsole.log(map.get(keyObj)); // 'User Record'"
+      }
+    ],
+    "mcqs": [
+      {
+        "id": "js-sets-maps-mcq-1",
+        "question": "What is the primary advantage of Map over a plain JavaScript object?",
+        "options": [
+          "Map keys can be of any data type, including objects and functions",
+          "Map is stored as XML",
+          "Map disables garbage collection",
+          "Map only accepts string keys"
+        ],
+        "correctAnswer": 0,
+        "explanation": "Unlike objects whose keys are coerced to strings/symbols, Map allows any value as a key."
+      }
+    ]
   }
 ]

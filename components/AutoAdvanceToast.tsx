@@ -16,9 +16,10 @@ export function AutoAdvanceToast() {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [timeLeft, setTimeLeft] = useState(5);
+  const [timeLeft, setTimeLeft] = useState(3);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const toastContainerRef = useRef<HTMLDivElement | null>(null);
 
   const handleNextImmediately = () => {
     if (!autoAdvanceToast) return;
@@ -38,13 +39,22 @@ export function AutoAdvanceToast() {
 
   useEffect(() => {
     if (!autoAdvanceToast) {
-      setTimeLeft(5);
+      setTimeLeft(3);
       return;
     }
 
-    setTimeLeft(5);
+    setTimeLeft(3);
 
-    // Countdown interval for numerical display (5, 4, 3, 2, 1)
+    // Global click listener to cancel auto-advance timer when user clicks any button/link/interactive element outside toast
+    const handleGlobalClick = (e: MouseEvent) => {
+      if (toastContainerRef.current && !toastContainerRef.current.contains(e.target as Node)) {
+        clearAutoAdvanceToast();
+      }
+    };
+
+    window.addEventListener("click", handleGlobalClick, { capture: true });
+
+    // Countdown interval for numerical display (3, 2, 1)
     intervalRef.current = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
@@ -55,7 +65,7 @@ export function AutoAdvanceToast() {
       });
     }, 1000);
 
-    // Auto navigate after exactly 5000ms
+    // Auto navigate after exactly 3000ms
     timerRef.current = setTimeout(() => {
       triggerHaptic("medium");
       const targetId = autoAdvanceToast.targetTopicId;
@@ -64,9 +74,10 @@ export function AutoAdvanceToast() {
       if (pathname !== "/") {
         router.push("/");
       }
-    }, 5000);
+    }, 3000);
 
     return () => {
+      window.removeEventListener("click", handleGlobalClick, { capture: true });
       if (timerRef.current) clearTimeout(timerRef.current);
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -83,12 +94,12 @@ export function AutoAdvanceToast() {
           transition={{ duration: 0.25, ease: "easeOut" }}
           className="fixed top-5 left-1/2 -translate-x-1/2 z-[100] w-[92%] max-w-lg font-sans pointer-events-auto"
         >
-          <div className="relative overflow-hidden rounded-2xl bg-card/95 backdrop-blur-xl border border-border shadow-[0_12px_40px_rgba(0,0,0,0.6)] p-4 flex items-center justify-between gap-3 sm:gap-4">
-            {/* Animated 5-Second Shrinking Progress Bar at Bottom */}
+          <div ref={toastContainerRef} className="relative overflow-hidden rounded-2xl bg-card/95 backdrop-blur-xl border border-border shadow-[0_12px_40px_rgba(0,0,0,0.6)] p-4 flex items-center justify-between gap-3 sm:gap-4">
+            {/* Animated 3-Second Shrinking Progress Bar at Bottom */}
             <motion.div
               initial={{ scaleX: 1 }}
               animate={{ scaleX: 0 }}
-              transition={{ duration: 5, ease: "linear" }}
+              transition={{ duration: 3, ease: "linear" }}
               className="absolute bottom-0 left-0 right-0 h-1 bg-foreground origin-left"
             />
 

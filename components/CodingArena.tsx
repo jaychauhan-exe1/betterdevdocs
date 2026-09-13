@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useUser } from "@clerk/nextjs";
 import AuthModal from "./AuthModal";
 import { useStudyStore } from "@/store/useStudyStore";
+import { executeUserCode } from "@/lib/codeRunner";
 import { CODING_CHALLENGES, CodingChallenge, CodingDifficulty, TestCase } from "@/data/coding-challenges";
 import { ROLES } from "@/data/roles";
 import { Card } from "@/components/ui/card";
@@ -108,16 +109,16 @@ export default function CodingArena() {
     return CODING_CHALLENGES[0];
   }, [activeChallengeId]);
 
-  // Load code for challenge (saved attempt, solved code, or starter code)
+  // Load code for challenge (saved attempt, solved code, or starter code) when challenge ID changes
   useEffect(() => {
     if (!currentChallenge) return;
     const solvedData = solvedChallenges[currentChallenge.id];
     const savedAttempt = challengeAttempts[currentChallenge.id];
 
-    if (solvedData?.code) {
-      setCode(solvedData.code);
-    } else if (savedAttempt) {
+    if (savedAttempt) {
       setCode(savedAttempt);
+    } else if (solvedData?.code) {
+      setCode(solvedData.code);
     } else {
       setCode(currentChallenge.starterCode);
     }
@@ -128,7 +129,7 @@ export default function CodingArena() {
     setRevealedHints(0);
     setSolutionRevealed(false);
     setActiveTab("problem");
-  }, [activeChallengeId, currentChallenge, solvedChallenges, challengeAttempts]);
+  }, [activeChallengeId]);
 
   // Filter challenges by role, difficulty, status, and search query
   const filteredChallenges = useMemo(() => {
@@ -256,7 +257,7 @@ export default function CodingArena() {
     return { results, allPassed };
   };
 
-  // Run Code (Executes code and captures Console Output)
+  // Run Code (Executes code in isolated Web Worker with 3s infinite loop timeout protection)
   const handleRunCode = async () => {
     if (!currentChallenge || isRunning || isSubmitting) return;
     if (!isSignedIn) {
@@ -268,88 +269,19 @@ export default function CodingArena() {
     setConsoleLogs(null);
     setExecutionMode("run");
 
-    await new Promise((r) => setTimeout(r, 50));
+    const execRes = await executeUserCode(code, currentChallenge.testCases, 3000);
 
-    const logs: ConsoleOutputLine[] = [];
-
-    const formatArg = (arg: any): string => {
-      if (arg === undefined) return "undefined";
-      if (arg === null) return "null";
-      if (typeof arg === "string") return arg;
-      if (typeof arg === "function") return arg.toString();
-      try {
-        return JSON.stringify(arg, null, 2);
-      } catch {
-        return String(arg);
-      }
-    };
-
-    const customConsole = {
-      log: (...args: any[]) => logs.push({ type: "log", text: args.map(formatArg).join(" ") }),
-      warn: (...args: any[]) => logs.push({ type: "warn", text: args.map(formatArg).join(" ") }),
-      error: (...args: any[]) => logs.push({ type: "error", text: args.map(formatArg).join(" ") }),
-      info: (...args: any[]) => logs.push({ type: "info", text: args.map(formatArg).join(" ") }),
-    };
-
-    const startTime = performance.now();
-
-    try {
-      // 1. Execute user top-level code & custom console log calls
-      const runner = new Function("console", "setTimeout", "queueMicrotask", code);
-      const topResult = runner(customConsole, setTimeout, queueMicrotask);
-
-      if (topResult instanceof Promise) {
-        await topResult;
-      }
-
-      // 2. Automatically evaluate sample test cases to show live returns in console
-      for (let idx = 0; idx < currentChallenge.testCases.length; idx++) {
-        const tc = currentChallenge.testCases[idx];
-        try {
-          const evalCode = `${code}\n\nreturn (${tc.input});`;
-          const tcRunner = new Function("console", "setTimeout", "queueMicrotask", evalCode);
-          const res = tcRunner(
-            { log: () => { }, warn: () => { }, error: () => { }, info: () => { } },
-            setTimeout,
-            queueMicrotask
-          );
-          const resolved = res instanceof Promise ? await res : res;
-          const formattedRes = typeof resolved === "string" ? `"${resolved}"` : JSON.stringify(resolved);
-          logs.push({
-            type: "system",
-            text: `▶ Example ${idx + 1}: ${tc.input} => ${formattedRes ?? "undefined"}`,
-          });
-        } catch (err: any) {
-          logs.push({
-            type: "error",
-            text: `▶ Example ${idx + 1}: ${tc.input} => Error: ${err?.message || String(err)}`,
-          });
-        }
-      }
-
-      const endTime = performance.now();
-      setConsoleDuration(Math.round((endTime - startTime) * 10) / 10);
-    } catch (err: any) {
-      const endTime = performance.now();
-      setConsoleDuration(Math.round((endTime - startTime) * 10) / 10);
-      logs.push({
-        type: "error",
-        text: `Runtime Error: ${err?.message || String(err)}`,
-      });
-    }
-
-    if (logs.length === 0) {
-      logs.push({
+    setConsoleDuration(execRes.durationMs);
+    setConsoleLogs(execRes.logs.length > 0 ? execRes.logs : [
+      {
         type: "system",
         text: "// Code executed successfully with zero console log statements.",
-      });
-    }
-
-    setConsoleLogs(logs);
+      },
+    ]);
     setIsRunning(false);
   };
 
-  // Submit Solution (Evaluates test cases and marks challenge solved if passed)
+  // Submit Solution (Evaluates test cases safely in Web Worker and awards points)
   const handleSubmitCode = async () => {
     if (!currentChallenge || isRunning || isSubmitting) return;
     if (!isSignedIn) {
@@ -361,18 +293,18 @@ export default function CodingArena() {
     setTestResults(null);
     setExecutionMode("submit");
 
-    const { results, allPassed } = await runTestSuite();
+    const execRes = await executeUserCode(code, currentChallenge.testCases, 3000);
 
-    setTestResults(results);
+    setTestResults(execRes.results);
     setIsSubmitting(false);
 
-    // Only mark solved and award points if submitted AND all test cases pass
+    // Only mark solved and award points if submitted AND all test cases pass without timing out
     const isAlreadySolved = Boolean(solvedChallenges[currentChallenge.id]);
-    if (allPassed && !isAlreadySolved) {
+    if (execRes.allPassed && !execRes.timedOut && !isAlreadySolved) {
       markChallengeSolved(currentChallenge.id, code);
       setCelebrationPoints(currentChallenge.points);
       setShowCelebration(true);
-    } else if (!allPassed) {
+    } else if (!execRes.allPassed || execRes.timedOut) {
       recordFailedSubmit(currentChallenge.id);
     }
   };

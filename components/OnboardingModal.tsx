@@ -156,10 +156,11 @@ export function OnboardingModal() {
   const setCompletedOnboarding = useStudyStore((state) => state.setCompletedOnboarding);
   const isOnboardingOpen = useStudyStore((state) => state.isOnboardingOpen);
   const setOnboardingOpen = useStudyStore((state) => state.setOnboardingOpen);
+  const isCloudFetched = useStudyStore((state) => state.isCloudFetched);
 
   const shouldShow =
     isLoaded &&
-    (isOnboardingOpen || (isSignedIn && (!hasCompletedOnboarding || selectedRole === null)));
+    (isOnboardingOpen || (isSignedIn && isCloudFetched && !hasCompletedOnboarding));
 
   const [step, setStep] = useState<number>(1);
   const [chosenRole, setChosenRole] = useState<string>(selectedRole || "all");

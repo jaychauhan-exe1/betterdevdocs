@@ -6,6 +6,8 @@ import { CODING_CHALLENGES } from "@/data/coding-challenges";
 
 import { calculateUserPoints, calculateCodingPoints, PointsSummary } from "@/lib/points";
 
+import { getLinkedTopicIds } from "@/lib/linkedTopics";
+
 export type FilterState = "all" | "uncompleted" | "completed";
 export type SyncStatus = "idle" | "syncing" | "synced" | "error";
 
@@ -40,6 +42,7 @@ interface StudyState {
   // Cloud Sync State
   syncStatus: SyncStatus;
   isAuthenticated: boolean;
+  isCloudFetched: boolean;
 
   // Auto-advance Toast State
   autoAdvanceToast: {
@@ -156,6 +159,7 @@ export const useStudyStore = create<StudyState>()(
       collapsedCategories: {},
       syncStatus: "idle",
       isAuthenticated: false,
+      isCloudFetched: false,
       autoAdvanceToast: null,
       hasCompletedOnboarding: false,
       onboardingData: null,
@@ -259,9 +263,15 @@ export const useStudyStore = create<StudyState>()(
 
         set((state) => {
           const wasCompleted = state.completedTopics.includes(id);
-          updatedCompleted = wasCompleted
-            ? state.completedTopics.filter((t) => t !== id)
-            : [...state.completedTopics, id];
+          const linkedIds = getLinkedTopicIds(id);
+          const targets = [id, ...linkedIds];
+
+          if (wasCompleted) {
+            updatedCompleted = state.completedTopics.filter((t) => !targets.includes(t));
+          } else {
+            const newSet = new Set([...state.completedTopics, ...targets]);
+            updatedCompleted = Array.from(newSet);
+          }
 
           newCollapsed = { ...state.collapsedCategories };
 
@@ -472,6 +482,7 @@ export const useStudyStore = create<StudyState>()(
           hasCompletedOnboarding: false,
           onboardingData: null,
           syncStatus: "idle",
+          isCloudFetched: false,
         });
       },
 
@@ -499,6 +510,7 @@ export const useStudyStore = create<StudyState>()(
           submittedQuizzes: serverSubmittedQuizzes || {},
           topicNotes: serverTopicNotes || {},
           solvedChallenges: serverSolvedChallenges || {},
+          isCloudFetched: true,
           syncStatus: "synced",
         }));
       },
