@@ -102,7 +102,7 @@ export async function GET() {
     });
 
     // Assign 1-indexed ranks
-    let currentUserRank = 1;
+    let currentUserRank: number | null = null;
     const rankedLeaderboard = leaderboardUsers.map((user, idx) => {
       const rank = idx + 1;
       if (user.isCurrentUser) {

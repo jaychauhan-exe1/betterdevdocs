@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useStudyStore } from "@/store/useStudyStore";
 import { useUser } from "@clerk/nextjs";
 import { calculateUserPoints, formatPoints, formatKPoints } from "@/lib/points";
-import { LeaderboardUser, getLocalUserLeaderboardEntry } from "@/lib/leaderboard";
+import { LeaderboardUser, getLocalUserLeaderboardEntry, computeRankedLeaderboard } from "@/lib/leaderboard";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -60,24 +60,30 @@ export default function LeaderboardView() {
         return res.json();
       })
       .then((data) => {
-        if (Array.isArray(data?.leaderboard) && data.leaderboard.length > 0) {
-          setLeaderboardState({
-            leaderboard: data.leaderboard,
-            currentUserRank: data.currentUserRank || 1,
-            totalParticipants: data.totalParticipants || data.leaderboard.length,
-          });
-        }
+        const rawServerUsers: LeaderboardUser[] = Array.isArray(data?.leaderboard) ? data.leaderboard : [];
+        const rankedResult = computeRankedLeaderboard(rawServerUsers, localUserEntry, Boolean(user));
+        setLeaderboardState({
+          leaderboard: rankedResult.leaderboard,
+          currentUserRank: rankedResult.currentUserRank,
+          totalParticipants: rankedResult.totalParticipants,
+        });
       })
       .catch((err) => {
         if (err.name === "AbortError") return;
         console.warn("Falling back to active user entry:", err);
+        const fallback = computeRankedLeaderboard([], localUserEntry, Boolean(user));
+        setLeaderboardState({
+          leaderboard: fallback.leaderboard,
+          currentUserRank: fallback.currentUserRank,
+          totalParticipants: fallback.totalParticipants,
+        });
       })
       .finally(() => {
         setLoading(false);
       });
 
     return () => controller.abort();
-  }, [user, currentUserPoints.totalPoints]);
+  }, [user, localUserEntry]);
 
   const filteredLeaderboard = useMemo(() => {
     if (!searchQuery.trim()) return leaderboardState.leaderboard;
@@ -89,6 +95,23 @@ export default function LeaderboardView() {
 
   return (
     <div className="max-w-5xl mx-auto space-y-6 pb-24 font-normal">
+      {/* Logged Out Guest Notice Banner */}
+      {!user && (
+        <div className="p-4 rounded-2xl bg-secondary/40 border border-border/80 flex items-center justify-between gap-4 text-xs font-normal">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-xl bg-secondary border border-border text-amber-400 shrink-0">
+              <Users className="w-4 h-4" />
+            </div>
+            <div>
+              <span className="font-bold text-foreground block">Browsing as Anonymous / Guest</span>
+              <span className="text-muted-foreground">
+                Your rank is calculated from your local browser points. Sign in or create an account to sync your progress to the cloud database!
+              </span>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Top Banner / Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Your Rank Card */}
@@ -105,6 +128,11 @@ export default function LeaderboardView() {
                 of {leaderboardState.totalParticipants} {leaderboardState.totalParticipants === 1 ? "user" : "users"}
               </span>
             </div>
+            {!user && (
+              <span className="inline-block text-[11px] text-amber-400/90 font-medium">
+                (Guest Local Rank)
+              </span>
+            )}
           </div>
           <div className="p-3.5 rounded-2xl bg-secondary border border-border text-foreground">
             <Trophy className="w-7 h-7 text-foreground" />
