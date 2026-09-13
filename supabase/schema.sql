@@ -1,6 +1,8 @@
 -- Create user_progress table for storing topic completion progress and target role per Clerk user
 CREATE TABLE IF NOT EXISTS public.user_progress (
   user_id TEXT PRIMARY KEY,
+  username TEXT,
+  user_email TEXT,
   completed_topics JSONB NOT NULL DEFAULT '[]'::jsonb,
   active_topic_id TEXT,
   selected_role TEXT DEFAULT 'all',
@@ -14,6 +16,8 @@ CREATE TABLE IF NOT EXISTS public.user_progress (
 
 -- Ensure all columns exist for existing tables
 ALTER TABLE public.user_progress 
+  ADD COLUMN IF NOT EXISTS username TEXT,
+  ADD COLUMN IF NOT EXISTS user_email TEXT,
   ADD COLUMN IF NOT EXISTS selected_role TEXT DEFAULT 'all',
   ADD COLUMN IF NOT EXISTS has_completed_onboarding BOOLEAN DEFAULT false,
   ADD COLUMN IF NOT EXISTS onboarding_data JSONB NOT NULL DEFAULT '{}'::jsonb,
