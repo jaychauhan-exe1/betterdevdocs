@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { ROLES } from "@/data/roles";
 import { useStudyStore } from "@/store/useStudyStore";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Globe,
   Layout,
@@ -34,6 +35,9 @@ import {
   Users,
   Megaphone,
   HelpCircle,
+  AtSign,
+  Loader2,
+  User as UserIcon,
 } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import { triggerHaptic } from "@/lib/haptics";
@@ -150,6 +154,8 @@ const SOURCE_OPTIONS = [
 
 export function OnboardingModal() {
   const { isSignedIn, isLoaded } = useAuth();
+  const { user } = useUser();
+
   const selectedRole = useStudyStore((state) => state.selectedRole);
   const setSelectedRole = useStudyStore((state) => state.setSelectedRole);
   const hasCompletedOnboarding = useStudyStore((state) => state.hasCompletedOnboarding);
@@ -162,17 +168,69 @@ export function OnboardingModal() {
     isLoaded &&
     (isOnboardingOpen || (isSignedIn && isCloudFetched && !hasCompletedOnboarding));
 
+  // Determine if user needs to choose a username (e.g. Google OAuth user without username)
+  const needsUsername = Boolean(isSignedIn && user && !user.username);
+  const totalSteps = needsUsername ? 5 : 4;
+
   const [step, setStep] = useState<number>(1);
   const [chosenRole, setChosenRole] = useState<string>(selectedRole || "all");
   const [chosenGoal, setChosenGoal] = useState<string>("learn");
   const [chosenLevel, setChosenLevel] = useState<string>("intermediate");
   const [chosenSource, setChosenSource] = useState<string>("github");
 
+  // Custom username state for onboarding
+  const [customUsername, setCustomUsername] = useState<string>("");
+  const [usernameError, setUsernameError] = useState<string>("");
+  const [isSavingUsername, setIsSavingUsername] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (user && !customUsername) {
+      const initialName =
+        user.username ||
+        user.firstName?.toLowerCase() ||
+        user.primaryEmailAddress?.emailAddress.split("@")[0] ||
+        "";
+      setCustomUsername(initialName.toLowerCase().replace(/[^a-z0-9_]/g, ""));
+    }
+  }, [user, customUsername]);
+
   if (!shouldShow) return null;
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
     triggerHaptic("light");
-    if (step < 4) {
+
+    // Handle Username Step Validation & Saving if required
+    if (needsUsername && step === 1) {
+      const cleaned = customUsername.trim().toLowerCase().replace(/[^a-z0-9_]/g, "");
+      if (!cleaned || cleaned.length < 3) {
+        setUsernameError("Username must be at least 3 characters (letters, numbers, underscores).");
+        return;
+      }
+
+      if (cleaned.length > 20) {
+        setUsernameError("Username must be 20 characters or less.");
+        return;
+      }
+
+      setIsSavingUsername(true);
+      setUsernameError("");
+
+      try {
+        if (user) {
+          await user.update({ username: cleaned });
+        }
+        setStep(step + 1);
+      } catch (err: any) {
+        console.error("Failed to update username:", err);
+        const msg = err?.errors?.[0]?.message || "Username is already taken or invalid. Please try another handle.";
+        setUsernameError(msg);
+      } finally {
+        setIsSavingUsername(false);
+      }
+      return;
+    }
+
+    if (step < totalSteps) {
       setStep(step + 1);
     } else {
       handleComplete();
@@ -193,6 +251,7 @@ export function OnboardingModal() {
       goal: chosenGoal,
       level: chosenLevel,
       source: chosenSource,
+      username: customUsername || undefined,
     });
     setOnboardingOpen(false);
   };
@@ -224,13 +283,13 @@ export function OnboardingModal() {
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               <Sparkles className="w-4 h-4 text-foreground" />
               <span>Developer Onboarding</span>
-              <span className="text-foreground font-mono">({step}/4)</span>
+              <span className="text-foreground font-mono">({step}/{totalSteps})</span>
             </div>
 
             <div className="w-36 h-2 bg-secondary rounded-full overflow-hidden border border-border">
               <motion.div
-                initial={{ width: "25%" }}
-                animate={{ width: `${(step / 4) * 100}%` }}
+                initial={{ width: "20%" }}
+                animate={{ width: `${(step / totalSteps) * 100}%` }}
                 transition={{ duration: 0.3 }}
                 className="h-full bg-foreground rounded-full"
               />
@@ -241,11 +300,70 @@ export function OnboardingModal() {
           <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1">
             <AnimatePresence mode="wait">
               {/* ==============================================================
-                  STEP 1: CHOOSE TARGET ROLE (CLEAN NO SUBTEXT)
+                  STEP: CHOOSE DEVELOPER HANDLE / USERNAME (If missing)
                   ============================================================== */}
-              {step === 1 && (
+              {needsUsername && step === 1 && (
                 <motion.div
-                  key="step1"
+                  key="stepUsername"
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6"
+                >
+                  <div className="space-y-1.5">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-secondary/80 border border-border text-xs font-semibold text-foreground mb-1">
+                      <UserIcon className="w-3.5 h-3.5 text-foreground" />
+                      <span>Profile Setup</span>
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-foreground">
+                      Choose Your Developer Handle
+                    </h2>
+                    <p className="text-sm text-muted-foreground font-normal">
+                      Pick a unique username for the global developer leaderboard and your study profile.
+                    </p>
+                  </div>
+
+                  <div className="bg-secondary/20 border border-border rounded-2xl p-5 sm:p-6 space-y-4 max-w-lg">
+                    <div className="space-y-2">
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
+                        Developer Username <span className="text-red-400">*</span>
+                      </label>
+                      <div className="relative">
+                        <AtSign className="w-4 h-4 absolute left-3.5 top-3.5 text-muted-foreground" />
+                        <Input
+                          type="text"
+                          placeholder="alex_dev"
+                          value={customUsername}
+                          onChange={(e) => {
+                            const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, "");
+                            setCustomUsername(val);
+                            if (usernameError) setUsernameError("");
+                          }}
+                          className="bg-secondary/40 border-border text-foreground pl-10 rounded-xl h-11 text-sm font-medium focus:border-foreground font-mono"
+                          autoFocus
+                        />
+                      </div>
+                      <p className="text-[11px] text-muted-foreground">
+                        Your handle will appear as <strong className="text-foreground">@{customUsername || "handle"}</strong> on global rankings.
+                      </p>
+                    </div>
+
+                    {usernameError && (
+                      <div className="p-3 rounded-xl bg-red-500/10 border border-red-500/30 text-xs text-red-400">
+                        {usernameError}
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              )}
+
+              {/* ==============================================================
+                  STEP: CHOOSE TARGET ROLE
+                  ============================================================== */}
+              {(needsUsername ? step === 2 : step === 1) && (
+                <motion.div
+                  key="stepRole"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -307,11 +425,11 @@ export function OnboardingModal() {
               )}
 
               {/* ==============================================================
-                  STEP 2: WHAT ARE YOU HERE FOR? (PRIMARY GOAL)
+                  STEP: WHAT ARE YOU HERE FOR? (PRIMARY GOAL)
                   ============================================================== */}
-              {step === 2 && (
+              {(needsUsername ? step === 3 : step === 2) && (
                 <motion.div
-                  key="step2"
+                  key="stepGoal"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -373,11 +491,11 @@ export function OnboardingModal() {
               )}
 
               {/* ==============================================================
-                  STEP 3: EXPERIENCE LEVEL
+                  STEP: EXPERIENCE LEVEL
                   ============================================================== */}
-              {step === 3 && (
+              {(needsUsername ? step === 4 : step === 3) && (
                 <motion.div
-                  key="step3"
+                  key="stepLevel"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -439,11 +557,11 @@ export function OnboardingModal() {
               )}
 
               {/* ==============================================================
-                  STEP 4: HOW DID YOU HEAR ABOUT US?
+                  STEP: HOW DID YOU HEAR ABOUT US?
                   ============================================================== */}
-              {step === 4 && (
+              {(needsUsername ? step === 5 : step === 4) && (
                 <motion.div
-                  key="step4"
+                  key="stepSource"
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20 }}
@@ -509,6 +627,7 @@ export function OnboardingModal() {
                   variant="outline"
                   size="sm"
                   onClick={handlePrevStep}
+                  disabled={isSavingUsername}
                   className="flex items-center gap-1.5 text-xs font-medium cursor-pointer"
                 >
                   <ArrowLeft className="w-3.5 h-3.5" />
@@ -519,6 +638,7 @@ export function OnboardingModal() {
                   variant="ghost"
                   size="sm"
                   onClick={handleSkip}
+                  disabled={isSavingUsername}
                   className="text-xs text-muted-foreground hover:text-foreground font-normal cursor-pointer"
                 >
                   Skip Setup
@@ -531,10 +651,20 @@ export function OnboardingModal() {
                 variant="default"
                 size="sm"
                 onClick={handleNextStep}
+                disabled={isSavingUsername}
                 className="bg-foreground text-background hover:bg-foreground/90 font-semibold text-xs h-9 px-4 sm:px-6 rounded-xl flex items-center gap-1.5 shadow-sm cursor-pointer"
               >
-                <span>{step === 4 ? "Complete Setup" : "Continue"}</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                {isSavingUsername ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Saving Handle...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>{step === totalSteps ? "Complete Setup" : "Continue"}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </>
+                )}
               </Button>
             </div>
           </div>

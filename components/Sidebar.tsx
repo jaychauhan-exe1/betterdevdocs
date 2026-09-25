@@ -503,15 +503,14 @@ export default function Sidebar() {
 
         {/* Footer */}
         <div className="p-3.5 border-t border-border bg-card text-xs text-muted-foreground flex items-center justify-between font-normal">
-          <span>Contribute on</span>
+          <span>Developed by:</span>
           <a
-            href="https://github.com/jaychauhan-exe1/devdocs"
+            href="https://jaysinghchauhan.com"
             target="_blank"
             rel="noopener noreferrer"
             className="text-muted-foreground hover:text-foreground transition-colors flex gap-2 items-center"
           >
-            <FaGithub />
-            <span>Github</span>
+            <span>Jay Singh Chauhan</span>
           </a>
         </div>
       </aside >

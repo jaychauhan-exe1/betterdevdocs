@@ -55,7 +55,7 @@ interface StudyState {
   setTopics: (topics: Topic[]) => void;
   fetchTopics: () => Promise<void>;
   setSelectedRole: (roleId: string) => void;
-  setCompletedOnboarding: (data?: { goal?: string; level?: string; source?: string }) => void;
+  setCompletedOnboarding: (data?: { goal?: string; level?: string; source?: string; username?: string }) => void;
   setOnboardingOpen: (isOpen: boolean) => void;
   setActiveTopicId: (id: string) => void;
   toggleTopicComplete: (id: string) => void;
