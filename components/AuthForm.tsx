@@ -455,6 +455,8 @@ export default function AuthForm({
             </button>
           </div>
         </form>
+        {/* Element required by Clerk for Smart CAPTCHA bot protection */}
+        <div id="clerk-captcha" />
       </div>
     );
   }
@@ -630,6 +632,8 @@ export default function AuthForm({
           )}
         </Button>
       </form>
+      {/* Element required by Clerk for Smart CAPTCHA bot protection */}
+      <div id="clerk-captcha" />
     </div>
   );
 }
